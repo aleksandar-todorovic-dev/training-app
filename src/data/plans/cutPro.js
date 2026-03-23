@@ -1,0 +1,24 @@
+export const cutPro = {
+  id: "cut-pro",
+  name: "Cut Pro",
+  goal: "Fat loss / muscle retention",
+  shortDescription:
+    "Lower-volume structured cut plan designed to preserve strength and control fatigue.",
+  audience:
+    "Natural lifters who want a structured cut without losing performance.",
+  cycleLabel: "6 training days / 9-day cycle",
+  intro:
+    "Lower-volume structured cut plan designed to preserve strength and control fatigue.",
+  coreSystem: [
+    "6 training days in a 9-day cycle",
+    "Train 2 days, rest 1 day",
+    "Each major muscle group is trained twice per cycle",
+    "Core work is integrated into the cycle",
+  ],
+  keyRules: [
+    "Log weight, reps, and RIR",
+    "Keep technique and recovery under control",
+    "Aim to preserve strength while cutting",
+  ],
+  dayOrder: ["d1", "d2", "d3", "d4", "d5", "d6"],
+};
