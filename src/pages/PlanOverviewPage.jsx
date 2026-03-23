@@ -7,11 +7,25 @@ import BackButton from "../components/common/BackButton";
 import PrimaryButton from "../components/common/PrimaryButton";
 import SecondaryButton from "../components/common/SecondaryButton";
 import { getPlanById } from "../data/plans";
+import { getDaysByPlanId } from "../data/days";
 import { UI_ACTION_ROW, UI_STACK_LG, UI_TEXT_MUTED } from "../styles/ui";
 
 export default function PlanOverviewPage() {
   const { planId } = useParams();
   const plan = getPlanById(planId);
+  const days = getDaysByPlanId(planId);
+
+  const trainingDayOrder = [
+    `${days[0]?.label} — ${days[0]?.name}`,
+    `${days[1]?.label} — ${days[1]?.name}`,
+    "Rest / light recovery",
+    `${days[2]?.label} — ${days[2]?.name}`,
+    `${days[3]?.label} — ${days[3]?.name}`,
+    "Rest / light recovery",
+    `${days[4]?.label} — ${days[4]?.name}`,
+    `${days[5]?.label} — ${days[5]?.name}`,
+    "Rest / light recovery",
+  ];
 
   if (!plan) {
     return (
@@ -83,9 +97,9 @@ export default function PlanOverviewPage() {
             </h2>
 
             <div className={UI_ACTION_ROW}>
-              {plan.dayOrder.map((dayId) => (
-                <p key={dayId} className={UI_TEXT_MUTED}>
-                  {dayId.toUpperCase()}
+              {trainingDayOrder.map((item, index) => (
+                <p key={`${item}-${index}`} className={UI_TEXT_MUTED}>
+                  {item}
                 </p>
               ))}
             </div>
