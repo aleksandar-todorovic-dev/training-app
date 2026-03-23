@@ -1,7 +1,7 @@
 export const bulkPro = {
   id: "bulk-pro",
   name: "Bulk Pro",
-  goal: "Lean bulk / muscle growth",
+  goal: "Goal: Lean bulk / muscle growth",
   shortDescription:
     "Higher-volume plan built for size, strength, and long-term progression.",
   audience:

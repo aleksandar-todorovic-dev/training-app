@@ -1,7 +1,7 @@
 export const cutPro = {
   id: "cut-pro",
   name: "Cut Pro",
-  goal: "Fat loss / muscle retention",
+  goal: "Goal: Fat loss / muscle retention",
   shortDescription:
     "Lower-volume structured cut plan designed to preserve strength and control fatigue.",
   audience:

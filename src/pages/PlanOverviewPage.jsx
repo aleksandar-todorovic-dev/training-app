@@ -52,7 +52,13 @@ export default function PlanOverviewPage() {
   return (
     <AppShell>
       <div className={UI_STACK_LG}>
-        <BackButton to="/">Back to Home</BackButton>
+        <div className="flex items-center justify-between gap-3">
+          <BackButton to="/">Back to Home</BackButton>
+
+          <SecondaryButton to={`/plan/${plan.id}/guide`}>
+            View guide
+          </SecondaryButton>
+        </div>
 
         <ScreenHeader title={plan.name} subtitle={plan.goal} />
 
@@ -64,7 +70,9 @@ export default function PlanOverviewPage() {
 
         <SectionCard>
           <div className={UI_STACK_LG}>
-            <h2 className="text-lg font-semibold text-zinc-100">Core system</h2>
+            <h2 className="text-lg font-semibold text-zinc-100">
+              Training system
+            </h2>
 
             <div className={UI_ACTION_ROW}>
               {plan.coreSystem.map((item) => (
@@ -109,16 +117,8 @@ export default function PlanOverviewPage() {
         <SectionCard>
           <div className={UI_ACTION_ROW}>
             <PrimaryButton to={`/plan/${plan.id}/cycle`}>
-              Open Cycle
+              Start cycle
             </PrimaryButton>
-
-            <SecondaryButton to={`/plan/${plan.id}/guide`}>
-              Open Guide
-            </SecondaryButton>
-
-            <SecondaryButton to={`/plan/${plan.id}/end-cycle`}>
-              Open End Cycle
-            </SecondaryButton>
           </div>
         </SectionCard>
       </div>
