@@ -1,7 +1,7 @@
 export const bulkPro = {
   id: "bulk-pro",
   name: "Bulk Pro",
-  goal: "Goal: Lean bulk / muscle growth",
+  goal: "Lean bulk / muscle growth",
   shortDescription:
     "Higher-volume plan built for size, strength, and long-term progression.",
   audience:
@@ -10,7 +10,7 @@ export const bulkPro = {
   intro: "Higher-volume plan for size, strength, and long-term progression.",
   coreSystem: [
     "6 training days in a 9-day cycle",
-    "Train 2 days, rest 1 day",
+    "Train 2 days, rest 1 day, repeat",
     "Each major muscle group is trained twice per cycle",
     "Core work is integrated into the cycle",
   ],

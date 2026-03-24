@@ -10,7 +10,7 @@ export default function HomePage() {
       <div className={UI_STACK_LG}>
         <ScreenHeader
           title="Training App"
-          subtitle="Choose a structured plan to enter the MVP flow."
+          subtitle="Structured training for real life. Choose a plan and start your cycle."
         />
 
         <div className={UI_STACK_LG}>

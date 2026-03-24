@@ -1,7 +1,7 @@
 export const cutPro = {
   id: "cut-pro",
   name: "Cut Pro",
-  goal: "Goal: Fat loss / muscle retention",
+  goal: "Fat loss / muscle retention",
   shortDescription:
     "Lower-volume structured cut plan designed to preserve strength and control fatigue.",
   audience:
@@ -11,7 +11,7 @@ export const cutPro = {
     "Lower-volume structured cut plan designed to preserve strength and control fatigue.",
   coreSystem: [
     "6 training days in a 9-day cycle",
-    "Train 2 days, rest 1 day",
+    "Train 2 days, rest 1 day, repeat",
     "Each major muscle group is trained twice per cycle",
     "Core work is integrated into the cycle",
   ],
