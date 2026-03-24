@@ -29,7 +29,7 @@ Build a clean, focused, mobile-first training app that supports:
 
 Completed.
 
-Implemented so far:
+Implemented:
 
 - Vite + React project setup
 - Tailwind CSS configuration
@@ -40,23 +40,58 @@ Implemented so far:
 - placeholder navigation between screens
 - naming convention for plans, days, and core blocks
 
-Current result:
+### Phase 2 — Static content and screen structure
+
+In progress.
+
+Implemented so far:
+
+#### Static source data
+
+- `src/data/plans/`
+  - `bulkPro.js`
+  - `cutPro.js`
+  - `index.js`
+- `src/data/days/`
+  - `bulkProDays.js`
+  - `cutProDays.js`
+  - `index.js`
+
+Added helpers:
+
+- `getPlanById(planId)`
+- `getDaysByPlanId(planId)`
+
+#### Screens completed in static MVP form
+
+- **Home**
+  - renders real predefined plan cards from static plan data
+  - includes goal, audience, cycle label, and plan CTA
+- **Plan Overview**
+  - reads `planId` from the route
+  - loads the selected plan from static source data
+  - loads overview-level day data for the selected plan
+  - renders training system, key rules, and training day order
+  - includes top-level `View guide` action and primary `Start cycle` CTA
+
+#### Current result
 
 - the app boots correctly
 - all main routes exist
-- placeholder screens render without errors
-- the foundation shell is clickable
+- Home and Plan Overview are connected to real static data
+- route-based plan lookup works
+- the first static MVP flow is working:
 
-### Next step
+`Home -> Plan Overview`
 
-Phase 2 — Static content and screen structure
+## Next step
 
-Planned next:
+Continue Phase 2 with:
 
-- static data for both plans
-- static day data for D1–D6
+- Cycle screen
 - static exercise/core/warm-up/guide content
-- real static screen layouts based on the confirmed MVP screen map
+- Day screen structure
+- continued screen-by-screen responsive checks
 
 ## Tech stack
 
@@ -83,9 +118,10 @@ For MVP:
 - no cloud sync
 - local-first only
 
-## Current implemented foundation
+## Current implemented structure
 
-- `App.jsx -> AppRouter` thin entry structure
+- thin app entry:
+  - `App.jsx -> AppRouter`
 - shared layout primitives:
   - `AppShell`
   - `ScreenHeader`
@@ -94,6 +130,8 @@ For MVP:
   - `PrimaryButton`
   - `SecondaryButton`
   - `BackButton`
+- feature-specific plan UI:
+  - `PlanCard`
 - MVP route skeleton:
   - `/`
   - `/plan/:planId`
