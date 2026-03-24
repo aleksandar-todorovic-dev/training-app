@@ -39,6 +39,7 @@ Implemented:
 - shared UI structure for cards, sections, and buttons
 - placeholder navigation between screens
 - naming convention for plans, days, and core blocks
+- basic GitHub Actions CI (`lint` + `build`)
 
 ### Phase 2 — Static content and screen structure
 
@@ -67,6 +68,7 @@ Added helpers:
 - **Home**
   - renders real predefined plan cards from static plan data
   - includes goal, audience, cycle label, and plan CTA
+
 - **Plan Overview**
   - reads `planId` from the route
   - loads the selected plan from static source data
@@ -74,23 +76,37 @@ Added helpers:
   - renders training system, key rules, and training day order
   - includes top-level `View guide` action and primary `Start cycle` CTA
 
+- **Cycle / Day list**
+  - reads `planId` from the route
+  - loads the selected plan and D1-D6 day list from static source data
+  - renders a dedicated 3-line cycle header:
+    - plan name
+    - cycle label
+    - static progress summary
+  - renders reusable day cards with:
+    - day label
+    - day name
+    - optional core hint on D2 / D4 / D5
+    - static status text
+    - `Open day` CTA
+  - keeps Screen 3 strictly static-data-first with no runtime progress logic yet
+
 #### Current result
 
 - the app boots correctly
 - all main routes exist
-- Home and Plan Overview are connected to real static data
+- Home, Plan Overview, and Cycle are connected to real static data
 - route-based plan lookup works
-- the first static MVP flow is working:
+- the current static MVP flow is working:
 
-`Home -> Plan Overview`
+`Home -> Plan Overview -> Cycle`
 
 ## Next step
 
 Continue Phase 2 with:
 
-- Cycle screen
-- static exercise/core/warm-up/guide content
 - Day screen structure
+- static exercise/core/warm-up/guide content
 - continued screen-by-screen responsive checks
 
 ## Tech stack
@@ -99,6 +115,7 @@ Continue Phase 2 with:
 - Vite
 - Tailwind CSS
 - React Router
+- GitHub Actions (basic CI)
 
 ## Architecture direction
 
@@ -122,16 +139,22 @@ For MVP:
 
 - thin app entry:
   - `App.jsx -> AppRouter`
+
 - shared layout primitives:
   - `AppShell`
   - `ScreenHeader`
   - `SectionCard`
+
 - shared navigation/button primitives:
   - `PrimaryButton`
   - `SecondaryButton`
   - `BackButton`
-- feature-specific plan UI:
+
+- feature-specific plan / cycle UI:
   - `PlanCard`
+  - `CycleHeader`
+  - `DayCard`
+
 - MVP route skeleton:
   - `/`
   - `/plan/:planId`
