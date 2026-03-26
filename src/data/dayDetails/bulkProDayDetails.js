@@ -5,7 +5,7 @@ export const bulkProDayDetails = [
     name: "Legs Heavy",
     goal: "Maintain squat strength + quad signal",
     sessionInfo: {
-      rirRule: "Compound 1–2, other lifts 1–2",
+      rirRule: "Compound 1-2, other lifts 1-2",
       advancedTechniques: "None",
       warmupId: "warmup-d3",
     },
