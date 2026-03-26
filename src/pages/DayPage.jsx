@@ -3,9 +3,13 @@ import { useParams } from "react-router-dom";
 import AppShell from "../components/layout/AppShell";
 import BackButton from "../components/common/BackButton";
 import SessionInfoCard from "../components/day/SessionInfoCard";
+import ExerciseListCard from "../components/day/ExerciseListCard";
+import CoreBlockCard from "../components/day/CoreBlockCard";
 
 import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
+import { getExercisesForDay } from "../data/exercises";
+import { getCoreBlockById } from "../data/core";
 import { UI_STACK_LG, UI_TEXT_MUTED, UI_TITLE } from "../styles/ui";
 
 const STATIC_DAY_PROGRESS_MAP = {
@@ -22,6 +26,12 @@ export default function DayPage() {
 
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
+  const exercises = dayDetails
+    ? getExercisesForDay(planId, dayDetails.exerciseIds)
+    : [];
+  const coreBlock = dayDetails?.coreBlockId
+    ? getCoreBlockById(dayDetails.coreBlockId)
+    : null;
 
   if (!plan || !dayDetails) {
     return (
@@ -70,6 +80,25 @@ export default function DayPage() {
           dayId={dayId}
           sessionInfo={dayDetails.sessionInfo}
         />
+
+        {exercises.map((exercise) => (
+          <ExerciseListCard
+            key={exercise.id}
+            planId={planId}
+            dayId={dayId}
+            exercise={exercise}
+            status="Not started"
+          />
+        ))}
+
+        {coreBlock ? (
+          <CoreBlockCard
+            planId={planId}
+            dayId={dayId}
+            coreBlock={coreBlock}
+            status="Not started"
+          />
+        ) : null}
       </div>
     </AppShell>
   );
