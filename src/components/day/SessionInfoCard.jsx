@@ -1,0 +1,35 @@
+import SectionCard from "../layout/SectionCard";
+import SecondaryButton from "../common/SecondaryButton";
+import { UI_STACK_MD, UI_TEXT_MUTED } from "../../styles/ui";
+
+export default function SessionInfoCard({ planId, dayId, sessionInfo }) {
+  return (
+    <SectionCard>
+      <div className={UI_STACK_MD}>
+        <div className={UI_STACK_MD}>
+          <h2 className="text-base font-semibold text-slate-100">
+            Session info
+          </h2>
+
+          <div className={UI_STACK_MD}>
+            <div className={UI_STACK_MD}>
+              <p className="text-sm font-medium text-slate-200">Day RIR rule</p>
+              <p className={UI_TEXT_MUTED}>{sessionInfo.rirRule}</p>
+            </div>
+
+            <div className={UI_STACK_MD}>
+              <p className="text-sm font-medium text-slate-200">
+                Advanced techniques
+              </p>
+              <p className={UI_TEXT_MUTED}>{sessionInfo.advancedTechniques}</p>
+            </div>
+          </div>
+        </div>
+
+        <SecondaryButton to={`/plan/${planId}/day/${dayId}/warmup`}>
+          View warm-up
+        </SecondaryButton>
+      </div>
+    </SectionCard>
+  );
+}

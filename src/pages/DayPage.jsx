@@ -1,42 +1,75 @@
+import { useParams } from "react-router-dom";
+
 import AppShell from "../components/layout/AppShell";
-import ScreenHeader from "../components/layout/ScreenHeader";
-import SectionCard from "../components/layout/SectionCard";
 import BackButton from "../components/common/BackButton";
-import PrimaryButton from "../components/common/PrimaryButton";
-import SecondaryButton from "../components/common/SecondaryButton";
-import { UI_ACTION_ROW, UI_STACK_LG, UI_TEXT_MUTED } from "../styles/ui";
+import SessionInfoCard from "../components/day/SessionInfoCard";
+
+import { getPlanById } from "../data/plans";
+import { getDayDetails } from "../data/dayDetails";
+import { UI_STACK_LG, UI_TEXT_MUTED, UI_TITLE } from "../styles/ui";
+
+const STATIC_DAY_PROGRESS_MAP = {
+  d1: "0/7 exercises completed",
+  d2: "0/5 exercises completed",
+  d3: "0/8 exercises completed",
+  d4: "0/8 exercises completed",
+  d5: "0/6 exercises completed",
+  d6: "0/7 exercises completed",
+};
 
 export default function DayPage() {
+  const { planId, dayId } = useParams();
+
+  const plan = getPlanById(planId);
+  const dayDetails = getDayDetails(planId, dayId);
+
+  if (!plan || !dayDetails) {
+    return (
+      <AppShell>
+        <div className={UI_STACK_LG}>
+          <div className="flex justify-start">
+            <BackButton to={plan ? `/plan/${planId}/cycle` : "/"}>
+              {plan ? "Back to Cycle" : "Back to Home"}
+            </BackButton>
+          </div>
+
+          <header className="flex flex-col gap-3">
+            <h1 className={UI_TITLE}>Day not found</h1>
+            <p className={UI_TEXT_MUTED}>
+              The selected day could not be loaded.
+            </p>
+          </header>
+        </div>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell>
       <div className={UI_STACK_LG}>
-        <BackButton to="/plan/bulk-pro/cycle">Back to Cycle</BackButton>
+        <div className="flex justify-start">
+          <BackButton to={`/plan/${planId}/cycle`}>Back to Cycle</BackButton>
+        </div>
 
-        <ScreenHeader
-          title="Day"
-          subtitle="Placeholder day screen with entry points into workout flow."
-        />
+        <header className="flex flex-col gap-3">
+          <h1 className={UI_TITLE}>
+            {dayDetails.label} — {dayDetails.name}
+          </h1>
 
-        <SectionCard>
-          <div className={UI_ACTION_ROW}>
+          <div className="flex flex-col gap-1">
+            <p className={UI_TEXT_MUTED}>Goal: {dayDetails.goal}</p>
             <p className={UI_TEXT_MUTED}>
-              This screen will later contain the guided workout structure for a
-              selected day.
+              {STATIC_DAY_PROGRESS_MAP[dayDetails.id] ??
+                "0/0 exercises completed"}
             </p>
-
-            <PrimaryButton to="/plan/bulk-pro/day/d1/exercise/bench-press">
-              Open Exercise
-            </PrimaryButton>
-
-            <SecondaryButton to="/plan/bulk-pro/day/d1/core/core-a">
-              Open Core
-            </SecondaryButton>
-
-            <SecondaryButton to="/plan/bulk-pro/day/d1/warmup">
-              Open Warm-up
-            </SecondaryButton>
           </div>
-        </SectionCard>
+        </header>
+
+        <SessionInfoCard
+          planId={planId}
+          dayId={dayId}
+          sessionInfo={dayDetails.sessionInfo}
+        />
       </div>
     </AppShell>
   );
