@@ -16,7 +16,7 @@ const STATIC_DAY_PROGRESS_MAP = {
   d1: "0/8 exercises completed",
   d2: "0/9 exercises completed",
   d3: "0/8 exercises completed",
-  d4: "0/8 exercises completed",
+  d4: "0/9 exercises completed",
   d5: "0/6 exercises completed",
   d6: "0/7 exercises completed",
 };

@@ -15,14 +15,14 @@ export const coreBlocks = [
   {
     id: "core-b",
     name: "Core B",
-    focus: "Rotation / anti-rotation + lateral stability",
+    focus: "Anti-rotation + lower abs + lateral stability",
     note: "Can be moved to a rest day if needed",
     mainInfo: {
       exercises: "2-3",
       sets: "2-3 each",
-      targetRir: "2",
+      targetRir: "1-2",
       rest: "Short / controlled",
-      cue: "Stay stacked and resist collapse",
+      cue: "Stay stacked and resist rotation before adding speed",
     },
   },
   {

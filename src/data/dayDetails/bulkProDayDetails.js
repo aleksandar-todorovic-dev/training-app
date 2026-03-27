@@ -67,4 +67,28 @@ export const bulkProDayDetails = [
     ],
     coreBlockId: null,
   },
+  {
+    id: "d4",
+    label: "D4",
+    name: "Shoulders / Arms Light",
+    goal: "Shoulder focus + trap work + arm top-up",
+    sessionInfo: {
+      rirRule: "Compound 1-2, other lifts 1-2",
+      advancedTechniques:
+        "Lateral Raise last set optional dropset -20%; Face-away Cable Curl rest-pause 15 s (+5-6 reps)",
+      warmupId: "warmup-d4",
+    },
+    exerciseIds: [
+      "overhead-press-bb",
+      "lateral-raise-db",
+      "cable-lateral-lean-away",
+      "reverse-pec-deck",
+      "upright-row-db",
+      "dumbbell-shrug",
+      "incline-db-curl",
+      "face-away-cable-curl",
+      "rope-pushdown",
+    ],
+    coreBlockId: "core-b",
+  },
 ];
