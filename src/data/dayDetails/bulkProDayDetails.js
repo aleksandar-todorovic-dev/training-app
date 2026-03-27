@@ -1,5 +1,28 @@
 export const bulkProDayDetails = [
   {
+    id: "d1",
+    label: "D1",
+    name: "Chest / Triceps",
+    goal: "Chest tension + triceps focus + shoulder top-up",
+    sessionInfo: {
+      rirRule: "Compound 1-2, other lifts 1-2",
+      advancedTechniques:
+        "Incline DB Press last set rest-pause; Cable Stretch-Fly 15 s iso-stretch; Overhead Rope Extension last set dropset -20%",
+      warmupId: "warmup-d1",
+    },
+    exerciseIds: [
+      "smith-bench-press",
+      "incline-db-press",
+      "weighted-dip",
+      "cable-stretch-fly",
+      "overhead-rope-extension",
+      "standing-ohp-light",
+      "lateral-raise-db",
+      "face-pull",
+    ],
+    coreBlockId: null,
+  },
+  {
     id: "d2",
     label: "D2",
     name: "Back / Biceps",
@@ -19,7 +42,6 @@ export const bulkProDayDetails = [
       "barbell-curl",
       "hammer-curl",
       "reverse-curl",
-      
     ],
     coreBlockId: "core-a",
   },
