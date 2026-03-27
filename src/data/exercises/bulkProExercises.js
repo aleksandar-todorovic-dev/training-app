@@ -4,7 +4,7 @@ export const bulkProExercises = [
     name: "High-Bar Back Squat",
     subtitle: "Primary quad strength lift",
     prescription: "4 x 6-8",
-    cue: "Brace hard and stay controlled in the bottom",
+    cue: "Brace hard, ribs down, stay controlled in the bottom",
     details: {
       tempo: "3-1-1",
       targetRir: "≈2",
@@ -14,9 +14,9 @@ export const bulkProExercises = [
   {
     id: "leg-press-narrow",
     name: "Leg Press (Narrow)",
-    subtitle: "Controlled quad volume",
+    subtitle: "Quad volume with constant tension",
     prescription: "3 x 10-12",
-    cue: "Control the bottom and keep tension on quads",
+    cue: "Control the bottom, no bounce, keep tension on quads",
     details: {
       tempo: "2-1-1",
       targetRir: "≈1-2",
@@ -26,7 +26,7 @@ export const bulkProExercises = [
   {
     id: "bulgarian-split-squat",
     name: "Bulgarian Split Squat",
-    subtitle: "Single-leg quad and glute work",
+    subtitle: "Unilateral quad work with glute stretch",
     prescription: "3 x 8-10 / leg",
     cue: "Stay balanced and drive through the front foot",
     details: {
@@ -38,9 +38,9 @@ export const bulkProExercises = [
   {
     id: "leg-extension",
     name: "Leg Extension",
-    subtitle: "Quad isolation finisher",
+    subtitle: "Quad isolation with dropset finish",
     prescription: "3 x 12-15",
-    cue: "Squeeze the top without swinging",
+    cue: "Squeeze hard at the top and control the lowering",
     details: {
       tempo: "2-0-2",
       targetRir: "≈1-2",
@@ -52,7 +52,7 @@ export const bulkProExercises = [
     name: "Seated Leg Curl",
     subtitle: "Hamstring control and tension",
     prescription: "3 x 10-12",
-    cue: "Ribs down, controlled eccentric, full squeeze",
+    cue: "Back on pad, ribs down, slow eccentric, full squeeze",
     details: {
       tempo: "3-1-2",
       targetRir: "≈1-2",
@@ -64,7 +64,7 @@ export const bulkProExercises = [
     name: "Standing Calf Raise",
     subtitle: "Primary calf work",
     prescription: "3 x 15-20",
-    cue: "Pause briefly at the top and control the drop",
+    cue: "Pause at the top and control the full lowering",
     details: {
       tempo: "2-0-2",
       targetRir: "≈1-2",
@@ -76,7 +76,7 @@ export const bulkProExercises = [
     name: "Seated Calf Raise",
     subtitle: "Secondary calf work",
     prescription: "2 x 15-20",
-    cue: "Controlled stretch and full contraction",
+    cue: "Use full range, control the stretch, no bouncing",
     details: {
       tempo: "2-0-2",
       targetRir: "≈1-2",
@@ -85,14 +85,14 @@ export const bulkProExercises = [
   },
   {
     id: "hip-stability-ab-ad",
-    name: "Hip Stability — Ab / Ad",
-    subtitle: "Hip support and control",
-    prescription: "1 round x 12-15",
-    cue: "Move with control, no momentum",
+    name: "Abductor / Adductor Machine",
+    subtitle: "Hip stability superset",
+    prescription: "3 rounds x 15 + 15",
+    cue: "Move with control and switch sides with short transition",
     details: {
       tempo: "2-0-2",
       targetRir: "Controlled technical work",
-      rest: "Short transition",
+      rest: "30 s after adductor",
     },
   },
 ];

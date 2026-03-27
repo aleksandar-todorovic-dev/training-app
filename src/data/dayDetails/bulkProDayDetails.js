@@ -3,10 +3,10 @@ export const bulkProDayDetails = [
     id: "d3",
     label: "D3",
     name: "Legs Heavy",
-    goal: "Maintain squat strength + quad signal",
+    goal: "Quad priority + hamstring top-up",
     sessionInfo: {
       rirRule: "Compound 1-2, other lifts 1-2",
-      advancedTechniques: "None",
+      advancedTechniques: "Leg Extension last set dropset -25%",
       warmupId: "warmup-d3",
     },
     exerciseIds: [
