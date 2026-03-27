@@ -57,11 +57,25 @@ Implemented so far:
   - `bulkProDays.js`
   - `cutProDays.js`
   - `index.js`
+- `src/data/dayDetails/`
+  - `bulkProDayDetails.js`
+  - `cutProDayDetails.js`
+  - `index.js`
+- `src/data/exercises/`
+  - `bulkProExercises.js`
+  - `cutProExercises.js`
+  - `index.js`
+- `src/data/core/`
+  - `coreBlocks.js`
+  - `index.js`
 
 Added helpers:
 
 - `getPlanById(planId)`
 - `getDaysByPlanId(planId)`
+- `getDayDetails(planId, dayId)`
+- `getExercisesForDay(planId, exerciseIds)`
+- `getCoreBlockById(coreId)`
 
 #### Screens completed in static MVP form
 
@@ -91,22 +105,37 @@ Added helpers:
     - `Open day` CTA
   - keeps Screen 3 strictly static-data-first with no runtime progress logic yet
 
+- **Day screen**
+  - reads `planId` and `dayId` from the route
+  - loads detailed day-level content through `dayDetails`
+  - renders a real day header with:
+    - day label and name
+    - short goal
+    - static progress summary
+  - includes reusable day-specific UI blocks:
+    - `SessionInfoCard`
+    - `ExerciseListCard`
+    - `CoreBlockCard`
+  - renders session info, exercise list, and conditional core setup
+  - currently has a refined first-pass implementation for `bulk-pro / d3`
+  - keeps Screen 4 strictly static-data-first with no runtime progress or completion logic yet
+
 #### Current result
 
 - the app boots correctly
 - all main routes exist
-- Home, Plan Overview, and Cycle are connected to real static data
-- route-based plan lookup works
+- Home, Plan Overview, Cycle, and Day are connected to real static data
+- route-based plan and day lookup work
 - the current static MVP flow is working:
 
-`Home -> Plan Overview -> Cycle`
+`Home -> Plan Overview -> Cycle -> Day`
 
 ## Next step
 
 Continue Phase 2 with:
 
-- Day screen structure
-- static exercise/core/warm-up/guide content
+- broader Day screen coverage for more days and core-linked days
+- static Exercise, Core, Warm-up, and Guide screens
 - continued screen-by-screen responsive checks
 
 ## Tech stack
@@ -154,6 +183,11 @@ For MVP:
   - `PlanCard`
   - `CycleHeader`
   - `DayCard`
+
+- feature-specific day UI:
+  - `SessionInfoCard`
+  - `ExerciseListCard`
+  - `CoreBlockCard`
 
 - MVP route skeleton:
   - `/`
