@@ -2,12 +2,12 @@ export const coreBlocks = [
   {
     id: "core-a",
     name: "Core A",
-    focus: "Anti-extension + trunk stability",
+    focus: "Anti-extension + lower abs + static stability",
     note: "Can be moved to a rest day if needed",
     mainInfo: {
       exercises: "2-3",
       sets: "2-3 each",
-      targetRir: "2",
+      targetRir: "1-2",
       rest: "Short / controlled",
       cue: "Brace first, then move with control",
     },
