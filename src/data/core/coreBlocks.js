@@ -28,14 +28,14 @@ export const coreBlocks = [
   {
     id: "core-c",
     name: "Core C",
-    focus: "Trunk integration after upper work",
+    focus: "Anti-extension + rotation + static stability",
     note: "Can be moved to a rest day if needed",
     mainInfo: {
       exercises: "2-3",
       sets: "2-3 each",
-      targetRir: "2",
+      targetRir: "1-2",
       rest: "Short / controlled",
-      cue: "Control the trunk before adding speed",
+      cue: "Brace first, then move without losing trunk position",
     },
   },
 ];

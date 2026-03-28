@@ -91,4 +91,27 @@ export const bulkProDayDetails = [
     ],
     coreBlockId: "core-b",
   },
+  {
+    id: "d5",
+    label: "D5",
+    name: "Chest Pump + Rows + Triceps",
+    goal: "Chest pump + row focus + triceps lock-out",
+    sessionInfo: {
+      rirRule: "Compound 1-2, other lifts 1-2",
+      advancedTechniques: "Push-up Mechanical Dropset",
+      warmupId: "warmup-d5",
+    },
+    exerciseIds: [
+      "decline-db-press-or-dips",
+      "low-to-high-cable-fly",
+      "push-up-mechanical-dropset",
+      "assisted-pull-up-cluster",
+      "t-bar-row",
+      "chest-supported-row-45",
+      "seated-cable-row-squeeze",
+      "skull-crusher-ez",
+      "overhead-db-extension",
+    ],
+    coreBlockId: "core-c",
+  },
 ];
