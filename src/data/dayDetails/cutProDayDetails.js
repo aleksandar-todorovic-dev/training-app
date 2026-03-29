@@ -87,4 +87,27 @@ export const cutProDayDetails = [
     ],
     coreBlockId: "core-b",
   },
+  {
+    id: "d5",
+    label: "D5",
+    name: "Chest Pump + Rows",
+    goal: "Chest pump + row bridge + triceps support",
+    sessionInfo: {
+      rirRule: "Compound 1-2, other lifts 1-2",
+      advancedTechniques: "None",
+      warmupId: "warmup-d5",
+    },
+    exerciseIds: [
+      "decline-db-press-or-dips-bw",
+      "low-to-high-cable-fly",
+      "push-up",
+      "assisted-pull-up-light",
+      "t-bar-row",
+      "chest-supported-row",
+      "seated-cable-row",
+      "skull-crusher-ez",
+      "overhead-db-extension",
+    ],
+    coreBlockId: "core-c",
+  },
 ];
