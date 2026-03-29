@@ -1,1 +1,86 @@
-export const cutProExercises = [];
+export const cutProExercises = [
+  {
+    id: "smith-bench-press",
+    name: "Smith Bench Press",
+    subtitle: "Primary chest strength signal",
+    prescription: "3 x 5-7",
+    cue: "Upper back tight, controlled touch, drive cleanly through the bar path",
+    details: {
+      tempo: "2-1-1",
+      targetRir: "≈1-2",
+      rest: "150 s",
+    },
+  },
+  {
+    id: "incline-db-press",
+    name: "Incline DB Press",
+    subtitle: "Upper-chest tension support",
+    prescription: "2 x 8-10",
+    cue: "Slight incline, pause briefly at the bottom, control the dumbbells",
+    details: {
+      tempo: "2-1-1",
+      targetRir: "≈1-2",
+      rest: "120 s",
+    },
+  },
+  {
+    id: "dips-or-decline-db-press",
+    name: "Dips / Decline DB Press",
+    subtitle: "Lower-chest support without excess fatigue",
+    prescription: "2 x 8-10",
+    cue: "Use the cleaner pain-free path and keep the reps controlled",
+    details: {
+      tempo: "2-0-2",
+      targetRir: "≈1-2",
+      rest: "120 s",
+    },
+  },
+  {
+    id: "cable-stretch-fly",
+    name: "Cable Stretch-Fly",
+    subtitle: "Light stretch-position chest finisher",
+    prescription: "1 x 12-15",
+    cue: "Long range, soft elbows, stretch under control without forcing it",
+    details: {
+      tempo: "2-0-2",
+      targetRir: "Controlled technical work",
+      rest: "—",
+    },
+  },
+  {
+    id: "overhead-rope-extension",
+    name: "Overhead Rope Extension",
+    subtitle: "Triceps stretch-focused support work",
+    prescription: "3 x 12-15",
+    cue: "Full overhead path, stable elbows, squeeze cleanly through the finish",
+    details: {
+      tempo: "2-0-2",
+      targetRir: "≈1-2",
+      rest: "60-75 s",
+    },
+  },
+  {
+    id: "lateral-raise-db",
+    name: "Lateral Raise (DB)",
+    subtitle: "Side-delt top-up and shoulder support",
+    prescription: "2 x 12-15",
+    cue: "Shoulders down, elbow leads, no swinging",
+    details: {
+      tempo: "2-0-2",
+      targetRir: "≈1-2",
+      rest: "45-60 s",
+    },
+  },
+  {
+    id: "face-pull",
+    name: "Face-pull",
+    subtitle: "Rear-delt and scap health support",
+    prescription: "2 x 12-15",
+    cue: "Pull high, rotate out, finish with clean scap control",
+    details: {
+      tempo: "2-0-2",
+      targetRir: "Controlled technical work",
+      rest: "45-60 s",
+    },
+  },
+];

@@ -3,7 +3,7 @@ import { cutProExercises } from "./cutProExercises";
 
 const exercisesByPlan = {
   "bulk-pro": bulkProExercises,
-  "full-cut-program": cutProExercises,
+  "cut-pro": cutProExercises,
 };
 
 export function getExercisesByPlanId(planId) {

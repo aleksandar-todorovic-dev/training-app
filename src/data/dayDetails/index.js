@@ -3,7 +3,7 @@ import { cutProDayDetails } from "./cutProDayDetails";
 
 const dayDetailsByPlan = {
   "bulk-pro": bulkProDayDetails,
-  "full-cut-program": cutProDayDetails,
+  "cut-pro": cutProDayDetails,
 };
 
 export function getDayDetailsByPlanId(planId) {

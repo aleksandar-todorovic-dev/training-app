@@ -13,12 +13,17 @@ import { getCoreBlockById } from "../data/core";
 import { UI_STACK_LG, UI_TEXT_MUTED, UI_TITLE } from "../styles/ui";
 
 const STATIC_DAY_PROGRESS_MAP = {
-  d1: "0/8 exercises completed",
-  d2: "0/9 exercises completed",
-  d3: "0/8 exercises completed",
-  d4: "0/9 exercises completed",
-  d5: "0/9 exercises completed",
-  d6: "0/12 exercises completed",
+  "bulk-pro": {
+    d1: "0/8 exercises completed",
+    d2: "0/9 exercises completed",
+    d3: "0/8 exercises completed",
+    d4: "0/9 exercises completed",
+    d5: "0/9 exercises completed",
+    d6: "0/12 exercises completed",
+  },
+  "cut-pro": {
+    d1: "0/7 exercises completed",
+  },
 };
 
 export default function DayPage() {
@@ -69,7 +74,7 @@ export default function DayPage() {
           <div className="flex flex-col gap-1">
             <p className={UI_TEXT_MUTED}>Goal: {dayDetails.goal}</p>
             <p className={UI_TEXT_MUTED}>
-              {STATIC_DAY_PROGRESS_MAP[dayDetails.id] ??
+              {STATIC_DAY_PROGRESS_MAP[planId]?.[dayDetails.id] ??
                 "0/0 exercises completed"}
             </p>
           </div>
