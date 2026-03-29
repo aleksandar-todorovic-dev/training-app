@@ -114,4 +114,31 @@ export const bulkProDayDetails = [
     ],
     coreBlockId: "core-c",
   },
+  {
+    id: "d6",
+    label: "D6",
+    name: "Posterior Chain",
+    goal: "Posterior chain priority + quad top-up + arm and forearm top-up",
+    sessionInfo: {
+      rirRule: "Compound 1-2, other lifts 1-2",
+      advancedTechniques:
+        "Preacher Curl mechanical set; Leg-Press Calf Raise last set dropset -25%",
+      warmupId: "warmup-d6",
+    },
+    exerciseIds: [
+      "romanian-deadlift",
+      "seated-leg-curl-d6",
+      "machine-glute-kickback",
+      "walking-lunge",
+      "back-extension-d6",
+      "leg-press-calf-raise",
+      "seated-calf-raise-d6",
+      "hip-stability-ab-ad",
+      "preacher-curl-ez",
+      "preacher-curl-mechanical",
+      "behind-the-back-wrist-curl",
+      "wrist-roller",
+    ],
+    coreBlockId: null,
+  },
 ];

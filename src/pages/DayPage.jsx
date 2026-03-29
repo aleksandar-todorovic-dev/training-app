@@ -18,7 +18,7 @@ const STATIC_DAY_PROGRESS_MAP = {
   d3: "0/8 exercises completed",
   d4: "0/9 exercises completed",
   d5: "0/9 exercises completed",
-  d6: "0/7 exercises completed",
+  d6: "0/12 exercises completed",
 };
 
 export default function DayPage() {
