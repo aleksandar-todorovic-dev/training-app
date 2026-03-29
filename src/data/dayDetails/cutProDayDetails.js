@@ -43,4 +43,26 @@ export const cutProDayDetails = [
     ],
     coreBlockId: "core-a",
   },
+  {
+    id: "d3",
+    label: "D3",
+    name: "Legs Heavy",
+    goal: "Quad priority + hamstring spark + calf support",
+    sessionInfo: {
+      rirRule: "Compound 1-2, other lifts 1-2",
+      advancedTechniques: "None",
+      warmupId: "warmup-d3",
+    },
+    exerciseIds: [
+      "high-bar-back-squat",
+      "leg-press-narrow",
+      "bulgarian-split-squat",
+      "leg-extension",
+      "lying-or-seated-leg-curl",
+      "standing-calf-raise",
+      "seated-calf-raise",
+      "abductor-adductor-machine",
+    ],
+    coreBlockId: null,
+  },
 ];
