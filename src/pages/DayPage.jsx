@@ -23,6 +23,7 @@ const STATIC_DAY_PROGRESS_MAP = {
   },
   "cut-pro": {
     d1: "0/7 exercises completed",
+    d2: "0/9 exercises completed",
   },
 };
 
