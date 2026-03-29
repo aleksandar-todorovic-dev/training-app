@@ -65,4 +65,26 @@ export const cutProDayDetails = [
     ],
     coreBlockId: null,
   },
+  {
+    id: "d4",
+    label: "D4",
+    name: "Shoulders / Arms Light",
+    goal: "Shoulder focus + trap work + arm top-up",
+    sessionInfo: {
+      rirRule: "Compound 1-2, other lifts 1-2",
+      advancedTechniques: "None",
+      warmupId: "warmup-d4",
+    },
+    exerciseIds: [
+      "standing-ohp",
+      "lateral-raise-db",
+      "cable-lateral-lean-away",
+      "reverse-pec-deck",
+      "db-upright-row",
+      "db-shrug",
+      "incline-db-curl",
+      "rope-pushdown",
+    ],
+    coreBlockId: "core-b",
+  },
 ];
