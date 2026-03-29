@@ -117,7 +117,13 @@ Added helpers:
     - `ExerciseListCard`
     - `CoreBlockCard`
   - renders session info, exercise list, and conditional core setup
-  - currently has a refined first-pass implementation for `bulk-pro / d3`
+  - currently includes full Bulk day coverage for:
+    - D1
+    - D2
+    - D3
+    - D4
+    - D5
+    - D6
   - keeps Screen 4 strictly static-data-first with no runtime progress or completion logic yet
 
 #### Current result
@@ -125,7 +131,7 @@ Added helpers:
 - the app boots correctly
 - all main routes exist
 - Home, Plan Overview, Cycle, and Day are connected to real static data
-- route-based plan and day lookup work
+- route-based plan, day, exercise, and core lookup work
 - the current static MVP flow is working:
 
 `Home -> Plan Overview -> Cycle -> Day`
@@ -134,7 +140,7 @@ Added helpers:
 
 Continue Phase 2 with:
 
-- broader Day screen coverage for more days and core-linked days
+- Cut plan day coverage for Screen 4
 - static Exercise, Core, Warm-up, and Guide screens
 - continued screen-by-screen responsive checks
 
