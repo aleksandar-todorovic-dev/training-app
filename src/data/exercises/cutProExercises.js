@@ -385,8 +385,8 @@ export const cutProExercises = [
   },
   {
     id: "decline-db-press-or-dips-bw",
-    name: "Decline DB Press / Dips (BW)",
-    subtitle: "Chest pump work with a joint-friendly option",
+    name: "Dips / Decline DB Press",
+    subtitle: "Lower-chest pump press",
     prescription: "2 x 8-10",
     cue: "Use the option that feels cleaner on the shoulders and control the eccentric",
     details: {
@@ -398,19 +398,19 @@ export const cutProExercises = [
   {
     id: "low-to-high-cable-fly",
     name: "Low-to-High Cable Fly",
-    subtitle: "Upper-chest pump support",
+    subtitle: "Upper-fiber chest pump work",
     prescription: "1 x 12-15",
-    cue: "Follow a smooth low-to-high path and finish with a short squeeze",
+    cue: "Drive low to high and hold the contraction for one second",
     details: {
       tempo: "2-0-2",
-      targetRir: "Controlled technical work",
+      targetRir: "≈1-2",
       rest: "60 s",
     },
   },
   {
     id: "push-up",
     name: "Push-up",
-    subtitle: "Controlled chest flush finisher",
+    subtitle: "Chest flush finisher",
     prescription: "1 x 10-20",
     cue: "Stay tight through the trunk and stop before the reps lose shape",
     details: {
@@ -422,7 +422,7 @@ export const cutProExercises = [
   {
     id: "assisted-pull-up-light",
     name: "Assisted Pull-up",
-    subtitle: "Light vertical pull primer",
+    subtitle: "Vertical pull bridge before rows",
     prescription: "2 x 6-8",
     cue: "Stay smooth, keep the range clean, and avoid turning it into a grind",
     details: {
@@ -436,7 +436,7 @@ export const cutProExercises = [
     name: "T-Bar Row",
     subtitle: "Primary row bridge strength work",
     prescription: "2 x 6-8",
-    cue: "Brace the torso, drive elbows back, and keep the reps clean",
+    cue: "Drive elbows back and keep torso position stable",
     details: {
       tempo: "2-1-1",
       targetRir: "≈1-2",
@@ -445,10 +445,10 @@ export const cutProExercises = [
   },
   {
     id: "chest-supported-row",
-    name: "Chest-Supported Row",
-    subtitle: "Stable horizontal back support",
+    name: "Chest-supported Row (45°)",
+    subtitle: "Stable row thickness work",
     prescription: "1 x 8-10",
-    cue: "Stay pinned to the pad and finish each rep without jerking",
+    cue: "Stay glued to the pad and pull without body swing",
     details: {
       tempo: "2-1-1",
       targetRir: "≈1-2",
@@ -458,9 +458,9 @@ export const cutProExercises = [
   {
     id: "seated-cable-row",
     name: "Seated Cable Row",
-    subtitle: "Controlled row pump finisher",
+    subtitle: "Metabolic row finisher",
     prescription: "1 x 12-15",
-    cue: "Pause briefly at the squeeze and return under control",
+    cue: "Pause one second at full squeeze and control the return",
     details: {
       tempo: "2-1-2",
       targetRir: "≈1-2",
@@ -470,9 +470,9 @@ export const cutProExercises = [
   {
     id: "skull-crusher-ez",
     name: "Skull Crusher (EZ)",
-    subtitle: "Triceps lockout support work",
+    subtitle: "Triceps lock-out support",
     prescription: "1 x 8-10",
-    cue: "Keep the upper arm stable and lower the bar with control",
+    cue: "Keep upper arms fixed and lower with control",
     details: {
       tempo: "2-0-2",
       targetRir: "≈1-2",
@@ -482,9 +482,9 @@ export const cutProExercises = [
   {
     id: "overhead-db-extension",
     name: "Overhead DB Extension",
-    subtitle: "Stretch-position triceps support",
+    subtitle: "Long-head triceps stretch work",
     prescription: "1 x 10-12",
-    cue: "Keep ribs down, use full range, and finish with a clean squeeze",
+    cue: "Ribs down, full stretch, then squeeze through extension",
     details: {
       tempo: "2-0-2",
       targetRir: "≈1-2",
