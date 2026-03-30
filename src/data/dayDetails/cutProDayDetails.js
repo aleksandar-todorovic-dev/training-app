@@ -110,4 +110,28 @@ export const cutProDayDetails = [
     ],
     coreBlockId: "core-c",
   },
+  {
+    id: "d6",
+    label: "D6",
+    name: "Posterior Chain",
+    goal: "Posterior chain priority + quad top-up + arm and calf support",
+    sessionInfo: {
+      rirRule: "Compound 1-2, other lifts 1-2",
+      advancedTechniques: "None",
+      warmupId: "warmup-d6",
+    },
+    exerciseIds: [
+      "romanian-deadlift",
+      "seated-leg-curl",
+      "machine-glute-kickback",
+      "walking-lunge",
+      "back-extension",
+      "leg-press-calf-raise",
+      "seated-calf-raise",
+      "abductor-adductor-machine",
+      "preacher-curl-ez",
+      "behind-the-back-wrist-curl",
+    ],
+    coreBlockId: null,
+  },
 ];
