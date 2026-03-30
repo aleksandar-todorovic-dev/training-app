@@ -85,7 +85,7 @@ export const bulkProExercises = [
   },
   {
     id: "face-pull",
-    name: "Face-pull",
+    name: "Face Pull",
     subtitle: "Rear-delt and scap health support",
     prescription: "2 x 15",
     cue: "Pull high, rotate out, finish with clean scap control",
@@ -95,6 +95,7 @@ export const bulkProExercises = [
       rest: "45 s",
     },
   },
+
   {
     id: "weighted-pull-up",
     name: "Weighted Pull-up",
@@ -203,6 +204,7 @@ export const bulkProExercises = [
       rest: "60 s",
     },
   },
+
   {
     id: "high-bar-back-squat",
     name: "High-Bar Back Squat",
@@ -299,6 +301,7 @@ export const bulkProExercises = [
       rest: "30 s after adductor",
     },
   },
+
   {
     id: "overhead-press-bb",
     name: "Overhead Press (BB)",
@@ -407,6 +410,7 @@ export const bulkProExercises = [
       rest: "45-60 s",
     },
   },
+
   {
     id: "decline-db-press-or-dips",
     name: "Dips / Decline DB Press",
@@ -515,6 +519,7 @@ export const bulkProExercises = [
       rest: "60 s",
     },
   },
+  
   {
     id: "romanian-deadlift",
     name: "Romanian Deadlift",

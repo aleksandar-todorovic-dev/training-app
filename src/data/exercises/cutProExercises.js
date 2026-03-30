@@ -73,7 +73,7 @@ export const cutProExercises = [
   },
   {
     id: "face-pull",
-    name: "Face-pull",
+    name: "Face Pull",
     subtitle: "Rear-delt and scap health support",
     prescription: "2 x 12-15",
     cue: "Pull high, rotate out, finish with clean scap control",
@@ -83,6 +83,7 @@ export const cutProExercises = [
       rest: "45-60 s",
     },
   },
+
   {
     id: "weighted-or-assisted-pull-up",
     name: "Weighted / Assisted Pull-up",
@@ -191,6 +192,7 @@ export const cutProExercises = [
       rest: "60 s",
     },
   },
+
   {
     id: "high-bar-back-squat",
     name: "High-Bar Back Squat",
@@ -287,6 +289,7 @@ export const cutProExercises = [
       rest: "30 s",
     },
   },
+
   {
     id: "standing-ohp",
     name: "Overhead Press (BB)",
@@ -383,6 +386,7 @@ export const cutProExercises = [
       rest: "45-60 s",
     },
   },
+  
   {
     id: "decline-db-press-or-dips-bw",
     name: "Dips / Decline DB Press",
