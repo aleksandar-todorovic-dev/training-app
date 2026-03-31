@@ -89,6 +89,7 @@ Added helpers:
   - loads overview-level day data for the selected plan
   - renders training system, key rules, and training day order
   - includes top-level `View guide` action and primary `Start cycle` CTA
+  - uses screen-specific richer day-order labels so the overview explains real day structure more honestly
 
 - **Cycle / Day list**
   - reads `planId` from the route
@@ -99,8 +100,9 @@ Added helpers:
     - static progress summary
   - renders reusable day cards with:
     - day label
-    - day name
-    - optional core hint on D2 / D4 / D5
+    - cleaned overview day name
+    - optional truth hint line
+    - optional core hint merged into the same metadata row
     - static status text
     - `Open day` CTA
   - keeps Screen 3 strictly static-data-first with no runtime progress logic yet
@@ -117,14 +119,31 @@ Added helpers:
     - `ExerciseListCard`
     - `CoreBlockCard`
   - renders session info, exercise list, and conditional core setup
-  - currently includes full Bulk day coverage for:
-    - D1
-    - D2
-    - D3
-    - D4
-    - D5
-    - D6
+  - currently includes full static coverage for both plans:
+    - Bulk Pro D1-D6
+    - Cut Pro D1-D6
   - keeps Screen 4 strictly static-data-first with no runtime progress or completion logic yet
+
+#### Screen 4 content and presentation work completed
+
+- full Bulk Screen 4 day coverage completed
+- full Cut Screen 4 day coverage completed
+- DayPage static progress summary was upgraded to a plan-aware shape
+- Screen 4 day titles, goals, and exercise names were cleaned up using the confirmed UI naming and copy rules
+- user-facing exercise naming now uses:
+  - `&` instead of `/` in day titles
+  - natural goal phrasing instead of `+`
+  - cleaner exercise names with controlled use of hyphenation and abbreviations
+
+#### Screen 2 and Screen 3 presentation work completed
+
+- Screen 2 now uses richer day-order presentation labels through a screen-specific override layer
+- Screen 3 now shows a muted secondary truth hint line below the main day title
+- Screen 3 core hints were merged into the same metadata row where applicable
+- shared overview day names were cleaned up in the base `days` layer:
+  - `/` -> `&`
+  - `+` -> `&` where appropriate
+  - `Legs Heavy` -> `Quads Heavy`
 
 #### Current result
 
@@ -132,6 +151,8 @@ Added helpers:
 - all main routes exist
 - Home, Plan Overview, Cycle, and Day are connected to real static data
 - route-based plan, day, exercise, and core lookup work
+- Screen 4 is structurally complete in static MVP form for both predefined plans
+- Screen 2 and Screen 3 now explain day structure more honestly without introducing runtime workout logic
 - the current static MVP flow is working:
 
 `Home -> Plan Overview -> Cycle -> Day`
@@ -140,8 +161,10 @@ Added helpers:
 
 Continue Phase 2 with:
 
-- Cut plan day coverage for Screen 4
-- static Exercise, Core, Warm-up, and Guide screens
+- Screen 5 — Exercise screen
+- Screen 6 — Core screen
+- Screen 7 — Warm-up view
+- Screen 8 — Guide screen
 - continued screen-by-screen responsive checks
 
 ## Tech stack
