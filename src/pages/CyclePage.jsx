@@ -24,6 +24,25 @@ const STATIC_CORE_HINT_MAP = {
   d5: "Core C",
 };
 
+const STATIC_DAY_DETAIL_HINT_MAP = {
+  "bulk-pro": {
+    d1: "Includes shoulder top-up",
+    d2: "Includes trap top-up",
+    d3: "Includes hamstring and calf support",
+    d4: "Includes trap work",
+    d5: "Includes triceps support",
+    d6: "Includes quad, arm, and calf support",
+  },
+  "cut-pro": {
+    d1: "Includes shoulder top-up",
+    d2: "Includes trap top-up",
+    d3: "Includes hamstring spark and calf support",
+    d4: "Includes trap work",
+    d5: "Includes triceps support",
+    d6: "Includes quad, arm, and calf support",
+  },
+};
+
 export default function CyclePage() {
   const { planId } = useParams();
 
@@ -70,6 +89,7 @@ export default function CyclePage() {
             day={day}
             status={STATIC_DAY_STATUS_MAP[day.id] ?? "Not started"}
             coreHint={STATIC_CORE_HINT_MAP[day.id] ?? null}
+            detailHint={STATIC_DAY_DETAIL_HINT_MAP[planId]?.[day.id] ?? null}
           />
         ))}
       </div>

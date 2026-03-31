@@ -2,7 +2,7 @@ import SectionCard from "../layout/SectionCard";
 import PrimaryButton from "../common/PrimaryButton";
 import { UI_ACTION_ROW, UI_STACK_MD, UI_TEXT_MUTED } from "../../styles/ui";
 
-export default function DayCard({ planId, day, status, coreHint }) {
+export default function DayCard({ planId, day, status, coreHint, detailHint }) {
   return (
     <SectionCard>
       <div className={UI_STACK_MD}>
@@ -11,8 +11,12 @@ export default function DayCard({ planId, day, status, coreHint }) {
             {day.label} — {day.name}
           </h3>
 
-          {coreHint ? (
-            <p className={UI_TEXT_MUTED}>Includes: {coreHint}</p>
+          {detailHint || coreHint ? (
+            <p className={UI_TEXT_MUTED}>
+              {detailHint}
+              {detailHint && coreHint ? " · " : ""}
+              {coreHint}
+            </p>
           ) : null}
 
           <p className={UI_TEXT_MUTED}>Status: {status}</p>

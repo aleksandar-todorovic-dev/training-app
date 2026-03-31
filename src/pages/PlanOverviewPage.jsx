@@ -10,20 +10,41 @@ import { getPlanById } from "../data/plans";
 import { getDaysByPlanId } from "../data/days";
 import { UI_ACTION_ROW, UI_STACK_LG, UI_TEXT_MUTED } from "../styles/ui";
 
+const TRAINING_DAY_ORDER_LABELS_BY_PLAN = {
+  "bulk-pro": {
+    d1: "Chest & Triceps with Shoulder Top-up",
+    d2: "Back & Biceps with Trap Top-up",
+    d3: "Legs Heavy with Hamstring and Calf Support",
+    d4: "Shoulders & Arms Light with Trap Work",
+    d5: "Chest Pump & Rows with Triceps Support",
+    d6: "Posterior Chain with Quad, Arm, and Calf Support",
+  },
+  "cut-pro": {
+    d1: "Chest & Triceps with Shoulder Top-up",
+    d2: "Back & Biceps with Trap Top-up",
+    d3: "Legs Heavy with Hamstring Spark and Calf Support",
+    d4: "Shoulders & Arms Light with Trap Work",
+    d5: "Chest Pump & Rows with Triceps Support",
+    d6: "Posterior Chain with Quad, Arm, and Calf Support",
+  },
+};
+
 export default function PlanOverviewPage() {
   const { planId } = useParams();
   const plan = getPlanById(planId);
   const days = getDaysByPlanId(planId);
 
+  const dayOrderLabels = TRAINING_DAY_ORDER_LABELS_BY_PLAN[planId] ?? {};
+
   const trainingDayOrder = [
-    `${days[0]?.label} — ${days[0]?.name}`,
-    `${days[1]?.label} — ${days[1]?.name}`,
+    `${days[0]?.label} — ${dayOrderLabels[days[0]?.id] ?? days[0]?.name}`,
+    `${days[1]?.label} — ${dayOrderLabels[days[1]?.id] ?? days[1]?.name}`,
     "Rest / light recovery",
-    `${days[2]?.label} — ${days[2]?.name}`,
-    `${days[3]?.label} — ${days[3]?.name}`,
+    `${days[2]?.label} — ${dayOrderLabels[days[2]?.id] ?? days[2]?.name}`,
+    `${days[3]?.label} — ${dayOrderLabels[days[3]?.id] ?? days[3]?.name}`,
     "Rest / light recovery",
-    `${days[4]?.label} — ${days[4]?.name}`,
-    `${days[5]?.label} — ${days[5]?.name}`,
+    `${days[4]?.label} — ${dayOrderLabels[days[4]?.id] ?? days[4]?.name}`,
+    `${days[5]?.label} — ${dayOrderLabels[days[5]?.id] ?? days[5]?.name}`,
     "Rest / light recovery",
   ];
 
