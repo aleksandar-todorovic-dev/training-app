@@ -2,8 +2,8 @@ export const cutProDayDetails = [
   {
     id: "d1",
     label: "D1",
-    name: "Chest / Triceps",
-    goal: "Chest strength focus + triceps stretch support + shoulder top-up",
+    name: "Chest & Triceps",
+    goal: "Chest strength focus with triceps stretch support and shoulder top-up",
     sessionInfo: {
       rirRule: "Compound 1-2, other lifts 1-2",
       advancedTechniques: "None",
@@ -23,8 +23,8 @@ export const cutProDayDetails = [
   {
     id: "d2",
     label: "D2",
-    name: "Back / Biceps",
-    goal: "Vertical pull + arm flexor focus + trap top-up",
+    name: "Back & Biceps",
+    goal: "Vertical pull, arm flexor focus, and trap top-up",
     sessionInfo: {
       rirRule: "Compound 1-2, other lifts 1-2",
       advancedTechniques: "None",
@@ -47,7 +47,7 @@ export const cutProDayDetails = [
     id: "d3",
     label: "D3",
     name: "Legs Heavy",
-    goal: "Quad priority + hamstring spark + calf support",
+    goal: "Quad priority with hamstring spark and calf support",
     sessionInfo: {
       rirRule: "Compound 1-2, other lifts 1-2",
       advancedTechniques: "None",
@@ -68,8 +68,8 @@ export const cutProDayDetails = [
   {
     id: "d4",
     label: "D4",
-    name: "Shoulders / Arms Light",
-    goal: "Shoulder focus + trap work + arm top-up",
+    name: "Shoulders & Arms Light",
+    goal: "Shoulder focus, trap work, and arm top-up",
     sessionInfo: {
       rirRule: "Compound 1-2, other lifts 1-2",
       advancedTechniques: "None",
@@ -90,8 +90,8 @@ export const cutProDayDetails = [
   {
     id: "d5",
     label: "D5",
-    name: "Chest Pump + Rows",
-    goal: "Chest pump + row bridge + triceps support",
+    name: "Chest Pump & Rows",
+    goal: "Chest pump, row bridge, and triceps support",
     sessionInfo: {
       rirRule: "Compound 1-2, other lifts 1-2",
       advancedTechniques: "None",
@@ -114,7 +114,7 @@ export const cutProDayDetails = [
     id: "d6",
     label: "D6",
     name: "Posterior Chain",
-    goal: "Posterior chain priority + quad top-up + arm and calf support",
+    goal: "Posterior chain priority with quad, arm, and calf support",
     sessionInfo: {
       rirRule: "Compound 1-2, other lifts 1-2",
       advancedTechniques: "None",

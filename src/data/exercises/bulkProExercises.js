@@ -37,7 +37,7 @@ export const bulkProExercises = [
   },
   {
     id: "cable-stretch-fly",
-    name: "Cable Stretch-Fly",
+    name: "Cable Stretch Fly",
     subtitle: "Stretch-overload chest finisher",
     prescription: "1 x 12-15",
     cue: "Long range, soft elbows, hold the stretch under control",
@@ -73,7 +73,7 @@ export const bulkProExercises = [
   },
   {
     id: "standing-ohp-light",
-    name: "Standing OHP (Light)",
+    name: "Standing Overhead Press (Light)",
     subtitle: "Light shoulder activation work",
     prescription: "2 x 8",
     cue: "Smooth press, ribs down, keep it clean and submaximal",
@@ -110,7 +110,7 @@ export const bulkProExercises = [
   },
   {
     id: "wide-grip-lat-pulldown",
-    name: "Wide-grip Lat Pulldown",
+    name: "Wide Grip Lat Pulldown",
     subtitle: "Upper lat width work",
     prescription: "3 x 8-10",
     cue: "Drive elbows down and pause briefly at the bottom",
@@ -122,7 +122,7 @@ export const bulkProExercises = [
   },
   {
     id: "neutral-close-grip-pulldown",
-    name: "Neutral Close-grip Pulldown",
+    name: "Neutral Close Grip Pulldown",
     subtitle: "Lower lat and mid-back support",
     prescription: "2 x 10-12",
     cue: "Stay stacked and finish each rep without swinging back",
@@ -134,7 +134,7 @@ export const bulkProExercises = [
   },
   {
     id: "straight-arm-pulldown",
-    name: "Straight-arm Pulldown",
+    name: "Straight Arm Pulldown",
     subtitle: "Lat isolation with constant tension",
     prescription: "2 x 12-15",
     cue: "Soft elbows, ribs down, move through the shoulder not the triceps",
@@ -182,7 +182,7 @@ export const bulkProExercises = [
   },
   {
     id: "reverse-curl",
-    name: "Reverse Curl (EZ / BB)",
+    name: "Reverse Curl (EZ or BB)",
     subtitle: "Forearm and elbow-flexor support",
     prescription: "2 x 15",
     cue: "Knuckles up, smooth reps, no shoulder cheating",
@@ -291,7 +291,7 @@ export const bulkProExercises = [
   },
   {
     id: "hip-stability-ab-ad",
-    name: "Abductor / Adductor Machine",
+    name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
     prescription: "3 rounds x 15 + 15",
     cue: "Move with control and switch sides with short transition",
@@ -304,7 +304,7 @@ export const bulkProExercises = [
 
   {
     id: "overhead-press-bb",
-    name: "Overhead Press (BB)",
+    name: "Standing Overhead Press (BB)",
     subtitle: "Primary shoulder strength press",
     prescription: "3 x 6-8",
     cue: "Brace 360, ribs down, keep the bar path close",
@@ -400,7 +400,7 @@ export const bulkProExercises = [
   },
   {
     id: "rope-pushdown",
-    name: "Rope Push-down",
+    name: "Rope Pushdown",
     subtitle: "Triceps pump finisher",
     prescription: "2 x 15",
     cue: "Lock elbows in place and hold the squeeze for one second",
@@ -413,7 +413,7 @@ export const bulkProExercises = [
 
   {
     id: "decline-db-press-or-dips",
-    name: "Dips / Decline DB Press",
+    name: "Dips or Decline DB Press",
     subtitle: "Lower-chest pump press",
     prescription: "3 x 10-12",
     cue: "Controlled eccentric and clean chest-driven path",
@@ -497,7 +497,7 @@ export const bulkProExercises = [
   },
   {
     id: "chest-supported-row-45",
-    name: "Chest-supported Row (45°)",
+    name: "Chest Supported Row (45°)",
     subtitle: "Stable row thickness work",
     prescription: "3 x 8-10",
     cue: "Stay glued to the pad and pull without body swing",
@@ -519,7 +519,7 @@ export const bulkProExercises = [
       rest: "60 s",
     },
   },
-  
+
   {
     id: "romanian-deadlift",
     name: "Romanian Deadlift",
@@ -582,7 +582,7 @@ export const bulkProExercises = [
   },
   {
     id: "hip-stability-ab-ad",
-    name: "Abductor / Adductor Machine",
+    name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
     prescription: "3 rounds x 15 + 15",
     cue: "Move with control and switch sides with short transition",

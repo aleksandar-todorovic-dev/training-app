@@ -25,7 +25,7 @@ export const cutProExercises = [
   },
   {
     id: "dips-or-decline-db-press",
-    name: "Dips / Decline DB Press",
+    name: "Dips or Decline DB Press",
     subtitle: "Lower-chest support without excess fatigue",
     prescription: "2 x 8-10",
     cue: "Use the cleaner pain-free path and keep the reps controlled",
@@ -37,7 +37,7 @@ export const cutProExercises = [
   },
   {
     id: "cable-stretch-fly",
-    name: "Cable Stretch-Fly",
+    name: "Cable Stretch Fly",
     subtitle: "Light stretch-position chest finisher",
     prescription: "1 x 12-15",
     cue: "Long range, soft elbows, stretch under control without forcing it",
@@ -86,7 +86,7 @@ export const cutProExercises = [
 
   {
     id: "weighted-or-assisted-pull-up",
-    name: "Weighted / Assisted Pull-up",
+    name: "Weighted or Assisted Pull-up",
     subtitle: "Primary vertical back strength lift",
     prescription: "3 x 5-8",
     cue: "Chest up, pull elbows down, keep the full range clean",
@@ -98,7 +98,7 @@ export const cutProExercises = [
   },
   {
     id: "wide-grip-lat-pulldown",
-    name: "Wide-grip Lat Pulldown",
+    name: "Wide Grip Lat Pulldown",
     subtitle: "Upper lat width work",
     prescription: "2 x 8-10",
     cue: "Drive elbows into the pockets and pause briefly at the bottom",
@@ -110,7 +110,7 @@ export const cutProExercises = [
   },
   {
     id: "neutral-close-grip-pulldown",
-    name: "Neutral Close-grip Pulldown",
+    name: "Neutral Close Grip Pulldown",
     subtitle: "Lower lat and mid-back support",
     prescription: "1 x 10-12",
     cue: "Stay stacked and finish each rep without swinging back",
@@ -122,7 +122,7 @@ export const cutProExercises = [
   },
   {
     id: "straight-arm-pulldown",
-    name: "Straight-arm Pulldown",
+    name: "Straight Arm Pulldown",
     subtitle: "Lat isolation with constant tension",
     prescription: "1 x 12-15",
     cue: "Soft elbows, ribs down, move through the shoulder not the triceps",
@@ -182,7 +182,7 @@ export const cutProExercises = [
   },
   {
     id: "reverse-curl",
-    name: "Reverse Curl (EZ / BB)",
+    name: "Reverse Curl (EZ or BB)",
     subtitle: "Forearm and elbow-flexor support",
     prescription: "1 x 12-15",
     cue: "Knuckles up, smooth reps, no shoulder cheating",
@@ -243,7 +243,7 @@ export const cutProExercises = [
   },
   {
     id: "lying-or-seated-leg-curl",
-    name: "Lying / Seated Leg Curl",
+    name: "Lying or Seated Leg Curl",
     subtitle: "Hamstring spark work",
     prescription: "2 x 10-12",
     cue: "Control the lowering, squeeze at the top, and keep the setup stable",
@@ -279,7 +279,7 @@ export const cutProExercises = [
   },
   {
     id: "abductor-adductor-machine",
-    name: "Abductor / Adductor Machine",
+    name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
     prescription: "1 round x 12-15",
     cue: "Move with control and switch sides with short transition",
@@ -292,7 +292,7 @@ export const cutProExercises = [
 
   {
     id: "standing-ohp",
-    name: "Overhead Press (BB)",
+    name: "Standing Overhead Press (BB)",
     subtitle: "Primary shoulder strength press",
     prescription: "3 x 6-8",
     cue: "Brace hard, keep ribs down, and press in a clean vertical path",
@@ -376,7 +376,7 @@ export const cutProExercises = [
   },
   {
     id: "rope-pushdown",
-    name: "Rope Push-down",
+    name: "Rope Pushdown",
     subtitle: "Light triceps pump work",
     prescription: "1 x 12-15",
     cue: "Keep the elbows quiet and finish each rep with a clean squeeze",
@@ -386,10 +386,10 @@ export const cutProExercises = [
       rest: "45-60 s",
     },
   },
-  
+
   {
     id: "decline-db-press-or-dips-bw",
-    name: "Dips / Decline DB Press",
+    name: "Dips or Decline DB Press",
     subtitle: "Lower-chest pump press",
     prescription: "2 x 8-10",
     cue: "Use the option that feels cleaner on the shoulders and control the eccentric",
@@ -449,7 +449,7 @@ export const cutProExercises = [
   },
   {
     id: "chest-supported-row",
-    name: "Chest-supported Row (45°)",
+    name: "Chest Supported Row (45°)",
     subtitle: "Stable row thickness work",
     prescription: "1 x 8-10",
     cue: "Stay glued to the pad and pull without body swing",
@@ -606,7 +606,7 @@ export const cutProExercises = [
   },
   {
     id: "abductor-adductor-machine",
-    name: "Abductor / Adductor Machine",
+    name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
     prescription: "1 round x 12-15",
     cue: "Move with control and switch sides with short transition",
