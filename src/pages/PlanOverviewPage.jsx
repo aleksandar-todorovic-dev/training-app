@@ -14,7 +14,7 @@ const TRAINING_DAY_ORDER_LABELS_BY_PLAN = {
   "bulk-pro": {
     d1: "Chest & Triceps with Shoulder Top-up",
     d2: "Back & Biceps with Trap Top-up",
-    d3: "Legs Heavy with Hamstring and Calf Support",
+    d3: "Quads Heavy with Hamstring and Calf Support",
     d4: "Shoulders & Arms Light with Trap Work",
     d5: "Chest Pump & Rows with Triceps Support",
     d6: "Posterior Chain with Quad, Arm, and Calf Support",
@@ -22,7 +22,7 @@ const TRAINING_DAY_ORDER_LABELS_BY_PLAN = {
   "cut-pro": {
     d1: "Chest & Triceps with Shoulder Top-up",
     d2: "Back & Biceps with Trap Top-up",
-    d3: "Legs Heavy with Hamstring Spark and Calf Support",
+    d3: "Quads Heavy with Hamstring Spark and Calf Support",
     d4: "Shoulders & Arms Light with Trap Work",
     d5: "Chest Pump & Rows with Triceps Support",
     d6: "Posterior Chain with Quad, Arm, and Calf Support",
