@@ -10,24 +10,41 @@ function InfoRow({ label, value }) {
   );
 }
 
+function getPrescriptionParts(prescription) {
+  if (!prescription || typeof prescription !== "string") {
+    return {
+      sets: "—",
+      reps: "—",
+    };
+  }
+
+  const [setsPart, repsPart] = prescription.split(" x ");
+
+  return {
+    sets: setsPart?.trim() ?? "—",
+    reps: repsPart?.trim() ?? "—",
+  };
+}
+
 export default function ExerciseMainInfoCard({ exercise }) {
   if (!exercise) {
     return null;
   }
 
-  const { prescription, mainCue } = exercise;
+  const { sets, reps } = getPrescriptionParts(exercise.prescription);
+  const { tempo = "—", targetRir = "—", rest = "—" } = exercise.details ?? {};
 
   return (
     <SectionCard>
       <div className={UI_STACK_MD}>
         <h2 className="text-sm font-semibold text-zinc-100">Main info</h2>
 
-        <InfoRow label="Sets" value={prescription.sets} />
-        <InfoRow label="Reps" value={prescription.reps} />
-        <InfoRow label="Tempo" value={prescription.tempo} />
-        <InfoRow label="Target RIR" value={prescription.targetRir} />
-        <InfoRow label="Rest" value={prescription.rest} />
-        <InfoRow label="Cue" value={mainCue} />
+        <InfoRow label="Sets" value={sets} />
+        <InfoRow label="Reps" value={reps} />
+        <InfoRow label="Tempo" value={tempo} />
+        <InfoRow label="Target RIR" value={targetRir} />
+        <InfoRow label="Rest" value={rest} />
+        <InfoRow label="Cue" value={exercise.cue ?? "—"} />
       </div>
     </SectionCard>
   );
