@@ -1,4 +1,5 @@
 export const bulkProExercises = [
+  // D1
   {
     id: "smith-bench-press",
     name: "Smith Bench Press",
@@ -9,6 +10,14 @@ export const bulkProExercises = [
       tempo: "2-1-1",
       targetRir: "≈2",
       rest: "150-180 s",
+      progression:
+        "Add reps across sets first. When all 4 sets reach 7 with clean form and target RIR, increase the load slightly next time.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep shoulder blades pinned",
+        "Touch low and controlled",
+        "Drive evenly through both hands",
+      ],
     },
   },
   {
@@ -21,6 +30,15 @@ export const bulkProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "120 s",
+      progression:
+        "Build toward the top of the 8-10 range with the same dumbbells. Increase load when all work sets reach 10 cleanly.",
+      advancedTechnique:
+        "Last set rest-pause: rack the dumbbells for 15 seconds, then perform 2-3 extra reps.",
+      extraCues: [
+        "Keep the incline slight",
+        "Pause briefly at the bottom",
+        "Press up without drifting forward",
+      ],
     },
   },
   {
@@ -33,6 +51,14 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "120 s",
+      progression:
+        "Stay in the 8-10 range with full control. Add load once all work sets reach 10 cleanly.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the chest open",
+        "Descend only as far as shoulders stay stable",
+        "Drive up without swinging",
+      ],
     },
   },
   {
@@ -44,7 +70,16 @@ export const bulkProExercises = [
     details: {
       tempo: "2-0-2",
       targetRir: "Controlled technical work",
-      rest: "Short transition",
+      rest: "—",
+      progression:
+        "Keep the stretch and control honest first. Increase load only when you can complete the full 12-15 range without losing position.",
+      advancedTechnique:
+        "Finish the set with a 15-second loaded stretch in the bottom position.",
+      extraCues: [
+        "Keep a soft elbow bend",
+        "Let the chest lengthen under control",
+        "Do not turn it into a press",
+      ],
     },
   },
   {
@@ -57,6 +92,15 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "60-75 s",
+      progression:
+        "Own the 12-15 range with stable elbows before increasing the stack.",
+      advancedTechnique:
+        "Last set dropset: reduce the load by about 20% and continue with clean reps.",
+      extraCues: [
+        "Keep elbows pointed up",
+        "Let the long head stretch fully",
+        "Finish with a clean rope spread",
+      ],
     },
   },
   {
@@ -69,6 +113,14 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Keep the reps smooth and the range honest. Add load only when both sets stay clean at the target reps.",
+      advancedTechnique: null,
+      extraCues: [
+        "Lead with the elbow",
+        "Keep traps quiet",
+        "Lift only to clean shoulder height",
+      ],
     },
   },
   {
@@ -81,6 +133,14 @@ export const bulkProExercises = [
       tempo: "2-1-1",
       targetRir: "Controlled submax effort",
       rest: "90 s",
+      progression:
+        "This stays submaximal. Add load only if both sets remain crisp and never interfere with the main bench work.",
+      advancedTechnique: null,
+      extraCues: [
+        "Brace before each rep",
+        "Keep ribs stacked down",
+        "Stop well before grindy reps",
+      ],
     },
   },
   {
@@ -93,9 +153,18 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "Controlled technical work",
       rest: "45 s",
+      progression:
+        "Prioritize clean scap movement and full control before adding load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Pull toward the upper face",
+        "Rotate out at the finish",
+        "Keep the neck relaxed",
+      ],
     },
   },
 
+  // BULK — D2
   {
     id: "weighted-pull-up",
     name: "Weighted Pull-up",
@@ -106,6 +175,14 @@ export const bulkProExercises = [
       tempo: "2-1-1",
       targetRir: "≈2",
       rest: "150 s",
+      progression:
+        "Add reps first. When all 4 sets reach 8 with clean reps and target RIR, increase the load slightly next time.",
+      advancedTechnique: null,
+      extraCues: [
+        "Start from a dead hang",
+        "Drive elbows toward the ribs",
+        "Do not lose position at the bottom",
+      ],
     },
   },
   {
@@ -118,6 +195,14 @@ export const bulkProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "120 s",
+      progression:
+        "Stay in the 8-10 range with clean scap control. Increase load when all sets reach 10 without leaning back to finish reps.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the chest tall",
+        "Pull elbows into the pockets",
+        "Do not swing the torso back",
+      ],
     },
   },
   {
@@ -130,6 +215,14 @@ export const bulkProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "90 s",
+      progression:
+        "Own the 10-12 range with a stable torso before adding load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Stay stacked through the ribcage",
+        "Finish with the elbows close",
+        "Control the return fully",
+      ],
     },
   },
   {
@@ -142,6 +235,14 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Keep constant tension and a clean arc first. Increase load only when both sets stay smooth through the full range.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep a soft elbow bend",
+        "Pull with the lats, not the arms",
+        "Do not let the ribs flare",
+      ],
     },
   },
   {
@@ -154,6 +255,14 @@ export const bulkProExercises = [
       tempo: "2-1-2",
       targetRir: "Controlled technical work",
       rest: "60 s",
+      progression:
+        "Keep the hinge pattern clean first. Increase difficulty only when all reps stay controlled without spinal overextension.",
+      advancedTechnique: null,
+      extraCues: [
+        "Hinge from the hips",
+        "Keep the spine neutral",
+        "Stop before the low back takes over",
+      ],
     },
   },
   {
@@ -166,6 +275,14 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "90 s",
+      progression:
+        "Build toward the top of the 10-12 range with strict reps before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep elbows fixed at the sides",
+        "Control the lowering fully",
+        "Do not rock the torso",
+      ],
     },
   },
   {
@@ -178,6 +295,14 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "90 s",
+      progression:
+        "Stay in the 10-12 range with neutral wrists and full control before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the wrists neutral",
+        "Curl without shoulder sway",
+        "Lower under full control",
+      ],
     },
   },
   {
@@ -190,6 +315,14 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Keep the reps clean and wrists stable before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the knuckles up",
+        "Do not shrug the weight up",
+        "Use a smooth full arc",
+      ],
     },
   },
   {
@@ -202,9 +335,18 @@ export const bulkProExercises = [
       tempo: "2-0-1",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Reach the top of the 10-12 range with a clear one-second hold before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Lift straight up",
+        "Hold the top cleanly",
+        "Do not roll the shoulders",
+      ],
     },
   },
 
+  // BULK — D3
   {
     id: "high-bar-back-squat",
     name: "High-Bar Back Squat",
@@ -215,6 +357,14 @@ export const bulkProExercises = [
       tempo: "3-1-1",
       targetRir: "≈2",
       rest: "150 s",
+      progression:
+        "Add reps first. When all 4 sets reach 8 with clean depth and target RIR, increase the load slightly next time.",
+      advancedTechnique: null,
+      extraCues: [
+        "Brace before every rep",
+        "Stay stacked through the bottom",
+        "Drive evenly through the full foot",
+      ],
     },
   },
   {
@@ -227,6 +377,14 @@ export const bulkProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "120 s",
+      progression:
+        "Stay in the 10-12 range with full control and no bounce. Increase load when all sets reach 12 cleanly.",
+      advancedTechnique: null,
+      extraCues: [
+        "Lower under control",
+        "Do not relax in the bottom",
+        "Keep tension on the quads",
+      ],
     },
   },
   {
@@ -239,6 +397,14 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "90 s",
+      progression:
+        "Build toward the top of the rep range on both legs with stable balance and full control before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Stay balanced over the front leg",
+        "Control the lowering fully",
+        "Drive through the whole front foot",
+      ],
     },
   },
   {
@@ -251,6 +417,15 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Own the 12-15 range with clean reps and full contraction before increasing the load.",
+      advancedTechnique:
+        "Last set dropset: reduce the load by about 25% and continue with controlled reps.",
+      extraCues: [
+        "Lock in the top squeeze",
+        "Lower without swinging",
+        "Keep the hips quiet on the seat",
+      ],
     },
   },
   {
@@ -263,6 +438,14 @@ export const bulkProExercises = [
       tempo: "3-1-2",
       targetRir: "≈1-2",
       rest: "75-90 s",
+      progression:
+        "Stay in the 10-12 range with full control and a clear top squeeze before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the back against the pad",
+        "Use the full squeeze at the top",
+        "Do not rush the eccentric",
+      ],
     },
   },
   {
@@ -275,6 +458,14 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Reach the top of the rep range with full range and clean pauses before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Rise fully onto the toes",
+        "Control the stretch on the way down",
+        "Do not bounce out of the bottom",
+      ],
     },
   },
   {
@@ -287,10 +478,17 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "45 s",
+      progression: "Keep the range long and controlled before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Use the full range",
+        "Hold tension through the top",
+        "Do not bounce through the stretch",
+      ],
     },
   },
   {
-    id: "hip-stability-ab-ad",
+    id: "hip-stability-ab-ad-d3",
     name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
     prescription: "3 rounds x 15 + 15",
@@ -299,9 +497,18 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "Controlled technical work",
       rest: "30 s after adductor",
+      progression:
+        "Keep both directions smooth and controlled before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Do not rush the switch",
+        "Control both directions",
+        "Keep the reps clean and even",
+      ],
     },
   },
 
+  // BULK — D4
   {
     id: "overhead-press-bb",
     name: "Standing Overhead Press (BB)",
@@ -312,6 +519,14 @@ export const bulkProExercises = [
       tempo: "2-1-1",
       targetRir: "≈2",
       rest: "150 s",
+      progression:
+        "Add reps first. When all 3 sets reach 8 with clean reps and target RIR, increase the load slightly next time.",
+      advancedTechnique: null,
+      extraCues: [
+        "Brace before each rep",
+        "Keep the ribs stacked down",
+        "Press in a close vertical path",
+      ],
     },
   },
   {
@@ -324,6 +539,15 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "60-75 s",
+      progression:
+        "Build toward the top of the 12-15 range with clean reps before increasing load.",
+      advancedTechnique:
+        "Optional last set dropset: reduce the load by about 20% and continue with controlled reps.",
+      extraCues: [
+        "Lead with the elbows",
+        "Keep traps quiet",
+        "Lift only as high as control stays clean",
+      ],
     },
   },
   {
@@ -336,6 +560,14 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "45-60 s",
+      progression:
+        "Keep the full arc smooth and tension continuous before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Lean only slightly",
+        "Keep tension through the full arc",
+        "Do not shrug into the rep",
+      ],
     },
   },
   {
@@ -348,6 +580,14 @@ export const bulkProExercises = [
       tempo: "2-1-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Reach the top of the rep range with a clean one-second squeeze before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Pause clearly in the squeeze",
+        "Keep the neck relaxed",
+        "Control the return fully",
+      ],
     },
   },
   {
@@ -360,6 +600,13 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "75-90 s",
+      progression: "Keep the reps clean and pain-free before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Use the wider path",
+        "Stop around shoulder height",
+        "Do not yank the dumbbells up",
+      ],
     },
   },
   {
@@ -372,6 +619,14 @@ export const bulkProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "60-75 s",
+      progression:
+        "Reach the top of the 10-12 range with a clean one-second hold before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Lift straight up",
+        "Pause clearly at the top",
+        "Do not roll the shoulders",
+      ],
     },
   },
   {
@@ -384,6 +639,13 @@ export const bulkProExercises = [
       tempo: "3-1-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression: "Keep the reps strict and stretched before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Let the biceps lengthen fully",
+        "Keep elbows slightly behind the torso",
+        "Do not swing out of the bottom",
+      ],
     },
   },
   {
@@ -396,6 +658,15 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "45-60 s",
+      progression:
+        "Keep the single set smooth and fully stretched before increasing load.",
+      advancedTechnique:
+        "Rest-pause: after the main set, rest 15 seconds and perform 5-6 extra reps.",
+      extraCues: [
+        "Stay fixed through the torso",
+        "Use the full stretch first",
+        "Do not lean back to finish reps",
+      ],
     },
   },
   {
@@ -408,9 +679,18 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "45-60 s",
+      progression:
+        "Keep both sets clean with a real squeeze before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep elbows pinned",
+        "Spread the rope at the bottom",
+        "Hold the squeeze cleanly",
+      ],
     },
   },
 
+  // BULK — D5
   {
     id: "decline-db-press-or-dips",
     name: "Dips or Decline DB Press",
@@ -421,6 +701,14 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "90 s",
+      progression:
+        "Build toward the top of the 10-12 range with clean controlled reps before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the eccentric controlled",
+        "Use the cleaner chest-driven path",
+        "Do not rush the bottom position",
+      ],
     },
   },
   {
@@ -433,6 +721,14 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Reach the top of the 12-15 range with a clean one-second squeeze before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Drive low to high smoothly",
+        "Hold the squeeze briefly",
+        "Do not turn it into a press",
+      ],
     },
   },
   {
@@ -445,6 +741,15 @@ export const bulkProExercises = [
       tempo: "1-0-X",
       targetRir: "Controlled technical push",
       rest: "No rest inside cluster",
+      progression:
+        "Keep the full cluster clean first. Add reps only if you can maintain position quality through each variation.",
+      advancedTechnique:
+        "Mechanical dropset: move from wide push-ups to close push-ups to plyo push-ups without rest.",
+      extraCues: [
+        "Change positions quickly but cleanly",
+        "Keep the trunk tight",
+        "Do not let the reps get sloppy at the end",
+      ],
     },
   },
   {
@@ -457,6 +762,14 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "90 s",
+      progression:
+        "Build toward the top of the 8-10 range with fixed upper arms before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the upper arms still",
+        "Lower under control",
+        "Do not let the elbows drift wide",
+      ],
     },
   },
   {
@@ -469,6 +782,14 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "90 s",
+      progression:
+        "Stay in the 10-12 range with a full stretch and clean finish before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the ribs down",
+        "Use the full stretch",
+        "Finish with a clean extension",
+      ],
     },
   },
   {
@@ -481,6 +802,15 @@ export const bulkProExercises = [
       tempo: "Controlled",
       targetRir: "≈1-2",
       rest: "120 s between clusters",
+      progression:
+        "Reduce assistance gradually while keeping the full cluster clean and repeatable.",
+      advancedTechnique:
+        "Cluster set: perform 8-10 reps, rest 15 seconds, then perform 4-5 more reps.",
+      extraCues: [
+        "Use only the assistance you need",
+        "Keep the range clean",
+        "Do not let the second burst turn into grinding reps",
+      ],
     },
   },
   {
@@ -493,6 +823,14 @@ export const bulkProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "150 s",
+      progression:
+        "Add reps first. When all 4 sets reach 8 with a stable torso and target RIR, increase the load slightly next time.",
+      advancedTechnique: null,
+      extraCues: [
+        "Drive elbows back, not up",
+        "Keep the torso stable",
+        "Pause briefly in the squeeze",
+      ],
     },
   },
   {
@@ -505,6 +843,14 @@ export const bulkProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "120 s",
+      progression:
+        "Own the 8-10 range with full control before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Stay glued to the pad",
+        "Pull without torso swing",
+        "Control the lowering fully",
+      ],
     },
   },
   {
@@ -517,9 +863,17 @@ export const bulkProExercises = [
       tempo: "2-1-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression: "Keep the squeeze and return clean before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Pause clearly in the squeeze",
+        "Control the return",
+        "Do not rock the torso back",
+      ],
     },
   },
 
+  // BULK — D6
   {
     id: "romanian-deadlift",
     name: "Romanian Deadlift",
@@ -530,6 +884,14 @@ export const bulkProExercises = [
       tempo: "3-1-1",
       targetRir: "≈2",
       rest: "150 s",
+      progression:
+        "Add reps first. When all 4 sets reach 8 with a clean hinge and target RIR, increase the load slightly next time.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the bar close to the legs",
+        "Push the hips back, not down",
+        "Stop where the hinge stays clean",
+      ],
     },
   },
   {
@@ -542,6 +904,14 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "90 s",
+      progression:
+        "Reach the top of the 10-12 range with a clear squeeze before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Curl hard at the top",
+        "Lower under control",
+        "Keep the setup stable throughout",
+      ],
     },
   },
   {
@@ -554,6 +924,14 @@ export const bulkProExercises = [
       tempo: "2-1-2",
       targetRir: "≈1-2",
       rest: "45-60 s",
+      progression:
+        "Build toward the top of the range with a clean one-second squeeze before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the pelvis stable",
+        "Drive back without swinging",
+        "Hold the top briefly",
+      ],
     },
   },
   {
@@ -566,6 +944,14 @@ export const bulkProExercises = [
       tempo: "2-1-2",
       targetRir: "Controlled technical work",
       rest: "60 s",
+      progression:
+        "Keep the hinge clean and controlled before increasing difficulty.",
+      advancedTechnique: null,
+      extraCues: [
+        "Hinge from the hips",
+        "Keep the spine neutral",
+        "Stop before the low back takes over",
+      ],
     },
   },
   {
@@ -578,10 +964,18 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Build toward smooth, even reps on both legs before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Use the shorter step for quad bias",
+        "Stay balanced through each stride",
+        "Drive through the front foot",
+      ],
     },
   },
   {
-    id: "hip-stability-ab-ad",
+    id: "hip-stability-ab-ad-d6",
     name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
     prescription: "3 rounds x 15 + 15",
@@ -590,6 +984,14 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "Controlled technical work",
       rest: "30 s after adductor",
+      progression:
+        "Keep both directions smooth and even before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Switch sides without rushing",
+        "Control both directions",
+        "Keep the reps even and clean",
+      ],
     },
   },
   {
@@ -602,6 +1004,15 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Reach the target reps with full range and clean control before increasing load.",
+      advancedTechnique:
+        "Last set dropset: reduce the load by about 25% and continue with controlled reps.",
+      extraCues: [
+        "Use the full stretch",
+        "Squeeze hard at the top",
+        "Do not bounce out of the bottom",
+      ],
     },
   },
   {
@@ -614,6 +1025,14 @@ export const bulkProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "45 s",
+      progression:
+        "Build toward the top of the range with full range and control before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Use the full range",
+        "Control the stretch and squeeze",
+        "Do not rush the reps",
+      ],
     },
   },
   {
@@ -626,6 +1045,14 @@ export const bulkProExercises = [
       tempo: "2-1-2",
       targetRir: "≈1-2",
       rest: "75-90 s",
+      progression:
+        "Reach the top of the 10-12 range with clean reps and a real top squeeze before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the upper arm locked in",
+        "Use the full curl",
+        "Hold the top squeeze briefly",
+      ],
     },
   },
   {
@@ -638,6 +1065,15 @@ export const bulkProExercises = [
       tempo: "2-1-2",
       targetRir: "≈1-2",
       rest: "75-90 s",
+      progression:
+        "Keep the full wide-to-narrow sequence clean before increasing load.",
+      advancedTechnique:
+        "Mechanical set: perform the reps with a wide grip, then switch immediately to a narrow grip with the same weight.",
+      extraCues: [
+        "Keep the same load for both grips",
+        "Change grip without rushing",
+        "Do not cheat with the shoulders",
+      ],
     },
   },
   {
@@ -650,6 +1086,14 @@ export const bulkProExercises = [
       tempo: "2-1-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Keep the reps smooth and the top position controlled before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Let the bar roll into the fingers",
+        "Curl back up under control",
+        "Hold the top briefly",
+      ],
     },
   },
   {
@@ -662,6 +1106,14 @@ export const bulkProExercises = [
       tempo: "Controlled",
       targetRir: "Controlled technical work",
       rest: "60 s",
+      progression:
+        "Keep both rotations even and controlled before increasing difficulty.",
+      advancedTechnique: null,
+      extraCues: [
+        "Roll evenly in both directions",
+        "Do not rush the turns",
+        "Keep tension through the full roll",
+      ],
     },
   },
 ];

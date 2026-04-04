@@ -1,4 +1,5 @@
 export const cutProExercises = [
+  // D1
   {
     id: "smith-bench-press",
     name: "Smith Bench Press",
@@ -9,6 +10,14 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "150 s",
+      progression:
+        "Hold the load steady as long as possible while staying in the 5-7 range with clean reps and target RIR. Increase only when all 3 sets reach 7 cleanly.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep shoulder blades pinned",
+        "Pause the touch under control",
+        "Press through a steady bar path",
+      ],
     },
   },
   {
@@ -21,6 +30,14 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "120 s",
+      progression:
+        "Keep the same dumbbells as long as you can while owning the 8-10 range with clean reps.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the incline slight",
+        "Pause briefly at the bottom",
+        "Press up without losing shoulder position",
+      ],
     },
   },
   {
@@ -33,6 +50,14 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "120 s",
+      progression:
+        "Stay with the variation that feels cleaner on the shoulders. Add load only when both sets are stable and pain-free at the top of the range.",
+      advancedTechnique: null,
+      extraCues: [
+        "Choose the pain-free setup",
+        "Control the bottom position",
+        "Do not chase reps with sloppy depth",
+      ],
     },
   },
   {
@@ -45,6 +70,14 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "Controlled technical work",
       rest: "—",
+      progression:
+        "Keep the range long and controlled. Increase load only if you can keep the stretch position honest without forcing it.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep a soft elbow bend",
+        "Let the chest stretch naturally",
+        "Stay smooth through the full arc",
+      ],
     },
   },
   {
@@ -57,6 +90,14 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "60-75 s",
+      progression:
+        "Stay in the 12-15 range with full control and stable elbows before increasing the load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep elbows pointed up",
+        "Use the full stretch",
+        "Finish with a clean rope spread",
+      ],
     },
   },
   {
@@ -69,6 +110,14 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "45-60 s",
+      progression:
+        "Keep both sets clean and controlled before increasing load. Shoulder position matters more than chasing heavier dumbbells.",
+      advancedTechnique: null,
+      extraCues: [
+        "Lead with the elbow",
+        "Keep traps quiet",
+        "Lift only as high as control stays clean",
+      ],
     },
   },
   {
@@ -81,9 +130,19 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "Controlled technical work",
       rest: "45-60 s",
+      progression:
+        "Keep the movement crisp and controlled. Add load only when the line of pull and scap motion stay clean.",
+      advancedTechnique: null,
+      extraCues: [
+        "Pull toward the upper face",
+        "Rotate out at the finish",
+        "Keep the neck relaxed",
+      ],
     },
   },
 
+  // D2
+  // CUT — D2
   {
     id: "weighted-or-assisted-pull-up",
     name: "Weighted or Assisted Pull-up",
@@ -94,6 +153,14 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "150 s",
+      progression:
+        "Keep the setup that lets you stay in the 5-8 range with clean full-range reps. Progress only when all 3 sets are stable and controlled.",
+      advancedTechnique: null,
+      extraCues: [
+        "Use the cleanest full range",
+        "Drive elbows toward the ribs",
+        "Own the bottom position",
+      ],
     },
   },
   {
@@ -106,6 +173,14 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "120 s",
+      progression:
+        "Stay with the same load while the reps remain clean and controlled. Increase only when both sets reach the top of the range without torso swing.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the chest tall",
+        "Drive elbows into the pockets",
+        "Do not finish by leaning back",
+      ],
     },
   },
   {
@@ -118,6 +193,13 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "90 s",
+      progression: "Keep the set controlled and stable before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Stay stacked through the torso",
+        "Finish with the elbows close",
+        "Control the return fully",
+      ],
     },
   },
   {
@@ -130,6 +212,14 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Keep the arc smooth and the tension constant before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep a soft elbow bend",
+        "Move from the shoulder",
+        "Do not let the ribs flare",
+      ],
     },
   },
   {
@@ -142,10 +232,18 @@ export const cutProExercises = [
       tempo: "2-0-1",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Keep the one-second top hold honest before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Lift straight up",
+        "Pause clearly at the top",
+        "Do not roll the shoulders",
+      ],
     },
   },
   {
-    id: "back-extension",
+    id: "back-extension-d2",
     name: "Back Extension",
     subtitle: "Lower-back health support",
     prescription: "1 x 12-15",
@@ -154,6 +252,14 @@ export const cutProExercises = [
       tempo: "2-1-2",
       targetRir: "Controlled technical work",
       rest: "60-75 s",
+      progression:
+        "Keep the hinge pattern clean and controlled before increasing difficulty.",
+      advancedTechnique: null,
+      extraCues: [
+        "Hinge from the hips",
+        "Keep the spine neutral",
+        "Stop before the low back takes over",
+      ],
     },
   },
   {
@@ -166,6 +272,14 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "90 s",
+      progression:
+        "Keep the reps strict and controlled. Increase load only when both sets reach the top of the range cleanly.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep elbows fixed",
+        "Lower under control",
+        "Do not rock the torso",
+      ],
     },
   },
   {
@@ -178,6 +292,14 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "90 s",
+      progression:
+        "Stay in the target range with neutral wrists and clean reps before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the wrists neutral",
+        "Move through a clean arc",
+        "Control the lowering fully",
+      ],
     },
   },
   {
@@ -190,9 +312,18 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Keep the single set strict and stable before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the knuckles up",
+        "Do not shrug the rep up",
+        "Use a smooth full arc",
+      ],
     },
   },
 
+  // CUT — D3
   {
     id: "high-bar-back-squat",
     name: "High-Bar Back Squat",
@@ -203,6 +334,14 @@ export const cutProExercises = [
       tempo: "3-1-1",
       targetRir: "≈1-2",
       rest: "150-180 s",
+      progression:
+        "Hold the load steady as long as possible while keeping clean depth and target RIR. Increase only when all 3 sets reach 8 cleanly.",
+      advancedTechnique: null,
+      extraCues: [
+        "Brace before every rep",
+        "Stay upright through the bottom",
+        "Drive through the full foot",
+      ],
     },
   },
   {
@@ -215,6 +354,14 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "120 s",
+      progression:
+        "Keep both sets controlled and honest before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Lower under control",
+        "Stay tight in the bottom",
+        "Do not bounce the sled up",
+      ],
     },
   },
   {
@@ -227,6 +374,14 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "75-90 s",
+      progression:
+        "Build toward the top of the range on both legs with stable balance before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Use the shorter step for quad bias",
+        "Pause under control at the bottom",
+        "Drive through the front foot",
+      ],
     },
   },
   {
@@ -239,6 +394,14 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Keep the single set smooth and controlled before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Lock in the top squeeze",
+        "Lower the weight under control",
+        "Keep the hips stable on the seat",
+      ],
     },
   },
   {
@@ -251,6 +414,14 @@ export const cutProExercises = [
       tempo: "3-1-2",
       targetRir: "≈1-2",
       rest: "75-90 s",
+      progression:
+        "Keep both sets controlled with a real squeeze before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Control the eccentric fully",
+        "Squeeze clearly at the top",
+        "Keep the setup stable throughout",
+      ],
     },
   },
   {
@@ -263,10 +434,18 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Reach the top of the rep range with full range and brief pauses before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Use the full range",
+        "Pause briefly at the top and bottom",
+        "Do not bounce through the stretch",
+      ],
     },
   },
   {
-    id: "seated-calf-raise",
+    id: "seated-calf-raise-d3",
     name: "Seated Calf Raise",
     subtitle: "Soleus support work",
     prescription: "1 x 15-20",
@@ -275,10 +454,18 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "45 s",
+      progression:
+        "Keep the single set long and controlled before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Stay controlled through the full range",
+        "Hold tension at the top",
+        "Do not use momentum",
+      ],
     },
   },
   {
-    id: "abductor-adductor-machine",
+    id: "abductor-adductor-machine-d3",
     name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
     prescription: "1 round x 12-15",
@@ -287,9 +474,18 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "Controlled technical work",
       rest: "30 s",
+      progression:
+        "Keep the round smooth and controlled before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Switch sides without rushing",
+        "Control both directions",
+        "Keep the reps even and clean",
+      ],
     },
   },
 
+  // CUT — D4
   {
     id: "standing-ohp",
     name: "Standing Overhead Press (BB)",
@@ -300,6 +496,14 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "120-150 s",
+      progression:
+        "Hold the load steady as long as possible while keeping clean reps and target RIR. Increase only when all 3 sets reach 8 cleanly.",
+      advancedTechnique: null,
+      extraCues: [
+        "Brace before each rep",
+        "Keep the ribs stacked down",
+        "Press in a clean vertical path",
+      ],
     },
   },
   {
@@ -312,6 +516,14 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "60-75 s",
+      progression:
+        "Keep both sets clean and controlled before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Lead with the elbows",
+        "Keep traps quiet",
+        "Lift only as high as control stays clean",
+      ],
     },
   },
   {
@@ -324,6 +536,14 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "45-60 s",
+      progression:
+        "Keep the single set smooth and tension-focused before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Lean only slightly",
+        "Keep tension through the full arc",
+        "Do not shrug into the rep",
+      ],
     },
   },
   {
@@ -336,6 +556,14 @@ export const cutProExercises = [
       tempo: "2-1-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Keep the squeeze clean and controlled before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the neck relaxed",
+        "Pause briefly in the squeeze",
+        "Control the return fully",
+      ],
     },
   },
   {
@@ -348,6 +576,14 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "75-90 s",
+      progression:
+        "Keep the single set clean and pain-free before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Use the wider path",
+        "Stop around shoulder height",
+        "Do not yank the dumbbells up",
+      ],
     },
   },
   {
@@ -360,6 +596,13 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "60-75 s",
+      progression: "Keep the pause honest before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Lift straight up",
+        "Pause clearly at the top",
+        "Do not roll the shoulders",
+      ],
     },
   },
   {
@@ -372,6 +615,14 @@ export const cutProExercises = [
       tempo: "2-1-2",
       targetRir: "≈1-2",
       rest: "60-75 s",
+      progression:
+        "Keep both sets strict and stretched before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Let the biceps lengthen fully",
+        "Keep elbows slightly behind the torso",
+        "Do not swing to finish reps",
+      ],
     },
   },
   {
@@ -384,9 +635,18 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "45-60 s",
+      progression:
+        "Keep the single set clean and controlled before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep elbows pinned",
+        "Spread the rope at the bottom",
+        "Finish with a clean squeeze",
+      ],
     },
   },
 
+  // CUT — D5
   {
     id: "decline-db-press-or-dips-bw",
     name: "Dips or Decline DB Press",
@@ -397,6 +657,14 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "90 s",
+      progression:
+        "Stay with the option that feels cleaner and more stable. Increase load only when both sets stay controlled at the top of the range.",
+      advancedTechnique: null,
+      extraCues: [
+        "Choose the cleaner shoulder-friendly setup",
+        "Control the eccentric",
+        "Keep the path chest-driven",
+      ],
     },
   },
   {
@@ -409,6 +677,14 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Keep the single set smooth and fully controlled before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Drive low to high smoothly",
+        "Hold the squeeze briefly",
+        "Do not turn it into a press",
+      ],
     },
   },
   {
@@ -421,6 +697,14 @@ export const cutProExercises = [
       tempo: "2-0-1",
       targetRir: "≈1-2",
       rest: "—",
+      progression:
+        "Build reps within the clean 10-20 range before making the set harder.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the trunk tight",
+        "Lower under control",
+        "Stop before shape breaks down",
+      ],
     },
   },
   {
@@ -433,6 +717,14 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈2-3",
       rest: "120 s",
+      progression:
+        "Reduce assistance gradually while keeping both sets smooth and clean.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the range clean",
+        "Stay smooth through every rep",
+        "Do not grind the last reps",
+      ],
     },
   },
   {
@@ -445,6 +737,14 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "150 s",
+      progression:
+        "Hold the load steady while both sets stay clean and stable. Increase only when both sets reach 8 with target RIR.",
+      advancedTechnique: null,
+      extraCues: [
+        "Drive elbows back, not up",
+        "Keep the torso stable",
+        "Pause briefly in the squeeze",
+      ],
     },
   },
   {
@@ -457,6 +757,14 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "120 s",
+      progression:
+        "Keep the single set strict and controlled before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Stay glued to the pad",
+        "Pull without body swing",
+        "Control the lowering fully",
+      ],
     },
   },
   {
@@ -469,6 +777,14 @@ export const cutProExercises = [
       tempo: "2-1-2",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Keep the single set smooth and squeeze-focused before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Pause clearly in the squeeze",
+        "Control the return",
+        "Do not rock the torso back",
+      ],
     },
   },
   {
@@ -481,6 +797,14 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "75-90 s",
+      progression:
+        "Keep the single set controlled and stable before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the upper arms still",
+        "Lower under control",
+        "Do not flare the elbows out",
+      ],
     },
   },
   {
@@ -493,9 +817,18 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "75-90 s",
+      progression:
+        "Keep the single set smooth through the full stretch before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the ribs down",
+        "Use the full stretch",
+        "Finish with a clean extension",
+      ],
     },
   },
 
+  // CUT — D6
   {
     id: "romanian-deadlift",
     name: "Romanian Deadlift",
@@ -506,6 +839,14 @@ export const cutProExercises = [
       tempo: "3-1-1",
       targetRir: "≈1-2",
       rest: "120-150 s",
+      progression:
+        "Hold the load steady as long as possible while keeping a clean hinge and target RIR. Increase only when all 3 sets reach 8 cleanly.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the bar close to the legs",
+        "Push the hips back",
+        "Stay braced through the hinge",
+      ],
     },
   },
   {
@@ -518,6 +859,14 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "75-90 s",
+      progression:
+        "Keep both sets controlled with a clear squeeze before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Stay pinned to the pad",
+        "Squeeze hard at the top",
+        "Lower under control",
+      ],
     },
   },
   {
@@ -530,6 +879,14 @@ export const cutProExercises = [
       tempo: "2-1-2",
       targetRir: "≈1-2",
       rest: "45-60 s",
+      progression:
+        "Build toward the top of the range with clean reps and a clear squeeze before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the pelvis stable",
+        "Drive back without swinging",
+        "Finish with a clean glute squeeze",
+      ],
     },
   },
   {
@@ -542,10 +899,18 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "≈1-2",
       rest: "60-90 s",
+      progression:
+        "Keep the reps even and controlled on both legs before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Use the shorter step for quad bias",
+        "Drive through the front foot",
+        "Stay balanced through each stride",
+      ],
     },
   },
   {
-    id: "back-extension",
+    id: "back-extension-d6",
     name: "Back Extension",
     subtitle: "Lower-back health support",
     prescription: "1 x 12-15",
@@ -554,6 +919,14 @@ export const cutProExercises = [
       tempo: "2-1-2",
       targetRir: "Controlled technical work",
       rest: "60-75 s",
+      progression:
+        "Keep the single set clean and controlled before increasing difficulty.",
+      advancedTechnique: null,
+      extraCues: [
+        "Hinge from the hips",
+        "Keep the spine neutral",
+        "Stop before the low back takes over",
+      ],
     },
   },
   {
@@ -566,10 +939,18 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "60 s",
+      progression:
+        "Reach the top of the range with full range and clean pauses before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Use the full range",
+        "Pause at the top",
+        "Keep the reps smooth",
+      ],
     },
   },
   {
-    id: "seated-calf-raise",
+    id: "seated-calf-raise-d6",
     name: "Seated Calf Raise",
     subtitle: "Soleus support work",
     prescription: "2 x 15-20",
@@ -578,6 +959,14 @@ export const cutProExercises = [
       tempo: "2-1-1",
       targetRir: "≈1-2",
       rest: "45-60 s",
+      progression:
+        "Build toward the top of the range with clean control before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Stay controlled through the full range",
+        "Keep tension through the top",
+        "Do not bounce out of the bottom",
+      ],
     },
   },
   {
@@ -590,6 +979,14 @@ export const cutProExercises = [
       tempo: "2-1-2",
       targetRir: "≈1-2",
       rest: "75-90 s",
+      progression:
+        "Keep both sets strict and controlled before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Stay locked to the pad",
+        "Squeeze at the top",
+        "Lower under control",
+      ],
     },
   },
   {
@@ -602,10 +999,18 @@ export const cutProExercises = [
       tempo: "2-1-2",
       targetRir: "≈1-2",
       rest: "45-60 s",
+      progression:
+        "Keep the single set smooth and controlled before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Let the bar roll into the fingers",
+        "Curl back up under control",
+        "Do not rush the top position",
+      ],
     },
   },
   {
-    id: "abductor-adductor-machine",
+    id: "abductor-adductor-machine-d6",
     name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
     prescription: "1 round x 12-15",
@@ -614,6 +1019,13 @@ export const cutProExercises = [
       tempo: "2-0-2",
       targetRir: "Controlled technical work",
       rest: "30 s",
+      progression: "Keep the round even and controlled before increasing load.",
+      advancedTechnique: null,
+      extraCues: [
+        "Switch sides without rushing",
+        "Control both directions",
+        "Keep the reps even and clean",
+      ],
     },
   },
 ];
