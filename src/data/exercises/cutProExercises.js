@@ -487,7 +487,7 @@ export const cutProExercises = [
 
   // CUT — D4
   {
-    id: "standing-ohp",
+    id: "standing-overhead-press-bb",
     name: "Standing Overhead Press (BB)",
     subtitle: "Primary shoulder strength press",
     prescription: "3 x 6-8",
@@ -648,7 +648,7 @@ export const cutProExercises = [
 
   // CUT — D5
   {
-    id: "decline-db-press-or-dips-bw",
+    id: "dips-or-decline-db-press",
     name: "Dips or Decline DB Press",
     subtitle: "Lower-chest pump press",
     prescription: "2 x 8-10",

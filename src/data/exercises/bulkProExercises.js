@@ -510,7 +510,7 @@ export const bulkProExercises = [
 
   // BULK — D4
   {
-    id: "overhead-press-bb",
+    id: "standing-overhead-press-bb",
     name: "Standing Overhead Press (BB)",
     subtitle: "Primary shoulder strength press",
     prescription: "3 x 6-8",
@@ -591,7 +591,7 @@ export const bulkProExercises = [
     },
   },
   {
-    id: "upright-row-db",
+    id: "db-upright-row",
     name: "Upright Row (DB)",
     subtitle: "Trap and upper-delt work",
     prescription: "2 x 10-12",
@@ -610,7 +610,7 @@ export const bulkProExercises = [
     },
   },
   {
-    id: "dumbbell-shrug",
+    id: "db-shrug",
     name: "Dumbbell Shrug",
     subtitle: "Upper-trap squeeze work",
     prescription: "2 x 10-12",
@@ -692,7 +692,7 @@ export const bulkProExercises = [
 
   // BULK — D5
   {
-    id: "decline-db-press-or-dips",
+    id: "dips-or-decline-db-press",
     name: "Dips or Decline DB Press",
     subtitle: "Lower-chest pump press",
     prescription: "3 x 10-12",
@@ -834,7 +834,7 @@ export const bulkProExercises = [
     },
   },
   {
-    id: "chest-supported-row-45",
+    id: "chest-supported-row",
     name: "Chest Supported Row (45°)",
     subtitle: "Stable row thickness work",
     prescription: "3 x 8-10",
@@ -854,7 +854,7 @@ export const bulkProExercises = [
     },
   },
   {
-    id: "seated-cable-row-squeeze",
+    id: "seated-cable-row",
     name: "Seated Cable Row",
     subtitle: "Metabolic row finisher",
     prescription: "2 x 12-15",

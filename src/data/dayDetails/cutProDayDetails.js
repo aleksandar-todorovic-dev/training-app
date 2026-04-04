@@ -76,7 +76,7 @@ export const cutProDayDetails = [
       warmupId: "warmup-d4",
     },
     exerciseIds: [
-      "standing-ohp",
+      "standing-overhead-press-bb",
       "lateral-raise-db",
       "cable-lateral-lean-away",
       "reverse-pec-deck",
@@ -98,7 +98,7 @@ export const cutProDayDetails = [
       warmupId: "warmup-d5",
     },
     exerciseIds: [
-      "decline-db-press-or-dips-bw",
+      "dips-or-decline-db-press",
       "low-to-high-cable-fly",
       "push-up",
       "assisted-pull-up-light",
