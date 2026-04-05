@@ -2,14 +2,11 @@ import { useParams } from "react-router-dom";
 import AppShell from "../components/layout/AppShell";
 import SectionCard from "../components/layout/SectionCard";
 import BackButton from "../components/common/BackButton";
-import PrimaryButton from "../components/common/PrimaryButton";
 import { UI_STACK_LG, UI_STACK_MD, UI_TEXT_MUTED } from "../styles/ui";
 import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getExerciseById } from "../data/exercises";
-import ExerciseMainInfoCard from "../components/exercise/ExerciseMainInfoCard";
-import ExerciseDetailsToggle from "../components/exercise/ExerciseDetailsToggle";
-import SetCard from "../components/exercise/SetCard";
+import ExerciseWorkflowCard from "../components/exercise/ExerciseWorkflowCard";
 
 const STATIC_SET_DISPLAY = {
   "bulk-pro": {
@@ -94,33 +91,7 @@ export default function ExercisePage() {
           </div>
         </div>
 
-        <ExerciseMainInfoCard exercise={exercise} />
-
-        <ExerciseDetailsToggle details={exercise.details} />
-
-        <SectionCard>
-          <div className={UI_STACK_MD}>
-            <h2 className="text-sm font-semibold text-zinc-100">Today</h2>
-            <p className={UI_TEXT_MUTED}>Pre-filled from previous workout</p>
-          </div>
-        </SectionCard>
-
-        <div className={UI_STACK_MD}>
-          {staticSets.map((set) => (
-            <SetCard
-              key={`${exerciseId}-set-${set.setNumber}`}
-              setNumber={set.setNumber}
-              weight={set.weight}
-              reps={set.reps}
-              rir={set.rir}
-            />
-          ))}
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <PrimaryButton type="button">+ Add set</PrimaryButton>
-          <PrimaryButton type="button">Mark exercise done</PrimaryButton>
-        </div>
+        <ExerciseWorkflowCard exercise={exercise} sets={staticSets} />
       </div>
     </AppShell>
   );
