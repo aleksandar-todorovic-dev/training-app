@@ -1,4 +1,5 @@
 export const cutProDayDetails = [
+  // D1 cut
   {
     id: "d1",
     label: "D1",
@@ -20,6 +21,7 @@ export const cutProDayDetails = [
     ],
     coreBlockId: null,
   },
+  // D2 cut
   {
     id: "d2",
     label: "D2",
@@ -43,10 +45,11 @@ export const cutProDayDetails = [
     ],
     coreBlockId: "core-a",
   },
+  // D3 cut
   {
     id: "d3",
     label: "D3",
-    name: "Legs Heavy",
+    name: "Quads Heavy",
     goal: "Quad priority with hamstring spark and calf support",
     sessionInfo: {
       rirRule: "Compound 1-2, other lifts 1-2",
@@ -65,6 +68,7 @@ export const cutProDayDetails = [
     ],
     coreBlockId: null,
   },
+  // D4 cut
   {
     id: "d4",
     label: "D4",
@@ -87,6 +91,7 @@ export const cutProDayDetails = [
     ],
     coreBlockId: "core-b",
   },
+  // D5 cut
   {
     id: "d5",
     label: "D5",
@@ -110,6 +115,7 @@ export const cutProDayDetails = [
     ],
     coreBlockId: "core-c",
   },
+  // D6 cut
   {
     id: "d6",
     label: "D6",

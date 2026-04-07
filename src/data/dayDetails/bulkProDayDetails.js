@@ -1,4 +1,5 @@
 export const bulkProDayDetails = [
+  // D1 bulk
   {
     id: "d1",
     label: "D1",
@@ -22,6 +23,7 @@ export const bulkProDayDetails = [
     ],
     coreBlockId: null,
   },
+  //D2 bulk
   {
     id: "d2",
     label: "D2",
@@ -45,10 +47,11 @@ export const bulkProDayDetails = [
     ],
     coreBlockId: "core-a",
   },
+  //D3 bulk
   {
     id: "d3",
     label: "D3",
-    name: "Legs Heavy",
+    name: "Quads Heavy",
     goal: "Quad priority with hamstring top-up",
     sessionInfo: {
       rirRule: "Compound 1-2, other lifts 1-2",
@@ -67,6 +70,7 @@ export const bulkProDayDetails = [
     ],
     coreBlockId: null,
   },
+  // D4 bulk
   {
     id: "d4",
     label: "D4",
@@ -91,11 +95,12 @@ export const bulkProDayDetails = [
     ],
     coreBlockId: "core-b",
   },
+  // D5 bulk
   {
     id: "d5",
     label: "D5",
     name: "Chest Pump & Rows",
-    goal: "Chest pump, row focus, and triceps lock-out",
+    goal: "Chest pump, row bridge, and triceps lock-out",
     sessionInfo: {
       rirRule: "Compound 1-2, other lifts 1-2",
       advancedTechniques: "Push-up Mechanical Dropset",
@@ -114,6 +119,7 @@ export const bulkProDayDetails = [
     ],
     coreBlockId: "core-c",
   },
+  // D6 bulk
   {
     id: "d6",
     label: "D6",
