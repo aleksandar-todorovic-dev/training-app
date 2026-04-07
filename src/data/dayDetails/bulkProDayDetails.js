@@ -84,7 +84,7 @@ export const bulkProDayDetails = [
     },
     exerciseIds: [
       "standing-overhead-press-bb",
-      "lateral-raise-db",
+      "machine-lateral-raise",
       "cable-lateral-lean-away",
       "reverse-pec-deck",
       "db-upright-row",

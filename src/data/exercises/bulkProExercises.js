@@ -530,7 +530,7 @@ export const bulkProExercises = [
     },
   },
   {
-    id: "lateral-raise-db",
+    id: "machine-lateral-raise",
     name: "Machine Lateral Raise",
     subtitle: "Primary side-delt volume",
     prescription: "3 x 12-15",
