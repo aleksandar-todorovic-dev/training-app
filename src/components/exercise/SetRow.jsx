@@ -6,11 +6,13 @@ function CheckBox() {
 
 function MetricCell({ label, value }) {
   return (
-    <div className="min-w-0">
+    <div className="min-w-0 text-center">
       <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
         {label}
       </p>
-      <p className="mt-1 text-base font-semibold text-zinc-100">{value}</p>
+      <p className="mt-1 text-base font-semibold tabular-nums text-zinc-100">
+        {value}
+      </p>
     </div>
   );
 }
@@ -24,11 +26,13 @@ export default function SetRow({
 }) {
   return (
     <div
-      className={`grid grid-cols-[40px_1fr_1fr_1fr_24px] items-center gap-3 py-3 ${
+      className={`grid grid-cols-[40px_1fr_1fr_1fr_24px] items-center gap-2 py-3 ${
         !isLast ? "border-b border-zinc-800/80" : ""
       }`}
     >
-      <span className="text-sm font-semibold text-zinc-100">S{setNumber}</span>
+      <span className="text-sm font-semibold tabular-nums text-zinc-100">
+        S{setNumber}
+      </span>
 
       <MetricCell label="Kg" value={weight?.replace?.(" kg", "") ?? weight} />
       <MetricCell label="Reps" value={reps} />

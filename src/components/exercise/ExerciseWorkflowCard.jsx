@@ -19,6 +19,14 @@ function getPrescriptionParts(prescription) {
   };
 }
 
+function cleanSummaryValue(value) {
+  if (!value || typeof value !== "string") {
+    return "—";
+  }
+
+  return value.replace(/^≈\s*/, "").trim();
+}
+
 function DetailBlock({ title, children }) {
   if (!children) {
     return null;
@@ -49,6 +57,11 @@ export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
     advancedTechnique,
     extraCues = [],
   } = exercise.details ?? {};
+
+  const cleanedPrescriptionDisplay = cleanSummaryValue(prescriptionDisplay);
+  const cleanedTempo = cleanSummaryValue(tempo);
+  const cleanedTargetRir = cleanSummaryValue(targetRir);
+  const cleanedRest = cleanSummaryValue(rest);
 
   return (
     <SectionCard>
@@ -89,7 +102,7 @@ export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
           )}
         </div>
 
-        <div className="border-t border-zinc-800/80 pt-3 space-y-3">
+        <div className="space-y-3 border-t border-zinc-800/80 pt-3">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
               Pre-filled from previous workout
@@ -100,7 +113,7 @@ export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
           </div>
 
           <div className="space-y-1.5">
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-4 gap-3 text-center">
               <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
                 Sets
               </p>
@@ -115,18 +128,18 @@ export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
               </p>
             </div>
 
-            <div className="grid grid-cols-4 gap-3">
-              <p className="text-lg font-semibold tracking-tight text-zinc-100">
-                {prescriptionDisplay}
+            <div className="grid grid-cols-4 gap-3 text-center">
+              <p className="text-base font-semibold leading-5 tracking-tight text-zinc-100">
+                {cleanedPrescriptionDisplay}
               </p>
-              <p className="text-lg font-semibold tracking-tight text-zinc-100">
-                {tempo}
+              <p className="text-base font-semibold leading-5 tracking-tight text-zinc-100">
+                {cleanedTempo}
               </p>
-              <p className="text-lg font-semibold tracking-tight text-zinc-100">
-                {targetRir}
+              <p className="text-base font-semibold leading-5 tracking-tight text-zinc-100">
+                {cleanedTargetRir}
               </p>
-              <p className="text-lg font-semibold tracking-tight text-zinc-100">
-                {rest}
+              <p className="text-base font-semibold leading-5 tracking-tight text-zinc-100">
+                {cleanedRest}
               </p>
             </div>
           </div>

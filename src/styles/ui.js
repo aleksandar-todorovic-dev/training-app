@@ -1,4 +1,4 @@
-export const UI_PAGE = "min-h-screen bg-zinc-950 text-zinc-100";
+export const UI_PAGE = "min-h-screen bg-zinc-950 text-zinc-100 font-sans";
 export const UI_CONTAINER =
   "mx-auto flex min-h-screen w-full max-w-md flex-col px-4 pb-8 pt-6";
 export const UI_STACK_LG = "flex flex-col gap-6";
