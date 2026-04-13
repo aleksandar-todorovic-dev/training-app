@@ -68,7 +68,7 @@ export const cutProExercises = [
     cue: "Keep a soft elbow bend, stay in a long controlled range, and let the chest stretch without forcing it",
     details: {
       tempo: "2-0-2",
-      targetRir: "Controlled technical work",
+      targetRir: "1-2",
       rest: "—",
       progression:
         "Keep the range long and controlled. Increase load only if you can keep the stretch position honest without forcing it.",
@@ -128,7 +128,7 @@ export const cutProExercises = [
     cue: "Pull high, rotate out at the top, and finish with clean scap control",
     details: {
       tempo: "2-0-2",
-      targetRir: "Controlled technical work",
+      targetRir: "2-3",
       rest: "45-60 s",
       progression:
         "Keep the movement crisp and controlled. Add load only when the line of pull and scap motion stay clean.",
@@ -249,7 +249,7 @@ export const cutProExercises = [
     cue: "Move from the hips, pause briefly at the top, and stop before the low back takes over",
     details: {
       tempo: "2-1-2",
-      targetRir: "Controlled technical work",
+      targetRir: "2-3",
       rest: "60-75 s",
       progression:
         "Keep the hinge pattern clean and controlled before increasing difficulty.",
@@ -332,7 +332,7 @@ export const cutProExercises = [
     details: {
       tempo: "3-1-1",
       targetRir: "≈1-2",
-      rest: "150-180 s",
+      rest: "150 s",
       progression:
         "Hold the load steady as long as possible while keeping clean depth and target RIR. Increase only when all 3 sets reach 8 cleanly.",
       advancedTechnique: null,
@@ -367,7 +367,7 @@ export const cutProExercises = [
     id: "bulgarian-split-squat",
     name: "Bulgarian Split Squat",
     subtitle: "Unilateral quad-bias support",
-    prescription: "2 x 8-10 / leg",
+    prescription: "2 x 8-10",
     cue: "Use a shorter step, stay balanced, and drive through the front foot",
     details: {
       tempo: "2-1-1",
@@ -377,6 +377,7 @@ export const cutProExercises = [
         "Build toward the top of the range on both legs with stable balance before increasing load.",
       advancedTechnique: null,
       extraCues: [
+        "Reps are per leg",
         "Keep the torso a bit more upright for quad bias",
         "Pause briefly in the bottom with control",
         "Hold support lightly if balance is the limit",
@@ -467,16 +468,17 @@ export const cutProExercises = [
     id: "abductor-adductor-machine-d3",
     name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
-    prescription: "1 round x 12-15",
+    prescription: "1 x 12-15",
     cue: "Move both directions with control and keep the transition short but clean",
     details: {
       tempo: "2-0-2",
-      targetRir: "Controlled technical work",
+      targetRir: "2-3",
       rest: "30 s",
       progression:
         "Keep the round smooth and controlled before increasing load.",
       advancedTechnique: null,
       extraCues: [
+        "One round = abductor reps + adductor reps",
         "Switch sides without rushing",
         "Keep both directions even and smooth",
         "Treat it like support work, not ego work",
@@ -494,7 +496,7 @@ export const cutProExercises = [
     details: {
       tempo: "2-1-1",
       targetRir: "≈1-2",
-      rest: "120-150 s",
+      rest: "150 s",
       progression:
         "Hold the load steady as long as possible while keeping clean reps and target RIR. Increase only when all 3 sets reach 8 cleanly.",
       advancedTechnique: null,
@@ -837,7 +839,7 @@ export const cutProExercises = [
     details: {
       tempo: "3-1-1",
       targetRir: "≈1-2",
-      rest: "120-150 s",
+      rest: "150 s",
       progression:
         "Hold the load steady as long as possible while keeping a clean hinge and target RIR. Increase only when all 3 sets reach 8 cleanly.",
       advancedTechnique: null,
@@ -872,7 +874,7 @@ export const cutProExercises = [
     id: "machine-glute-kickback",
     name: "Machine Glute Kickback",
     subtitle: "Glute-focused support work",
-    prescription: "2 x 12-15 / leg",
+    prescription: "2 x 12-15",
     cue: "Keep the pelvis stable, drive back through the heel, and finish with a clean glute squeeze",
     details: {
       tempo: "2-1-2",
@@ -882,6 +884,7 @@ export const cutProExercises = [
         "Build toward the top of the range with clean reps and a clear squeeze before increasing load.",
       advancedTechnique: null,
       extraCues: [
+        "Reps are per leg",
         "Keep the knee slightly bent",
         "Do not rotate the torso or hips",
         "Return slowly without swinging",
@@ -892,7 +895,7 @@ export const cutProExercises = [
     id: "walking-lunge",
     name: "Walking Lunge",
     subtitle: "Quad top-up with short-step bias",
-    prescription: "2 x 10-12 / leg",
+    prescription: "2 x 10-12",
     cue: "Use a shorter step, stay balanced, and drive through the front foot with control",
     details: {
       tempo: "2-0-2",
@@ -902,6 +905,7 @@ export const cutProExercises = [
         "Keep the reps even and controlled on both legs before increasing load.",
       advancedTechnique: null,
       extraCues: [
+        "Reps are per leg",
         "Let the knee travel forward in a controlled way",
         "Keep the torso stable with only a slight lean",
         "Do not rush the stride",
@@ -916,7 +920,7 @@ export const cutProExercises = [
     cue: "Move from the hips, let the glutes lead, and stop before the low back takes over",
     details: {
       tempo: "2-1-2",
-      targetRir: "Controlled technical work",
+      targetRir: "2-3",
       rest: "60-75 s",
       progression:
         "Keep the single set clean and controlled before increasing difficulty.",
@@ -1012,15 +1016,16 @@ export const cutProExercises = [
     id: "abductor-adductor-machine-d6",
     name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
-    prescription: "1 round x 12-15",
+    prescription: "1 x 12-15",
     cue: "Move both directions with control and keep the transition short but clean",
     details: {
       tempo: "2-0-2",
-      targetRir: "Controlled technical work",
+      targetRir: "2-3",
       rest: "30 s",
       progression: "Keep the round even and controlled before increasing load.",
       advancedTechnique: null,
       extraCues: [
+        "One round = abductor reps + adductor reps",
         "Switch directions without rushing",
         "Keep both sides even and controlled",
         "Treat it like support work, not ego work",

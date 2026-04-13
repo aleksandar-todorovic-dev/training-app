@@ -3,22 +3,6 @@ import PrimaryButton from "../common/PrimaryButton";
 import SetRow from "./SetRow";
 import { UI_TEXT_MUTED } from "../../styles/ui";
 
-function getPrescriptionParts(prescription) {
-  if (!prescription || typeof prescription !== "string") {
-    return {
-      sets: "—",
-      reps: "—",
-    };
-  }
-
-  const [setsPart, repsPart] = prescription.split(" x ");
-
-  return {
-    sets: setsPart?.trim() ?? "—",
-    reps: repsPart?.trim() ?? "—",
-  };
-}
-
 function cleanSummaryValue(value) {
   if (!value || typeof value !== "string") {
     return "—";
@@ -45,9 +29,7 @@ export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
     return null;
   }
 
-  const { sets: setsPart, reps } = getPrescriptionParts(exercise.prescription);
-  const prescriptionDisplay =
-    setsPart !== "—" || reps !== "—" ? `${setsPart} x ${reps}` : "—";
+  const prescriptionDisplay = exercise.prescription ?? "—";
 
   const {
     tempo = "—",
@@ -113,7 +95,7 @@ export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
           </div>
 
           <div className="space-y-1.5">
-            <div className="grid grid-cols-4 gap-3 text-center">
+            <div className="grid grid-cols-[1.4fr_1fr_0.9fr_1.1fr] gap-3 text-center">
               <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
                 Sets
               </p>
@@ -128,17 +110,17 @@ export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
               </p>
             </div>
 
-            <div className="grid grid-cols-4 gap-3 text-center">
-              <p className="text-base font-semibold leading-5 tracking-tight text-zinc-100">
+            <div className="grid grid-cols-[1.4fr_1fr_0.9fr_1.1fr] gap-3 text-center">
+              <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
                 {cleanedPrescriptionDisplay}
               </p>
-              <p className="text-base font-semibold leading-5 tracking-tight text-zinc-100">
+              <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
                 {cleanedTempo}
               </p>
-              <p className="text-base font-semibold leading-5 tracking-tight text-zinc-100">
+              <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
                 {cleanedTargetRir}
               </p>
-              <p className="text-base font-semibold leading-5 tracking-tight text-zinc-100">
+              <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
                 {cleanedRest}
               </p>
             </div>

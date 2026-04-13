@@ -9,7 +9,7 @@ export const bulkProExercises = [
     details: {
       tempo: "2-1-1",
       targetRir: "≈2",
-      rest: "150-180 s",
+      rest: "150 s",
       progression:
         "Add reps across sets first. When all 4 sets reach 7 with clean form and target RIR, increase the load slightly next time.",
       advancedTechnique: null,
@@ -69,7 +69,7 @@ export const bulkProExercises = [
     cue: "Keep a soft elbow bend, stay in a long controlled range, and let the chest stretch without turning it into a press",
     details: {
       tempo: "2-0-2",
-      targetRir: "Controlled technical work",
+      targetRir: "1-2",
       rest: "—",
       progression:
         "Keep the stretch and control honest first. Increase load only when you can complete the full 12-15 range without losing position.",
@@ -131,7 +131,7 @@ export const bulkProExercises = [
     cue: "Brace hard, press in a clean path, and do not lean back to finish the rep",
     details: {
       tempo: "2-1-1",
-      targetRir: "Controlled submax effort",
+      targetRir: "3-4",
       rest: "90 s",
       progression:
         "This stays submaximal. Add load only if both sets remain crisp and never interfere with the main bench work.",
@@ -151,7 +151,7 @@ export const bulkProExercises = [
     cue: "Pull high, rotate out at the top, and finish with clean scap control",
     details: {
       tempo: "2-0-2",
-      targetRir: "Controlled technical work",
+      targetRir: "2-3",
       rest: "45 s",
       progression:
         "Prioritize clean scap movement and full control before adding load.",
@@ -253,7 +253,7 @@ export const bulkProExercises = [
     cue: "Move from the hips, pause briefly at the top, and stop before the low back takes over",
     details: {
       tempo: "2-1-2",
-      targetRir: "Controlled technical work",
+      targetRir: "2-3",
       rest: "60 s",
       progression:
         "Keep the hinge pattern clean first. Increase difficulty only when all reps stay controlled without spinal overextension.",
@@ -391,7 +391,7 @@ export const bulkProExercises = [
     id: "bulgarian-split-squat",
     name: "Bulgarian Split Squat",
     subtitle: "Unilateral quad work with glute stretch",
-    prescription: "3 x 8-10 / leg",
+    prescription: "3 x 8-10",
     cue: "Stay balanced, keep the front foot rooted, and drive the floor away with the working leg",
     details: {
       tempo: "2-0-2",
@@ -401,6 +401,7 @@ export const bulkProExercises = [
         "Build toward the top of the rep range on both legs with stable balance and full control before increasing load.",
       advancedTechnique: null,
       extraCues: [
+        "Reps are per leg",
         "Use a shorter step if you want more quad bias",
         "Pause briefly in the bottom with control",
         "Hold support lightly if balance is the limit",
@@ -491,16 +492,17 @@ export const bulkProExercises = [
     id: "hip-stability-ab-ad-d3",
     name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
-    prescription: "3 rounds x 15 + 15",
+    prescription: "3 x 15",
     cue: "Move both directions with control and keep the transition short but clean",
     details: {
       tempo: "2-0-2",
-      targetRir: "Controlled technical work",
-      rest: "30 s after adductor",
+      targetRir: "2-3",
+      rest: "30 s",
       progression:
         "Keep both directions smooth and controlled before increasing load.",
       advancedTechnique: null,
       extraCues: [
+        "Each round = 15 abductor reps + 15 adductor reps",
         "Do not rush the switch between directions",
         "Keep both sides even and controlled",
         "Treat it like support work, not ego work",
@@ -735,16 +737,16 @@ export const bulkProExercises = [
     id: "push-up-mechanical-dropset",
     name: "Push-up Mechanical Dropset",
     subtitle: "Chest flush finisher",
-    prescription: "1 cluster: 12 wide + 8 close + 6 plyo",
+    prescription: "1 x 12",
     cue: "Change positions without rest, keep the trunk tight, and do not let the reps get sloppy at the end",
     details: {
-      tempo: "1-0-X",
-      targetRir: "Controlled technical push",
-      rest: "No rest inside cluster",
+      tempo: "1-0-1",
+      targetRir: "1-2",
+      rest: "—",
       progression:
         "Keep the full cluster clean first. Add reps only if you can maintain position quality through each variation.",
       advancedTechnique:
-        "Mechanical dropset: move from wide push-ups to close push-ups to plyo push-ups without rest.",
+        "Mechanical dropset: perform 12 wide reps, 8 close reps, then 6 plyo reps without rest.",
       extraCues: [
         "Move quickly but stay organized between positions",
         "Keep the body in one line",
@@ -796,12 +798,12 @@ export const bulkProExercises = [
     id: "assisted-pull-up-cluster",
     name: "Assisted Pull-up Cluster",
     subtitle: "Vertical pull bridge before rows",
-    prescription: "2 clusters: 8-10 + 15 s + 4-5",
+    prescription: "2 x 8-10",
     cue: "Use only enough assistance to keep the range clean, pause briefly in the hang, and do not let the second burst turn into grindy reps",
     details: {
-      tempo: "Controlled",
+      tempo: "2-1-1",
       targetRir: "≈1-2",
-      rest: "120 s between clusters",
+      rest: "120 s",
       progression:
         "Reduce assistance gradually while keeping the full cluster clean and repeatable.",
       advancedTechnique:
@@ -918,7 +920,7 @@ export const bulkProExercises = [
     id: "machine-glute-kickback",
     name: "Machine Glute Kickback",
     subtitle: "Glute squeeze work",
-    prescription: "3-4 x 12-15",
+    prescription: "3 x 12-15",
     cue: "Keep the pelvis stable, drive back through the heel, and finish with a clean glute squeeze",
     details: {
       tempo: "2-1-2",
@@ -928,6 +930,7 @@ export const bulkProExercises = [
         "Build toward the top of the range with a clean one-second squeeze before increasing load.",
       advancedTechnique: null,
       extraCues: [
+        "Reps are per leg",
         "Keep the knee slightly bent",
         "Do not rotate the torso or hips",
         "Return slowly without swinging",
@@ -942,7 +945,7 @@ export const bulkProExercises = [
     cue: "Move from the hips, let the glutes lead, and stop before the low back takes over",
     details: {
       tempo: "2-1-2",
-      targetRir: "Controlled technical work",
+      targetRir: "2-3",
       rest: "60 s",
       progression:
         "Keep the hinge clean and controlled before increasing difficulty.",
@@ -958,7 +961,7 @@ export const bulkProExercises = [
     id: "walking-lunge",
     name: "Walking Lunge",
     subtitle: "Quad top-up with short-step bias",
-    prescription: "3 x 12 / leg",
+    prescription: "3 x 12",
     cue: "Use a shorter step, stay balanced, and drive through the front foot with control",
     details: {
       tempo: "2-0-2",
@@ -968,6 +971,7 @@ export const bulkProExercises = [
         "Build toward smooth, even reps on both legs before increasing load.",
       advancedTechnique: null,
       extraCues: [
+        "Reps are per leg",
         "Let the knee travel forward in a controlled way",
         "Keep the torso stable with only a slight lean",
         "Do not rush the stride",
@@ -978,16 +982,17 @@ export const bulkProExercises = [
     id: "hip-stability-ab-ad-d6",
     name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
-    prescription: "3 rounds x 15 + 15",
+    prescription: "3 x 15",
     cue: "Move both directions with control and keep the transition short but clean",
     details: {
       tempo: "2-0-2",
-      targetRir: "Controlled technical work",
-      rest: "30 s after adductor",
+      targetRir: "2-3",
+      rest: "30 s",
       progression:
         "Keep both directions smooth and even before increasing load.",
       advancedTechnique: null,
       extraCues: [
+        "Each round = 15 abductor reps + 15 adductor reps",
         "Switch directions without rushing",
         "Keep both sides even and controlled",
         "Treat it like support work, not ego work",
@@ -1059,7 +1064,7 @@ export const bulkProExercises = [
     id: "preacher-curl-mechanical",
     name: "Preacher Curl — Mechanical",
     subtitle: "Wide-to-narrow biceps mechanical finisher",
-    prescription: "1 set: wide -> narrow 6-8",
+    prescription: "1 x 6-8",
     cue: "Keep the same load, switch grips cleanly, and stop as soon as the shoulders want to take over",
     details: {
       tempo: "2-1-2",
@@ -1100,11 +1105,11 @@ export const bulkProExercises = [
     id: "wrist-roller",
     name: "Wrist Roller",
     subtitle: "Grip and forearm finisher",
-    prescription: "2 rotations",
+    prescription: "2 rot.",
     cue: "Roll up and down evenly, keep the shoulders down, and do not rush the turns",
     details: {
-      tempo: "Controlled",
-      targetRir: "Controlled technical work",
+      tempo: "—",
+      targetRir: "3",
       rest: "60 s",
       progression:
         "Keep both rotations even and controlled before increasing difficulty.",
