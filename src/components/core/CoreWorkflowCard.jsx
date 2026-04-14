@@ -79,15 +79,6 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
             </p>
           </div>
 
-          <div className="space-y-1 border-t border-zinc-800/80 pt-3">
-            <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
-              Cue
-            </p>
-            <p className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>
-              {coreBlock.mainInfo?.cue ?? "—"}
-            </p>
-          </div>
-
           {coreBlock.details?.notes?.length > 0 && (
             <div className="space-y-1.5 border-t border-zinc-800/80 pt-3">
               <h3 className="text-sm font-semibold text-zinc-100">Notes</h3>
@@ -114,77 +105,88 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
         </div>
       </SectionCard>
 
-      {exercises.map((exercise) => {
-        const rows = buildStaticRows(exercise);
+      <SectionCard>
+        <div className="space-y-4">
+          <div>
+            <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
+              Pre-filled from previous core session
+            </p>
+            <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
+              Log today’s reps or hold time below.
+            </p>
+          </div>
 
-        return (
-          <SectionCard key={exercise.id}>
-            <div className="space-y-4">
-              <div className="space-y-1">
-                <h2 className="text-base font-semibold text-zinc-100">
-                  {exercise.name}
-                </h2>
-                <p className={UI_TEXT_MUTED}>{exercise.prescription}</p>
-              </div>
+          {exercises.map((exercise, exerciseIndex) => {
+            const rows = buildStaticRows(exercise);
+            const isLastExercise = exerciseIndex === exercises.length - 1;
 
-              <div className="space-y-4">
-                <DetailBlock title="Cue">
-                  <p>{exercise.cue ?? "—"}</p>
-                </DetailBlock>
-
-                <div className="grid grid-cols-[1fr_1fr] gap-3 border-t border-zinc-800/80 pt-3">
+            return (
+              <div
+                key={exercise.id}
+                className={
+                  !isLastExercise ? "border-b border-zinc-800/80 pb-4" : ""
+                }
+              >
+                <div className="space-y-4">
                   <div className="space-y-1">
-                    <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
-                      Tempo
-                    </p>
-                    <p className="text-sm text-zinc-100">
-                      {exercise.details?.tempo ?? "—"}
-                    </p>
+                    <h2 className="text-base font-semibold text-zinc-100">
+                      {exercise.name}
+                    </h2>
+                    <p className={UI_TEXT_MUTED}>{exercise.prescription}</p>
                   </div>
 
-                  <div className="space-y-1">
-                    <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
-                      Rest
-                    </p>
-                    <p className="text-sm text-zinc-100">
-                      {exercise.details?.rest ?? "—"}
-                    </p>
+                  <div className="space-y-4">
+                    <DetailBlock title="Cue">
+                      <p>{exercise.cue ?? "—"}</p>
+                    </DetailBlock>
+
+                    <div className="grid grid-cols-[1fr_1fr] gap-3 border-t border-zinc-800/80 pt-3">
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
+                          Tempo
+                        </p>
+                        <p className="text-sm text-zinc-100">
+                          {exercise.details?.tempo ?? "—"}
+                        </p>
+                      </div>
+
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
+                          Rest
+                        </p>
+                        <p className="text-sm text-zinc-100">
+                          {exercise.details?.rest ?? "—"}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-0 border-t border-zinc-800/80 pt-2">
+                    {rows.map((row, index) => (
+                      <CoreSetRow
+                        key={`${exercise.id}-set-${row.setNumber}`}
+                        setNumber={row.setNumber}
+                        target={row.target}
+                        logged={row.logged}
+                        effort={row.effort}
+                        isLast={index === rows.length - 1}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="pt-1">
+                    <PrimaryButton type="button">
+                      Mark exercise done
+                    </PrimaryButton>
                   </div>
                 </div>
               </div>
+            );
+          })}
 
-              <div>
-                <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
-                  Pre-filled from previous core session
-                </p>
-                <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
-                  Log today’s reps or hold time below.
-                </p>
-              </div>
-
-              <div className="space-y-0 border-t border-zinc-800/80 pt-2">
-                {rows.map((row, index) => (
-                  <CoreSetRow
-                    key={`${exercise.id}-set-${row.setNumber}`}
-                    setNumber={row.setNumber}
-                    target={row.target}
-                    logged={row.logged}
-                    effort={row.effort}
-                    isLast={index === rows.length - 1}
-                  />
-                ))}
-              </div>
-
-              <div className="flex flex-col gap-3 pt-1">
-                <PrimaryButton type="button">+ Add set</PrimaryButton>
-                <PrimaryButton type="button">Mark exercise done</PrimaryButton>
-              </div>
-            </div>
-          </SectionCard>
-        );
-      })}
-
-      <PrimaryButton type="button">Mark core block done</PrimaryButton>
+          <PrimaryButton type="button">Mark core block done</PrimaryButton>
+        </div>
+      </SectionCard>
     </div>
   );
 }
