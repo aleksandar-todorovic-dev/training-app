@@ -9,6 +9,7 @@ It is designed as a structured local-first training app that combines:
 - guided workout flow
 - educational training content
 - cycle-based progression
+- previous-workout continuity
 - simple local persistence for MVP
 
 ## MVP goal
@@ -67,6 +68,7 @@ Implemented so far:
   - `index.js`
 - `src/data/core/`
   - `coreBlocks.js`
+  - `coreExercises.js`
   - `index.js`
 
 Added helpers:
@@ -76,6 +78,7 @@ Added helpers:
 - `getDayDetails(planId, dayId)`
 - `getExercisesForDay(planId, exerciseIds)`
 - `getCoreBlockById(coreId)`
+- `getCoreExercisesByIds(exerciseIds)`
 
 #### Screens completed in static MVP form
 
@@ -124,6 +127,31 @@ Added helpers:
     - Cut Pro D1-D6
   - keeps Screen 4 strictly static-data-first with no runtime progress or completion logic yet
 
+- **Exercise screen**
+  - reads `planId`, `dayId`, and `exerciseId` from the route
+  - resolves the selected exercise through the static source-data layer
+  - now uses a unified `ExerciseWorkflowCard` instead of the earlier multi-block shell
+  - keeps one exercise as one working unit with:
+    - guidance layer (`Progression`, `Cue`, `Advanced technique`, `Extra cues`)
+    - previous-workout helper note
+    - compact 4-column execution summary
+    - row-based set scaffolding
+    - bottom action scaffolding
+  - keeps Screen 5 inside the current static/UI boundary with no runtime set logic yet
+
+- **Core screen**
+  - reads `planId`, `dayId`, and `coreId` from the route
+  - resolves the related plan / day / core block / core exercises
+  - no longer behaves like an info-only placeholder screen
+  - now treats one core block as one working screen that contains all exercises for that block
+  - uses a shared `CoreWorkflowCard` with:
+    - top-level core overview block
+    - shared execution block for all core exercises
+    - per-exercise cue / tempo / rest / row scaffolding
+    - per-exercise completion CTA
+    - block-level completion CTA
+  - keeps Screen 6 static for now while moving much closer to the real workout flow
+
 #### Screen 4 content and presentation work completed
 
 - full Bulk Screen 4 day coverage completed
@@ -145,26 +173,66 @@ Added helpers:
   - `+` -> `&` where appropriate
   - `Legs Heavy` -> `Quads Heavy`
 
+#### Screen 5 work completed so far
+
+- Screen 5 was corrected from a fragmented multi-block shell into a unified workout workflow screen
+- row-based set presentation replaced the earlier heavier card-based scaffold
+- the previous-workout continuity message now sits closer to the execution area
+- the compact 4-column summary was stabilized and kept as the accepted direction:
+  - normal font size
+  - wider columns
+  - concise values
+  - full explanation stays in the guidance layer above
+
+#### Screen 6 work completed so far
+
+- Screen 6 was corrected away from the earlier info-only concept
+- one opened core block now behaves like a multi-exercise execution screen
+- the first Screen 6 pass expanded the core data layer with:
+  - richer block-level content
+  - per-block details
+  - `exerciseIds`
+  - individual core exercise lookup
+- Screen 6 was then refined into a cleaner 2-block structure:
+  - one top-level core overview block
+  - one shared execution block
+- duplicated helper text and redundant top-level metrics were reduced
+- core execution rows now use more truthful labels:
+  - `Reps` for rep-based movements
+  - `Time` for hold-based movements
+- this `Reps / Time` switch is currently handled as a light UI-level conditional during the static/UI phase, not yet as a stricter structured runtime data rule
+
+#### Shared UI refinement completed
+
+- `PrimaryButton.jsx` was expanded from a link-only wrapper into a shared primary action component that now supports:
+  - route links through `to`
+  - native button rendering when no route target is provided
+  - `className`
+  - `type`
+  - forwarded props
+
+This keeps Screen 6 and later action-heavy screens aligned with the same shared CTA primitive used across the app.
+
 #### Current result
 
 - the app boots correctly
 - all main routes exist
-- Home, Plan Overview, Cycle, and Day are connected to real static data
+- Home, Plan Overview, Cycle, Day, Exercise, and Core are connected to real static data
 - route-based plan, day, exercise, and core lookup work
 - Screen 4 is structurally complete in static MVP form for both predefined plans
-- Screen 2 and Screen 3 now explain day structure more honestly without introducing runtime workout logic
+- Screen 5 now reads like a real working exercise screen
+- Screen 6 now follows a believable core workflow direction instead of a passive info screen
 - the current static MVP flow is working:
 
-`Home -> Plan Overview -> Cycle -> Day`
+`Home -> Plan Overview -> Cycle -> Day -> Exercise / Core`
 
 ## Next step
 
 Continue Phase 2 with:
 
-- Screen 5 — Exercise screen
-- Screen 6 — Core screen
 - Screen 7 — Warm-up view
 - Screen 8 — Guide screen
+- continued Screen 6 polish / copy cleanup
 - continued screen-by-screen responsive checks
 
 ## Tech stack
@@ -174,6 +242,7 @@ Continue Phase 2 with:
 - Tailwind CSS
 - React Router
 - GitHub Actions (basic CI)
+- Firebase Hosting (live preview only)
 
 ## Architecture direction
 
@@ -218,6 +287,14 @@ For MVP:
   - `ExerciseListCard`
   - `CoreBlockCard`
 
+- feature-specific exercise UI:
+  - `ExerciseWorkflowCard`
+  - `SetRow`
+
+- feature-specific core UI:
+  - `CoreWorkflowCard`
+  - `CoreSetRow`
+
 - MVP route skeleton:
   - `/`
   - `/plan/:planId`
@@ -233,3 +310,10 @@ For MVP:
 
 This repository is being built strictly around the confirmed MVP scope and roadmap.  
 The goal is to keep the structure clean, avoid scope creep, and move phase by phase.
+
+The current implementation still respects the main MVP boundaries:
+
+- static-data-first before runtime logic
+- local-first persistence only
+- core kept separate from main day exercise completion
+- exercise `prescription` kept as a user-facing display string during the current Phase 2 boundary
