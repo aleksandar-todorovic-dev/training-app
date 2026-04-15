@@ -31,6 +31,16 @@ function buildStaticRows(exercise) {
   }));
 }
 
+function getCoreValueLabel(exercise) {
+  const prescription = exercise?.prescription?.toLowerCase() ?? "";
+
+  if (prescription.includes("s")) {
+    return "Time";
+  }
+
+  return "Reps";
+}
+
 export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
   if (!coreBlock) {
     return null;
@@ -49,7 +59,7 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
             </p>
           </div>
 
-          <div className="grid grid-cols-[1.3fr_1fr_0.9fr_1.1fr] gap-3 text-center">
+          <div className="grid grid-cols-3 gap-3 text-center">
             <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
               Exercises
             </p>
@@ -59,12 +69,9 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
             <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
               RIR
             </p>
-            <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-              Rest
-            </p>
           </div>
 
-          <div className="grid grid-cols-[1.3fr_1fr_0.9fr_1.1fr] gap-3 text-center">
+          <div className="grid grid-cols-3 gap-3 text-center">
             <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
               {coreBlock.mainInfo?.exercises ?? "—"}
             </p>
@@ -74,11 +81,7 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
             <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
               {coreBlock.mainInfo?.targetRir ?? "—"}
             </p>
-            <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
-              {coreBlock.mainInfo?.rest ?? "—"}
-            </p>
           </div>
-
           {coreBlock.details?.notes?.length > 0 && (
             <div className="space-y-1.5 border-t border-zinc-800/80 pt-3">
               <h3 className="text-sm font-semibold text-zinc-100">Notes</h3>
@@ -119,6 +122,7 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
           {exercises.map((exercise, exerciseIndex) => {
             const rows = buildStaticRows(exercise);
             const isLastExercise = exerciseIndex === exercises.length - 1;
+            const valueLabel = getCoreValueLabel(exercise);
 
             return (
               <div
@@ -140,12 +144,12 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
                       <p>{exercise.cue ?? "—"}</p>
                     </DetailBlock>
 
-                    <div className="grid grid-cols-[1fr_1fr] gap-3 border-t border-zinc-800/80 pt-3">
+                    <div className="grid grid-cols-2 gap-3 border-t border-zinc-800/80 pt-3 text-center">
                       <div className="space-y-1">
                         <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
                           Tempo
                         </p>
-                        <p className="text-sm text-zinc-100">
+                        <p className="text-sm font-medium text-zinc-100">
                           {exercise.details?.tempo ?? "—"}
                         </p>
                       </div>
@@ -154,7 +158,7 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
                         <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
                           Rest
                         </p>
-                        <p className="text-sm text-zinc-100">
+                        <p className="text-sm font-medium text-zinc-100">
                           {exercise.details?.rest ?? "—"}
                         </p>
                       </div>
@@ -168,6 +172,7 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
                         setNumber={row.setNumber}
                         target={row.target}
                         logged={row.logged}
+                        valueLabel={valueLabel}
                         effort={row.effort}
                         isLast={index === rows.length - 1}
                       />
@@ -175,7 +180,7 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
                   </div>
 
                   <div className="pt-1">
-                    <PrimaryButton type="button">
+                    <PrimaryButton type="button" className="w-full">
                       Mark exercise done
                     </PrimaryButton>
                   </div>
@@ -184,7 +189,9 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
             );
           })}
 
-          <PrimaryButton type="button">Mark core block done</PrimaryButton>
+          <PrimaryButton type="button" className="w-full">
+            Mark core block done
+          </PrimaryButton>
         </div>
       </SectionCard>
     </div>

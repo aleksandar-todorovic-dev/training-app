@@ -21,6 +21,7 @@ export default function CoreSetRow({
   setNumber,
   target,
   logged = "—",
+  valueLabel = "Reps",
   effort = "1-2",
   isLast = false,
 }) {
@@ -35,7 +36,7 @@ export default function CoreSetRow({
       </span>
 
       <MetricCell label="Target" value={target} />
-      <MetricCell label="Done" value={logged} />
+      <MetricCell label={valueLabel} value={logged} />
       <MetricCell label="RIR" value={effort} />
 
       <button
