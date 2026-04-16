@@ -8,16 +8,14 @@ export const coreBlocks = [
       exercises: "3",
       sets: "3 each",
       targetRir: "1-2",
-      rest: "Short / controlled",
-      cue: "Brace first, then move with control",
     },
     details: {
       purpose:
-        "Build anti-extension strength, lower-ab control, and basic static trunk stability.",
+        "Build anti-extension strength, cleaner lower-ab control, and stable trunk tension without turning the block into sloppy fatigue work.",
       notes: [
-        "Quality and control over reps.",
-        "Stop before position breaks down.",
-        "Keep ribs down and avoid swinging.",
+        "Quality and control matter more than chasing extra reps.",
+        "Keep the ribs down and stop before position starts to break.",
+        "Static holds should stay clean from the first second to the last.",
       ],
       progression: "Improve control first, then reps, then load.",
     },
@@ -36,16 +34,14 @@ export const coreBlocks = [
       exercises: "3",
       sets: "3 each",
       targetRir: "1-2",
-      rest: "Short / controlled",
-      cue: "Stay stacked and resist rotation before adding speed",
     },
     details: {
       purpose:
-        "Build trunk stability through anti-rotation, lower-ab control, and lateral support.",
+        "Train trunk stability and controlled lower-ab work with less spinal fatigue, so the block stays useful even when recovery is not perfect.",
       notes: [
-        "Keep the torso quiet and controlled.",
-        "Do not rush the reps.",
-        "This block works best when fatigue is higher.",
+        "Keep the torso quiet and controlled from rep to rep.",
+        "Do not rush range or speed just to finish faster.",
+        "This block should feel organized and stable, not sloppy.",
       ],
       progression: "Improve control first, then reps, then load.",
     },
@@ -60,12 +56,10 @@ export const coreBlocks = [
       exercises: "3",
       sets: "3 each",
       targetRir: "1-2",
-      rest: "Short / controlled",
-      cue: "Brace first, then move without losing trunk position",
     },
     details: {
       purpose:
-        "Train anti-extension, controlled trunk rotation, and static core tension in one block.",
+        "Train anti-extension, controlled trunk rotation, and static brace strength in one block without losing clean body position.",
       notes: [
         "Do not trade control for bigger motion.",
         "Keep the pelvis stable during moving drills.",
@@ -73,6 +67,6 @@ export const coreBlocks = [
       ],
       progression: "Improve control first, then reps, then load.",
     },
-    exerciseIds: ["plank-step-out", "russian-twist-5kg", "hollow-body-hold"],
+    exerciseIds: ["plank-step-out", "russian-twist", "hollow-body-hold"],
   },
 ];
