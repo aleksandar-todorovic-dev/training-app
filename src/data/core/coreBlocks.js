@@ -45,7 +45,7 @@ export const coreBlocks = [
       ],
       progression: "Improve control first, then reps, then load.",
     },
-    exerciseIds: ["pallof-press", "hanging-knee-raise-ppt", "side-plank"],
+    exerciseIds: ["hanging-knee-raise-ppt", "pallof-press", "side-plank"],
   },
   {
     id: "core-c",

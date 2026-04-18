@@ -20,9 +20,11 @@ function MetricCell({ label, value }) {
 export default function CoreSetRow({
   setNumber,
   target,
+  load = "—",
   logged = "—",
   valueLabel = "Reps",
   effort = "1-2",
+  tracksLoad = false,
   isLast = false,
 }) {
   return (
@@ -35,7 +37,12 @@ export default function CoreSetRow({
         S{setNumber}
       </span>
 
-      <MetricCell label="Target" value={target} />
+      {tracksLoad ? (
+        <MetricCell label="Kg" value={load} />
+      ) : (
+        <MetricCell label="Target" value={target} />
+      )}
+
       <MetricCell label={valueLabel} value={logged} />
       <MetricCell label="RIR" value={effort} />
 

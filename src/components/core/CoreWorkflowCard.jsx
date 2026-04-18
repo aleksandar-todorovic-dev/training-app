@@ -34,15 +34,14 @@ function buildStaticRows(exercise) {
   return Array.from({ length: setCount }, (_, index) => ({
     setNumber: index + 1,
     target: targetValue,
+    load: "—",
     logged: "—",
     effort: "1-2",
   }));
 }
 
 function getCoreValueLabel(exercise) {
-  const prescription = exercise?.prescription?.toLowerCase() ?? "";
-
-  if (prescription.includes("s")) {
+  if (exercise?.logType === "time") {
     return "Time";
   }
 
@@ -132,10 +131,11 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
         <div className="space-y-4">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
-              Pre-filled from previous core session
+              Core execution
             </p>
             <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
-              Log today’s reps or hold time below.
+              Pre-filled from previous core session. Log today’s reps, time, or
+              load below.
             </p>
           </div>
 
@@ -143,6 +143,7 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
             const rows = buildStaticRows(exercise);
             const isLastExercise = exerciseIndex === exercises.length - 1;
             const valueLabel = getCoreValueLabel(exercise);
+            const tracksLoad = Boolean(exercise.tracksLoad);
 
             return (
               <div
@@ -208,9 +209,11 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
                         key={`${exercise.id}-set-${row.setNumber}`}
                         setNumber={row.setNumber}
                         target={row.target}
+                        load={row.load}
                         logged={row.logged}
                         valueLabel={valueLabel}
                         effort={row.effort}
+                        tracksLoad={tracksLoad}
                         isLast={index === rows.length - 1}
                       />
                     ))}
@@ -225,12 +228,12 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
               </div>
             );
           })}
-
-          <PrimaryButton type="button" className="w-full">
-            Mark core block done
-          </PrimaryButton>
         </div>
       </SectionCard>
+
+      <PrimaryButton type="button" className="w-full">
+        Mark core block done
+      </PrimaryButton>
     </div>
   );
 }
