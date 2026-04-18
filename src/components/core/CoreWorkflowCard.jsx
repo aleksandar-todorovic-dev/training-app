@@ -3,6 +3,14 @@ import PrimaryButton from "../common/PrimaryButton";
 import CoreSetRow from "./CoreSetRow";
 import { UI_TEXT_MUTED } from "../../styles/ui";
 
+function cleanSummaryValue(value) {
+  if (!value || typeof value !== "string") {
+    return "—";
+  }
+
+  return value.replace(/^≈\s*/, "").trim();
+}
+
 function DetailBlock({ title, children }) {
   if (!children) {
     return null;
@@ -46,6 +54,21 @@ function getCoreValueLabel(exercise) {
   }
 
   return "Reps";
+}
+
+function getCoreSetCount(exercise) {
+  const prescription = exercise?.prescription ?? "";
+  const match = prescription.match(/^(\d+)\s*x\s*(.+)$/i);
+
+  return match?.[1] ?? "—";
+}
+
+function getCoreSetSummary(exercise, tracksLoad) {
+  if (tracksLoad) {
+    return cleanSummaryValue(exercise?.prescription);
+  }
+
+  return cleanSummaryValue(getCoreSetCount(exercise));
 }
 
 export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
@@ -145,6 +168,13 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
             const valueLabel = getCoreValueLabel(exercise);
             const tracksLoad = Boolean(exercise.tracksLoad);
 
+            const setSummary = getCoreSetSummary(exercise, tracksLoad);
+            const tempo = cleanSummaryValue(exercise.details?.tempo);
+            const targetRir = cleanSummaryValue(
+              exercise.details?.targetRir ?? coreBlock.mainInfo?.targetRir,
+            );
+            const rest = cleanSummaryValue(exercise.details?.rest);
+
             return (
               <div
                 key={exercise.id}
@@ -163,8 +193,6 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
                         {exercise.subtitle}
                       </p>
                     )}
-
-                    <p className={UI_TEXT_MUTED}>{exercise.prescription}</p>
                   </div>
 
                   <div className="space-y-4">
@@ -182,22 +210,34 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
                       </DetailBlock>
                     )}
 
-                    <div className="grid grid-cols-2 gap-3 border-t border-zinc-800/80 pt-3 text-center">
-                      <div className="space-y-1">
-                        <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
+                    <div className="space-y-1.5 border-t border-zinc-800/80 pt-3">
+                      <div className="grid grid-cols-[1.4fr_1fr_0.9fr_1.1fr] gap-3 text-center">
+                        <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
+                          Sets
+                        </p>
+                        <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
                           Tempo
                         </p>
-                        <p className="text-sm font-medium text-zinc-100">
-                          {exercise.details?.tempo ?? "—"}
+                        <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
+                          RIR
+                        </p>
+                        <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
+                          Rest
                         </p>
                       </div>
 
-                      <div className="space-y-1">
-                        <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
-                          Rest
+                      <div className="grid grid-cols-[1.4fr_1fr_0.9fr_1.1fr] gap-3 text-center">
+                        <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
+                          {setSummary}
                         </p>
-                        <p className="text-sm font-medium text-zinc-100">
-                          {exercise.details?.rest ?? "—"}
+                        <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
+                          {tempo}
+                        </p>
+                        <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
+                          {targetRir}
+                        </p>
+                        <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
+                          {rest}
                         </p>
                       </div>
                     </div>
