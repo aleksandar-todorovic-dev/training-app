@@ -16,7 +16,6 @@ export default function ExerciseListCard({ planId, dayId, exercise, status }) {
           ) : null}
 
           <p className={UI_TEXT_MUTED}>Prescription: {exercise.prescription}</p>
-          <p className={UI_TEXT_MUTED}>Cue: {exercise.cue}</p>
           <p className={UI_TEXT_MUTED}>Status: {status}</p>
         </div>
 
