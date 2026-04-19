@@ -126,7 +126,9 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
 
           {coreBlock.details?.notes?.length > 0 && (
             <div className="space-y-1.5 border-t border-zinc-800/80 pt-3">
-              <h3 className="text-sm font-semibold text-zinc-100">Notes</h3>
+              <h3 className="text-sm font-semibold text-zinc-100">
+                Key reminders
+              </h3>
               <ul className="space-y-1">
                 {coreBlock.details.notes.map((note) => (
                   <li
@@ -152,12 +154,12 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
 
       <SectionCard>
         <div className="space-y-4">
-          <div>
+          <div className="border-b border-zinc-800/80 pb-3">
             <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
               Pre-filled from previous core session
             </p>
             <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
-              Update the reps, time, or load below based on today’s performance.
+              Update the reps, time, or load below based on today's performance.
             </p>
           </div>
 
