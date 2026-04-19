@@ -77,6 +77,7 @@ Added helpers:
 - `getDaysByPlanId(planId)`
 - `getDayDetails(planId, dayId)`
 - `getExercisesForDay(planId, exerciseIds)`
+- `getExerciseById(planId, exerciseId)`
 - `getCoreBlockById(coreId)`
 - `getCoreExercisesByIds(exerciseIds)`
 
@@ -130,7 +131,7 @@ Added helpers:
 - **Exercise screen**
   - reads `planId`, `dayId`, and `exerciseId` from the route
   - resolves the selected exercise through the static source-data layer
-  - now uses a unified `ExerciseWorkflowCard` instead of the earlier multi-block shell
+  - uses a unified `ExerciseWorkflowCard` instead of the earlier multi-block shell
   - keeps one exercise as one working unit with:
     - guidance layer (`Progression`, `Cue`, `Advanced technique`, `Extra cues`)
     - previous-workout helper note
@@ -142,15 +143,22 @@ Added helpers:
 - **Core screen**
   - reads `planId`, `dayId`, and `coreId` from the route
   - resolves the related plan / day / core block / core exercises
-  - no longer behaves like an info-only placeholder screen
-  - now treats one core block as one working screen that contains all exercises for that block
+  - treats one opened core block as one working screen
+  - shows all exercises for the selected core block on the same screen
   - uses a shared `CoreWorkflowCard` with:
     - top-level core overview block
-    - shared execution block for all core exercises
-    - per-exercise cue / tempo / rest / row scaffolding
+    - block-level purpose
+    - compact `Exercises / Sets / RIR` overview
+    - `Progression`
+    - `Key reminders`
+    - rest-day movement note
+    - shared prefill helper
+    - per-exercise cue and extra cues
+    - per-exercise compact working summary
+    - row-based core logging scaffold
     - per-exercise completion CTA
     - block-level completion CTA
-  - keeps Screen 6 static for now while moving much closer to the real workout flow
+  - keeps Screen 6 inside the current static/UI boundary with no runtime core logging logic yet
 
 #### Screen 4 content and presentation work completed
 
@@ -162,6 +170,8 @@ Added helpers:
   - `&` instead of `/` in day titles
   - natural goal phrasing instead of `+`
   - cleaner exercise names with controlled use of hyphenation and abbreviations
+- duplicated visible `Cue:` text was removed from Screen 4 exercise cards
+- `cue` remains in the source data layer because Screen 5 owns detailed exercise execution guidance
 
 #### Screen 2 and Screen 3 presentation work completed
 
@@ -183,24 +193,44 @@ Added helpers:
   - wider columns
   - concise values
   - full explanation stays in the guidance layer above
+- Screen 5 is currently treated as closed for the current MVP static/UI pass, aside from later final design polish if needed
 
 #### Screen 6 work completed so far
 
 - Screen 6 was corrected away from the earlier info-only concept
-- one opened core block now behaves like a multi-exercise execution screen
-- the first Screen 6 pass expanded the core data layer with:
-  - richer block-level content
-  - per-block details
+- one opened core block now behaves like a multi-exercise workflow screen
+- all exercises for the selected core block appear on one screen
+- the core data layer now includes:
+  - richer block-level guidance
   - `exerciseIds`
   - individual core exercise lookup
-- Screen 6 was then refined into a cleaner 2-block structure:
+  - core exercise subtitles
+  - cue and extra cue content
+  - tempo and rest values
+  - `logType`
+  - `tracksLoad`
+- Screen 6 now uses a cleaner two-part structure:
   - one top-level core overview block
   - one shared execution block
 - duplicated helper text and redundant top-level metrics were reduced
-- core execution rows now use more truthful labels:
-  - `Reps` for rep-based movements
-  - `Time` for hold-based movements
-- this `Reps / Time` switch is currently handled as a light UI-level conditional during the static/UI phase, not yet as a stricter structured runtime data rule
+- block-level `Notes` was renamed to `Key reminders`
+- `Can be moved to a rest day if needed` was confirmed to stay on the Core screen
+- core execution helper copy was aligned with the Screen 5 prefill pattern
+- core exercise prescriptions were cleaned where compact-summary qualifiers caused awkward wrapping:
+  - `/ side` and `total` meaning was moved into `extraCues`
+- Screen 6 now uses explicit metadata instead of display-string inference:
+  - `logType` controls `Reps` vs `Time`
+  - `tracksLoad` controls whether a row shows `Kg / Reps / RIR` or `Target / Reps-or-Time / RIR`
+- weighted core movements now support load scaffolding:
+  - Decline Sit-Up (Weighted)
+  - Pallof Press
+  - Russian Twist
+- Screen 6 now follows the Screen 5 execution pattern more closely through a compact per-exercise summary:
+  - `Sets`
+  - `Tempo`
+  - `RIR`
+  - `Rest`
+- Screen 6 is considered complete for the current MVP static/UI pass
 
 #### Shared UI refinement completed
 
@@ -220,8 +250,8 @@ This keeps Screen 6 and later action-heavy screens aligned with the same shared 
 - Home, Plan Overview, Cycle, Day, Exercise, and Core are connected to real static data
 - route-based plan, day, exercise, and core lookup work
 - Screen 4 is structurally complete in static MVP form for both predefined plans
-- Screen 5 now reads like a real working exercise screen
-- Screen 6 now follows a believable core workflow direction instead of a passive info screen
+- Screen 5 reads like a real working exercise screen
+- Screen 6 reads like a real working core block screen
 - the current static MVP flow is working:
 
 `Home -> Plan Overview -> Cycle -> Day -> Exercise / Core`
@@ -232,8 +262,7 @@ Continue Phase 2 with:
 
 - Screen 7 — Warm-up view
 - Screen 8 — Guide screen
-- continued Screen 6 polish / copy cleanup
-- continued screen-by-screen responsive checks
+- later final visual polish and responsive checks where needed
 
 ## Tech stack
 
@@ -317,3 +346,4 @@ The current implementation still respects the main MVP boundaries:
 - local-first persistence only
 - core kept separate from main day exercise completion
 - exercise `prescription` kept as a user-facing display string during the current Phase 2 boundary
+- core logging behavior now has explicit static metadata (`logType`, `tracksLoad`) so future runtime logic does not need to parse display strings
