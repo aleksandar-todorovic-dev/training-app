@@ -113,6 +113,17 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
             </p>
           </div>
 
+          {coreBlock.details?.progression && (
+            <div className="space-y-1.5 border-t border-zinc-800/80 pt-3">
+              <h3 className="text-sm font-semibold text-zinc-100">
+                Progression
+              </h3>
+              <p className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>
+                {coreBlock.details.progression}
+              </p>
+            </div>
+          )}
+
           {coreBlock.details?.notes?.length > 0 && (
             <div className="space-y-1.5 border-t border-zinc-800/80 pt-3">
               <h3 className="text-sm font-semibold text-zinc-100">Notes</h3>
@@ -126,17 +137,6 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
                   </li>
                 ))}
               </ul>
-            </div>
-          )}
-
-          {coreBlock.details?.progression && (
-            <div className="space-y-1.5 border-t border-zinc-800/80 pt-3">
-              <h3 className="text-sm font-semibold text-zinc-100">
-                Progression
-              </h3>
-              <p className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>
-                {coreBlock.details.progression}
-              </p>
             </div>
           )}
 
@@ -154,11 +154,10 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
         <div className="space-y-4">
           <div>
             <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
-              Core execution
+              Pre-filled from previous core session
             </p>
             <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
-              Pre-filled from previous core session. Log today’s reps, time, or
-              load below.
+              Update the reps, time, or load below based on today’s performance.
             </p>
           </div>
 
