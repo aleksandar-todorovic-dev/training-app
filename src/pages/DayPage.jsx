@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 import AppShell from "../components/layout/AppShell";
@@ -5,11 +6,13 @@ import BackButton from "../components/common/BackButton";
 import SessionInfoCard from "../components/day/SessionInfoCard";
 import ExerciseListCard from "../components/day/ExerciseListCard";
 import CoreBlockCard from "../components/day/CoreBlockCard";
+import WarmupSheet from "../components/warmup/WarmupSheet";
 
 import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getExercisesForDay } from "../data/exercises";
 import { getCoreBlockById } from "../data/core";
+import { getWarmupById } from "../data/warmups";
 import { UI_STACK_LG, UI_TEXT_MUTED, UI_TITLE } from "../styles/ui";
 
 const STATIC_DAY_PROGRESS_MAP = {
@@ -33,6 +36,18 @@ const STATIC_DAY_PROGRESS_MAP = {
 
 export default function DayPage() {
   const { planId, dayId } = useParams();
+  const [isWarmupOpen, setIsWarmupOpen] = useState(false);
+
+  useEffect(() => {
+  if (!isWarmupOpen) return;
+
+  const originalOverflow = document.body.style.overflow;
+  document.body.style.overflow = "hidden";
+
+  return () => {
+    document.body.style.overflow = originalOverflow;
+  };
+}, [isWarmupOpen]);
 
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
@@ -42,6 +57,8 @@ export default function DayPage() {
   const coreBlock = dayDetails?.coreBlockId
     ? getCoreBlockById(dayDetails.coreBlockId)
     : null;
+  const warmupId = dayDetails?.sessionInfo?.warmupId;
+  const warmup = warmupId ? getWarmupById(planId, warmupId) : null;
 
   if (!plan || !dayDetails) {
     return (
@@ -86,9 +103,8 @@ export default function DayPage() {
         </header>
 
         <SessionInfoCard
-          planId={planId}
-          dayId={dayId}
           sessionInfo={dayDetails.sessionInfo}
+          onWarmupClick={() => setIsWarmupOpen(true)}
         />
 
         {exercises.map((exercise) => (
@@ -110,6 +126,14 @@ export default function DayPage() {
           />
         ) : null}
       </div>
+
+      {isWarmupOpen ? (
+        <WarmupSheet
+          dayDetails={dayDetails}
+          warmup={warmup}
+          onClose={() => setIsWarmupOpen(false)}
+        />
+      ) : null}
     </AppShell>
   );
 }

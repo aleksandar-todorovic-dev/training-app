@@ -1,10 +1,26 @@
-import { Link } from 'react-router-dom'
-import { UI_BUTTON_SECONDARY } from '../../styles/ui'
+import { Link } from "react-router-dom";
+import { UI_BUTTON_SECONDARY } from "../../styles/ui";
 
-export default function SecondaryButton({ to, children }) {
+export default function SecondaryButton({
+  to,
+  children,
+  type = "button",
+  className = "",
+  ...props
+}) {
+  const classes = `${UI_BUTTON_SECONDARY} ${className}`.trim();
+
+  if (to) {
+    return (
+      <Link to={to} className={classes} {...props}>
+        {children}
+      </Link>
+    );
+  }
+
   return (
-    <Link to={to} className={UI_BUTTON_SECONDARY}>
+    <button type={type} className={classes} {...props}>
       {children}
-    </Link>
-  )
+    </button>
+  );
 }

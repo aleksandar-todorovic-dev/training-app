@@ -2,7 +2,7 @@ import SectionCard from "../layout/SectionCard";
 import SecondaryButton from "../common/SecondaryButton";
 import { UI_STACK_MD, UI_TEXT_MUTED } from "../../styles/ui";
 
-export default function SessionInfoCard({ planId, dayId, sessionInfo }) {
+export default function SessionInfoCard({ sessionInfo, onWarmupClick }) {
   return (
     <SectionCard>
       <div className={UI_STACK_MD}>
@@ -26,9 +26,7 @@ export default function SessionInfoCard({ planId, dayId, sessionInfo }) {
           </div>
         </div>
 
-        <SecondaryButton to={`/plan/${planId}/day/${dayId}/warmup`}>
-          View warm-up
-        </SecondaryButton>
+        <SecondaryButton onClick={onWarmupClick}>View warm-up</SecondaryButton>
       </div>
     </SectionCard>
   );
