@@ -6,14 +6,14 @@ export const cutProWarmups = [
     steps: [
       {
         title: "Light cardio",
-        items: ["5 min easy bike / walk / stepper"],
+        items: ["3-5 min easy bike / walk / stepper"],
       },
       {
         title: "Shoulder + pressing prep",
         items: [
-          "Band pull-apart 12-15",
-          "Face pull or cable external rotation 12-15",
-          "Push-up or empty-bar press 8-10",
+          "Band pull-apart 15-20",
+          "Face pull 12-15",
+          "Scap push-up 8-10",
         ],
       },
       {
@@ -29,21 +29,17 @@ export const cutProWarmups = [
     steps: [
       {
         title: "Light cardio",
-        items: ["5 min easy bike / walk / stepper"],
+        items: ["3-5 min easy bike / walk / stepper"],
       },
       {
         title: "Scap + lat activation",
-        items: [
-          "Scapular pull-up or dead hang 6-8",
-          "Straight-arm pulldown 10-12",
-          "Light pulldown 8-10",
-        ],
+        items: ["Scapular pull-up 6-10", "Band row 12-15", "Face pull 12-15"],
       },
       {
         title: "Ramp sets for pull-up",
         items: [
-          "Easy bodyweight or assisted set",
-          "1-2 controlled ramp sets",
+          "1 easy assisted or bodyweight set",
+          "1 controlled ramp set",
           "Stop well before fatigue",
         ],
       },
@@ -52,7 +48,7 @@ export const cutProWarmups = [
   {
     id: "warmup-d3",
     title: "Warm-up — D3 Quads Heavy",
-    goal: "Prepare squat pattern and lower body without draining the session",
+    goal: "Prepare squat pattern, hips, ankles, and lower body without draining the session",
     steps: [
       {
         title: "Light cardio",
@@ -62,7 +58,7 @@ export const cutProWarmups = [
         title: "Mobility + activation",
         items: [
           "Hip hinge drill 8-10",
-          "Bodyweight squat 8-10",
+          "Bodyweight squat 8-10 with 1 s pause",
           "Glute bridge 10-12",
           "Ankle rocks 10/10",
         ],
@@ -76,50 +72,49 @@ export const cutProWarmups = [
   {
     id: "warmup-d4",
     title: "Warm-up — D4 Shoulders & Arms Light",
-    goal: "Prepare shoulders, upper back, and elbows with low fatigue",
+    goal: "Prepare shoulders, scap control, and overhead pressing with low fatigue",
     steps: [
       {
         title: "Light cardio",
-        items: ["5 min easy bike / walk / stepper"],
+        items: ["3-5 min easy bike / walk / stepper"],
       },
       {
-        title: "Shoulder prep",
+        title: "Shoulder + scap prep",
         items: [
-          "Band pull-apart 12-15",
-          "Cable or band external rotation 10-12 / side",
-          "Light lateral raise 10-12",
+          "Band face pull 12-15",
+          "Band external rotation 10-12 / side",
+          "Scap wall slide 8-10",
         ],
       },
       {
         title: "Ramp sets for overhead press",
-        items: [
-          "8 with empty bar or light load",
-          "5 @ moderate load",
-          "3 clean reps",
-          "No grind",
-        ],
+        items: ["8 @ ~40%", "5 @ ~60%", "3 @ ~75%", "No grind"],
       },
     ],
   },
   {
     id: "warmup-d5",
     title: "Warm-up — D5 Chest Pump & Rows",
-    goal: "Prepare chest, lats, and upper back without wasting recovery",
+    goal: "Prepare chest, lats, and upper back for a light pump and row bridge session",
     steps: [
       {
         title: "Light cardio",
-        items: ["5 min easy bike / walk / stepper"],
+        items: ["3-5 min easy bike / walk / stepper"],
       },
       {
-        title: "Upper-body activation",
-        items: ["Band pull-apart 12-15", "Push-up 8-10", "Light row 10-12"],
-      },
-      {
-        title: "Ramp sets for first press / row",
+        title: "Scap + chest prep",
         items: [
-          "1-2 light ramp sets",
-          "Keep reps smooth",
-          "No fatigue before working sets",
+          "Band pull-apart 15-20",
+          "Face pull 12-15",
+          "Scap push-up 8-10",
+        ],
+      },
+      {
+        title: "Light ramp for first movements",
+        items: [
+          "1 light set for Decline DB Press or Dips",
+          "1 easy assisted pull-up if needed",
+          "Stay fresh for the working sets",
         ],
       },
     ],
@@ -127,28 +122,23 @@ export const cutProWarmups = [
   {
     id: "warmup-d6",
     title: "Warm-up — D6 Posterior Chain",
-    goal: "Prepare hip hinge, hamstrings, and lower back without extra fatigue",
+    goal: "Prepare hip hinge, hamstrings, glutes, and brace without extra fatigue",
     steps: [
       {
         title: "Light cardio",
-        items: ["5 min easy bike / walk / stepper"],
+        items: ["3-5 min easy bike / walk / stepper"],
       },
       {
-        title: "Hinge + glute activation",
+        title: "Hinge + hamstring prep",
         items: [
           "Hip hinge drill 8-10",
-          "Glute bridge 10-12",
-          "Bodyweight RDL 8-10",
+          "Glute bridge 10",
+          "Light hamstring curl 12",
         ],
       },
       {
         title: "Ramp sets for RDL",
-        items: [
-          "8 @ light load",
-          "5 @ moderate load",
-          "3 @ working approach load",
-          "No lower-back fatigue",
-        ],
+        items: ["8 @ ~40%", "5 @ ~60%", "3 @ ~75%", "No lower-back fatigue"],
       },
     ],
   },
