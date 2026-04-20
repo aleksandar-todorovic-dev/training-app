@@ -1,20 +1,76 @@
+import { useParams } from "react-router-dom";
+
 import AppShell from "../components/layout/AppShell";
-import ScreenHeader from "../components/layout/ScreenHeader";
-import SectionCard from "../components/layout/SectionCard";
-import { UI_STACK_LG, UI_TEXT_MUTED } from "../styles/ui";
+import BackButton from "../components/common/BackButton";
+import WarmupStepCard from "../components/warmup/WarmupStepCard";
+
+import { getPlanById } from "../data/plans";
+import { getDayDetails } from "../data/dayDetails";
+import { getWarmupById } from "../data/warmups";
+
+import { UI_STACK_LG, UI_TEXT_MUTED, UI_TITLE } from "../styles/ui";
 
 export default function WarmupPage() {
+  const { planId, dayId } = useParams();
+
+  const plan = getPlanById(planId);
+  const dayDetails = getDayDetails(planId, dayId);
+  const warmupId = dayDetails?.sessionInfo?.warmupId;
+  const warmup = warmupId ? getWarmupById(planId, warmupId) : null;
+
+  if (!plan || !dayDetails || !warmup) {
+    return (
+      <AppShell>
+        <div className={UI_STACK_LG}>
+          <div className="flex justify-start">
+            <BackButton
+              to={plan && dayDetails ? `/plan/${planId}/day/${dayId}` : "/"}
+            >
+              {plan && dayDetails ? "Back to Day" : "Back to Home"}
+            </BackButton>
+          </div>
+
+          <header className="flex flex-col gap-3">
+            <h1 className={UI_TITLE}>Warm-up not found</h1>
+            <p className={UI_TEXT_MUTED}>
+              The selected warm-up could not be loaded.
+            </p>
+          </header>
+        </div>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell>
       <div className={UI_STACK_LG}>
-        <ScreenHeader
-          title="Warm-up"
-          subtitle="Foundation placeholder for warm-up instructions."
-        />
+        <div className="flex justify-start">
+          <BackButton to={`/plan/${planId}/day/${dayId}`}>
+            Back to Day
+          </BackButton>
+        </div>
 
-        <SectionCard>
-          <p className={UI_TEXT_MUTED}>This is the Warm-up page placeholder.</p>
-        </SectionCard>
+        <header className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1">
+            <p className="text-sm font-medium text-zinc-500">
+              {dayDetails.label} — {dayDetails.name}
+            </p>
+
+            <h1 className={UI_TITLE}>{warmup.title}</h1>
+          </div>
+
+          <p className={UI_TEXT_MUTED}>Goal: {warmup.goal}</p>
+        </header>
+
+        <div className={UI_STACK_LG}>
+          {warmup.steps.map((step, index) => (
+            <WarmupStepCard
+              key={step.title}
+              step={step}
+              stepNumber={index + 1}
+            />
+          ))}
+        </div>
       </div>
     </AppShell>
   );
