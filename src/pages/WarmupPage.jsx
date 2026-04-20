@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 
 import AppShell from "../components/layout/AppShell";
 import BackButton from "../components/common/BackButton";
-import WarmupStepCard from "../components/warmup/WarmupStepCard";
+import WarmupStepsCard from "../components/warmup/WarmupStepsCard";
 
 import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
@@ -62,15 +62,7 @@ export default function WarmupPage() {
           <p className={UI_TEXT_MUTED}>Goal: {warmup.goal}</p>
         </header>
 
-        <div className={UI_STACK_LG}>
-          {warmup.steps.map((step, index) => (
-            <WarmupStepCard
-              key={step.title}
-              step={step}
-              stepNumber={index + 1}
-            />
-          ))}
-        </div>
+        <WarmupStepsCard steps={warmup.steps} />
       </div>
     </AppShell>
   );
