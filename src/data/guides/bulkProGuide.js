@@ -11,9 +11,9 @@ export const bulkProGuide = {
       topics: [
         {
           id: "structured-training",
-          title: "Structured training, not random workouts",
+          title: "A real training cycle, not just a workout list",
           paragraphs: [
-            "You do not need to guess what to train next.",
+            "The plan gives you a clear next step instead of leaving every workout decision open.",
             "This app moves you through a structured D1-D6 training cycle where every day has a purpose. Some days are heavier, some days support the main work, and the app keeps the order clear so you always know what comes next.",
             "The goal is not to force a perfect weekly schedule. The goal is to help you stay consistent, keep logging, and continue the plan even when real life moves things around.",
           ],
@@ -73,6 +73,7 @@ export const bulkProGuide = {
             "It tells you how many clean reps you probably had left at the end of a set. If the target is RIR 2, stop when you feel you could still do about 2 clean reps. If the target is RIR 1, stop when you feel you could still do about 1 clean rep.",
             "This helps you train hard without turning every set into a max-effort grind.",
             "The plan is built for repeatable progress, not one heroic set. Keeping 1-2 reps in reserve helps you recover better, protect your technique, and come back strong for the next exercise, day, and cycle.",
+            "Failure can be useful in small doses, but doing it too often adds fatigue faster than it adds quality stimulus. This matters especially for natural lifters, because recovery has to support the next exercise, the next day, and the whole cycle.",
           ],
           bullets: [
             "RIR 2 = about 2 clean reps left.",
@@ -88,14 +89,15 @@ export const bulkProGuide = {
           paragraphs: [
             "Progression should be simple.",
             "First, try to add clean reps inside the target range. When you can reach the top of the range with good form and the right RIR, then increase the weight slightly and build back up again.",
+            "Keep the main exercises stable long enough to track real progress. If you change exercises too often, your log becomes harder to read because you are constantly comparing different movements instead of improving the same pattern.",
             "Not every workout needs to beat the last one. Some days you add reps, some days you hold steady, and on a cut, keeping strength is already a strong result.",
           ],
           bullets: [
             "Add reps before adding weight.",
             "Add weight only when the top range is clean.",
             "Keep form and RIR honest.",
+            "Keep main exercises stable long enough to measure progress.",
             "Do not increase load just to make the log look better.",
-            "On a cut, holding strength is progress.",
           ],
         },
         {
@@ -159,6 +161,7 @@ export const bulkProGuide = {
           paragraphs: [
             "Each day in the cycle has a job.",
             "Some days are built around a main lift or main muscle priority. Other exercises on that day support the main goal through top-up work, pump work, stability work, or smaller muscle-group coverage.",
+            "For example, D1 carries heavier chest pressing, D2 focuses on vertical pulling, D3 is the heavy quad day, D4 supports shoulders and arms, D5 bridges chest pump and rows, and D6 brings posterior-chain work with top-ups.",
             "This is why the app shows a short goal for each day. It helps you understand what matters most in that session instead of treating the workout as a random checklist.",
           ],
           bullets: [
@@ -232,13 +235,14 @@ export const bulkProGuide = {
             "If strength drops across multiple sessions, joints start feeling worse, or every workout feels unusually heavy, it may be time to reduce stress for a short period.",
             "A deload is not quitting. It is a short reset so you can recover, keep the movement patterns, and continue the cycle with better performance.",
             "In practice, a deload usually means about a week of easier training: lighter weights, fewer sets, and more reps in reserve. A simple starting point is using around 80-85% of your usual load and cutting total sets by roughly 30-40%.",
+            "For many natural lifters, this often lands somewhere around every 6-10 weeks, but the signals matter more than the calendar.",
           ],
           bullets: [
             "Repeated strength drops are a warning sign.",
             "Joint discomfort should not be ignored.",
             "Reduce load or sets before the plan breaks down.",
             "Deload = lighter work for a short reset, not stopping completely.",
-            "On a cut, recovery can drop faster.",
+            "Use deloads when recovery is falling behind, not only when the calendar says so.",
             "A deload is a reset, not a failure.",
           ],
         },
