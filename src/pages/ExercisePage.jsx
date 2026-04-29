@@ -61,7 +61,12 @@ export default function ExercisePage() {
     return (
       <AppShell>
         <div className={UI_STACK_LG}>
-          <BackButton to={planId ? `/plan/${planId}/cycle` : "/"} />
+          <div className="flex justify-start">
+            <BackButton to={planId ? `/plan/${planId}/cycle` : "/"}>
+              Back
+            </BackButton>
+          </div>
+
           <SectionCard>
             <p className={UI_TEXT_MUTED}>
               Exercise data could not be found for this route.
@@ -75,7 +80,11 @@ export default function ExercisePage() {
   return (
     <AppShell>
       <div className={UI_STACK_LG}>
-        <BackButton to={`/plan/${planId}/day/${dayId}`} />
+        <div className="flex justify-start">
+          <BackButton to={`/plan/${planId}/day/${dayId}`}>
+            Back to Day
+          </BackButton>
+        </div>
 
         <div className={UI_STACK_MD}>
           <p className={UI_TEXT_MUTED}>
