@@ -3,9 +3,11 @@ import { useParams } from "react-router-dom";
 
 import AppShell from "../components/layout/AppShell";
 import BackButton from "../components/common/BackButton";
+import PrimaryButton from "../components/common/PrimaryButton";
 import SessionInfoCard from "../components/day/SessionInfoCard";
 import ExerciseListCard from "../components/day/ExerciseListCard";
 import CoreBlockCard from "../components/day/CoreBlockCard";
+import FinishDaySheet from "../components/day/FinishDaySheet";
 import WarmupSheet from "../components/warmup/WarmupSheet";
 
 import { getPlanById } from "../data/plans";
@@ -37,17 +39,18 @@ const STATIC_DAY_PROGRESS_MAP = {
 export default function DayPage() {
   const { planId, dayId } = useParams();
   const [isWarmupOpen, setIsWarmupOpen] = useState(false);
+  const [isFinishDayOpen, setIsFinishDayOpen] = useState(false);
 
   useEffect(() => {
-  if (!isWarmupOpen) return;
+    if (!isWarmupOpen && !isFinishDayOpen) return;
 
-  const originalOverflow = document.body.style.overflow;
-  document.body.style.overflow = "hidden";
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
 
-  return () => {
-    document.body.style.overflow = originalOverflow;
-  };
-}, [isWarmupOpen]);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isWarmupOpen, isFinishDayOpen]);
 
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
@@ -59,6 +62,11 @@ export default function DayPage() {
     : null;
   const warmupId = dayDetails?.sessionInfo?.warmupId;
   const warmup = warmupId ? getWarmupById(planId, warmupId) : null;
+
+  const progressText = dayDetails
+    ? (STATIC_DAY_PROGRESS_MAP[planId]?.[dayDetails.id] ??
+      "0/0 exercises completed")
+    : "0/0 exercises completed";
 
   if (!plan || !dayDetails) {
     return (
@@ -95,10 +103,7 @@ export default function DayPage() {
 
           <div className="flex flex-col gap-1">
             <p className={UI_TEXT_MUTED}>Goal: {dayDetails.goal}</p>
-            <p className={UI_TEXT_MUTED}>
-              {STATIC_DAY_PROGRESS_MAP[planId]?.[dayDetails.id] ??
-                "0/0 exercises completed"}
-            </p>
+            <p className={UI_TEXT_MUTED}>{progressText}</p>
           </div>
         </header>
 
@@ -125,6 +130,10 @@ export default function DayPage() {
             status="Not started"
           />
         ) : null}
+
+        <PrimaryButton type="button" onClick={() => setIsFinishDayOpen(true)}>
+          Finish day
+        </PrimaryButton>
       </div>
 
       {isWarmupOpen ? (
@@ -132,6 +141,15 @@ export default function DayPage() {
           dayDetails={dayDetails}
           warmup={warmup}
           onClose={() => setIsWarmupOpen(false)}
+        />
+      ) : null}
+
+      {isFinishDayOpen ? (
+        <FinishDaySheet
+          dayDetails={dayDetails}
+          progressText={progressText}
+          hasCoreBlock={Boolean(coreBlock)}
+          onClose={() => setIsFinishDayOpen(false)}
         />
       ) : null}
     </AppShell>
