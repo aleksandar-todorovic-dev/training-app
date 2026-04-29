@@ -11,7 +11,7 @@ export const cutProExercises = [
       targetRir: "≈1-2",
       rest: "150 s",
       progression:
-        "Hold the load steady as long as possible while staying in the 5-7 range with clean reps and target RIR. Increase only when all 3 sets reach 7 cleanly.",
+        "Hold the load steady as long as possible while staying in the 5-7 range with clean reps and target RIR. Increase only when the prescribed working sets reach 7 cleanly.",
       advancedTechnique: null,
       extraCues: [
         "Keep shoulder blades pinned",
@@ -334,7 +334,7 @@ export const cutProExercises = [
       targetRir: "≈1-2",
       rest: "150 s",
       progression:
-        "Hold the load steady as long as possible while keeping clean depth and target RIR. Increase only when all 3 sets reach 8 cleanly.",
+        "Hold the load steady as long as possible while keeping clean depth and target RIR. Increase only when the prescribed working sets reach 8 cleanly.",
       advancedTechnique: null,
       extraCues: [
         "Let the knees track over the toes",
@@ -498,7 +498,7 @@ export const cutProExercises = [
       targetRir: "≈1-2",
       rest: "150 s",
       progression:
-        "Hold the load steady as long as possible while keeping clean reps and target RIR. Increase only when all 3 sets reach 8 cleanly.",
+        "Hold the load steady as long as possible while keeping clean reps and target RIR. Increase only when the prescribed working sets reach 8 cleanly.",
       advancedTechnique: null,
       extraCues: [
         "Keep the glutes tight through the rep",
@@ -841,7 +841,7 @@ export const cutProExercises = [
       targetRir: "≈1-2",
       rest: "150 s",
       progression:
-        "Hold the load steady as long as possible while keeping a clean hinge and target RIR. Increase only when all 3 sets reach 8 cleanly.",
+        "Hold the load steady as long as possible while keeping a clean hinge and target RIR. Increase only when the prescribed working sets reach 8 cleanly.",
       advancedTechnique: null,
       extraCues: [
         "Keep the ribs down and the spine neutral",

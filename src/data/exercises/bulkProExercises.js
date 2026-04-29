@@ -11,7 +11,7 @@ export const bulkProExercises = [
       targetRir: "≈2",
       rest: "150 s",
       progression:
-        "Add reps across sets first. When all 4 sets reach 7 with clean form and target RIR, increase the load slightly next time.",
+        "Add reps first. When the prescribed working sets reach 7 with clean form and target RIR, increase the load slightly next time.",
       advancedTechnique: null,
       extraCues: [
         "Keep shoulder blades pinned",
@@ -176,7 +176,7 @@ export const bulkProExercises = [
       targetRir: "≈2",
       rest: "150 s",
       progression:
-        "Add reps first. When all 4 sets reach 8 with clean reps and target RIR, increase the load slightly next time.",
+        "Add reps first. When the prescribed working sets reach 8 with clean reps and target RIR, increase the load slightly next time.",
       advancedTechnique: null,
       extraCues: [
         "Start from a dead hang for one second",
@@ -358,7 +358,7 @@ export const bulkProExercises = [
       targetRir: "≈2",
       rest: "150 s",
       progression:
-        "Add reps first. When all 4 sets reach 8 with clean depth and target RIR, increase the load slightly next time.",
+        "Add reps first. When the prescribed working sets reach 8 with clean depth and target RIR, increase the load slightly next time.",
       advancedTechnique: null,
       extraCues: [
         "Let the knees track over the toes",
@@ -522,7 +522,7 @@ export const bulkProExercises = [
       targetRir: "≈2",
       rest: "150 s",
       progression:
-        "Add reps first. When all 3 sets reach 8 with clean reps and target RIR, increase the load slightly next time.",
+        "Add reps first. When the prescribed working sets reach 8 with clean reps and target RIR, increase the load slightly next time.",
       advancedTechnique: null,
       extraCues: [
         "Keep the glutes tight through the rep",
@@ -826,7 +826,7 @@ export const bulkProExercises = [
       targetRir: "≈1-2",
       rest: "150 s",
       progression:
-        "Add reps first. When all 4 sets reach 8 with a stable torso and target RIR, increase the load slightly next time.",
+        "Add reps first. When the prescribed working sets reach 8 with a stable torso and target RIR, increase the load slightly next time.",
       advancedTechnique: null,
       extraCues: [
         "Keep the ribs down",
@@ -887,7 +887,7 @@ export const bulkProExercises = [
       targetRir: "≈2",
       rest: "150 s",
       progression:
-        "Add reps first. When all 4 sets reach 8 with a clean hinge and target RIR, increase the load slightly next time.",
+        "Add reps first. When the prescribed working sets reach 8 with a clean hinge and target RIR, increase the load slightly next time.",
       advancedTechnique: null,
       extraCues: [
         "Keep the ribs down and the spine neutral",
