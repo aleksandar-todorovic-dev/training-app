@@ -162,7 +162,6 @@ export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
           </div>
 
           <div className="flex flex-col gap-3 pt-1">
-            <PrimaryButton type="button">+ Add set</PrimaryButton>
             <PrimaryButton type="button">Mark exercise done</PrimaryButton>
           </div>
         </div>
