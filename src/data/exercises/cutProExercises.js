@@ -101,6 +101,26 @@ export const cutProExercises = [
     },
   },
   {
+    id: "standing-ohp-light",
+    name: "Standing Overhead Press (Light)",
+    subtitle: "Light shoulder top-up work",
+    prescription: "1 x 8",
+    cue: "Brace hard, press in a clean path, and keep the set light enough to avoid fatigue spillover",
+    details: {
+      tempo: "2-1-1",
+      targetRir: "3-4",
+      rest: "90 s",
+      progression:
+        "Keep this as a light shoulder signal. Do not increase load if it interferes with recovery or the next shoulder session.",
+      advancedTechnique: null,
+      extraCues: [
+        "Keep the ribs down",
+        "Stay well short of grindy reps",
+        "Treat this as a top-up, not a max-effort press",
+      ],
+    },
+  },
+  {
     id: "lateral-raise-db",
     name: "Lateral Raise (DB)",
     subtitle: "Side-delt top-up and shoulder support",
@@ -1009,6 +1029,7 @@ export const cutProExercises = [
         "Keep the shoulders down",
         "Use a shoulder-width grip",
         "Do not yank the bar up",
+        "Optional bonus: if forearms feel fresh, add 1 easy wrist-roller rotation after this exercise.",
       ],
     },
   },

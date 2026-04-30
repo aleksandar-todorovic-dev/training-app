@@ -16,6 +16,7 @@ export const cutProDayDetails = [
       "dips-or-decline-db-press",
       "cable-stretch-fly",
       "overhead-rope-extension",
+      "standing-ohp-light",
       "lateral-raise-db",
       "face-pull",
     ],
