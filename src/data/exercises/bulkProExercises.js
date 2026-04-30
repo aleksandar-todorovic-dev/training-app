@@ -8,7 +8,7 @@ export const bulkProExercises = [
     cue: "Upper back tight, touch the lower chest under control, and keep leg drive steady",
     details: {
       tempo: "2-1-1",
-      targetRir: "≈2",
+      targetRir: "≈1-2",
       rest: "150 s",
       progression:
         "Add reps first. When the prescribed working sets reach 7 with clean form and target RIR, increase the load slightly next time.",
@@ -173,7 +173,7 @@ export const bulkProExercises = [
     cue: "Set the shoulder blades down first, pull the chest up, and control the full range without swinging",
     details: {
       tempo: "2-1-1",
-      targetRir: "≈2",
+      targetRir: "≈1-2",
       rest: "150 s",
       progression:
         "Add reps first. When the prescribed working sets reach 8 with clean reps and target RIR, increase the load slightly next time.",
@@ -355,7 +355,7 @@ export const bulkProExercises = [
     cue: "Brace hard, keep the ribs down, and control the depth without losing foot pressure",
     details: {
       tempo: "3-1-1",
-      targetRir: "≈2",
+      targetRir: "≈1-2",
       rest: "150 s",
       progression:
         "Add reps first. When the prescribed working sets reach 8 with clean depth and target RIR, increase the load slightly next time.",
@@ -519,7 +519,7 @@ export const bulkProExercises = [
     cue: "Brace hard, keep the ribs down, and press close to the face without leaning back",
     details: {
       tempo: "2-1-1",
-      targetRir: "≈2",
+      targetRir: "≈1-2",
       rest: "150 s",
       progression:
         "Add reps first. When the prescribed working sets reach 8 with clean reps and target RIR, increase the load slightly next time.",
@@ -884,7 +884,7 @@ export const bulkProExercises = [
     cue: "Keep the bar close, push the hips back, and stay braced without hyperextending at the top",
     details: {
       tempo: "3-1-1",
-      targetRir: "≈2",
+      targetRir: "≈1-2",
       rest: "150 s",
       progression:
         "Add reps first. When the prescribed working sets reach 8 with a clean hinge and target RIR, increase the load slightly next time.",
