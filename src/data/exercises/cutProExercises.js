@@ -11,7 +11,7 @@ export const cutProExercises = [
       targetRir: "≈1-2",
       rest: "150 s",
       progression:
-        "Hold the load steady as long as possible while staying in the 5-7 range with clean reps and target RIR. Increase only when the prescribed working sets reach 7 cleanly.",
+        "Your first goal on a cut is to hold this load and keep clean reps as long as possible. Increase only if the prescribed working sets are stable near 7 with honest RIR.",
       advancedTechnique: null,
       extraCues: [
         "Keep shoulder blades pinned",
@@ -334,7 +334,7 @@ export const cutProExercises = [
       targetRir: "≈1-2",
       rest: "150 s",
       progression:
-        "Hold the load steady as long as possible while keeping clean depth and target RIR. Increase only when the prescribed working sets reach 8 cleanly.",
+        "Your first goal on a cut is to hold this load and keep clean depth as long as possible. Increase only if the prescribed working sets are stable near 8 with honest RIR.",
       advancedTechnique: null,
       extraCues: [
         "Let the knees track over the toes",
@@ -498,7 +498,7 @@ export const cutProExercises = [
       targetRir: "≈1-2",
       rest: "150 s",
       progression:
-        "Hold the load steady as long as possible while keeping clean reps and target RIR. Increase only when the prescribed working sets reach 8 cleanly.",
+        "Your first goal on a cut is to hold this load and keep clean reps as long as possible. Increase only if the prescribed working sets are stable near 8 with honest RIR.",
       advancedTechnique: null,
       extraCues: [
         "Keep the glutes tight through the rep",
@@ -739,7 +739,7 @@ export const cutProExercises = [
       targetRir: "≈1-2",
       rest: "150 s",
       progression:
-        "Hold the load steady while both sets stay clean and stable. Increase only when both sets reach 8 with target RIR.",
+        "Your first goal on a cut is to hold this load while both sets stay clean and stable. Increase only if both sets are stable near 8 with honest RIR.",
       advancedTechnique: null,
       extraCues: [
         "Do not turn the rep into hip-hinge pumping",
@@ -841,7 +841,7 @@ export const cutProExercises = [
       targetRir: "≈1-2",
       rest: "150 s",
       progression:
-        "Hold the load steady as long as possible while keeping a clean hinge and target RIR. Increase only when the prescribed working sets reach 8 cleanly.",
+        "Your first goal on a cut is to hold this load and keep a clean hinge as long as possible. Increase only if the prescribed working sets are stable near 8 with honest RIR.",
       advancedTechnique: null,
       extraCues: [
         "Keep the ribs down and the spine neutral",
