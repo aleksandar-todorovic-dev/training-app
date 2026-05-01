@@ -34,10 +34,7 @@ const STATIC_SET_DISPLAY = {
       { setNumber: 2, weight: "75 kg", reps: "6", rir: "1" },
       { setNumber: 3, weight: "75 kg", reps: "6", rir: "1" },
     ],
-    "leg-extension": [
-      { setNumber: 1, weight: "20 kg", reps: "13", rir: "2" },
-      { setNumber: 2, weight: "20 kg", reps: "12", rir: "1" },
-    ],
+    "leg-extension": [{ setNumber: 1, weight: "20 kg", reps: "13", rir: "2" }],
     "romanian-deadlift": [
       { setNumber: 1, weight: "90 kg", reps: "8", rir: "2" },
       { setNumber: 2, weight: "90 kg", reps: "7", rir: "1" },
