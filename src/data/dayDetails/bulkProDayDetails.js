@@ -143,7 +143,6 @@ export const bulkProDayDetails = [
       "preacher-curl-ez",
       "preacher-curl-mechanical",
       "behind-the-back-wrist-curl",
-      "wrist-roller",
     ],
     coreBlockId: null,
   },

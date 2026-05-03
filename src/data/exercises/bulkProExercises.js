@@ -982,7 +982,7 @@ export const bulkProExercises = [
     id: "hip-stability-ab-ad-d6",
     name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
-    prescription: "3 x 15",
+    prescription: "1 x 15",
     cue: "Move both directions with control and keep the transition short but clean",
     details: {
       tempo: "2-0-2",
@@ -992,7 +992,7 @@ export const bulkProExercises = [
         "Keep both directions smooth and even before increasing load.",
       advancedTechnique: null,
       extraCues: [
-        "Each round = 15 abductor reps + 15 adductor reps",
+        "One round = 15 abductor reps + 15 adductor reps",
         "Switch directions without rushing",
         "Keep both sides even and controlled",
         "Treat it like support work, not ego work",
@@ -1003,7 +1003,7 @@ export const bulkProExercises = [
     id: "leg-press-calf-raise",
     name: "Leg-Press Calf Raise",
     subtitle: "Calf pump work",
-    prescription: "3 x 15",
+    prescription: "3 x 12-15",
     cue: "Use full range, pause in the stretch, and rise with a hard squeeze without bouncing",
     details: {
       tempo: "2-0-2",
@@ -1024,7 +1024,7 @@ export const bulkProExercises = [
     id: "seated-calf-raise-d6",
     name: "Seated Calf Raise",
     subtitle: "Primary soleus volume",
-    prescription: "4 x 15-20",
+    prescription: "3 x 15-20",
     cue: "Stay controlled through the full range, hold the squeeze, and do not bounce out of the stretch",
     details: {
       tempo: "2-0-2",
@@ -1098,26 +1098,7 @@ export const bulkProExercises = [
         "Keep the shoulders down",
         "Use a shoulder-width grip",
         "Do not yank the bar up",
-      ],
-    },
-  },
-  {
-    id: "wrist-roller",
-    name: "Wrist Roller",
-    subtitle: "Grip and forearm finisher",
-    prescription: "2 rot.",
-    cue: "Roll up and down evenly, keep the shoulders down, and do not rush the turns",
-    details: {
-      tempo: "—",
-      targetRir: "3",
-      rest: "60 s",
-      progression:
-        "Keep both rotations even and controlled before increasing difficulty.",
-      advancedTechnique: null,
-      extraCues: [
-        "Keep the elbows slightly in front of the body",
-        "Keep tension through the whole roll",
-        "Do not jerk to finish the last turns",
+        "Optional bonus: if grip feels fresh, add 1-2 easy wrist-roller rotations after this exercise.",
       ],
     },
   },
