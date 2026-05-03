@@ -871,6 +871,7 @@ export const bulkProExercises = [
         "Keep a neutral spine",
         "Do not turn the squeeze into a torso swing",
         "Let the return stay slow and clean",
+        "Fatigue fallback: if D5 is running long or upper-back fatigue is high, perform 1 clean set instead of forcing both.",
       ],
     },
   },
