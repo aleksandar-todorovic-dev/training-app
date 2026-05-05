@@ -34,6 +34,7 @@ export const bulkProExercises = [
         "Build toward the top of the 8-10 range with the same dumbbells. Increase load when all work sets reach 10 cleanly.",
       advancedTechnique:
         "Last set rest-pause: rack the dumbbells for 15 seconds, then perform 2-3 extra reps.",
+        advancedTechniqueType: "rest-pause",
       extraCues: [
         "Keep the incline slight",
         "Do not lower past a clean shoulder position",
@@ -75,6 +76,7 @@ export const bulkProExercises = [
         "Keep the stretch and control honest first. Increase load only when you can complete the full 12-15 range without losing position.",
       advancedTechnique:
         "Finish the set with a 15-second loaded stretch in the bottom position.",
+        advancedTechniqueType: "iso-stretch",
       extraCues: [
         "Keep the elbow angle fixed",
         "Do not rush the bottom stretch",
@@ -96,6 +98,7 @@ export const bulkProExercises = [
         "Own the 12-15 range with stable elbows before increasing the stack.",
       advancedTechnique:
         "Last set dropset: reduce the load by about 20% and continue with clean reps.",
+        advancedTechniqueType: "dropset",
       extraCues: [
         "Lean slightly forward to feel the stretch better",
         "Do not let the elbows flare too wide",
@@ -422,6 +425,7 @@ export const bulkProExercises = [
         "Own the 12-15 range with clean reps and full contraction before increasing the load.",
       advancedTechnique:
         "Last set dropset: reduce the load by about 25% and continue with controlled reps.",
+        advancedTechniqueType: "dropset",
       extraCues: [
         "Do not throw the hips off the seat",
         "Aim for full contraction, not sloppy speed",
@@ -545,6 +549,7 @@ export const bulkProExercises = [
         "Build toward the top of the 12-15 range with clean reps before increasing load.",
       advancedTechnique:
         "Optional last set dropset: reduce the load by about 20% and continue with controlled reps.",
+        advancedTechniqueType: "dropset",
       extraCues: [
         "Start slightly below shoulder level with control",
         "Do not shrug into the rep",
@@ -664,6 +669,7 @@ export const bulkProExercises = [
         "Keep the single set smooth and fully stretched before increasing load.",
       advancedTechnique:
         "Rest-pause: after the main set, rest 15 seconds and perform 5-6 extra reps.",
+        advancedTechniqueType: "rest-pause",
       extraCues: [
         "Keep the torso still",
         "Let the arm open fully before curling",
@@ -747,6 +753,7 @@ export const bulkProExercises = [
         "Keep the full cluster clean first. Add reps only if you can maintain position quality through each variation.",
       advancedTechnique:
         "Mechanical dropset: perform 12 wide reps, 8 close reps, then 6 plyo reps without rest.",
+        advancedTechniqueType: "mechanical-dropset",
       extraCues: [
         "Move quickly but stay organized between positions",
         "Keep the body in one line",
@@ -808,6 +815,7 @@ export const bulkProExercises = [
         "Reduce assistance gradually while keeping the full cluster clean and repeatable.",
       advancedTechnique:
         "Cluster set: perform 8-10 reps, rest 15 seconds, then perform 4-5 more reps.",
+        advancedTechniqueType: "cluster",
       extraCues: [
         "Set the shoulder blades down before pulling",
         "Keep the first burst around honest RIR 1-2",
@@ -1014,6 +1022,7 @@ export const bulkProExercises = [
         "Reach the target reps with full range and clean control before increasing load.",
       advancedTechnique:
         "Last set dropset: reduce the load by about 25% and continue with controlled reps.",
+        advancedTechniqueType: "dropset",
       extraCues: [
         "Let the heels drop into a real stretch",
         "Do not bounce out of the bottom",
@@ -1075,6 +1084,7 @@ export const bulkProExercises = [
         "Keep the full wide-to-narrow sequence clean before increasing load.",
       advancedTechnique:
         "Mechanical set: perform the reps with a wide grip, then switch immediately to a narrow grip with the same weight.",
+        advancedTechniqueType: "mechanical-set",
       extraCues: [
         "Stay locked to the pad for both grips",
         "Do not rush the grip change",

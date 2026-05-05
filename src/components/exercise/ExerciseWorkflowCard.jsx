@@ -4,7 +4,10 @@ import SectionCard from "../layout/SectionCard";
 import PrimaryButton from "../common/PrimaryButton";
 import HelpSheet from "../common/HelpSheet";
 import SetRow from "./SetRow";
-import { exerciseHelp } from "../../data/contextualHelp";
+import {
+  exerciseHelp,
+  advancedTechniqueHelpByType,
+} from "../../data/contextualHelp";
 import { UI_TEXT_MUTED } from "../../styles/ui";
 
 function cleanSummaryValue(value) {
@@ -30,6 +33,7 @@ function DetailBlock({ title, children }) {
 
 export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
+  const [isAdvancedHelpOpen, setIsAdvancedHelpOpen] = useState(false);
 
   if (!exercise) {
     return null;
@@ -43,6 +47,7 @@ export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
     rest = "—",
     progression,
     advancedTechnique,
+    advancedTechniqueType,
     extraCues = [],
   } = exercise.details ?? {};
 
@@ -50,6 +55,10 @@ export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
   const cleanedTempo = cleanSummaryValue(tempo);
   const cleanedTargetRir = cleanSummaryValue(targetRir);
   const cleanedRest = cleanSummaryValue(rest);
+
+  const advancedTechniqueHelp = advancedTechniqueType
+    ? advancedTechniqueHelpByType[advancedTechniqueType]
+    : null;
 
   return (
     <>
@@ -67,9 +76,27 @@ export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
             </DetailBlock>
 
             {advancedTechnique && (
-              <DetailBlock title="Advanced technique">
-                <p>{advancedTechnique}</p>
-              </DetailBlock>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between gap-3">
+                  <h3 className="text-sm font-semibold text-zinc-100">
+                    Advanced technique
+                  </h3>
+
+                  {advancedTechniqueHelp && (
+                    <button
+                      type="button"
+                      onClick={() => setIsAdvancedHelpOpen(true)}
+                      className="rounded-full border border-zinc-800 px-2.5 py-1 text-xs font-medium text-zinc-300 transition hover:border-zinc-700 hover:bg-zinc-900 hover:text-zinc-50"
+                    >
+                      ? Help
+                    </button>
+                  )}
+                </div>
+
+                <p className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>
+                  {advancedTechnique}
+                </p>
+              </div>
             )}
 
             {extraCues.length > 0 && (
@@ -174,6 +201,16 @@ export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
         sections={exerciseHelp.sections}
         onClose={() => setIsHelpOpen(false)}
       />
+
+      {advancedTechniqueHelp && (
+        <HelpSheet
+          isOpen={isAdvancedHelpOpen}
+          title={advancedTechniqueHelp.title}
+          intro={advancedTechniqueHelp.intro}
+          sections={advancedTechniqueHelp.sections}
+          onClose={() => setIsAdvancedHelpOpen(false)}
+        />
+      )}
     </>
   );
 }
