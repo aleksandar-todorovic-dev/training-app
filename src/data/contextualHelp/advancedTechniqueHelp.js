@@ -19,7 +19,7 @@ export const advancedTechniqueHelpByType = {
         title: "When to use it",
         paragraphs: [
           "Use it only when your normal working sets are clean, recovery is good, and joints feel fine.",
-          "This is a planned intensity tool, not an automatic obligation every rotation.",
+          "Do not force advanced techniques every workout. Rotate them across cycles, or use them only when recovery, joints, and set quality are good.",
           "If the day already includes several advanced techniques or fatigue is high, do not force all of them. Complete the prescribed sets first and use the technique only when quality is still good.",
         ],
       },
@@ -44,7 +44,7 @@ export const advancedTechniqueHelpByType = {
         title: "When to use it",
         paragraphs: [
           "Use it only when your form is stable and the target muscle is still doing the work.",
-          "This is a planned intensity tool, not an automatic obligation every rotation.",
+          "Do not force advanced techniques every workout. Rotate them across cycles, or use them only when recovery, joints, and set quality are good.",
           "Skip it if the extra reps would become sloppy, joint-heavy, or too grindy. If the day already includes several advanced techniques, complete the prescribed sets first and use this only when quality is still good.",
         ],
       },
@@ -71,7 +71,7 @@ export const advancedTechniqueHelpByType = {
         title: "When to use it",
         paragraphs: [
           "Use it only when the first variation is close to done but your form is still organized.",
-          "This is a planned intensity tool, not an automatic obligation every rotation.",
+          "Do not force advanced techniques every workout. Rotate them across cycles, or use them only when recovery, joints, and set quality are good.",
           "Stop if the second part turns into shoulder swing, momentum, or poor joint position. If the day already includes several advanced techniques, do not force every one of them when fatigue is high.",
         ],
       },
@@ -97,7 +97,7 @@ export const advancedTechniqueHelpByType = {
         title: "When to use it",
         paragraphs: [
           "Use it as a finisher when the main work is already done and form is still clean.",
-          "This is a planned intensity tool, not an automatic obligation every rotation.",
+          "Do not force advanced techniques every workout. Rotate them across cycles, or use them only when recovery, joints, and set quality are good.",
           "Do not chase extra reps if the movement starts breaking down. If the day already includes several advanced techniques, complete the prescribed sets first and use this only when quality is still good.",
         ],
       },
@@ -123,7 +123,7 @@ export const advancedTechniqueHelpByType = {
         title: "When to use it",
         paragraphs: [
           "Use it only when the joint position feels safe and the target muscle is still controlling the load.",
-          "This is a planned intensity tool, not an automatic obligation every rotation.",
+          "Do not force advanced techniques every workout. Rotate them across cycles, or use them only when recovery, joints, and set quality are good.",
           "Skip it if the stretch feels sharp, unstable, or if fatigue is already too high. If the day already includes several advanced techniques, do not force every one of them.",
         ],
       },
@@ -150,7 +150,7 @@ export const advancedTechniqueHelpByType = {
         title: "When to use it",
         paragraphs: [
           "Use it only when you can keep the movement clean across both bursts.",
-          "This is a planned intensity tool, not an automatic obligation every rotation.",
+          "Do not force advanced techniques every workout. Rotate them across cycles, or use them only when recovery, joints, and set quality are good.",
           "Skip or reduce it if the second burst turns into rushed or grindy reps. If the day already includes several advanced techniques, complete the prescribed sets first and use this only when quality is still good.",
         ],
       },
