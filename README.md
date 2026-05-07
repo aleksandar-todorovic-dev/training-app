@@ -3,30 +3,29 @@
 Structured training app MVP built with React, Vite, Tailwind CSS, and React Router.
 
 This project is not just a workout tracker.  
-It is designed as a structured local-first training app that combines:
+It is a structured, local-first training app that combines:
 
 - predefined bulk and cut training systems
 - guided workout flow
 - educational training content
 - cycle-based progression
 - previous-workout continuity
-- simple local persistence for MVP
+- contextual help during training
+- MVP-friendly local progress handling
 
 ## MVP goal
 
 Build a clean, focused, mobile-first training app that supports:
 
-- two predefined plans
+- two predefined plans: **Bulk Pro** and **Cut Pro**
 - a 6 training day flow inside a 9-day cycle concept
-- exercise and core navigation
-- warm-up support inside the Day screen flow
-- central guide content
-- contextual training help during workout flow
-- finish-day confirmation
-- end-of-cycle / start-new-cycle flow
+- exercise, core, warm-up, guide, finish-day, and end-cycle flows
+- guided exercise and core logging screens
 - set logging with weight, reps, and RIR
 - previous-value carry-over across cycles
-- local-first progress saving
+- partial and full day completion
+- core completion tracked separately from main exercise completion
+- local-first progress saving for the MVP
 
 ## Current status
 
@@ -49,7 +48,7 @@ Implemented:
 
 ### Phase 2 — Static content and screen structure
 
-Main static screen implementation is now visually complete.
+Completed for the current MVP static/UI pass.
 
 Implemented:
 
@@ -64,19 +63,52 @@ Implemented:
 - Screen 9 — Finish day confirmation sheet
 - Screen 10 — End of cycle / Start new cycle
 
-Current Phase 2 status:
+Current Phase 2 result:
 
-- all main planned MVP screens exist in static/UI form
-- the main route-driven screens are connected
-- warm-up and finish-day confirmation are handled as Day screen sheets
-- End cycle exists as a route-driven static page
-- runtime workout logic is still intentionally excluded
+- all planned MVP screens exist in static/UI form
+- all main route-driven screens are connected
+- Home, Plan Overview, Cycle, Day, Exercise, Core, Guide, and End Cycle pages use real static data where applicable
+- Warm-up and Finish day are handled as Day screen sheets
+- Exercise contextual help is implemented
+- Advanced technique contextual help is implemented
+- runtime workout logic is intentionally excluded until Phase 3
 
-The remaining Phase 2 work is mainly:
+### Pre-Phase 3 cleanup
 
-- final static flow verification documentation
-- reviewing local notes and deferred polish items
-- deciding what must be fixed before entering Phase 3
+Completed.
+
+Key final static decisions:
+
+- Bulk D6 workload was corrected based on real training feedback
+- Wrist Roller was removed from required Bulk D6 exercise flow
+- Wrist Roller stays as optional bonus cue where relevant
+- Bulk D6 required progress count is now `0/11`
+- Bulk D5 Seated Cable Row received a fatigue fallback cue
+- Cut D1 light shoulder top-up is confirmed as regular plan work
+- Cut Wrist Roller stays cue-only
+- Cut `leg-extension` static set scaffold was corrected
+- `+ Add set` was removed from the active Exercise flow
+- advanced techniques remain guidance-only for MVP
+- optional work does not affect required completion count
+
+### Phase 3 — Runtime Logic Planning
+
+Current next phase.
+
+Before implementation, the next step is to lock:
+
+- app state shape
+- set log shape
+- exercise completion rules
+- day completion rules
+- core completion rules
+- partial day behavior
+- finish day behavior
+- next day unlock / pointer behavior
+- end cycle behavior
+- previous workout carry-over
+
+The goal is to plan this carefully before adding reducer/store logic.
 
 ## Static source data
 
@@ -133,9 +165,10 @@ The remaining Phase 2 work is mainly:
 
 - `src/data/contextualHelp/`
   - `exerciseHelp.js`
+  - `advancedTechniqueHelp.js`
   - `index.js`
 
-### Current data helpers
+### Current data helpers / exports
 
 - `getPlanById(planId)`
 - `getDaysByPlanId(planId)`
@@ -146,6 +179,7 @@ The remaining Phase 2 work is mainly:
 - `getCoreExercisesByIds(exerciseIds)`
 - `getWarmupById(planId, warmupId)`
 - `getGuideByPlanId(planId)`
+- `advancedTechniqueHelpByType`
 
 ## Screens completed in static MVP form
 
@@ -197,7 +231,7 @@ The remaining Phase 2 work is mainly:
 - includes the warm-up entry point through `View warm-up`
 - opens warm-up content as a Day screen sheet/modal instead of a separate page
 - includes `Finish day` CTA and finish-day confirmation sheet
-- currently includes full static coverage for both plans:
+- includes full static coverage for both plans:
   - Bulk Pro D1-D6
   - Cut Pro D1-D6
 - keeps Screen 4 strictly static-data-first with no runtime progress or completion logic yet
@@ -213,11 +247,18 @@ The remaining Phase 2 work is mainly:
   - compact 4-column execution summary
   - row-based set scaffolding
   - bottom action scaffolding
-- includes a small contextual `? Help` trigger near the execution summary
-- opens `HelpSheet` with short explanations for:
+- includes `Working rules ? Help` for:
   - Tempo & rest
   - RIR
   - Progression
+- includes `Advanced technique ? Help` where supported
+- advanced technique help is type-based and currently supports:
+  - `dropset`
+  - `rest-pause`
+  - `mechanical-set`
+  - `mechanical-dropset`
+  - `iso-stretch`
+  - `cluster`
 - keeps Screen 5 inside the current static/UI boundary with no runtime set logic yet
 
 ### Screen 6 — Core screen
@@ -239,6 +280,9 @@ The remaining Phase 2 work is mainly:
   - row-based core logging scaffold
   - per-exercise completion CTA
   - block-level completion CTA
+- uses explicit static metadata:
+  - `logType`
+  - `tracksLoad`
 - keeps Screen 6 inside the current static/UI boundary with no runtime core logging logic yet
 
 ### Screen 7 — Warm-up sheet
@@ -249,16 +293,17 @@ The remaining Phase 2 work is mainly:
   - `getWarmupById(planId, warmupId)`
 - `View warm-up` opens a sheet/modal from the Day screen
 - the previous standalone `WarmupPage` and warm-up route were removed from the active flow
-- the final warm-up flow is:
+- final warm-up flow:
 
-`Day screen -> View warm-up -> Warm-up sheet -> Close warm-up -> same Day screen`
+```text
+Day screen -> View warm-up -> Warm-up sheet -> Close warm-up -> same Day screen
+```
 
 - warm-up content includes:
   - title
   - goal
   - step-based guidance
   - short coaching-style execution notes
-- warm-up uses a unified `WarmupStepsCard` inside `WarmupSheet`
 - no warm-up runtime logic was added:
   - no timers
   - no checkboxes
@@ -309,7 +354,9 @@ The remaining Phase 2 work is mainly:
 
 - implemented as a route-driven static page:
 
-`/plan/:planId/end-cycle`
+```text
+/plan/:planId/end-cycle
+```
 
 - reads `planId` from the route
 - resolves the selected plan through `getPlanById(planId)`
@@ -363,8 +410,8 @@ The remaining Phase 2 work is mainly:
   - wider columns
   - concise values
   - full explanation stays in the guidance layer above
-- a contextual exercise helper was added through one small `? Help` trigger near the working rules / compact summary area
-- the first helper explains tempo, rest, RIR, and progression without duplicating the full central Guide
+- contextual working-rules help was added
+- contextual advanced-technique help was added
 - Screen 5 is considered complete for the current MVP static/UI pass, aside from later final design polish if needed
 
 ### Screen 6
@@ -388,11 +435,7 @@ The remaining Phase 2 work is mainly:
 - block-level `Notes` was renamed to `Key reminders`
 - `Can be moved to a rest day if needed` was confirmed to stay on the Core screen
 - core execution helper copy was aligned with the Screen 5 prefill pattern
-- core exercise prescriptions were cleaned where compact-summary qualifiers caused awkward wrapping:
-  - `/ side` and `total` meaning was moved into `extraCues`
-- Screen 6 now uses explicit metadata instead of display-string inference:
-  - `logType` controls `Reps` vs `Time`
-  - `tracksLoad` controls whether a row shows `Kg / Reps / RIR` or `Target / Reps-or-Time / RIR`
+- core exercise prescriptions were cleaned where compact-summary qualifiers caused awkward wrapping
 - weighted core movements now support load scaffolding:
   - Decline Sit-Up (Weighted)
   - Pallof Press
@@ -445,31 +488,33 @@ The remaining Phase 2 work is mainly:
 
 ### Contextual help
 
-- a new contextual help data layer was started:
+- contextual help data layer:
   - `src/data/contextualHelp/exerciseHelp.js`
+  - `src/data/contextualHelp/advancedTechniqueHelp.js`
   - `src/data/contextualHelp/index.js`
-- a reusable `HelpSheet` component was added:
+- reusable sheet component:
   - `src/components/common/HelpSheet.jsx`
-- the first contextual helper was connected only to Screen 5
 - current Exercise helper sections:
   - Tempo & rest
   - RIR
   - Progression
-- the first-pass decision is to use one small `? Help` trigger instead of multiple question marks across the compact summary
-- future helper candidates remain deferred:
-  - Previous workout / last log helper
-  - Advanced technique helper
-  - Core purpose helper
-  - Warm-up purpose helper
-  - Finish day / partial completion helper
-  - Day role helper
+- current advanced technique helper types:
+  - Dropset
+  - Rest-pause
+  - Mechanical set
+  - Mechanical dropset
+  - Iso-stretch
+  - Cluster
+- advanced technique help is guidance-only and does not affect runtime completion or scheduling
 
 ### Screen 9 / Finish day
 
 - Finish day confirmation was implemented as a Day screen sheet/modal
 - this preserves the current flow:
 
-`Day screen -> Finish day -> Finish day sheet -> same Day screen`
+```text
+Day screen -> Finish day -> Finish day sheet -> same Day screen
+```
 
 - the sheet explains future full/partial completion behavior without adding runtime logic
 - current sheet actions close the sheet only
@@ -484,16 +529,83 @@ The remaining Phase 2 work is mainly:
 - direct route access currently works
 - real navigation from finishing D6 into End Cycle belongs to Phase 3
 
+## Important MVP rules preserved
+
+### Static source data vs runtime user data
+
+Static source data contains:
+
+- plan content
+- day structure
+- exercise guidance
+- core definitions
+- warm-up content
+- guide content
+- contextual help content
+
+Runtime user data will later contain:
+
+- selected plan
+- current cycle
+- day progress
+- exercise logs
+- set values
+- core completion
+- previous workout carry-over
+
+These two layers should stay separate.
+
+### Required vs optional work
+
+- required exercises belong in `exerciseIds`
+- optional work belongs in cue/help content
+- optional work does not affect required completion count
+- advanced techniques are guidance-only for MVP
+- prescribed working sets are the source of truth for completion
+
+### Core
+
+- core remains separate from main exercise count
+- D2 / D4 / D5 include core blocks
+- core completion should be tracked separately
+- core should not enter the main day exercise fraction
+
+### Prescription
+
+- `prescription` is currently a user-facing display string
+- Phase 3 runtime logic should not parse it as business logic
+- if set rows need generation, use structured metadata / scaffolds instead of string parsing
+
+### Local-first MVP
+
+- no auth
+- no backend
+- no cloud sync
+- runtime state first
+- localStorage belongs to Phase 4
+
+### Future product direction
+
+The MVP should remain local-first now, but the structure should not block future:
+
+- paid plan unlocks
+- auth
+- user profiles
+- cloud sync
+- plan entitlement logic
+
+For now, paid access and auth are after-MVP concerns, not Phase 3 implementation tasks.
+
 ## Shared UI refinement completed
 
-- `PrimaryButton.jsx` was expanded from a link-only wrapper into a shared primary action component that supports:
+- `PrimaryButton.jsx` supports:
   - route links through `to`
   - native button rendering when no route target is provided
   - `className`
   - `type`
   - forwarded props
 
-- `SecondaryButton.jsx` was expanded from a link-only wrapper into a shared secondary action component that supports:
+- `SecondaryButton.jsx` supports:
   - route links through `to`
   - native button rendering when no route target is provided
   - `className`
@@ -507,7 +619,7 @@ This keeps shared CTA styling consistent while allowing both route navigation an
 - the app boots correctly
 - main routes for the current static flow are connected
 - Home, Plan Overview, Cycle, Day, Exercise, Core, Guide, and End Cycle pages are connected to real static data where applicable
-- warm-up, exercise help, and finish-day confirmation use local sheet/modal patterns
+- warm-up, exercise help, advanced technique help, and finish-day confirmation use local sheet/modal patterns
 - route-based plan, day, exercise, core, guide, and end-cycle lookup work
 - warm-up is displayed as a Day screen sheet/modal rather than a standalone route
 - finish-day confirmation is displayed as a Day screen sheet/modal rather than a standalone route
@@ -518,37 +630,75 @@ This keeps shared CTA styling consistent while allowing both route navigation an
 - Screen 8 central Guide exists as a focused section-based knowledge layer
 - Screen 9 exists as a visible static confirmation step
 - Screen 10 exists as a static end-of-cycle screen
-- the current static MVP flow is working:
+- Phase 2 static flow is effectively closed
+- the next workstream is Phase 3 Runtime Logic Planning
 
-`Home -> Plan Overview -> Cycle -> Day -> Exercise / Core / Warm-up sheet / Finish day sheet`
+Current static MVP flow:
+
+```text
+Home -> Plan Overview -> Cycle -> Day -> Exercise / Core / Warm-up sheet / Finish day sheet
+```
 
 Additional static route:
 
-`/plan/:planId/end-cycle`
+```text
+/plan/:planId/end-cycle
+```
 
 ## Next step
 
-Before entering Phase 3, complete a final Phase 2 wrap-up pass:
+Continue into:
 
-- document static flow verification
-- review locally saved notes from the Phase 2 build
-- decide which small issues are worth fixing before runtime logic
-- avoid expanding scope into new features
+### Phase 3 — Workout flow logic
 
-After that, continue into Phase 3:
+Implementation should start only after the runtime model is planned.
 
+Phase 3 planning checklist:
+
+- app state shape
+- set log shape
 - selected plan state
 - current cycle state
 - day completion state
 - exercise completion state
 - core block completion state
-- set input state
+- per-set input state
 - previous-workout prefill
-- finish-day logic
-- partial/full completion
+- per-set Done logic
+- Mark exercise done logic
+- Mark core block done logic
+- Day screen progress calculation
+- Finish day confirmation behavior
+- partial/full completion behavior
+- next training day unlock / pointer
 - end-of-cycle detection
 - start-new-cycle behavior
 - previous-value carry-over
+
+After Phase 3:
+
+### Phase 4 — Local persistence
+
+- localStorage keys and storage structure
+- save/load selected plan
+- save/load current cycle
+- save/load completed days
+- save/load exercise logs
+- save/load core completion
+- save/load carry-over values
+- safe handling for missing or broken saved data
+- reset / clear local data option for testing
+
+### Phase 5 — Polish and stability
+
+- mobile layout checks
+- desktop layout checks
+- spacing/readability polish
+- copy/button label review
+- Finish day messaging
+- End cycle messaging
+- full test flows from start to finish
+- check that the app still feels focused and not bloated
 
 ## Tech stack
 
@@ -646,5 +796,8 @@ The current implementation still respects the main MVP boundaries:
 - end-cycle kept as a route-driven page, but not yet connected through runtime completion
 - central Guide kept as the deeper system-level explanation
 - contextual help kept small, local, and close to the workflow area where the user needs it
+- advanced technique help kept guidance-only
 - exercise `prescription` kept as a user-facing display string during the current Phase 2 boundary
-- core logging behavior now has explicit static metadata (`logType`, `tracksLoad`) so future runtime logic does not need to parse display strings
+- core logging behavior has explicit static metadata (`logType`, `tracksLoad`) so future runtime logic does not need to parse display strings
+- optional bonus work stays out of required completion logic
+- Phase 3 should start with planning before implementation
