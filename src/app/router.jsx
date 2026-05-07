@@ -5,7 +5,6 @@ import CyclePage from '../pages/CyclePage'
 import DayPage from '../pages/DayPage'
 import ExercisePage from '../pages/ExercisePage'
 import CorePage from '../pages/CorePage'
-import WarmupPage from '../pages/WarmupPage'
 import GuidePage from '../pages/GuidePage'
 import EndCyclePage from '../pages/EndCyclePage'
 import NotFoundPage from '../pages/NotFoundPage'
@@ -34,10 +33,6 @@ const router = createBrowserRouter([
   {
     path: '/plan/:planId/day/:dayId/core/:coreId',
     element: <CorePage />,
-  },
-  {
-    path: '/plan/:planId/day/:dayId/warmup',
-    element: <WarmupPage />,
   },
   {
     path: '/plan/:planId/guide',

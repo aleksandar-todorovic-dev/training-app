@@ -1,32 +1,97 @@
+import { useParams } from "react-router-dom";
+
 import AppShell from "../components/layout/AppShell";
-import ScreenHeader from "../components/layout/ScreenHeader";
-import SectionCard from "../components/layout/SectionCard";
 import BackButton from "../components/common/BackButton";
-import PrimaryButton from "../components/common/PrimaryButton";
-import { UI_ACTION_ROW, UI_STACK_LG, UI_TEXT_MUTED } from "../styles/ui";
+import DayCard from "../components/cycle/DayCard";
+import CycleHeader from "../components/cycle/CycleHeader";
+
+import { getPlanById } from "../data/plans";
+import { getDaysByPlanId } from "../data/days";
+import { UI_STACK_LG } from "../styles/ui";
+
+const STATIC_DAY_STATUS_MAP = {
+  d1: "Completed 7/7",
+  d2: "Completed 5/7",
+  d3: "Not started",
+  d4: "Not started",
+  d5: "Not started",
+  d6: "Not started",
+};
+
+const STATIC_CORE_HINT_MAP = {
+  d2: "Core A",
+  d4: "Core B",
+  d5: "Core C",
+};
+
+const STATIC_DAY_DETAIL_HINT_MAP = {
+  "bulk-pro": {
+    d1: "Includes shoulder top-up",
+    d2: "Includes trap top-up",
+    d3: "Includes hamstring and calf support",
+    d4: "Includes trap work",
+    d5: "Includes triceps support",
+    d6: "Includes quad, arm, and calf support",
+  },
+  "cut-pro": {
+    d1: "Includes shoulder top-up",
+    d2: "Includes trap top-up",
+    d3: "Includes hamstring spark and calf support",
+    d4: "Includes trap work",
+    d5: "Includes triceps support",
+    d6: "Includes quad, arm, and calf support",
+  },
+};
 
 export default function CyclePage() {
+  const { planId } = useParams();
+
+  const plan = getPlanById(planId);
+  const days = getDaysByPlanId(planId);
+
+  if (!plan) {
+    return (
+      <AppShell>
+        <div className={UI_STACK_LG}>
+          <div className="flex justify-start">
+            <BackButton to={`/plan/${planId}`}>
+              Back to Plan Overview
+            </BackButton>
+          </div>
+
+          <CycleHeader
+            planName="Plan not found"
+            cycleLabel=""
+            statusSummary="The selected plan could not be loaded."
+          />
+        </div>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell>
       <div className={UI_STACK_LG}>
-        <BackButton to="/plan/bulk-pro">Back to Plan Overview</BackButton>
+        <div className="flex justify-start">
+          <BackButton to="/">Back to Home</BackButton>
+        </div>
 
-        <ScreenHeader
-          title="Cycle"
-          subtitle="Placeholder cycle screen for the selected plan."
+        <CycleHeader
+          planName={plan.name}
+          cycleLabel="Cycle 1"
+          statusSummary="2 of 6 training days completed"
         />
 
-        <SectionCard>
-          <div className={UI_ACTION_ROW}>
-            <p className={UI_TEXT_MUTED}>
-              This screen will later represent cycle progression and day entry.
-            </p>
-
-            <PrimaryButton to="/plan/bulk-pro/day/d1">
-              Open Day D1
-            </PrimaryButton>
-          </div>
-        </SectionCard>
+        {days.map((day) => (
+          <DayCard
+            key={day.id}
+            planId={planId}
+            day={day}
+            status={STATIC_DAY_STATUS_MAP[day.id] ?? "Not started"}
+            coreHint={STATIC_CORE_HINT_MAP[day.id] ?? null}
+            detailHint={STATIC_DAY_DETAIL_HINT_MAP[planId]?.[day.id] ?? null}
+          />
+        ))}
       </div>
     </AppShell>
   );

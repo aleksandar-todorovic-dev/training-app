@@ -1,0 +1,149 @@
+export const bulkProDayDetails = [
+  // D1 bulk
+  {
+    id: "d1",
+    label: "D1",
+    name: "Chest & Triceps",
+    goal: "Chest tension, triceps focus, and shoulder top-up",
+    sessionInfo: {
+      rirRule: "Compound 1-2, other lifts 1-2",
+      advancedTechniques:
+        "Incline DB Press last set rest-pause; Cable Stretch-Fly 15 s iso-stretch; Overhead Rope Extension last set dropset -20%",
+      warmupId: "warmup-d1",
+    },
+    exerciseIds: [
+      "smith-bench-press",
+      "incline-db-press",
+      "weighted-dip",
+      "cable-stretch-fly",
+      "overhead-rope-extension",
+      "standing-ohp-light",
+      "lateral-raise-db",
+      "face-pull",
+    ],
+    coreBlockId: null,
+  },
+  //D2 bulk
+  {
+    id: "d2",
+    label: "D2",
+    name: "Back & Biceps",
+    goal: "Vertical pull, arm flexor focus, and trap top-up",
+    sessionInfo: {
+      rirRule: "Compound 1-2, other lifts 1-2",
+      advancedTechniques: "None",
+      warmupId: "warmup-d2",
+    },
+    exerciseIds: [
+      "weighted-pull-up",
+      "wide-grip-lat-pulldown",
+      "neutral-close-grip-pulldown",
+      "straight-arm-pulldown",
+      "back-shrug",
+      "back-extension",
+      "barbell-curl",
+      "hammer-curl",
+      "reverse-curl",
+    ],
+    coreBlockId: "core-a",
+  },
+  //D3 bulk
+  {
+    id: "d3",
+    label: "D3",
+    name: "Quads Heavy",
+    goal: "Quad priority with hamstring top-up",
+    sessionInfo: {
+      rirRule: "Compound 1-2, other lifts 1-2",
+      advancedTechniques: "Leg Extension last set dropset -25%",
+      warmupId: "warmup-d3",
+    },
+    exerciseIds: [
+      "high-bar-back-squat",
+      "leg-press-narrow",
+      "bulgarian-split-squat",
+      "leg-extension",
+      "seated-leg-curl",
+      "standing-calf-raise",
+      "seated-calf-raise",
+      "hip-stability-ab-ad-d3",
+    ],
+    coreBlockId: null,
+  },
+  // D4 bulk
+  {
+    id: "d4",
+    label: "D4",
+    name: "Shoulders & Arms Light",
+    goal: "Shoulder focus, trap work, and arm top-up",
+    sessionInfo: {
+      rirRule: "Compound 1-2, other lifts 1-2",
+      advancedTechniques:
+        "Lateral Raise last set optional dropset -20%; Face-away Cable Curl rest-pause 15 s (+5-6 reps)",
+      warmupId: "warmup-d4",
+    },
+    exerciseIds: [
+      "standing-overhead-press-bb",
+      "machine-lateral-raise",
+      "cable-lateral-lean-away",
+      "reverse-pec-deck",
+      "db-upright-row",
+      "db-shrug",
+      "incline-db-curl",
+      "face-away-cable-curl",
+      "rope-pushdown",
+    ],
+    coreBlockId: "core-b",
+  },
+  // D5 bulk
+  {
+    id: "d5",
+    label: "D5",
+    name: "Chest Pump & Rows",
+    goal: "Chest pump, row bridge, and triceps lock-out",
+    sessionInfo: {
+      rirRule: "Compound 1-2, other lifts 1-2",
+      advancedTechniques: "Push-up Mechanical Dropset",
+      warmupId: "warmup-d5",
+    },
+    exerciseIds: [
+      "dips-or-decline-db-press",
+      "low-to-high-cable-fly",
+      "push-up-mechanical-dropset",
+      "assisted-pull-up-cluster",
+      "t-bar-row",
+      "chest-supported-row",
+      "seated-cable-row",
+      "skull-crusher-ez",
+      "overhead-db-extension",
+    ],
+    coreBlockId: "core-c",
+  },
+  // D6 bulk
+  {
+    id: "d6",
+    label: "D6",
+    name: "Posterior Chain",
+    goal: "Posterior chain priority with quad, arm, and calf support",
+    sessionInfo: {
+      rirRule: "Compound 1-2, other lifts 1-2",
+      advancedTechniques:
+        "Preacher Curl mechanical set; Leg-Press Calf Raise last set dropset -25%",
+      warmupId: "warmup-d6",
+    },
+    exerciseIds: [
+      "romanian-deadlift",
+      "seated-leg-curl-d6",
+      "machine-glute-kickback",
+      "walking-lunge",
+      "back-extension-d6",
+      "leg-press-calf-raise",
+      "seated-calf-raise-d6",
+      "hip-stability-ab-ad-d6",
+      "preacher-curl-ez",
+      "preacher-curl-mechanical",
+      "behind-the-back-wrist-curl",
+    ],
+    coreBlockId: null,
+  },
+];
