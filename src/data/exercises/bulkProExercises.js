@@ -5,6 +5,7 @@ export const bulkProExercises = [
     name: "Smith Bench Press",
     subtitle: "Primary chest tension lift",
     prescription: "4 x 5-7",
+    setCount: 4,
     cue: "Upper back tight, touch the lower chest under control, and keep leg drive steady",
     details: {
       tempo: "2-1-1",
@@ -25,6 +26,7 @@ export const bulkProExercises = [
     name: "Incline DB Press",
     subtitle: "Upper-chest mechanical tension",
     prescription: "3 x 8-10",
+    setCount: 3,
     cue: "Use a slight incline, pause briefly at the bottom, and press without losing shoulder position",
     details: {
       tempo: "2-1-1",
@@ -34,7 +36,7 @@ export const bulkProExercises = [
         "Build toward the top of the 8-10 range with the same dumbbells. Increase load when all work sets reach 10 cleanly.",
       advancedTechnique:
         "Last set rest-pause: rack the dumbbells for 15 seconds, then perform 2-3 extra reps.",
-        advancedTechniqueType: "rest-pause",
+      advancedTechniqueType: "rest-pause",
       extraCues: [
         "Keep the incline slight",
         "Do not lower past a clean shoulder position",
@@ -47,6 +49,7 @@ export const bulkProExercises = [
     name: "Weighted Dip",
     subtitle: "Lower-chest and triceps heavy work",
     prescription: "3 x 8-10",
+    setCount: 3,
     cue: "Keep the chest open, use a clean controlled path, and stop before the shoulders lose position",
     details: {
       tempo: "2-0-2",
@@ -67,6 +70,7 @@ export const bulkProExercises = [
     name: "Cable Stretch Fly",
     subtitle: "Stretch-overload chest finisher",
     prescription: "1 x 12-15",
+    setCount: 1,
     cue: "Keep a soft elbow bend, stay in a long controlled range, and let the chest stretch without turning it into a press",
     details: {
       tempo: "2-0-2",
@@ -76,7 +80,7 @@ export const bulkProExercises = [
         "Keep the stretch and control honest first. Increase load only when you can complete the full 12-15 range without losing position.",
       advancedTechnique:
         "Finish the set with a 15-second loaded stretch in the bottom position.",
-        advancedTechniqueType: "iso-stretch",
+      advancedTechniqueType: "iso-stretch",
       extraCues: [
         "Keep the elbow angle fixed",
         "Do not rush the bottom stretch",
@@ -89,6 +93,7 @@ export const bulkProExercises = [
     name: "Overhead Rope Extension",
     subtitle: "Triceps stretch-focused isolation",
     prescription: "4 x 12-15",
+    setCount: 4,
     cue: "Keep the elbows stable, use the full stretch, and finish with a clean squeeze",
     details: {
       tempo: "2-0-2",
@@ -98,7 +103,7 @@ export const bulkProExercises = [
         "Own the 12-15 range with stable elbows before increasing the stack.",
       advancedTechnique:
         "Last set dropset: reduce the load by about 20% and continue with clean reps.",
-        advancedTechniqueType: "dropset",
+      advancedTechniqueType: "dropset",
       extraCues: [
         "Lean slightly forward to feel the stretch better",
         "Do not let the elbows flare too wide",
@@ -111,6 +116,7 @@ export const bulkProExercises = [
     name: "Lateral Raise (DB)",
     subtitle: "Side-delt pump and activation",
     prescription: "2 x 15",
+    setCount: 2,
     cue: "Keep the shoulder down, lead with the elbow, and stop before the trap takes over",
     details: {
       tempo: "2-0-2",
@@ -131,6 +137,7 @@ export const bulkProExercises = [
     name: "Standing Overhead Press (Light)",
     subtitle: "Light shoulder activation work",
     prescription: "2 x 8",
+    setCount: 2,
     cue: "Brace hard, press in a clean path, and do not lean back to finish the rep",
     details: {
       tempo: "2-1-1",
@@ -151,6 +158,7 @@ export const bulkProExercises = [
     name: "Face Pull",
     subtitle: "Rear-delt and scap health support",
     prescription: "2 x 15",
+    setCount: 2,
     cue: "Pull high, rotate out at the top, and finish with clean scap control",
     details: {
       tempo: "2-0-2",
@@ -173,6 +181,7 @@ export const bulkProExercises = [
     name: "Weighted Pull-up",
     subtitle: "Primary vertical back strength lift",
     prescription: "4 x 5-8",
+    setCount: 4,
     cue: "Set the shoulder blades down first, pull the chest up, and control the full range without swinging",
     details: {
       tempo: "2-1-1",
@@ -193,6 +202,7 @@ export const bulkProExercises = [
     name: "Wide Grip Lat Pulldown",
     subtitle: "Upper lat width work",
     prescription: "3 x 8-10",
+    setCount: 3,
     cue: "Keep the shoulders down, drive the elbows into the pockets, and keep the torso stable",
     details: {
       tempo: "2-1-1",
@@ -213,6 +223,7 @@ export const bulkProExercises = [
     name: "Neutral Close Grip Pulldown",
     subtitle: "Lower lat and mid-back support",
     prescription: "2 x 10-12",
+    setCount: 2,
     cue: "Stay stacked, keep the elbows close, and finish each rep without swinging back",
     details: {
       tempo: "2-1-1",
@@ -233,6 +244,7 @@ export const bulkProExercises = [
     name: "Straight Arm Pulldown",
     subtitle: "Lat isolation with constant tension",
     prescription: "2 x 12-15",
+    setCount: 2,
     cue: "Keep a soft elbow bend, keep the ribs down, and pull with the lats instead of the triceps",
     details: {
       tempo: "2-0-2",
@@ -253,6 +265,7 @@ export const bulkProExercises = [
     name: "Back Extension",
     subtitle: "Lower-back health and hinge support",
     prescription: "2 x 15",
+    setCount: 2,
     cue: "Move from the hips, pause briefly at the top, and stop before the low back takes over",
     details: {
       tempo: "2-1-2",
@@ -273,6 +286,7 @@ export const bulkProExercises = [
     name: "Barbell Curl",
     subtitle: "Primary biceps loading",
     prescription: "3 x 10-12",
+    setCount: 3,
     cue: "Keep the elbows by the body, squeeze at the top, and lower without swinging the torso",
     details: {
       tempo: "2-0-2",
@@ -293,6 +307,7 @@ export const bulkProExercises = [
     name: "Hammer Curl",
     subtitle: "Brachialis and brachioradialis support",
     prescription: "3 x 10-12",
+    setCount: 3,
     cue: "Keep the wrists neutral, keep the upper arm still, and control the full arc",
     details: {
       tempo: "2-0-2",
@@ -313,6 +328,7 @@ export const bulkProExercises = [
     name: "Reverse Curl (EZ or BB)",
     subtitle: "Forearm and elbow-flexor support",
     prescription: "2 x 15",
+    setCount: 2,
     cue: "Keep the knuckles up, keep the wrist neutral, and move the weight without shoulder cheating",
     details: {
       tempo: "2-0-2",
@@ -333,6 +349,7 @@ export const bulkProExercises = [
     name: "Back Shrug",
     subtitle: "Upper trap work",
     prescription: "2 x 10-12",
+    setCount: 2,
     cue: "Lift straight up, hold the top cleanly for one second, and do not roll the shoulders",
     details: {
       tempo: "2-0-1",
@@ -355,6 +372,7 @@ export const bulkProExercises = [
     name: "High-Bar Back Squat",
     subtitle: "Primary quad strength lift",
     prescription: "4 x 6-8",
+    setCount: 4,
     cue: "Brace hard, keep the ribs down, and control the depth without losing foot pressure",
     details: {
       tempo: "3-1-1",
@@ -375,6 +393,7 @@ export const bulkProExercises = [
     name: "Leg Press (Narrow)",
     subtitle: "Quad volume with constant tension",
     prescription: "3 x 10-12",
+    setCount: 3,
     cue: "Use a narrower stance, control the bottom, and keep quad tension without bouncing",
     details: {
       tempo: "2-1-1",
@@ -395,6 +414,7 @@ export const bulkProExercises = [
     name: "Bulgarian Split Squat",
     subtitle: "Unilateral quad work with glute stretch",
     prescription: "3 x 8-10",
+    setCount: 3,
     cue: "Stay balanced, keep the front foot rooted, and drive the floor away with the working leg",
     details: {
       tempo: "2-0-2",
@@ -416,6 +436,7 @@ export const bulkProExercises = [
     name: "Leg Extension",
     subtitle: "Quad isolation with dropset finish",
     prescription: "3 x 12-15",
+    setCount: 3,
     cue: "Squeeze hard at the top, keep the hips still, and lower the weight under control",
     details: {
       tempo: "2-0-2",
@@ -425,7 +446,7 @@ export const bulkProExercises = [
         "Own the 12-15 range with clean reps and full contraction before increasing the load.",
       advancedTechnique:
         "Last set dropset: reduce the load by about 25% and continue with controlled reps.",
-        advancedTechniqueType: "dropset",
+      advancedTechniqueType: "dropset",
       extraCues: [
         "Do not throw the hips off the seat",
         "Aim for full contraction, not sloppy speed",
@@ -438,6 +459,7 @@ export const bulkProExercises = [
     name: "Seated Leg Curl",
     subtitle: "Hamstring control and tension",
     prescription: "3 x 10-12",
+    setCount: 3,
     cue: "Keep the back on the pad, lower slowly, and squeeze the hamstrings hard at the top",
     details: {
       tempo: "3-1-2",
@@ -458,6 +480,7 @@ export const bulkProExercises = [
     name: "Standing Calf Raise",
     subtitle: "Primary calf work",
     prescription: "3 x 15-20",
+    setCount: 3,
     cue: "Use full range, pause in the stretch, and rise without bouncing",
     details: {
       tempo: "2-0-2",
@@ -478,6 +501,7 @@ export const bulkProExercises = [
     name: "Seated Calf Raise",
     subtitle: "Secondary calf work",
     prescription: "2 x 15-20",
+    setCount: 2,
     cue: "Stay controlled through the full range, hold the top, and do not bounce out of the stretch",
     details: {
       tempo: "2-0-2",
@@ -497,6 +521,7 @@ export const bulkProExercises = [
     name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
     prescription: "3 x 15",
+    setCount: 3,
     cue: "Move both directions with control and keep the transition short but clean",
     details: {
       tempo: "2-0-2",
@@ -520,6 +545,7 @@ export const bulkProExercises = [
     name: "Standing Overhead Press (BB)",
     subtitle: "Primary shoulder strength press",
     prescription: "3 x 6-8",
+    setCount: 3,
     cue: "Brace hard, keep the ribs down, and press close to the face without leaning back",
     details: {
       tempo: "2-1-1",
@@ -540,6 +566,7 @@ export const bulkProExercises = [
     name: "Machine Lateral Raise",
     subtitle: "Primary side-delt volume",
     prescription: "3 x 12-15",
+    setCount: 3,
     cue: "Keep the shoulder down, lead with the elbow, and stop before the trap takes over",
     details: {
       tempo: "2-0-2",
@@ -549,7 +576,7 @@ export const bulkProExercises = [
         "Build toward the top of the 12-15 range with clean reps before increasing load.",
       advancedTechnique:
         "Optional last set dropset: reduce the load by about 20% and continue with controlled reps.",
-        advancedTechniqueType: "dropset",
+      advancedTechniqueType: "dropset",
       extraCues: [
         "Start slightly below shoulder level with control",
         "Do not shrug into the rep",
@@ -562,6 +589,7 @@ export const bulkProExercises = [
     name: "Cable Lateral (Lean-away)",
     subtitle: "Constant-tension side-delt work",
     prescription: "2 x 12-15",
+    setCount: 2,
     cue: "Lean slightly, keep the shoulder down, and hold tension on the delt through the full arc",
     details: {
       tempo: "2-0-2",
@@ -582,6 +610,7 @@ export const bulkProExercises = [
     name: "Reverse Pec-Deck",
     subtitle: "Rear-delt control and upper-back support",
     prescription: "3 x 12-15",
+    setCount: 3,
     cue: "Keep the neck relaxed, hold the rear-delt squeeze, and control the return",
     details: {
       tempo: "2-1-2",
@@ -602,6 +631,7 @@ export const bulkProExercises = [
     name: "Upright Row (DB)",
     subtitle: "Trap and upper-delt work",
     prescription: "2 x 10-12",
+    setCount: 2,
     cue: "Use a wider path, lift only to shoulder height, and keep the shoulders down",
     details: {
       tempo: "2-0-2",
@@ -621,6 +651,7 @@ export const bulkProExercises = [
     name: "Dumbbell Shrug",
     subtitle: "Upper-trap squeeze work",
     prescription: "2 x 10-12",
+    setCount: 2,
     cue: "Lift straight up, hold the squeeze at the top, and do not roll the shoulders",
     details: {
       tempo: "2-1-1",
@@ -641,6 +672,7 @@ export const bulkProExercises = [
     name: "Incline DB Curl",
     subtitle: "Biceps top-up with long-length tension",
     prescription: "2 x 12",
+    setCount: 2,
     cue: "Keep the shoulders pinned back, let the elbows stay behind the torso, and use the full range without swinging",
     details: {
       tempo: "3-1-2",
@@ -660,6 +692,7 @@ export const bulkProExercises = [
     name: "Face-away Cable Curl",
     subtitle: "Cable biceps finisher",
     prescription: "1 x 15",
+    setCount: 1,
     cue: "Stay fixed, use the full stretch first, and curl without leaning back to finish the rep",
     details: {
       tempo: "2-0-2",
@@ -669,7 +702,7 @@ export const bulkProExercises = [
         "Keep the single set smooth and fully stretched before increasing load.",
       advancedTechnique:
         "Rest-pause: after the main set, rest 15 seconds and perform 5-6 extra reps.",
-        advancedTechniqueType: "rest-pause",
+      advancedTechniqueType: "rest-pause",
       extraCues: [
         "Keep the torso still",
         "Let the arm open fully before curling",
@@ -682,6 +715,7 @@ export const bulkProExercises = [
     name: "Rope Pushdown",
     subtitle: "Triceps pump finisher",
     prescription: "2 x 15",
+    setCount: 2,
     cue: "Keep the elbows pinned, spread the rope at the bottom, and finish with a clean squeeze",
     details: {
       tempo: "2-0-2",
@@ -704,6 +738,7 @@ export const bulkProExercises = [
     name: "Dips or Decline DB Press",
     subtitle: "Lower-chest pump press",
     prescription: "3 x 10-12",
+    setCount: 3,
     cue: "Use a controlled eccentric, keep the path chest-driven, and do not bounce out of the bottom",
     details: {
       tempo: "2-0-2",
@@ -724,6 +759,7 @@ export const bulkProExercises = [
     name: "Low-to-High Cable Fly",
     subtitle: "Upper-fiber chest pump work",
     prescription: "2 x 12-15",
+    setCount: 2,
     cue: "Drive low to high, keep constant tension, and hold the squeeze at the top",
     details: {
       tempo: "2-0-2",
@@ -744,6 +780,7 @@ export const bulkProExercises = [
     name: "Push-up Mechanical Dropset",
     subtitle: "Chest flush finisher",
     prescription: "1 x 12",
+    setCount: 1,
     cue: "Change positions without rest, keep the trunk tight, and do not let the reps get sloppy at the end",
     details: {
       tempo: "1-0-1",
@@ -753,7 +790,7 @@ export const bulkProExercises = [
         "Keep the full cluster clean first. Add reps only if you can maintain position quality through each variation.",
       advancedTechnique:
         "Mechanical dropset: perform 12 wide reps, 8 close reps, then 6 plyo reps without rest.",
-        advancedTechniqueType: "mechanical-dropset",
+      advancedTechniqueType: "mechanical-dropset",
       extraCues: [
         "Move quickly but stay organized between positions",
         "Keep the body in one line",
@@ -766,6 +803,7 @@ export const bulkProExercises = [
     name: "Skull Crusher (EZ)",
     subtitle: "Triceps lock-out focus",
     prescription: "3 x 8-10",
+    setCount: 3,
     cue: "Keep the upper arms slightly back, lower with control, and extend without throwing the shoulders",
     details: {
       tempo: "2-0-2",
@@ -786,6 +824,7 @@ export const bulkProExercises = [
     name: "Overhead DB Extension",
     subtitle: "Long-head triceps stretch work",
     prescription: "3 x 10-12",
+    setCount: 3,
     cue: "Keep the ribs down, use the full stretch, and finish with a clean extension",
     details: {
       tempo: "2-0-2",
@@ -806,6 +845,7 @@ export const bulkProExercises = [
     name: "Assisted Pull-up Cluster",
     subtitle: "Vertical pull bridge before rows",
     prescription: "2 x 8-10",
+    setCount: 2,
     cue: "Use only enough assistance to keep the range clean, pause briefly in the hang, and do not let the second burst turn into grindy reps",
     details: {
       tempo: "2-1-1",
@@ -815,7 +855,7 @@ export const bulkProExercises = [
         "Reduce assistance gradually while keeping the full cluster clean and repeatable.",
       advancedTechnique:
         "Cluster set: perform 8-10 reps, rest 15 seconds, then perform 4-5 more reps.",
-        advancedTechniqueType: "cluster",
+      advancedTechniqueType: "cluster",
       extraCues: [
         "Set the shoulder blades down before pulling",
         "Keep the first burst around honest RIR 1-2",
@@ -828,6 +868,7 @@ export const bulkProExercises = [
     name: "T-Bar Row",
     subtitle: "Primary row strength work",
     prescription: "4 x 6-8",
+    setCount: 4,
     cue: "Keep the torso stable, drive the elbows toward the hips, and hold the squeeze briefly at the top",
     details: {
       tempo: "2-1-1",
@@ -848,6 +889,7 @@ export const bulkProExercises = [
     name: "Chest Supported Row (45°)",
     subtitle: "Stable row thickness work",
     prescription: "3 x 8-10",
+    setCount: 3,
     cue: "Stay glued to the pad, set the shoulder blades first, and pull without any body swing",
     details: {
       tempo: "2-1-1",
@@ -868,6 +910,7 @@ export const bulkProExercises = [
     name: "Seated Cable Row",
     subtitle: "Metabolic row finisher",
     prescription: "2 x 12-15",
+    setCount: 2,
     cue: "Pull with the elbows, hold the squeeze for one second, and control the return without rocking back",
     details: {
       tempo: "2-1-2",
@@ -890,6 +933,7 @@ export const bulkProExercises = [
     name: "Romanian Deadlift",
     subtitle: "Primary posterior-chain strength lift",
     prescription: "4 x 6-8",
+    setCount: 4,
     cue: "Keep the bar close, push the hips back, and stay braced without hyperextending at the top",
     details: {
       tempo: "3-1-1",
@@ -910,6 +954,7 @@ export const bulkProExercises = [
     name: "Seated Leg Curl",
     subtitle: "Hamstring contraction work",
     prescription: "3 x 10-12",
+    setCount: 3,
     cue: "Stay pinned into the seat, squeeze hard at the top, and lower under control",
     details: {
       tempo: "2-0-2",
@@ -930,6 +975,7 @@ export const bulkProExercises = [
     name: "Machine Glute Kickback",
     subtitle: "Glute squeeze work",
     prescription: "3 x 12-15",
+    setCount: 3,
     cue: "Keep the pelvis stable, drive back through the heel, and finish with a clean glute squeeze",
     details: {
       tempo: "2-1-2",
@@ -951,6 +997,7 @@ export const bulkProExercises = [
     name: "Back Extension",
     subtitle: "Posterior-chain health set",
     prescription: "2 x 12-15",
+    setCount: 2,
     cue: "Move from the hips, let the glutes lead, and stop before the low back takes over",
     details: {
       tempo: "2-1-2",
@@ -971,6 +1018,7 @@ export const bulkProExercises = [
     name: "Walking Lunge",
     subtitle: "Quad top-up with short-step bias",
     prescription: "3 x 12",
+    setCount: 3,
     cue: "Use a shorter step, stay balanced, and drive through the front foot with control",
     details: {
       tempo: "2-0-2",
@@ -992,6 +1040,7 @@ export const bulkProExercises = [
     name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
     prescription: "1 x 15",
+    setCount: 1,
     cue: "Move both directions with control and keep the transition short but clean",
     details: {
       tempo: "2-0-2",
@@ -1013,6 +1062,7 @@ export const bulkProExercises = [
     name: "Leg-Press Calf Raise",
     subtitle: "Calf pump work",
     prescription: "3 x 12-15",
+    setCount: 3,
     cue: "Use full range, pause in the stretch, and rise with a hard squeeze without bouncing",
     details: {
       tempo: "2-0-2",
@@ -1022,7 +1072,7 @@ export const bulkProExercises = [
         "Reach the target reps with full range and clean control before increasing load.",
       advancedTechnique:
         "Last set dropset: reduce the load by about 25% and continue with controlled reps.",
-        advancedTechniqueType: "dropset",
+      advancedTechniqueType: "dropset",
       extraCues: [
         "Let the heels drop into a real stretch",
         "Do not bounce out of the bottom",
@@ -1035,6 +1085,7 @@ export const bulkProExercises = [
     name: "Seated Calf Raise",
     subtitle: "Primary soleus volume",
     prescription: "3 x 15-20",
+    setCount: 3,
     cue: "Stay controlled through the full range, hold the squeeze, and do not bounce out of the stretch",
     details: {
       tempo: "2-0-2",
@@ -1055,6 +1106,7 @@ export const bulkProExercises = [
     name: "Preacher Curl (EZ)",
     subtitle: "Primary biceps support work",
     prescription: "2 x 10-12",
+    setCount: 2,
     cue: "Stay locked to the pad, squeeze at the top, and lower under control without letting the elbow drift",
     details: {
       tempo: "2-1-2",
@@ -1075,6 +1127,7 @@ export const bulkProExercises = [
     name: "Preacher Curl — Mechanical",
     subtitle: "Wide-to-narrow biceps mechanical finisher",
     prescription: "1 x 6-8",
+    setCount: 1,
     cue: "Keep the same load, switch grips cleanly, and stop as soon as the shoulders want to take over",
     details: {
       tempo: "2-1-2",
@@ -1084,7 +1137,7 @@ export const bulkProExercises = [
         "Keep the full wide-to-narrow sequence clean before increasing load.",
       advancedTechnique:
         "Mechanical set: perform the reps with a wide grip, then switch immediately to a narrow grip with the same weight.",
-        advancedTechniqueType: "mechanical-set",
+      advancedTechniqueType: "mechanical-set",
       extraCues: [
         "Stay locked to the pad for both grips",
         "Do not rush the grip change",
@@ -1097,6 +1150,7 @@ export const bulkProExercises = [
     name: "Behind-the-Back Wrist Curl",
     subtitle: "Forearm flexor work",
     prescription: "3 x 12-15",
+    setCount: 3,
     cue: "Let the bar roll to the fingers, curl it back up, and hold the top briefly without jerking",
     details: {
       tempo: "2-1-2",
