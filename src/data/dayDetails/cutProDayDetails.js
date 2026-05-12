@@ -1,3 +1,15 @@
+/**
+ * Static day-detail source data for the Cut Pro plan.
+ *
+ * Runtime boundary:
+ * `exerciseIds` defines the required main exercises used for main day progress
+ * and completion. Core, warm-up, guide/help content, advanced techniques, and
+ * optional work stay outside the main exercise completion fraction.
+ *
+ * Product rule:
+ * `coreBlockId` links supporting core work to a day, but core completion is
+ * tracked separately from the main workout.
+ */
 export const cutProDayDetails = [
   // D1 cut
   {

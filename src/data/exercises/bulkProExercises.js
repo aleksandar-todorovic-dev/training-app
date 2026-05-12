@@ -1,3 +1,15 @@
+/**
+ * Static exercise source data for the Bulk Pro plan.
+ *
+ * Runtime boundary:
+ * `prescription` is user-facing display text only. Runtime set rows must be
+ * generated from explicit scaffold metadata such as `setCount`, not by parsing
+ * the prescription string.
+ *
+ * MVP boundary:
+ * Optional work and advanced techniques are guidance-only unless represented
+ * by explicit runtime metadata.
+ */
 export const bulkProExercises = [
   // D1 bulk
   {
