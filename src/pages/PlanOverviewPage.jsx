@@ -1,5 +1,7 @@
 import { useParams } from "react-router-dom";
 
+import { APP_ACTIONS } from "../state/appActions";
+import { useAppState } from "../state/useAppState";
 import AppShell from "../components/layout/AppShell";
 import ScreenHeader from "../components/layout/ScreenHeader";
 import SectionCard from "../components/layout/SectionCard";
@@ -31,6 +33,7 @@ const TRAINING_DAY_ORDER_LABELS_BY_PLAN = {
 
 export default function PlanOverviewPage() {
   const { planId } = useParams();
+  const { dispatch } = useAppState();
   const plan = getPlanById(planId);
   const days = getDaysByPlanId(planId);
 
@@ -68,6 +71,16 @@ export default function PlanOverviewPage() {
         </div>
       </AppShell>
     );
+  }
+
+  function handleStartCycle() {
+    dispatch({
+      type: APP_ACTIONS.START_PLAN_CYCLE,
+      payload: {
+        planId: plan.id,
+        startedAt: new Date().toISOString(),
+      },
+    });
   }
 
   return (
@@ -137,7 +150,10 @@ export default function PlanOverviewPage() {
 
         <SectionCard>
           <div className={UI_ACTION_ROW}>
-            <PrimaryButton to={`/plan/${plan.id}/cycle`}>
+            <PrimaryButton
+              to={`/plan/${plan.id}/cycle`}
+              onClick={handleStartCycle}
+            >
               Start cycle
             </PrimaryButton>
           </div>
