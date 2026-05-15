@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 
+import { useAppState } from "../state/useAppState";
 import AppShell from "../components/layout/AppShell";
 import BackButton from "../components/common/BackButton";
 import DayCard from "../components/cycle/DayCard";
@@ -46,8 +47,14 @@ const STATIC_DAY_DETAIL_HINT_MAP = {
 export default function CyclePage() {
   const { planId } = useParams();
 
+  const { state } = useAppState();
   const plan = getPlanById(planId);
   const days = getDaysByPlanId(planId);
+
+  const planProgress = state.progressByPlan[planId];
+  const currentCycleNumber = planProgress?.currentCycleNumber ?? 1;
+  const currentCycle = planProgress?.cycles?.[currentCycleNumber] ?? null;
+  const currentDayId = currentCycle?.currentDayId ?? "d1";
 
   if (!plan) {
     return (
@@ -78,8 +85,8 @@ export default function CyclePage() {
 
         <CycleHeader
           planName={plan.name}
-          cycleLabel="Cycle 1"
-          statusSummary="2 of 6 training days completed"
+          cycleLabel={`Cycle ${currentCycleNumber}`}
+          statusSummary={`Current day: ${currentDayId.toUpperCase()}`}
         />
 
         {days.map((day) => (
