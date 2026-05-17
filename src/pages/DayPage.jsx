@@ -73,6 +73,7 @@ export default function DayPage() {
   const warmupId = dayDetails?.sessionInfo?.warmupId;
   const warmup = warmupId ? getWarmupById(planId, warmupId) : null;
 
+  // Ensure the opened day has a runtime log once valid day data is loaded.
   useEffect(() => {
     if (!plan || !dayDetails) {
       return;

@@ -53,6 +53,7 @@ export function appReducer(state, action) {
 
       const planProgress = state.progressByPlan[planId];
 
+      // A day log can only be created after a plan cycle exists.
       if (!planProgress) {
         return state;
       }
@@ -64,6 +65,7 @@ export function appReducer(state, action) {
         return state;
       }
 
+      // Preserve existing day logs so reopening a day never resets user input.
       if (currentCycle.dayLogs[dayDetails.id]) {
         return state;
       }
@@ -74,6 +76,7 @@ export function appReducer(state, action) {
         return state;
       }
 
+      // Add the new day log to the current cycle without mutating existing state.
       return {
         ...state,
         progressByPlan: {
