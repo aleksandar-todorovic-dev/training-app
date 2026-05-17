@@ -1,5 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
+
+import { APP_ACTIONS } from "../state/appActions";
+import { useAppState } from "../state/useAppState";
 
 import AppShell from "../components/layout/AppShell";
 import BackButton from "../components/common/BackButton";
@@ -38,6 +41,7 @@ const STATIC_DAY_PROGRESS_MAP = {
 
 export default function DayPage() {
   const { planId, dayId } = useParams();
+  const { dispatch } = useAppState();
   const [isWarmupOpen, setIsWarmupOpen] = useState(false);
   const [isFinishDayOpen, setIsFinishDayOpen] = useState(false);
 
@@ -54,14 +58,35 @@ export default function DayPage() {
 
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
-  const exercises = dayDetails
-    ? getExercisesForDay(planId, dayDetails.exerciseIds)
-    : [];
+
+  const exercises = useMemo(() => {
+    if (!dayDetails) {
+      return [];
+    }
+
+    return getExercisesForDay(planId, dayDetails.exerciseIds);
+  }, [planId, dayDetails]);
+
   const coreBlock = dayDetails?.coreBlockId
     ? getCoreBlockById(dayDetails.coreBlockId)
     : null;
   const warmupId = dayDetails?.sessionInfo?.warmupId;
   const warmup = warmupId ? getWarmupById(planId, warmupId) : null;
+
+  useEffect(() => {
+    if (!plan || !dayDetails) {
+      return;
+    }
+
+    dispatch({
+      type: APP_ACTIONS.ENSURE_DAY_LOG,
+      payload: {
+        planId,
+        dayDetails,
+        exercises,
+      },
+    });
+  }, [dispatch, plan, planId, dayDetails, exercises]);
 
   const progressText = dayDetails
     ? (STATIC_DAY_PROGRESS_MAP[planId]?.[dayDetails.id] ??

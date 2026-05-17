@@ -1,4 +1,5 @@
 import { APP_ACTIONS } from "./appActions";
+import { buildInitialDayLog } from "../utils/runtime/dayLogHelpers";
 
 /**
  * Main runtime reducer for the local-first MVP.
@@ -40,6 +41,53 @@ export function appReducer(state, action) {
                 dayLogs: {},
                 startedAt,
                 completedAt: null,
+              },
+            },
+          },
+        },
+      };
+    }
+
+    case APP_ACTIONS.ENSURE_DAY_LOG: {
+      const { planId, dayDetails, exercises } = action.payload;
+
+      const planProgress = state.progressByPlan[planId];
+
+      if (!planProgress) {
+        return state;
+      }
+
+      const currentCycleNumber = planProgress.currentCycleNumber;
+      const currentCycle = planProgress.cycles[currentCycleNumber];
+
+      if (!currentCycle) {
+        return state;
+      }
+
+      if (currentCycle.dayLogs[dayDetails.id]) {
+        return state;
+      }
+
+      const dayLog = buildInitialDayLog(dayDetails, exercises);
+
+      if (!dayLog) {
+        return state;
+      }
+
+      return {
+        ...state,
+        progressByPlan: {
+          ...state.progressByPlan,
+          [planId]: {
+            ...planProgress,
+            cycles: {
+              ...planProgress.cycles,
+              [currentCycleNumber]: {
+                ...currentCycle,
+                dayLogs: {
+                  ...currentCycle.dayLogs,
+                  [dayDetails.id]: dayLog,
+                },
               },
             },
           },
