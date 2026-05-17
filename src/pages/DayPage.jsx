@@ -27,6 +27,7 @@ export default function DayPage() {
   const [isWarmupOpen, setIsWarmupOpen] = useState(false);
   const [isFinishDayOpen, setIsFinishDayOpen] = useState(false);
 
+  // Lock body scroll while a DayPage sheet is open.
   useEffect(() => {
     if (!isWarmupOpen && !isFinishDayOpen) return;
 
@@ -41,6 +42,7 @@ export default function DayPage() {
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
 
+  // Keep resolved day exercises stable for the runtime ensure-day effect.
   const exercises = useMemo(() => {
     if (!dayDetails) {
       return [];
@@ -78,7 +80,8 @@ export default function DayPage() {
     ? planProgress?.cycles?.[currentCycleNumber]
     : null;
   const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
-
+  
+  // Progress is derived from runtime exercise logs; completed count updates once set done logic exists.
   const totalExerciseCount = dayLog
     ? Object.keys(dayLog.mainExerciseLogs).length
     : (dayDetails?.exerciseIds.length ?? 0);
