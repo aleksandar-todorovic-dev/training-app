@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 
 import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
+import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
 
 import AppShell from "../components/layout/AppShell";
 import BackButton from "../components/common/BackButton";
@@ -20,28 +21,9 @@ import { getCoreBlockById } from "../data/core";
 import { getWarmupById } from "../data/warmups";
 import { UI_STACK_LG, UI_TEXT_MUTED, UI_TITLE } from "../styles/ui";
 
-const STATIC_DAY_PROGRESS_MAP = {
-  "bulk-pro": {
-    d1: "0/8 exercises completed",
-    d2: "0/9 exercises completed",
-    d3: "0/8 exercises completed",
-    d4: "0/9 exercises completed",
-    d5: "0/9 exercises completed",
-    d6: "0/11 exercises completed",
-  },
-  "cut-pro": {
-    d1: "0/8 exercises completed",
-    d2: "0/9 exercises completed",
-    d3: "0/8 exercises completed",
-    d4: "0/8 exercises completed",
-    d5: "0/9 exercises completed",
-    d6: "0/10 exercises completed",
-  },
-};
-
 export default function DayPage() {
   const { planId, dayId } = useParams();
-  const { dispatch } = useAppState();
+  const { state, dispatch } = useAppState();
   const [isWarmupOpen, setIsWarmupOpen] = useState(false);
   const [isFinishDayOpen, setIsFinishDayOpen] = useState(false);
 
@@ -89,10 +71,25 @@ export default function DayPage() {
     });
   }, [dispatch, plan, planId, dayDetails, exercises]);
 
-  const progressText = dayDetails
-    ? (STATIC_DAY_PROGRESS_MAP[planId]?.[dayDetails.id] ??
-      "0/0 exercises completed")
-    : "0/0 exercises completed";
+  // Read the current runtime day log so progress can be derived from state.
+  const planProgress = state.progressByPlan[planId];
+  const currentCycleNumber = planProgress?.currentCycleNumber;
+  const currentCycle = currentCycleNumber
+    ? planProgress?.cycles?.[currentCycleNumber]
+    : null;
+  const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
+
+  const totalExerciseCount = dayLog
+    ? Object.keys(dayLog.mainExerciseLogs).length
+    : (dayDetails?.exerciseIds.length ?? 0);
+
+  const completedExerciseCount = dayLog
+    ? Object.values(dayLog.mainExerciseLogs).filter(
+        (exerciseLog) => getExerciseStatus(exerciseLog) === "complete",
+      ).length
+    : 0;
+
+  const progressText = `${completedExerciseCount}/${totalExerciseCount} exercises completed`;
 
   if (!plan || !dayDetails) {
     return (
