@@ -80,7 +80,7 @@ export default function DayPage() {
     ? planProgress?.cycles?.[currentCycleNumber]
     : null;
   const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
-  
+
   // Progress is derived from runtime exercise logs; completed count updates once set done logic exists.
   const totalExerciseCount = dayLog
     ? Object.keys(dayLog.mainExerciseLogs).length
@@ -93,6 +93,22 @@ export default function DayPage() {
     : 0;
 
   const progressText = `${completedExerciseCount}/${totalExerciseCount} exercises completed`;
+
+  // Convert the runtime exercise status into the label shown on the Day screen.
+  function getExerciseStatusLabel(exercise) {
+    const exerciseLog = dayLog?.mainExerciseLogs?.[exercise.id];
+    const status = getExerciseStatus(exerciseLog);
+
+    if (status === "complete") {
+      return "Complete";
+    }
+
+    if (status === "partial") {
+      return "Partial";
+    }
+
+    return "Not started";
+  }
 
   if (!plan || !dayDetails) {
     return (
@@ -144,7 +160,7 @@ export default function DayPage() {
             planId={planId}
             dayId={dayId}
             exercise={exercise}
-            status="Not started"
+            status={getExerciseStatusLabel(exercise)}
           />
         ))}
 
