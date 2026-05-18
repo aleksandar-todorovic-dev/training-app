@@ -168,6 +168,85 @@ export function appReducer(state, action) {
       };
     }
 
+    case APP_ACTIONS.UPDATE_EXERCISE_SET_FIELD: {
+      const { planId, dayId, exerciseId, setIndex, field, value } =
+        action.payload;
+
+      const allowedFields = ["weight", "reps", "rir"];
+
+      if (!allowedFields.includes(field)) {
+        return state;
+      }
+
+      const planProgress = state.progressByPlan[planId];
+
+      // Set input updates can only run after a plan cycle exists.
+      if (!planProgress) {
+        return state;
+      }
+
+      const currentCycleNumber = planProgress.currentCycleNumber;
+      const currentCycle = planProgress.cycles[currentCycleNumber];
+
+      if (!currentCycle) {
+        return state;
+      }
+
+      const dayLog = currentCycle.dayLogs[dayId];
+
+      if (!dayLog) {
+        return state;
+      }
+
+      const exerciseLog = dayLog.mainExerciseLogs[exerciseId];
+
+      if (!exerciseLog) {
+        return state;
+      }
+
+      // Update only one editable field on the targeted prescribed set row.
+      const nextSets = exerciseLog.sets.map((set) => {
+        if (set.setIndex !== setIndex) {
+          return set;
+        }
+
+        return {
+          ...set,
+          [field]: value,
+        };
+      });
+
+      // Store the updated set rows without mutating the existing exercise log.
+      return {
+        ...state,
+        progressByPlan: {
+          ...state.progressByPlan,
+          [planId]: {
+            ...planProgress,
+            cycles: {
+              ...planProgress.cycles,
+              [currentCycleNumber]: {
+                ...currentCycle,
+                dayLogs: {
+                  ...currentCycle.dayLogs,
+                  [dayId]: {
+                    ...dayLog,
+                    mainExerciseLogs: {
+                      ...dayLog.mainExerciseLogs,
+                      [exerciseId]: {
+                        ...exerciseLog,
+                        sets: nextSets,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+    }
+
     default:
       return state;
   }

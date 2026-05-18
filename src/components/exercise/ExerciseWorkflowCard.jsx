@@ -35,6 +35,7 @@ export default function ExerciseWorkflowCard({
   exercise,
   sets = [],
   onToggleSetDone,
+  onUpdateSetField,
 }) {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isAdvancedHelpOpen, setIsAdvancedHelpOpen] = useState(false);
@@ -191,6 +192,9 @@ export default function ExerciseWorkflowCard({
                 isDone={set.isDone}
                 isLast={index === sets.length - 1}
                 onToggleDone={() => onToggleSetDone?.(set.setNumber)}
+                onSetFieldChange={(field, value) =>
+                  onUpdateSetField?.(set.setNumber, field, value)
+                }
               />
             ))}
           </div>

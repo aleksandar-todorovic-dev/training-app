@@ -32,12 +32,12 @@ export default function ExercisePage() {
   // Adapt runtime set rows to the display shape expected by ExerciseWorkflowCard.
   const runtimeSets = exerciseLog?.sets.map((set) => ({
     setNumber: set.setIndex,
-    weight: set.weight || "—",
-    reps: set.reps || "—",
-    rir: set.rir || "—",
+    weight: set.weight,
+    reps: set.reps,
+    rir: set.rir,
     isDone: set.isDone,
-  })) ?? [{ setNumber: 1, weight: "—", reps: "—", rir: "—", isDone: false }];
-  
+  })) ?? [{ setNumber: 1, weight: "", reps: "", rir: "", isDone: false }];
+
   // Toggle the performed state for one prescribed runtime set row.
   function handleToggleSetDone(setNumber) {
     dispatch({
@@ -47,6 +47,21 @@ export default function ExercisePage() {
         dayId,
         exerciseId,
         setIndex: setNumber,
+      },
+    });
+  }
+
+  // Update one editable value on one prescribed runtime set row.
+  function handleUpdateSetField(setNumber, field, value) {
+    dispatch({
+      type: APP_ACTIONS.UPDATE_EXERCISE_SET_FIELD,
+      payload: {
+        planId,
+        dayId,
+        exerciseId,
+        setIndex: setNumber,
+        field,
+        value,
       },
     });
   }
@@ -98,6 +113,7 @@ export default function ExercisePage() {
           exercise={exercise}
           sets={runtimeSets}
           onToggleSetDone={handleToggleSetDone}
+          onUpdateSetField={handleUpdateSetField}
         />
       </div>
     </AppShell>

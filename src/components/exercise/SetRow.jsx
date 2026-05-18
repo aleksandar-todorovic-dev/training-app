@@ -12,25 +12,31 @@ function CheckBox({ isDone = false }) {
   );
 }
 
-function MetricCell({ label, value }) {
+function MetricCell({ label, value, onChange }) {
   return (
-    <div className="min-w-0 text-center">
-      <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
+    <label className="min-w-0 text-center">
+      <span className="block text-[11px] uppercase tracking-[0.12em] text-zinc-500">
         {label}
-      </p>
-      <p className="mt-1 text-base font-semibold tabular-nums text-zinc-100">
-        {value}
-      </p>
-    </div>
+      </span>
+
+      <input
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        inputMode="decimal"
+        placeholder="—"
+        className="mt-1 w-full bg-transparent text-center text-base font-semibold tabular-nums text-zinc-100 outline-none placeholder:text-zinc-100"
+      />
+    </label>
   );
 }
 
 /**
- * Displays one prescribed set row and forwards done-toggle actions upward.
+ * Displays one prescribed set row and forwards set-row actions upward.
  *
  * Runtime note:
  * SetRow does not update global state directly. It receives the current
- * `isDone` value and calls `onToggleDone` when the checkbox is clicked.
+ * set values and `isDone` state, then forwards input changes and done-toggle
+ * intent to the parent workflow.
  */
 export default function SetRow({
   setNumber,
@@ -40,6 +46,7 @@ export default function SetRow({
   isDone = false,
   isLast = false,
   onToggleDone,
+  onSetFieldChange,
 }) {
   return (
     <div
@@ -51,16 +58,28 @@ export default function SetRow({
         S{setNumber}
       </span>
 
-      <MetricCell label="Kg" value={weight?.replace?.(" kg", "") ?? weight} />
-      <MetricCell label="Reps" value={reps} />
-      <MetricCell label="RIR" value={rir} />
+      <MetricCell
+        label="Kg"
+        value={weight}
+        onChange={(value) => onSetFieldChange?.("weight", value)}
+      />
+      <MetricCell
+        label="Reps"
+        value={reps}
+        onChange={(value) => onSetFieldChange?.("reps", value)}
+      />
+      <MetricCell
+        label="RIR"
+        value={rir}
+        onChange={(value) => onSetFieldChange?.("rir", value)}
+      />
 
       <button
         type="button"
         aria-label={`Mark set ${setNumber} ${isDone ? "not done" : "done"}`}
         aria-pressed={isDone}
         onClick={onToggleDone}
-        className="flex items-center justify-center"
+        className="mt-4.5 flex items-center justify-center"
       >
         <CheckBox isDone={isDone} />
       </button>
