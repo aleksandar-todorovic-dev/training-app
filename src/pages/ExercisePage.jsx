@@ -9,6 +9,7 @@ import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getExerciseById } from "../data/exercises";
 import ExerciseWorkflowCard from "../components/exercise/ExerciseWorkflowCard";
+import { sanitizeSetInputValue } from "../utils/runtime/setInputHelpers";
 
 export default function ExercisePage() {
   const { planId, dayId, exerciseId } = useParams();
@@ -53,6 +54,12 @@ export default function ExercisePage() {
 
   // Update one editable value on one prescribed runtime set row.
   function handleUpdateSetField(setNumber, field, value) {
+    const sanitizedValue = sanitizeSetInputValue(field, value);
+
+    if (sanitizedValue === null) {
+      return;
+    }
+
     dispatch({
       type: APP_ACTIONS.UPDATE_EXERCISE_SET_FIELD,
       payload: {
@@ -61,7 +68,7 @@ export default function ExercisePage() {
         exerciseId,
         setIndex: setNumber,
         field,
-        value,
+        value: sanitizedValue,
       },
     });
   }
