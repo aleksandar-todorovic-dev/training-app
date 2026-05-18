@@ -31,7 +31,11 @@ function DetailBlock({ title, children }) {
   );
 }
 
-export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
+export default function ExerciseWorkflowCard({
+  exercise,
+  sets = [],
+  onToggleSetDone,
+}) {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isAdvancedHelpOpen, setIsAdvancedHelpOpen] = useState(false);
 
@@ -176,6 +180,7 @@ export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
           </div>
 
           <div className="space-y-0 border-t border-zinc-800/80 pt-2">
+            {/* Set rows are runtime-derived; done changes are delegated upward. */}
             {sets.map((set, index) => (
               <SetRow
                 key={`${exercise.id}-set-${set.setNumber}`}
@@ -183,7 +188,9 @@ export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
                 weight={set.weight}
                 reps={set.reps}
                 rir={set.rir}
+                isDone={set.isDone}
                 isLast={index === sets.length - 1}
+                onToggleDone={() => onToggleSetDone?.(set.setNumber)}
               />
             ))}
           </div>

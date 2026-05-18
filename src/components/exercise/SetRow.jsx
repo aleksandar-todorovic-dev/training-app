@@ -1,6 +1,14 @@
-function CheckBox() {
+function CheckBox({ isDone = false }) {
   return (
-    <span className="flex h-5 w-5 items-center justify-center rounded border border-zinc-700 bg-zinc-950/40" />
+    <span
+      className={`flex h-5 w-5 items-center justify-center rounded border transition ${
+        isDone
+          ? "border-emerald-500 bg-emerald-500/20 text-emerald-300"
+          : "border-zinc-700 bg-zinc-950/40"
+      }`}
+    >
+      {isDone ? "✓" : null}
+    </span>
   );
 }
 
@@ -17,12 +25,21 @@ function MetricCell({ label, value }) {
   );
 }
 
+/**
+ * Displays one prescribed set row and forwards done-toggle actions upward.
+ *
+ * Runtime note:
+ * SetRow does not update global state directly. It receives the current
+ * `isDone` value and calls `onToggleDone` when the checkbox is clicked.
+ */
 export default function SetRow({
   setNumber,
   weight,
   reps,
   rir,
+  isDone = false,
   isLast = false,
+  onToggleDone,
 }) {
   return (
     <div
@@ -40,10 +57,12 @@ export default function SetRow({
 
       <button
         type="button"
-        aria-label={`Mark set ${setNumber} done`}
+        aria-label={`Mark set ${setNumber} ${isDone ? "not done" : "done"}`}
+        aria-pressed={isDone}
+        onClick={onToggleDone}
         className="flex items-center justify-center"
       >
-        <CheckBox />
+        <CheckBox isDone={isDone} />
       </button>
     </div>
   );

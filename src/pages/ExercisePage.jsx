@@ -1,5 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useAppState } from "../state/useAppState";
+import { APP_ACTIONS } from "../state/appActions";
 import AppShell from "../components/layout/AppShell";
 import SectionCard from "../components/layout/SectionCard";
 import BackButton from "../components/common/BackButton";
@@ -11,7 +12,7 @@ import ExerciseWorkflowCard from "../components/exercise/ExerciseWorkflowCard";
 
 export default function ExercisePage() {
   const { planId, dayId, exerciseId } = useParams();
-  const { state } = useAppState();
+  const { state, dispatch } = useAppState();
 
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
@@ -36,6 +37,19 @@ export default function ExercisePage() {
     rir: set.rir || "—",
     isDone: set.isDone,
   })) ?? [{ setNumber: 1, weight: "—", reps: "—", rir: "—", isDone: false }];
+  
+  // Toggle the performed state for one prescribed runtime set row.
+  function handleToggleSetDone(setNumber) {
+    dispatch({
+      type: APP_ACTIONS.TOGGLE_EXERCISE_SET_DONE,
+      payload: {
+        planId,
+        dayId,
+        exerciseId,
+        setIndex: setNumber,
+      },
+    });
+  }
 
   if (!plan || !dayDetails || !exercise) {
     return (
@@ -80,7 +94,11 @@ export default function ExercisePage() {
           </div>
         </div>
 
-        <ExerciseWorkflowCard exercise={exercise} sets={runtimeSets} />
+        <ExerciseWorkflowCard
+          exercise={exercise}
+          sets={runtimeSets}
+          onToggleSetDone={handleToggleSetDone}
+        />
       </div>
     </AppShell>
   );
