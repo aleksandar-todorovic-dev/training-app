@@ -12,7 +12,7 @@ function CheckBox({ isDone = false }) {
   );
 }
 
-function MetricCell({ label, value, onChange }) {
+function MetricCell({ label, name, value, onChange }) {
   return (
     <label className="min-w-0 text-center">
       <span className="block text-[11px] uppercase tracking-[0.12em] text-zinc-500">
@@ -20,9 +20,11 @@ function MetricCell({ label, value, onChange }) {
       </span>
 
       <input
+        name={name}
         value={value}
         onChange={(event) => onChange(event.target.value)}
         inputMode="decimal"
+        autoComplete="off"
         placeholder="—"
         className="mt-1 w-full bg-transparent text-center text-base font-semibold tabular-nums text-zinc-100 outline-none placeholder:text-zinc-100"
       />
@@ -60,16 +62,19 @@ export default function SetRow({
 
       <MetricCell
         label="Kg"
+        name={`set-${setNumber}-weight`}
         value={weight}
         onChange={(value) => onSetFieldChange?.("weight", value)}
       />
       <MetricCell
         label="Reps"
+        name={`set-${setNumber}-reps`}
         value={reps}
         onChange={(value) => onSetFieldChange?.("reps", value)}
       />
       <MetricCell
         label="RIR"
+        name={`set-${setNumber}-rir`}
         value={rir}
         onChange={(value) => onSetFieldChange?.("rir", value)}
       />
