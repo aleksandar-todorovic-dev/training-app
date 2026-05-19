@@ -9,15 +9,8 @@ import CycleHeader from "../components/cycle/CycleHeader";
 import { getPlanById } from "../data/plans";
 import { getDaysByPlanId } from "../data/days";
 import { UI_STACK_LG } from "../styles/ui";
-
-const STATIC_DAY_STATUS_MAP = {
-  d1: "Completed 7/7",
-  d2: "Completed 5/7",
-  d3: "Not started",
-  d4: "Not started",
-  d5: "Not started",
-  d6: "Not started",
-};
+import { getDayDetails } from "../data/dayDetails";
+import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
 
 const STATIC_CORE_HINT_MAP = {
   d2: "Core A",
@@ -56,6 +49,43 @@ export default function CyclePage() {
   const currentCycle = planProgress?.cycles?.[currentCycleNumber] ?? null;
   const currentDayId = currentCycle?.currentDayId ?? "d1";
 
+  // Show whether the active cycle is still moving or already finished.
+  const cycleStatusSummary = currentCycle?.completedAt
+    ? "Cycle finished"
+    : `Current day: ${currentDayId.toUpperCase()}`;
+
+  // Derive Cycle screen day-card status from runtime logs and the active day pointer.
+  function getDayCardStatus(day) {
+    const dayDetails = getDayDetails(planId, day.id);
+    const dayLog = currentCycle?.dayLogs?.[day.id];
+
+    const totalExerciseCount = dayLog
+      ? Object.keys(dayLog.mainExerciseLogs).length
+      : (dayDetails?.exerciseIds.length ?? 0);
+
+    const completedExerciseCount = dayLog
+      ? Object.values(dayLog.mainExerciseLogs).filter(
+          (exerciseLog) => getExerciseStatus(exerciseLog) === "complete",
+        ).length
+      : 0;
+
+    const progressLabel = `${completedExerciseCount}/${totalExerciseCount} completed`;
+
+    if (dayLog?.finishedAt) {
+      return `Finished · ${progressLabel}`;
+    }
+
+    if (day.id === currentDayId) {
+      return `Current · ${progressLabel}`;
+    }
+
+    if (dayLog) {
+      return `In progress · ${progressLabel}`;
+    }
+
+    return "Not started";
+  }
+
   if (!plan) {
     return (
       <AppShell>
@@ -86,7 +116,7 @@ export default function CyclePage() {
         <CycleHeader
           planName={plan.name}
           cycleLabel={`Cycle ${currentCycleNumber}`}
-          statusSummary={`Current day: ${currentDayId.toUpperCase()}`}
+          statusSummary={cycleStatusSummary}
         />
 
         {days.map((day) => (
@@ -94,7 +124,7 @@ export default function CyclePage() {
             key={day.id}
             planId={planId}
             day={day}
-            status={STATIC_DAY_STATUS_MAP[day.id] ?? "Not started"}
+            status={getDayCardStatus(day)}
             coreHint={STATIC_CORE_HINT_MAP[day.id] ?? null}
             detailHint={STATIC_DAY_DETAIL_HINT_MAP[planId]?.[day.id] ?? null}
           />
