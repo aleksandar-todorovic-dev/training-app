@@ -1,6 +1,18 @@
 import { APP_ACTIONS } from "./appActions";
 import { buildInitialDayLog } from "../utils/runtime/dayLogHelpers";
 
+const TRAINING_DAY_ORDER = ["d1", "d2", "d3", "d4", "d5", "d6"];
+
+function getNextTrainingDayId(dayId) {
+  const currentIndex = TRAINING_DAY_ORDER.indexOf(dayId);
+
+  if (currentIndex === -1) {
+    return null;
+  }
+
+  return TRAINING_DAY_ORDER[currentIndex + 1] ?? null;
+}
+
 /**
  * Main runtime reducer for the local-first MVP.
  *
@@ -298,6 +310,63 @@ export function appReducer(state, action) {
                         closedAt,
                       },
                     },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+    }
+
+    case APP_ACTIONS.FINISH_DAY: {
+      const { planId, dayId, finishedAt } = action.payload;
+
+      const planProgress = state.progressByPlan[planId];
+
+      // A day can only be finished after a plan cycle exists.
+      if (!planProgress) {
+        return state;
+      }
+
+      const currentCycleNumber = planProgress.currentCycleNumber;
+      const currentCycle = planProgress.cycles[currentCycleNumber];
+
+      if (!currentCycle) {
+        return state;
+      }
+
+      const dayLog = currentCycle.dayLogs[dayId];
+
+      if (!dayLog) {
+        return state;
+      }
+
+      const nextDayId = getNextTrainingDayId(dayId);
+      const isLastTrainingDay = nextDayId === null;
+
+      // Finishing a day records close intent only; completion remains derived from set rows.
+      return {
+        ...state,
+        progressByPlan: {
+          ...state.progressByPlan,
+          [planId]: {
+            ...planProgress,
+            cycles: {
+              ...planProgress.cycles,
+              [currentCycleNumber]: {
+                ...currentCycle,
+                currentDayId: isLastTrainingDay
+                  ? currentCycle.currentDayId
+                  : nextDayId,
+                completedAt: isLastTrainingDay
+                  ? finishedAt
+                  : currentCycle.completedAt,
+                dayLogs: {
+                  ...currentCycle.dayLogs,
+                  [dayId]: {
+                    ...dayLog,
+                    finishedAt,
                   },
                 },
               },

@@ -7,6 +7,7 @@ export default function FinishDaySheet({
   progressText,
   hasCoreBlock = false,
   onClose,
+  onConfirmFinish,
 }) {
   if (!dayDetails) return null;
 
@@ -72,7 +73,7 @@ export default function FinishDaySheet({
         </div>
 
         <div className="flex flex-col gap-3 border-t border-zinc-800 p-4">
-          <PrimaryButton type="button" onClick={onClose}>
+          <PrimaryButton type="button" onClick={onConfirmFinish}>
             Confirm finish
           </PrimaryButton>
 

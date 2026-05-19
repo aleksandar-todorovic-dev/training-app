@@ -81,7 +81,7 @@ export default function DayPage() {
     : null;
   const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
 
-  // Progress is derived from runtime exercise logs; completed count updates once set done logic exists.
+  // Progress is derived from runtime exercise logs and completed set rows.
   const totalExerciseCount = dayLog
     ? Object.keys(dayLog.mainExerciseLogs).length
     : (dayDetails?.exerciseIds.length ?? 0);
@@ -108,6 +108,20 @@ export default function DayPage() {
     }
 
     return "Not started";
+  }
+
+  // Close the current day without changing exercise/set completion.
+  function handleConfirmFinishDay() {
+    dispatch({
+      type: APP_ACTIONS.FINISH_DAY,
+      payload: {
+        planId,
+        dayId,
+        finishedAt: new Date().toISOString(),
+      },
+    });
+
+    setIsFinishDayOpen(false);
   }
 
   if (!plan || !dayDetails) {
@@ -192,6 +206,7 @@ export default function DayPage() {
           progressText={progressText}
           hasCoreBlock={Boolean(coreBlock)}
           onClose={() => setIsFinishDayOpen(false)}
+          onConfirmFinish={handleConfirmFinishDay}
         />
       ) : null}
     </AppShell>
