@@ -5,6 +5,7 @@ import AppShell from "../components/layout/AppShell";
 import BackButton from "../components/common/BackButton";
 import DayCard from "../components/cycle/DayCard";
 import CycleHeader from "../components/cycle/CycleHeader";
+import PrimaryButton from "../components/common/PrimaryButton";
 
 import { getPlanById } from "../data/plans";
 import { getDaysByPlanId } from "../data/days";
@@ -118,6 +119,12 @@ export default function CyclePage() {
           cycleLabel={`Cycle ${currentCycleNumber}`}
           statusSummary={cycleStatusSummary}
         />
+
+        {currentCycle?.completedAt ? (
+          <PrimaryButton to={`/plan/${planId}/end-cycle`}>
+            Review cycle
+          </PrimaryButton>
+        ) : null}
 
         {days.map((day) => (
           <DayCard
