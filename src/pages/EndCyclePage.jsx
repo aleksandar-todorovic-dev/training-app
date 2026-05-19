@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import AppShell from "../components/layout/AppShell";
 import BackButton from "../components/common/BackButton";
@@ -6,6 +6,8 @@ import PrimaryButton from "../components/common/PrimaryButton";
 import SectionCard from "../components/layout/SectionCard";
 import { getPlanById } from "../data/plans";
 import { UI_STACK_LG, UI_TEXT_MUTED, UI_TITLE } from "../styles/ui";
+import { APP_ACTIONS } from "../state/appActions";
+import { useAppState } from "../state/useAppState";
 
 const STATIC_CYCLE_RECAP = {
   "bulk-pro": {
@@ -20,12 +22,29 @@ const STATIC_CYCLE_RECAP = {
 
 export default function EndCyclePage() {
   const { planId } = useParams();
+  const navigate = useNavigate();
+  const { state, dispatch } = useAppState();
   const plan = getPlanById(planId);
 
   const recap = STATIC_CYCLE_RECAP[planId] ?? {
     trainingDays: "6/6",
     exerciseCompletion: "Preview",
   };
+
+  const planProgress = state.progressByPlan[planId];
+  const currentCycleNumber = planProgress?.currentCycleNumber ?? 1;
+
+  function handleStartNewCycle() {
+    dispatch({
+      type: APP_ACTIONS.START_PLAN_CYCLE,
+      payload: {
+        planId,
+        startedAt: new Date().toISOString(),
+      },
+    });
+
+    navigate(`/plan/${planId}/cycle`);
+  }
 
   if (!plan) {
     return (
@@ -55,7 +74,7 @@ export default function EndCyclePage() {
 
         <header className="flex flex-col gap-3">
           <p className="text-sm font-medium text-zinc-500">
-            {plan.name} — Cycle 1
+            {plan.name} — Cycle {currentCycleNumber}
           </p>
 
           <h1 className={UI_TITLE}>Cycle complete</h1>
@@ -116,7 +135,7 @@ export default function EndCyclePage() {
           </div>
         </SectionCard>
 
-        <PrimaryButton to={`/plan/${planId}/cycle`}>
+        <PrimaryButton type="button" onClick={handleStartNewCycle}>
           Start new cycle
         </PrimaryButton>
       </div>
