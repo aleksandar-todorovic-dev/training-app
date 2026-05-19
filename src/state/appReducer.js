@@ -247,6 +247,66 @@ export function appReducer(state, action) {
       };
     }
 
+    case APP_ACTIONS.MARK_EXERCISE_CLOSED: {
+      const { planId, dayId, exerciseId, closedAt } = action.payload;
+
+      const planProgress = state.progressByPlan[planId];
+
+      // Exercise close can only run after a plan cycle exists.
+      if (!planProgress) {
+        return state;
+      }
+
+      const currentCycleNumber = planProgress.currentCycleNumber;
+      const currentCycle = planProgress.cycles[currentCycleNumber];
+
+      if (!currentCycle) {
+        return state;
+      }
+
+      const dayLog = currentCycle.dayLogs[dayId];
+
+      if (!dayLog) {
+        return state;
+      }
+
+      const exerciseLog = dayLog.mainExerciseLogs[exerciseId];
+
+      if (!exerciseLog) {
+        return state;
+      }
+
+      // Closing an exercise records intent only; set completion stays derived from set rows.
+      return {
+        ...state,
+        progressByPlan: {
+          ...state.progressByPlan,
+          [planId]: {
+            ...planProgress,
+            cycles: {
+              ...planProgress.cycles,
+              [currentCycleNumber]: {
+                ...currentCycle,
+                dayLogs: {
+                  ...currentCycle.dayLogs,
+                  [dayId]: {
+                    ...dayLog,
+                    mainExerciseLogs: {
+                      ...dayLog.mainExerciseLogs,
+                      [exerciseId]: {
+                        ...exerciseLog,
+                        closedAt,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+    }
+
     default:
       return state;
   }

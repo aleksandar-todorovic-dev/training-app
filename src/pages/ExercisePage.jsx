@@ -73,6 +73,19 @@ export default function ExercisePage() {
     });
   }
 
+  // Close the exercise without changing prescribed set completion.
+  function handleMarkExerciseDone() {
+    dispatch({
+      type: APP_ACTIONS.MARK_EXERCISE_CLOSED,
+      payload: {
+        planId,
+        dayId,
+        exerciseId,
+        closedAt: new Date().toISOString(),
+      },
+    });
+  }
+
   if (!plan || !dayDetails || !exercise) {
     return (
       <AppShell>
@@ -121,6 +134,7 @@ export default function ExercisePage() {
           sets={runtimeSets}
           onToggleSetDone={handleToggleSetDone}
           onUpdateSetField={handleUpdateSetField}
+          onMarkExerciseDone={handleMarkExerciseDone}
         />
       </div>
     </AppShell>
