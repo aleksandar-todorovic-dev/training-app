@@ -76,6 +76,7 @@ export default function CoreWorkflowCard({
   exercises = [],
   coreBlockLog,
   onToggleCoreSetDone,
+  onUpdateCoreSetField,
 }) {
   if (!coreBlock) {
     return null;
@@ -172,18 +173,17 @@ export default function CoreWorkflowCard({
             const coreExerciseLog =
               coreBlockLog?.coreExerciseLogs?.[exercise.id] ?? null;
 
+            const staticRows = buildStaticRows(exercise);
+
             const rows =
-              coreExerciseLog?.sets.map((set) => ({
+              coreExerciseLog?.sets.map((set, index) => ({
                 setNumber: set.setIndex,
-                target: "—",
-                load: set.load || "—",
-                logged:
-                  exercise.logType === "time"
-                    ? set.time || "—"
-                    : set.reps || "—",
-                effort: set.rir || "—",
+                target: staticRows[index]?.target ?? "—",
+                load: set.load,
+                logged: exercise.logType === "time" ? set.time : set.reps,
+                effort: set.rir,
                 isDone: set.isDone,
-              })) ?? buildStaticRows(exercise);
+              })) ?? staticRows;
             const isLastExercise = exerciseIndex === exercises.length - 1;
             const valueLabel = getCoreValueLabel(exercise);
             const tracksLoad = Boolean(exercise.tracksLoad);
@@ -278,6 +278,14 @@ export default function CoreWorkflowCard({
                         isDone={row.isDone}
                         onToggleDone={() =>
                           onToggleCoreSetDone?.(exercise.id, row.setNumber)
+                        }
+                        onSetFieldChange={(field, value) =>
+                          onUpdateCoreSetField?.(
+                            exercise.id,
+                            row.setNumber,
+                            field,
+                            value,
+                          )
                         }
                       />
                     ))}

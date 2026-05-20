@@ -12,16 +12,36 @@ function CheckBox({ isDone = false }) {
   );
 }
 
-function MetricCell({ label, value }) {
+function MetricCell({ label, name, value, onChange, isEditable = true }) {
+  if (!isEditable) {
+    return (
+      <div className="min-w-0 text-center">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
+          {label}
+        </p>
+        <p className="mt-1 text-base font-semibold tabular-nums text-zinc-100">
+          {value || "—"}
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-w-0 text-center">
-      <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
+    <label className="min-w-0 text-center">
+      <span className="block text-[11px] uppercase tracking-[0.12em] text-zinc-500">
         {label}
-      </p>
-      <p className="mt-1 text-base font-semibold tabular-nums text-zinc-100">
-        {value}
-      </p>
-    </div>
+      </span>
+
+      <input
+        name={name}
+        value={value}
+        onChange={(event) => onChange?.(event.target.value)}
+        inputMode="decimal"
+        autoComplete="off"
+        placeholder="—"
+        className="mt-1 w-full bg-transparent text-center text-base font-semibold tabular-nums text-zinc-100 outline-none placeholder:text-zinc-100"
+      />
+    </label>
   );
 }
 
@@ -36,6 +56,7 @@ export default function CoreSetRow({
   isLast = false,
   isDone = false,
   onToggleDone,
+  onSetFieldChange,
 }) {
   return (
     <div
@@ -48,13 +69,31 @@ export default function CoreSetRow({
       </span>
 
       {tracksLoad ? (
-        <MetricCell label="Kg" value={load} />
+        <MetricCell
+          label="Kg"
+          name={`core-set-${setNumber}-load`}
+          value={load}
+          onChange={(value) => onSetFieldChange?.("load", value)}
+        />
       ) : (
-        <MetricCell label="Target" value={target} />
+        <MetricCell label="Target" value={target} isEditable={false} />
       )}
 
-      <MetricCell label={valueLabel} value={logged} />
-      <MetricCell label="RIR" value={effort} />
+      <MetricCell
+        label={valueLabel}
+        name={`core-set-${setNumber}-${valueLabel.toLowerCase()}`}
+        value={logged}
+        onChange={(value) =>
+          onSetFieldChange?.(valueLabel === "Time" ? "time" : "reps", value)
+        }
+      />
+
+      <MetricCell
+        label="RIR"
+        name={`core-set-${setNumber}-rir`}
+        value={effort}
+        onChange={(value) => onSetFieldChange?.("rir", value)}
+      />
 
       <button
         type="button"

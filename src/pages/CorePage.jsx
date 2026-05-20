@@ -10,6 +10,7 @@ import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getCoreBlockById, getCoreExercisesByIds } from "../data/core";
 import CoreWorkflowCard from "../components/core/CoreWorkflowCard";
+import { sanitizeCoreSetInputValue } from "../utils/runtime/coreInputHelpers";
 
 export default function CorePage() {
   const { planId, dayId, coreId } = useParams();
@@ -57,6 +58,27 @@ export default function CorePage() {
     });
   }
 
+  // Update one editable value on one prescribed core set row.
+  function handleUpdateCoreSetField(coreExerciseId, setNumber, field, value) {
+    const sanitizedValue = sanitizeCoreSetInputValue(field, value);
+
+    if (sanitizedValue === null) {
+      return;
+    }
+
+    dispatch({
+      type: APP_ACTIONS.UPDATE_CORE_SET_FIELD,
+      payload: {
+        planId,
+        dayId,
+        coreExerciseId,
+        setIndex: setNumber,
+        field,
+        value: sanitizedValue,
+      },
+    });
+  }
+
   if (!plan || !dayDetails || !coreBlock) {
     return (
       <AppShell>
@@ -97,6 +119,7 @@ export default function CorePage() {
           exercises={coreExercises}
           coreBlockLog={coreBlockLog}
           onToggleCoreSetDone={handleToggleCoreSetDone}
+          onUpdateCoreSetField={handleUpdateCoreSetField}
         />
       </div>
     </AppShell>
