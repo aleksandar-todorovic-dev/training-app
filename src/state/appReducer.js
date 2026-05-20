@@ -82,7 +82,10 @@ export function appReducer(state, action) {
         return state;
       }
 
-      const dayLog = buildInitialDayLog(dayDetails, exercises);
+      const dayLog = buildInitialDayLog(dayDetails, exercises, {
+        cycles: planProgress.cycles,
+        currentCycleNumber,
+      });
 
       if (!dayLog) {
         return state;

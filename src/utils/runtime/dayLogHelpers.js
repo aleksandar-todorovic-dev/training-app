@@ -7,9 +7,12 @@ import { buildInitialExerciseLog } from "./exerciseLogHelpers";
  * Logs are keyed by `exerciseId` so required exercise progress can be
  * compared against `dayDetails.exerciseIds`.
  */
-export function buildInitialMainExerciseLogs(exercises = []) {
+export function buildInitialMainExerciseLogs(
+  exercises = [],
+  carryOverContext = {},
+) {
   return exercises.reduce((logs, exercise) => {
-    const exerciseLog = buildInitialExerciseLog(exercise);
+    const exerciseLog = buildInitialExerciseLog(exercise, carryOverContext);
 
     if (!exerciseLog) {
       return logs;
@@ -29,14 +32,21 @@ export function buildInitialMainExerciseLogs(exercises = []) {
  * Main exercise logs are created separately from core progress because core
  * does not affect the main day completion fraction.
  */
-export function buildInitialDayLog(dayDetails, exercises = []) {
+export function buildInitialDayLog(
+  dayDetails,
+  exercises = [],
+  carryOverContext = {},
+) {
   if (!dayDetails?.id) {
     return null;
   }
 
   return {
     dayId: dayDetails.id,
-    mainExerciseLogs: buildInitialMainExerciseLogs(exercises),
+    mainExerciseLogs: buildInitialMainExerciseLogs(exercises, {
+      ...carryOverContext,
+      dayId: dayDetails.id,
+    }),
     coreBlockLog: null,
     finishedAt: null,
   };
