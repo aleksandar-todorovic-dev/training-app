@@ -71,7 +71,11 @@ function getCoreSetSummary(exercise, tracksLoad) {
   return cleanSummaryValue(getCoreSetCount(exercise));
 }
 
-export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
+export default function CoreWorkflowCard({
+  coreBlock,
+  exercises = [],
+  coreBlockLog,
+}) {
   if (!coreBlock) {
     return null;
   }
@@ -164,7 +168,20 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
           </div>
 
           {exercises.map((exercise, exerciseIndex) => {
-            const rows = buildStaticRows(exercise);
+            const coreExerciseLog =
+              coreBlockLog?.coreExerciseLogs?.[exercise.id] ?? null;
+
+            const rows =
+              coreExerciseLog?.sets.map((set) => ({
+                setNumber: set.setIndex,
+                target: "—",
+                load: set.load || "—",
+                logged:
+                  exercise.logType === "time"
+                    ? set.time || "—"
+                    : set.reps || "—",
+                effort: set.rir || "—",
+              })) ?? buildStaticRows(exercise);
             const isLastExercise = exerciseIndex === exercises.length - 1;
             const valueLabel = getCoreValueLabel(exercise);
             const tracksLoad = Boolean(exercise.tracksLoad);

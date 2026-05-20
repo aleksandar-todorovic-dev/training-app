@@ -1,4 +1,7 @@
 import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { APP_ACTIONS } from "../state/appActions";
+import { useAppState } from "../state/useAppState";
 import AppShell from "../components/layout/AppShell";
 import SectionCard from "../components/layout/SectionCard";
 import BackButton from "../components/common/BackButton";
@@ -10,11 +13,37 @@ import CoreWorkflowCard from "../components/core/CoreWorkflowCard";
 
 export default function CorePage() {
   const { planId, dayId, coreId } = useParams();
+  const { state, dispatch } = useAppState();
 
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
   const coreBlock = getCoreBlockById(coreId);
   const coreExercises = getCoreExercisesByIds(coreBlock?.exerciseIds ?? []);
+
+  // Ensure the opened core block has a runtime log once valid core data is loaded.
+  useEffect(() => {
+    if (!plan || !dayDetails || !coreBlock) {
+      return;
+    }
+
+    dispatch({
+      type: APP_ACTIONS.ENSURE_CORE_BLOCK_LOG,
+      payload: {
+        planId,
+        dayId,
+        coreBlock,
+        coreExercises,
+      },
+    });
+  }, [dispatch, plan, planId, dayId, dayDetails, coreBlock, coreExercises]);
+
+  const planProgress = state.progressByPlan[planId];
+  const currentCycleNumber = planProgress?.currentCycleNumber;
+  const currentCycle = currentCycleNumber
+    ? planProgress?.cycles?.[currentCycleNumber]
+    : null;
+  const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
+  const coreBlockLog = dayLog?.coreBlockLog ?? null;
 
   if (!plan || !dayDetails || !coreBlock) {
     return (
@@ -51,7 +80,11 @@ export default function CorePage() {
           </div>
         </div>
 
-        <CoreWorkflowCard coreBlock={coreBlock} exercises={coreExercises} />
+        <CoreWorkflowCard
+          coreBlock={coreBlock}
+          exercises={coreExercises}
+          coreBlockLog={coreBlockLog}
+        />
       </div>
     </AppShell>
   );

@@ -1,9 +1,21 @@
+/**
+ * Static core exercise source data.
+ *
+ * Runtime note:
+ * `prescription` is user-facing display text.
+ * `setCount` is runtime scaffold metadata used to generate prescribed core set rows.
+ * Runtime logic must not parse `prescription` to decide how many rows to create.
+ *
+ * `logType` controls whether the primary logged value is reps or time.
+ * `tracksLoad` controls whether the core row includes load.
+ */
 export const coreExercises = [
   {
     id: "hanging-leg-raise-strict",
     name: "Hanging Leg Raise (Strict)",
     subtitle: "Lower-ab control with anti-swing tension",
     prescription: "3 x 8-12",
+    setCount: 3,
     logType: "reps",
     tracksLoad: false,
     cue: "Keep the ribs down, raise with control to about 90°, and pause at the top without swinging",
@@ -22,6 +34,7 @@ export const coreExercises = [
     name: "Decline Sit-Up (Weighted)",
     subtitle: "Loaded trunk flexion with lower-ab crunch focus",
     prescription: "3 x 10-12",
+    setCount: 3,
     logType: "reps",
     tracksLoad: true,
     cue: "Keep the chin lightly tucked, crunch hard through the trunk, and do not pull with the neck",
@@ -40,6 +53,7 @@ export const coreExercises = [
     name: "Plank",
     subtitle: "Basic anti-extension trunk stability",
     prescription: "3 x 45-60 s",
+    setCount: 3,
     logType: "time",
     tracksLoad: false,
     cue: "Keep a straight line, squeeze the glutes, and breathe without letting the hips sag",
@@ -58,6 +72,7 @@ export const coreExercises = [
     name: "Pallof Press",
     subtitle: "Anti-rotation trunk control",
     prescription: "3 x 12",
+    setCount: 3,
     logType: "reps",
     tracksLoad: true,
     cue: "Stay stacked, brace hard, and press out without letting the torso rotate",
@@ -77,6 +92,7 @@ export const coreExercises = [
     name: "Hanging Knee Raise (PPT)",
     subtitle: "Lower-ab control with posterior pelvic tilt",
     prescription: "3 x 8-12",
+    setCount: 3,
     logType: "reps",
     tracksLoad: false,
     cue: "Tuck the pelvis first, pause at the top, and lower slowly without swinging",
@@ -95,6 +111,7 @@ export const coreExercises = [
     name: "Side Plank",
     subtitle: "Lateral trunk stability and oblique control",
     prescription: "3 x 30-45 s",
+    setCount: 3,
     logType: "time",
     tracksLoad: false,
     cue: "Keep the top hip high, hold a straight line, and stay stacked without twisting",
@@ -114,6 +131,7 @@ export const coreExercises = [
     name: "Plank Step-Out",
     subtitle: "Dynamic anti-extension control",
     prescription: "3 x 12-16",
+    setCount: 3,
     logType: "reps",
     tracksLoad: false,
     cue: "Keep the trunk braced, step out in short clean ranges, and do not lose the plank line",
@@ -132,6 +150,7 @@ export const coreExercises = [
     name: "Russian Twist",
     subtitle: "Controlled trunk rotation work",
     prescription: "3 x 20",
+    setCount: 3,
     logType: "reps",
     tracksLoad: true,
     cue: "Rotate through the trunk with control, keep the hips quiet, and stay smooth without using momentum",
@@ -151,6 +170,7 @@ export const coreExercises = [
     name: "Hollow Body Hold",
     subtitle: "Static anti-extension brace hold",
     prescription: "3 x 20-30 s",
+    setCount: 3,
     logType: "time",
     tracksLoad: false,
     cue: "Keep the ribs down, press the low back flat, and hold only the range you can own cleanly",

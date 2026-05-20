@@ -1,5 +1,6 @@
 import { APP_ACTIONS } from "./appActions";
 import { buildInitialDayLog } from "../utils/runtime/dayLogHelpers";
+import { buildInitialCoreBlockLog } from "../utils/runtime/coreLogHelpers";
 
 const TRAINING_DAY_ORDER = ["d1", "d2", "d3", "d4", "d5", "d6"];
 
@@ -174,6 +175,65 @@ export function appReducer(state, action) {
                         sets: nextSets,
                       },
                     },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+    }
+
+    case APP_ACTIONS.ENSURE_CORE_BLOCK_LOG: {
+      const { planId, dayId, coreBlock, coreExercises } = action.payload;
+
+      const planProgress = state.progressByPlan[planId];
+
+      // A core block log can only be created after a plan cycle exists.
+      if (!planProgress) {
+        return state;
+      }
+
+      const currentCycleNumber = planProgress.currentCycleNumber;
+      const currentCycle = planProgress.cycles[currentCycleNumber];
+
+      if (!currentCycle) {
+        return state;
+      }
+
+      const dayLog = currentCycle.dayLogs[dayId];
+
+      if (!dayLog) {
+        return state;
+      }
+
+      // Preserve existing core progress so reopening CorePage never resets user input.
+      if (dayLog.coreBlockLog) {
+        return state;
+      }
+
+      const coreBlockLog = buildInitialCoreBlockLog(coreBlock, coreExercises);
+
+      if (!coreBlockLog) {
+        return state;
+      }
+
+      // Add core progress separately from main exercise logs.
+      return {
+        ...state,
+        progressByPlan: {
+          ...state.progressByPlan,
+          [planId]: {
+            ...planProgress,
+            cycles: {
+              ...planProgress.cycles,
+              [currentCycleNumber]: {
+                ...currentCycle,
+                dayLogs: {
+                  ...currentCycle.dayLogs,
+                  [dayId]: {
+                    ...dayLog,
+                    coreBlockLog,
                   },
                 },
               },
