@@ -45,6 +45,18 @@ export default function CorePage() {
   const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
   const coreBlockLog = dayLog?.coreBlockLog ?? null;
 
+  function handleToggleCoreSetDone(coreExerciseId, setNumber) {
+    dispatch({
+      type: APP_ACTIONS.TOGGLE_CORE_SET_DONE,
+      payload: {
+        planId,
+        dayId,
+        coreExerciseId,
+        setIndex: setNumber,
+      },
+    });
+  }
+
   if (!plan || !dayDetails || !coreBlock) {
     return (
       <AppShell>
@@ -84,6 +96,7 @@ export default function CorePage() {
           coreBlock={coreBlock}
           exercises={coreExercises}
           coreBlockLog={coreBlockLog}
+          onToggleCoreSetDone={handleToggleCoreSetDone}
         />
       </div>
     </AppShell>

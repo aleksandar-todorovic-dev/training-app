@@ -75,6 +75,7 @@ export default function CoreWorkflowCard({
   coreBlock,
   exercises = [],
   coreBlockLog,
+  onToggleCoreSetDone,
 }) {
   if (!coreBlock) {
     return null;
@@ -181,6 +182,7 @@ export default function CoreWorkflowCard({
                     ? set.time || "—"
                     : set.reps || "—",
                 effort: set.rir || "—",
+                isDone: set.isDone,
               })) ?? buildStaticRows(exercise);
             const isLastExercise = exerciseIndex === exercises.length - 1;
             const valueLabel = getCoreValueLabel(exercise);
@@ -273,6 +275,10 @@ export default function CoreWorkflowCard({
                         effort={row.effort}
                         tracksLoad={tracksLoad}
                         isLast={index === rows.length - 1}
+                        isDone={row.isDone}
+                        onToggleDone={() =>
+                          onToggleCoreSetDone?.(exercise.id, row.setNumber)
+                        }
                       />
                     ))}
                   </div>

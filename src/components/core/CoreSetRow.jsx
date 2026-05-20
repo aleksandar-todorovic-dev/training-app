@@ -1,6 +1,14 @@
-function CheckBox() {
+function CheckBox({ isDone = false }) {
   return (
-    <span className="flex h-5 w-5 items-center justify-center rounded border border-zinc-700 bg-zinc-950/40" />
+    <span
+      className={`flex h-5 w-5 items-center justify-center rounded border transition ${
+        isDone
+          ? "border-emerald-500 bg-emerald-500/20 text-emerald-300"
+          : "border-zinc-700 bg-zinc-950/40"
+      }`}
+    >
+      {isDone ? "✓" : null}
+    </span>
   );
 }
 
@@ -26,6 +34,8 @@ export default function CoreSetRow({
   effort = "1-2",
   tracksLoad = false,
   isLast = false,
+  isDone = false,
+  onToggleDone,
 }) {
   return (
     <div
@@ -48,10 +58,12 @@ export default function CoreSetRow({
 
       <button
         type="button"
-        aria-label={`Mark core set ${setNumber} done`}
-        className="flex items-center justify-center"
+        aria-label={`Mark core set ${setNumber} ${isDone ? "not done" : "done"}`}
+        aria-pressed={isDone}
+        onClick={onToggleDone}
+        className="mt-4.5 flex items-center justify-center"
       >
-        <CheckBox />
+        <CheckBox isDone={isDone} />
       </button>
     </div>
   );

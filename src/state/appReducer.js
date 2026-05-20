@@ -243,6 +243,82 @@ export function appReducer(state, action) {
       };
     }
 
+    case APP_ACTIONS.TOGGLE_CORE_SET_DONE: {
+      const { planId, dayId, coreExerciseId, setIndex } = action.payload;
+
+      const planProgress = state.progressByPlan[planId];
+
+      // Core set updates can only run after a plan cycle exists.
+      if (!planProgress) {
+        return state;
+      }
+
+      const currentCycleNumber = planProgress.currentCycleNumber;
+      const currentCycle = planProgress.cycles[currentCycleNumber];
+
+      if (!currentCycle) {
+        return state;
+      }
+
+      const dayLog = currentCycle.dayLogs[dayId];
+
+      if (!dayLog?.coreBlockLog) {
+        return state;
+      }
+
+      const coreExerciseLog =
+        dayLog.coreBlockLog.coreExerciseLogs[coreExerciseId];
+
+      if (!coreExerciseLog) {
+        return state;
+      }
+
+      // Toggle only the targeted prescribed core set row.
+      const nextSets = coreExerciseLog.sets.map((set) => {
+        if (set.setIndex !== setIndex) {
+          return set;
+        }
+
+        return {
+          ...set,
+          isDone: !set.isDone,
+        };
+      });
+
+      // Store the updated core set rows without affecting main exercise progress.
+      return {
+        ...state,
+        progressByPlan: {
+          ...state.progressByPlan,
+          [planId]: {
+            ...planProgress,
+            cycles: {
+              ...planProgress.cycles,
+              [currentCycleNumber]: {
+                ...currentCycle,
+                dayLogs: {
+                  ...currentCycle.dayLogs,
+                  [dayId]: {
+                    ...dayLog,
+                    coreBlockLog: {
+                      ...dayLog.coreBlockLog,
+                      coreExerciseLogs: {
+                        ...dayLog.coreBlockLog.coreExerciseLogs,
+                        [coreExerciseId]: {
+                          ...coreExerciseLog,
+                          sets: nextSets,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+    }
+
     case APP_ACTIONS.UPDATE_EXERCISE_SET_FIELD: {
       const { planId, dayId, exerciseId, setIndex, field, value } =
         action.payload;
