@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
 import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
+import { getCoreBlockStatus } from "../utils/runtime/coreStatusHelpers";
 
 import AppShell from "../components/layout/AppShell";
 import BackButton from "../components/common/BackButton";
@@ -80,6 +81,7 @@ export default function DayPage() {
     ? planProgress?.cycles?.[currentCycleNumber]
     : null;
   const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
+  const coreBlockLog = dayLog?.coreBlockLog ?? null;
 
   // Progress is derived from runtime exercise logs and completed set rows.
   const totalExerciseCount = dayLog
@@ -98,6 +100,21 @@ export default function DayPage() {
   function getExerciseStatusLabel(exercise) {
     const exerciseLog = dayLog?.mainExerciseLogs?.[exercise.id];
     const status = getExerciseStatus(exerciseLog);
+
+    if (status === "complete") {
+      return "Complete";
+    }
+
+    if (status === "partial") {
+      return "Partial";
+    }
+
+    return "Not started";
+  }
+
+  // Convert the runtime core block status into the label shown on the Day screen.
+  function getCoreStatusLabel() {
+    const status = getCoreBlockStatus(coreBlockLog);
 
     if (status === "complete") {
       return "Complete";
@@ -183,7 +200,7 @@ export default function DayPage() {
             planId={planId}
             dayId={dayId}
             coreBlock={coreBlock}
-            status="Not started"
+            status={getCoreStatusLabel()}
           />
         ) : null}
 
