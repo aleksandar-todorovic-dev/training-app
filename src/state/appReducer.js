@@ -541,6 +541,121 @@ export function appReducer(state, action) {
       };
     }
 
+    case APP_ACTIONS.MARK_CORE_EXERCISE_CLOSED: {
+      const { planId, dayId, coreExerciseId, closedAt } = action.payload;
+
+      const planProgress = state.progressByPlan[planId];
+
+      // Core exercise close can only run after a plan cycle exists.
+      if (!planProgress) {
+        return state;
+      }
+
+      const currentCycleNumber = planProgress.currentCycleNumber;
+      const currentCycle = planProgress.cycles[currentCycleNumber];
+
+      if (!currentCycle) {
+        return state;
+      }
+
+      const dayLog = currentCycle.dayLogs[dayId];
+
+      if (!dayLog?.coreBlockLog) {
+        return state;
+      }
+
+      const coreExerciseLog =
+        dayLog.coreBlockLog.coreExerciseLogs[coreExerciseId];
+
+      if (!coreExerciseLog) {
+        return state;
+      }
+
+      // Closing a core exercise records intent only; set completion stays derived from set rows.
+      return {
+        ...state,
+        progressByPlan: {
+          ...state.progressByPlan,
+          [planId]: {
+            ...planProgress,
+            cycles: {
+              ...planProgress.cycles,
+              [currentCycleNumber]: {
+                ...currentCycle,
+                dayLogs: {
+                  ...currentCycle.dayLogs,
+                  [dayId]: {
+                    ...dayLog,
+                    coreBlockLog: {
+                      ...dayLog.coreBlockLog,
+                      coreExerciseLogs: {
+                        ...dayLog.coreBlockLog.coreExerciseLogs,
+                        [coreExerciseId]: {
+                          ...coreExerciseLog,
+                          closedAt,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+    }
+
+    case APP_ACTIONS.MARK_CORE_BLOCK_CLOSED: {
+      const { planId, dayId, closedAt } = action.payload;
+
+      const planProgress = state.progressByPlan[planId];
+
+      // Core block close can only run after a plan cycle exists.
+      if (!planProgress) {
+        return state;
+      }
+
+      const currentCycleNumber = planProgress.currentCycleNumber;
+      const currentCycle = planProgress.cycles[currentCycleNumber];
+
+      if (!currentCycle) {
+        return state;
+      }
+
+      const dayLog = currentCycle.dayLogs[dayId];
+
+      if (!dayLog?.coreBlockLog) {
+        return state;
+      }
+
+      // Closing a core block records intent only; core status stays derived from core set rows.
+      return {
+        ...state,
+        progressByPlan: {
+          ...state.progressByPlan,
+          [planId]: {
+            ...planProgress,
+            cycles: {
+              ...planProgress.cycles,
+              [currentCycleNumber]: {
+                ...currentCycle,
+                dayLogs: {
+                  ...currentCycle.dayLogs,
+                  [dayId]: {
+                    ...dayLog,
+                    coreBlockLog: {
+                      ...dayLog.coreBlockLog,
+                      closedAt,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+    }
+
     case APP_ACTIONS.FINISH_DAY: {
       const { planId, dayId, finishedAt } = action.payload;
 

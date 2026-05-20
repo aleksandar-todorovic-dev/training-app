@@ -79,6 +79,31 @@ export default function CorePage() {
     });
   }
 
+  // Close one core exercise without changing its set completion.
+  function handleMarkCoreExerciseClosed(coreExerciseId) {
+    dispatch({
+      type: APP_ACTIONS.MARK_CORE_EXERCISE_CLOSED,
+      payload: {
+        planId,
+        dayId,
+        coreExerciseId,
+        closedAt: new Date().toISOString(),
+      },
+    });
+  }
+
+  // Close the whole core block without changing core set completion.
+  function handleMarkCoreBlockClosed() {
+    dispatch({
+      type: APP_ACTIONS.MARK_CORE_BLOCK_CLOSED,
+      payload: {
+        planId,
+        dayId,
+        closedAt: new Date().toISOString(),
+      },
+    });
+  }
+
   if (!plan || !dayDetails || !coreBlock) {
     return (
       <AppShell>
@@ -120,6 +145,8 @@ export default function CorePage() {
           coreBlockLog={coreBlockLog}
           onToggleCoreSetDone={handleToggleCoreSetDone}
           onUpdateCoreSetField={handleUpdateCoreSetField}
+          onMarkCoreExerciseClosed={handleMarkCoreExerciseClosed}
+          onMarkCoreBlockClosed={handleMarkCoreBlockClosed}
         />
       </div>
     </AppShell>
