@@ -212,7 +212,11 @@ export function appReducer(state, action) {
         return state;
       }
 
-      const coreBlockLog = buildInitialCoreBlockLog(coreBlock, coreExercises);
+      const coreBlockLog = buildInitialCoreBlockLog(coreBlock, coreExercises, {
+        cycles: planProgress.cycles,
+        currentCycleNumber,
+        dayId,
+      });
 
       if (!coreBlockLog) {
         return state;
