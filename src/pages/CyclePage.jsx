@@ -12,6 +12,7 @@ import { getDaysByPlanId } from "../data/days";
 import { UI_STACK_LG } from "../styles/ui";
 import { getDayDetails } from "../data/dayDetails";
 import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
+import { getDayMode, getDayModeLabel } from "../utils/runtime/dayModeHelpers";
 
 const STATIC_CORE_HINT_MAP = {
   d2: "Core A",
@@ -49,6 +50,7 @@ export default function CyclePage() {
   const currentCycleNumber = planProgress?.currentCycleNumber ?? 1;
   const currentCycle = planProgress?.cycles?.[currentCycleNumber] ?? null;
   const currentDayId = currentCycle?.currentDayId ?? "d1";
+  const dayOrder = plan?.dayOrder ?? days.map((day) => day.id);
 
   // Show whether the active cycle is still moving or already finished.
   const cycleStatusSummary = currentCycle?.completedAt
@@ -59,6 +61,13 @@ export default function CyclePage() {
   function getDayCardStatus(day) {
     const dayDetails = getDayDetails(planId, day.id);
     const dayLog = currentCycle?.dayLogs?.[day.id];
+
+    const dayMode = getDayMode({
+      dayId: day.id,
+      currentDayId,
+      dayLog,
+      dayOrder,
+    });
 
     const totalExerciseCount = dayLog
       ? Object.keys(dayLog.mainExerciseLogs).length
@@ -72,19 +81,25 @@ export default function CyclePage() {
 
     const progressLabel = `${completedExerciseCount}/${totalExerciseCount} completed`;
 
-    if (dayLog?.finishedAt) {
-      return `Finished · ${progressLabel}`;
+    const dayModeLabel = getDayModeLabel(dayMode);
+
+    if (dayMode === "finished") {
+      return `${dayModeLabel} · ${progressLabel}`;
     }
 
-    if (day.id === currentDayId) {
-      return `Current · ${progressLabel}`;
+    if (dayMode === "active") {
+      return `${dayModeLabel} · ${progressLabel}`;
+    }
+
+    if (dayMode === "upcoming") {
+      return `${dayModeLabel} · ${totalExerciseCount} exercises`;
     }
 
     if (dayLog) {
       return `In progress · ${progressLabel}`;
     }
 
-    return "Not started";
+    return dayModeLabel;
   }
 
   if (!plan) {

@@ -5,6 +5,7 @@ import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
 import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
 import { getCoreBlockStatus } from "../utils/runtime/coreStatusHelpers";
+import { getDayMode } from "../utils/runtime/dayModeHelpers";
 
 import AppShell from "../components/layout/AppShell";
 import BackButton from "../components/common/BackButton";
@@ -58,9 +59,30 @@ export default function DayPage() {
   const warmupId = dayDetails?.sessionInfo?.warmupId;
   const warmup = warmupId ? getWarmupById(planId, warmupId) : null;
 
-  // Ensure the opened day has a runtime log once valid day data is loaded.
+  // Read the current runtime cycle/day state so page mode and progress can be derived.
+  const planProgress = state.progressByPlan[planId];
+  const currentCycleNumber = planProgress?.currentCycleNumber;
+  const currentCycle = currentCycleNumber
+    ? planProgress?.cycles?.[currentCycleNumber]
+    : null;
+  const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
+  const coreBlockLog = dayLog?.coreBlockLog ?? null;
+  const currentDayId = currentCycle?.currentDayId ?? "d1";
+  const dayOrder = plan?.dayOrder ?? [];
+
+  const dayMode = dayDetails
+    ? getDayMode({
+        dayId: dayDetails.id,
+        currentDayId,
+        dayLog,
+        dayOrder,
+      })
+    : "inactive";
+
+  // Ensure only the active day creates a runtime day log.
+  // Upcoming days stay static preview-only and do not create current-cycle logs.
   useEffect(() => {
-    if (!plan || !dayDetails) {
+    if (!plan || !dayDetails || dayMode !== "active") {
       return;
     }
 
@@ -72,16 +94,7 @@ export default function DayPage() {
         exercises,
       },
     });
-  }, [dispatch, plan, planId, dayDetails, exercises]);
-
-  // Read the current runtime day log so progress can be derived from state.
-  const planProgress = state.progressByPlan[planId];
-  const currentCycleNumber = planProgress?.currentCycleNumber;
-  const currentCycle = currentCycleNumber
-    ? planProgress?.cycles?.[currentCycleNumber]
-    : null;
-  const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
-  const coreBlockLog = dayLog?.coreBlockLog ?? null;
+  }, [dispatch, plan, planId, dayDetails, exercises, dayMode]);
 
   // Progress is derived from runtime exercise logs and completed set rows.
   const totalExerciseCount = dayLog
@@ -180,6 +193,28 @@ export default function DayPage() {
           </div>
         </header>
 
+        {dayMode === "finished" ? (
+          <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
+            <p className="text-sm font-semibold text-emerald-200">
+              Finished day
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-zinc-300">
+              This day has already been finished. Changes will update this saved
+              log.
+            </p>
+          </div>
+        ) : null}
+
+        {dayMode === "upcoming" ? (
+          <div className="rounded-2xl border border-zinc-700 bg-zinc-900/60 p-4">
+            <p className="text-sm font-semibold text-zinc-100">Upcoming day</p>
+            <p className="mt-1 text-sm leading-relaxed text-zinc-400">
+              This day is not active yet. You can preview the structure, but
+              logging unlocks when this becomes the current day.
+            </p>
+          </div>
+        ) : null}
+
         <SessionInfoCard
           sessionInfo={dayDetails.sessionInfo}
           onWarmupClick={() => setIsWarmupOpen(true)}
@@ -204,9 +239,11 @@ export default function DayPage() {
           />
         ) : null}
 
-        <PrimaryButton type="button" onClick={() => setIsFinishDayOpen(true)}>
-          Finish day
-        </PrimaryButton>
+        {dayMode === "active" ? (
+          <PrimaryButton type="button" onClick={() => setIsFinishDayOpen(true)}>
+            Finish day
+          </PrimaryButton>
+        ) : null}
       </div>
 
       {isWarmupOpen ? (
