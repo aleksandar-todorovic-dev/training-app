@@ -33,9 +33,33 @@ const TRAINING_DAY_ORDER_LABELS_BY_PLAN = {
 
 export default function PlanOverviewPage() {
   const { planId } = useParams();
-  const { dispatch } = useAppState();
+  const { state, dispatch } = useAppState();
   const plan = getPlanById(planId);
   const days = getDaysByPlanId(planId);
+
+  const planProgress = state.progressByPlan[planId];
+  const currentCycleNumber = planProgress?.currentCycleNumber;
+  const currentCycle = currentCycleNumber
+    ? planProgress?.cycles?.[currentCycleNumber]
+    : null;
+
+  const primaryCta = !currentCycle
+    ? {
+        mode: "start",
+        label: "Start cycle",
+        to: plan ? `/plan/${plan.id}/cycle` : `/plan/${planId}/cycle`,
+      }
+    : currentCycle.completedAt
+      ? {
+          mode: "review",
+          label: "Review cycle",
+          to: plan ? `/plan/${plan.id}/end-cycle` : `/plan/${planId}/end-cycle`,
+        }
+      : {
+          mode: "continue",
+          label: "Continue cycle",
+          to: plan ? `/plan/${plan.id}/cycle` : `/plan/${planId}/cycle`,
+        };
 
   const dayOrderLabels = TRAINING_DAY_ORDER_LABELS_BY_PLAN[planId] ?? {};
 
@@ -73,7 +97,11 @@ export default function PlanOverviewPage() {
     );
   }
 
-  function handleStartCycle() {
+  function handlePrimaryCtaClick() {
+    if (primaryCta.mode !== "start") {
+      return;
+    }
+
     dispatch({
       type: APP_ACTIONS.START_PLAN_CYCLE,
       payload: {
@@ -150,11 +178,8 @@ export default function PlanOverviewPage() {
 
         <SectionCard>
           <div className={UI_ACTION_ROW}>
-            <PrimaryButton
-              to={`/plan/${plan.id}/cycle`}
-              onClick={handleStartCycle}
-            >
-              Start cycle
+            <PrimaryButton to={primaryCta.to} onClick={handlePrimaryCtaClick}>
+              {primaryCta.label}
             </PrimaryButton>
           </div>
         </SectionCard>
