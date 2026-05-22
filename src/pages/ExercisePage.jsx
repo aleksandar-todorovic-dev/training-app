@@ -10,6 +10,22 @@ import { getDayDetails } from "../data/dayDetails";
 import { getExerciseById } from "../data/exercises";
 import ExerciseWorkflowCard from "../components/exercise/ExerciseWorkflowCard";
 import { sanitizeSetInputValue } from "../utils/runtime/setInputHelpers";
+import { getDayMode } from "../utils/runtime/dayModeHelpers";
+
+function buildStaticExerciseRows(exercise) {
+  const setCount =
+    Number.isInteger(exercise?.setCount) && exercise.setCount > 0
+      ? exercise.setCount
+      : 0;
+
+  return Array.from({ length: setCount }, (_, index) => ({
+    setNumber: index + 1,
+    weight: "—",
+    reps: "—",
+    rir: "—",
+    isDone: false,
+  }));
+}
 
 export default function ExercisePage() {
   const { planId, dayId, exerciseId } = useParams();
@@ -31,17 +47,40 @@ export default function ExercisePage() {
     ? dayLog?.mainExerciseLogs?.[exerciseId]
     : null;
 
+  const currentDayId = currentCycle?.currentDayId ?? "d1";
+  const dayOrder = plan?.dayOrder ?? [];
+
+  const dayMode = dayDetails
+    ? getDayMode({
+        dayId: dayDetails.id,
+        currentDayId,
+        dayLog,
+        dayOrder,
+      })
+    : "inactive";
+
+  const isUpcomingPreview = dayMode === "upcoming";
+
   // Adapt runtime set rows to the display shape expected by ExerciseWorkflowCard.
-  const runtimeSets = exerciseLog?.sets.map((set) => ({
-    setNumber: set.setIndex,
-    weight: set.weight,
-    reps: set.reps,
-    rir: set.rir,
-    isDone: set.isDone,
-  })) ?? [{ setNumber: 1, weight: "", reps: "", rir: "", isDone: false }];
+  const runtimeSets =
+    exerciseLog?.sets.map((set) => ({
+      setNumber: set.setIndex,
+      weight: set.weight,
+      reps: set.reps,
+      rir: set.rir,
+      isDone: set.isDone,
+    })) ?? [];
+
+  const previewSets = buildStaticExerciseRows(exercise);
+
+  const displaySets = isUpcomingPreview ? previewSets : runtimeSets;
 
   // Toggle the performed state for one prescribed runtime set row.
   function handleToggleSetDone(setNumber) {
+    if (isUpcomingPreview) {
+      return;
+    }
+
     dispatch({
       type: APP_ACTIONS.TOGGLE_EXERCISE_SET_DONE,
       payload: {
@@ -52,9 +91,12 @@ export default function ExercisePage() {
       },
     });
   }
-
   // Update one editable value on one prescribed runtime set row.
   function handleUpdateSetField(setNumber, field, value) {
+    if (isUpcomingPreview) {
+      return;
+    }
+
     const sanitizedValue = sanitizeSetInputValue(field, value);
 
     if (sanitizedValue === null) {
@@ -76,6 +118,10 @@ export default function ExercisePage() {
 
   // Close the exercise without changing prescribed set completion.
   function handleCloseExercise() {
+    if (isUpcomingPreview) {
+      return;
+    }
+
     dispatch({
       type: APP_ACTIONS.MARK_EXERCISE_CLOSED,
       payload: {
@@ -132,9 +178,23 @@ export default function ExercisePage() {
           </div>
         </div>
 
+        {isUpcomingPreview ? (
+          <div className="rounded-2xl border border-zinc-700 bg-zinc-900/60 p-4">
+            <p className="text-sm font-semibold text-zinc-100">
+              Upcoming exercise preview
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-zinc-400">
+              This exercise is part of an upcoming day. You can review the
+              target structure, but logging unlocks when this day becomes
+              current.
+            </p>
+          </div>
+        ) : null}
+
         <ExerciseWorkflowCard
           exercise={exercise}
-          sets={runtimeSets}
+          sets={displaySets}
+          isReadOnly={isUpcomingPreview}
           onToggleSetDone={handleToggleSetDone}
           onUpdateSetField={handleUpdateSetField}
           onCloseExercise={handleCloseExercise}

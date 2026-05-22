@@ -34,6 +34,7 @@ function DetailBlock({ title, children }) {
 export default function ExerciseWorkflowCard({
   exercise,
   sets = [],
+  isReadOnly = false,
   onToggleSetDone,
   onUpdateSetField,
   onCloseExercise,
@@ -127,10 +128,14 @@ export default function ExerciseWorkflowCard({
           <div className="space-y-3 border-t border-zinc-800/80 pt-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
-                Pre-filled from previous workout
+                {isReadOnly
+                  ? "Static target preview"
+                  : "Pre-filled from previous workout"}
               </p>
               <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
-                Update the numbers below based on today’s performance.
+                {isReadOnly
+                  ? "Logging is disabled until this day becomes current."
+                  : "Update the numbers below based on today's performance."}
               </p>
             </div>
 
@@ -186,6 +191,7 @@ export default function ExerciseWorkflowCard({
             {sets.map((set, index) => (
               <SetRow
                 key={`${exercise.id}-set-${set.setNumber}`}
+                isReadOnly={isReadOnly}
                 setNumber={set.setNumber}
                 weight={set.weight}
                 reps={set.reps}
@@ -200,11 +206,13 @@ export default function ExerciseWorkflowCard({
             ))}
           </div>
 
-          <div className="flex flex-col gap-3 pt-1">
-            <PrimaryButton type="button" onClick={onCloseExercise}>
-              Close exercise
-            </PrimaryButton>
-          </div>
+          {!isReadOnly ? (
+            <div className="flex flex-col gap-3 pt-1">
+              <PrimaryButton type="button" onClick={onCloseExercise}>
+                Close exercise
+              </PrimaryButton>
+            </div>
+          ) : null}
         </div>
       </SectionCard>
 

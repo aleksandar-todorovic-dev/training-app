@@ -74,6 +74,7 @@ function getCoreSetSummary(exercise, tracksLoad) {
 export default function CoreWorkflowCard({
   coreBlock,
   exercises = [],
+  isReadOnly = false,
   coreBlockLog,
   onToggleCoreSetDone,
   onUpdateCoreSetField,
@@ -163,10 +164,14 @@ export default function CoreWorkflowCard({
         <div className="space-y-4">
           <div className="border-b border-zinc-800/80 pb-3">
             <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
-              Pre-filled from previous core session
+              {isReadOnly
+                ? "Static core target preview"
+                : "Pre-filled from previous core session"}
             </p>
             <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
-              Update the reps, time, or load below based on today's performance.
+              {isReadOnly
+                ? "Core logging is disabled until this day becomes current."
+                : "Update the reps, time, or load below based on today's performance."}
             </p>
           </div>
 
@@ -268,6 +273,7 @@ export default function CoreWorkflowCard({
                     {rows.map((row, index) => (
                       <CoreSetRow
                         key={`${exercise.id}-set-${row.setNumber}`}
+                        isReadOnly={isReadOnly}
                         setNumber={row.setNumber}
                         target={row.target}
                         load={row.load}
@@ -298,13 +304,15 @@ export default function CoreWorkflowCard({
         </div>
       </SectionCard>
 
-      <PrimaryButton
-        type="button"
-        className="w-full"
-        onClick={onCloseCoreBlock}
-      >
-        Close core block
-      </PrimaryButton>
+      {!isReadOnly ? (
+        <PrimaryButton
+          type="button"
+          className="w-full"
+          onClick={onCloseCoreBlock}
+        >
+          Close core block
+        </PrimaryButton>
+      ) : null}
     </div>
   );
 }

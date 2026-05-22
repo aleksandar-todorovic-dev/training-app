@@ -11,6 +11,7 @@ import { getDayDetails } from "../data/dayDetails";
 import { getCoreBlockById, getCoreExercisesByIds } from "../data/core";
 import CoreWorkflowCard from "../components/core/CoreWorkflowCard";
 import { sanitizeCoreSetInputValue } from "../utils/runtime/coreInputHelpers";
+import { getDayMode } from "../utils/runtime/dayModeHelpers";
 
 export default function CorePage() {
   const { planId, dayId, coreId } = useParams();
@@ -22,9 +23,30 @@ export default function CorePage() {
   const coreBlock = getCoreBlockById(coreId);
   const coreExercises = getCoreExercisesByIds(coreBlock?.exerciseIds ?? []);
 
+  const planProgress = state.progressByPlan[planId];
+  const currentCycleNumber = planProgress?.currentCycleNumber;
+  const currentCycle = currentCycleNumber
+    ? planProgress?.cycles?.[currentCycleNumber]
+    : null;
+  const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
+  const coreBlockLog = dayLog?.coreBlockLog ?? null;
+  const currentDayId = currentCycle?.currentDayId ?? "d1";
+  const dayOrder = plan?.dayOrder ?? [];
+
+  const dayMode = dayDetails
+    ? getDayMode({
+        dayId: dayDetails.id,
+        currentDayId,
+        dayLog,
+        dayOrder,
+      })
+    : "inactive";
+
+  const isUpcomingPreview = dayMode === "upcoming";
+
   // Ensure the opened core block has a runtime log once valid core data is loaded.
   useEffect(() => {
-    if (!plan || !dayDetails || !coreBlock) {
+    if (!plan || !dayDetails || !coreBlock || isUpcomingPreview) {
       return;
     }
 
@@ -37,17 +59,22 @@ export default function CorePage() {
         coreExercises,
       },
     });
-  }, [dispatch, plan, planId, dayId, dayDetails, coreBlock, coreExercises]);
-
-  const planProgress = state.progressByPlan[planId];
-  const currentCycleNumber = planProgress?.currentCycleNumber;
-  const currentCycle = currentCycleNumber
-    ? planProgress?.cycles?.[currentCycleNumber]
-    : null;
-  const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
-  const coreBlockLog = dayLog?.coreBlockLog ?? null;
+  }, [
+    dispatch,
+    plan,
+    planId,
+    dayId,
+    dayDetails,
+    coreBlock,
+    coreExercises,
+    isUpcomingPreview,
+  ]);
 
   function handleToggleCoreSetDone(coreExerciseId, setNumber) {
+    if (isUpcomingPreview) {
+      return;
+    }
+
     dispatch({
       type: APP_ACTIONS.TOGGLE_CORE_SET_DONE,
       payload: {
@@ -61,6 +88,10 @@ export default function CorePage() {
 
   // Update one editable value on one prescribed core set row.
   function handleUpdateCoreSetField(coreExerciseId, setNumber, field, value) {
+    if (isUpcomingPreview) {
+      return;
+    }
+
     const sanitizedValue = sanitizeCoreSetInputValue(field, value);
 
     if (sanitizedValue === null) {
@@ -82,6 +113,10 @@ export default function CorePage() {
 
   // Close the whole core block without changing core set completion.
   function handleCloseCoreBlock() {
+    if (isUpcomingPreview) {
+      return;
+    }
+
     dispatch({
       type: APP_ACTIONS.MARK_CORE_BLOCK_CLOSED,
       payload: {
@@ -129,10 +164,23 @@ export default function CorePage() {
           </div>
         </div>
 
+        {isUpcomingPreview ? (
+          <div className="rounded-2xl border border-zinc-700 bg-zinc-900/60 p-4">
+            <p className="text-sm font-semibold text-zinc-100">
+              Upcoming core preview
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-zinc-400">
+              This core block belongs to an upcoming day. You can review the
+              structure, but logging unlocks when this day becomes current.
+            </p>
+          </div>
+        ) : null}
+
         <CoreWorkflowCard
           coreBlock={coreBlock}
           exercises={coreExercises}
           coreBlockLog={coreBlockLog}
+          isReadOnly={isUpcomingPreview}
           onToggleCoreSetDone={handleToggleCoreSetDone}
           onUpdateCoreSetField={handleUpdateCoreSetField}
           onCloseCoreBlock={handleCloseCoreBlock}

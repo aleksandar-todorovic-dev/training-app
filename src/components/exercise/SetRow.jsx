@@ -12,7 +12,20 @@ function CheckBox({ isDone = false }) {
   );
 }
 
-function MetricCell({ label, name, value, onChange }) {
+function MetricCell({ label, name, value, onChange, isReadOnly = false }) {
+  if (isReadOnly) {
+    return (
+      <div className="min-w-0 text-center">
+        <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
+          {label}
+        </p>
+        <p className="mt-1 text-base font-semibold tabular-nums text-zinc-100">
+          {value || "—"}
+        </p>
+      </div>
+    );
+  }
+
   return (
     <label className="min-w-0 text-center">
       <span className="block text-[11px] uppercase tracking-[0.12em] text-zinc-500">
@@ -49,6 +62,7 @@ export default function SetRow({
   isLast = false,
   onToggleDone,
   onSetFieldChange,
+  isReadOnly = false,
 }) {
   return (
     <div
@@ -64,18 +78,21 @@ export default function SetRow({
         label="Kg"
         name={`set-${setNumber}-weight`}
         value={weight}
+        isReadOnly={isReadOnly}
         onChange={(value) => onSetFieldChange?.("weight", value)}
       />
       <MetricCell
         label="Reps"
         name={`set-${setNumber}-reps`}
         value={reps}
+        isReadOnly={isReadOnly}
         onChange={(value) => onSetFieldChange?.("reps", value)}
       />
       <MetricCell
         label="RIR"
         name={`set-${setNumber}-rir`}
         value={rir}
+        isReadOnly={isReadOnly}
         onChange={(value) => onSetFieldChange?.("rir", value)}
       />
 
@@ -83,8 +100,11 @@ export default function SetRow({
         type="button"
         aria-label={`Mark set ${setNumber} ${isDone ? "not done" : "done"}`}
         aria-pressed={isDone}
-        onClick={onToggleDone}
-        className="mt-4.5 flex items-center justify-center"
+        disabled={isReadOnly}
+        onClick={isReadOnly ? undefined : onToggleDone}
+        className={`mt-4.5 flex items-center justify-center ${
+          isReadOnly ? "cursor-not-allowed opacity-50" : ""
+        }`}
       >
         <CheckBox isDone={isDone} />
       </button>

@@ -48,6 +48,7 @@ function MetricCell({ label, name, value, onChange, isEditable = true }) {
 export default function CoreSetRow({
   setNumber,
   target,
+  isReadOnly = false,
   load = "—",
   logged = "—",
   valueLabel = "Reps",
@@ -73,16 +74,17 @@ export default function CoreSetRow({
           label="Kg"
           name={`core-set-${setNumber}-load`}
           value={load}
+          isEditable={!isReadOnly}
           onChange={(value) => onSetFieldChange?.("load", value)}
         />
       ) : (
         <MetricCell label="Target" value={target} isEditable={false} />
       )}
-
       <MetricCell
         label={valueLabel}
         name={`core-set-${setNumber}-${valueLabel.toLowerCase()}`}
         value={logged}
+        isEditable={!isReadOnly}
         onChange={(value) =>
           onSetFieldChange?.(valueLabel === "Time" ? "time" : "reps", value)
         }
@@ -92,6 +94,7 @@ export default function CoreSetRow({
         label="RIR"
         name={`core-set-${setNumber}-rir`}
         value={effort}
+        isEditable={!isReadOnly}
         onChange={(value) => onSetFieldChange?.("rir", value)}
       />
 
@@ -99,8 +102,11 @@ export default function CoreSetRow({
         type="button"
         aria-label={`Mark core set ${setNumber} ${isDone ? "not done" : "done"}`}
         aria-pressed={isDone}
-        onClick={onToggleDone}
-        className="mt-4.5 flex items-center justify-center"
+        disabled={isReadOnly}
+        onClick={isReadOnly ? undefined : onToggleDone}
+        className={`mt-4.5 flex items-center justify-center ${
+          isReadOnly ? "cursor-not-allowed opacity-50" : ""
+        }`}
       >
         <CheckBox isDone={isDone} />
       </button>
