@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAppState } from "../state/useAppState";
 import { APP_ACTIONS } from "../state/appActions";
 import AppShell from "../components/layout/AppShell";
@@ -13,6 +13,7 @@ import { sanitizeSetInputValue } from "../utils/runtime/setInputHelpers";
 
 export default function ExercisePage() {
   const { planId, dayId, exerciseId } = useParams();
+  const navigate = useNavigate();
   const { state, dispatch } = useAppState();
 
   const plan = getPlanById(planId);
@@ -74,7 +75,7 @@ export default function ExercisePage() {
   }
 
   // Close the exercise without changing prescribed set completion.
-  function handleMarkExerciseDone() {
+  function handleCloseExercise() {
     dispatch({
       type: APP_ACTIONS.MARK_EXERCISE_CLOSED,
       payload: {
@@ -84,6 +85,8 @@ export default function ExercisePage() {
         closedAt: new Date().toISOString(),
       },
     });
+
+    navigate(`/plan/${planId}/day/${dayId}`);
   }
 
   if (!plan || !dayDetails || !exercise) {
@@ -134,7 +137,7 @@ export default function ExercisePage() {
           sets={runtimeSets}
           onToggleSetDone={handleToggleSetDone}
           onUpdateSetField={handleUpdateSetField}
-          onMarkExerciseDone={handleMarkExerciseDone}
+          onCloseExercise={handleCloseExercise}
         />
       </div>
     </AppShell>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
@@ -25,6 +25,7 @@ import { UI_STACK_LG, UI_TEXT_MUTED, UI_TITLE } from "../styles/ui";
 
 export default function DayPage() {
   const { planId, dayId } = useParams();
+  const navigate = useNavigate();
   const { state, dispatch } = useAppState();
   const [isWarmupOpen, setIsWarmupOpen] = useState(false);
   const [isFinishDayOpen, setIsFinishDayOpen] = useState(false);
@@ -140,7 +141,6 @@ export default function DayPage() {
     return "Not started";
   }
 
-  // Close the current day without changing exercise/set completion.
   function handleConfirmFinishDay() {
     dispatch({
       type: APP_ACTIONS.FINISH_DAY,
@@ -152,6 +152,7 @@ export default function DayPage() {
     });
 
     setIsFinishDayOpen(false);
+    navigate(`/plan/${planId}/cycle`);
   }
 
   if (!plan || !dayDetails) {

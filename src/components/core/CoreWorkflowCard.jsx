@@ -77,8 +77,7 @@ export default function CoreWorkflowCard({
   coreBlockLog,
   onToggleCoreSetDone,
   onUpdateCoreSetField,
-  onMarkCoreExerciseClosed,
-  onMarkCoreBlockClosed,
+  onCloseCoreBlock,
 }) {
   if (!coreBlock) {
     return null;
@@ -292,16 +291,6 @@ export default function CoreWorkflowCard({
                       />
                     ))}
                   </div>
-
-                  <div className="pt-1">
-                    <PrimaryButton
-                      type="button"
-                      className="w-full"
-                      onClick={() => onMarkCoreExerciseClosed?.(exercise.id)}
-                    >
-                      Mark exercise done
-                    </PrimaryButton>
-                  </div>
                 </div>
               </div>
             );
@@ -312,9 +301,9 @@ export default function CoreWorkflowCard({
       <PrimaryButton
         type="button"
         className="w-full"
-        onClick={onMarkCoreBlockClosed}
+        onClick={onCloseCoreBlock}
       >
-        Mark core block done
+        Close core block
       </PrimaryButton>
     </div>
   );

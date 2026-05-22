@@ -36,7 +36,7 @@ export default function ExerciseWorkflowCard({
   sets = [],
   onToggleSetDone,
   onUpdateSetField,
-  onMarkExerciseDone,
+  onCloseExercise,
 }) {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isAdvancedHelpOpen, setIsAdvancedHelpOpen] = useState(false);
@@ -201,8 +201,8 @@ export default function ExerciseWorkflowCard({
           </div>
 
           <div className="flex flex-col gap-3 pt-1">
-            <PrimaryButton type="button" onClick={onMarkExerciseDone}>
-              Mark exercise done
+            <PrimaryButton type="button" onClick={onCloseExercise}>
+              Close exercise
             </PrimaryButton>
           </div>
         </div>

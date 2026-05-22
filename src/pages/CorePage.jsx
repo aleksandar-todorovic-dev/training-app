@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
 import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
@@ -14,6 +14,7 @@ import { sanitizeCoreSetInputValue } from "../utils/runtime/coreInputHelpers";
 
 export default function CorePage() {
   const { planId, dayId, coreId } = useParams();
+  const navigate = useNavigate();
   const { state, dispatch } = useAppState();
 
   const plan = getPlanById(planId);
@@ -79,21 +80,8 @@ export default function CorePage() {
     });
   }
 
-  // Close one core exercise without changing its set completion.
-  function handleMarkCoreExerciseClosed(coreExerciseId) {
-    dispatch({
-      type: APP_ACTIONS.MARK_CORE_EXERCISE_CLOSED,
-      payload: {
-        planId,
-        dayId,
-        coreExerciseId,
-        closedAt: new Date().toISOString(),
-      },
-    });
-  }
-
   // Close the whole core block without changing core set completion.
-  function handleMarkCoreBlockClosed() {
+  function handleCloseCoreBlock() {
     dispatch({
       type: APP_ACTIONS.MARK_CORE_BLOCK_CLOSED,
       payload: {
@@ -102,6 +90,8 @@ export default function CorePage() {
         closedAt: new Date().toISOString(),
       },
     });
+
+    navigate(`/plan/${planId}/day/${dayId}`);
   }
 
   if (!plan || !dayDetails || !coreBlock) {
@@ -145,8 +135,7 @@ export default function CorePage() {
           coreBlockLog={coreBlockLog}
           onToggleCoreSetDone={handleToggleCoreSetDone}
           onUpdateCoreSetField={handleUpdateCoreSetField}
-          onMarkCoreExerciseClosed={handleMarkCoreExerciseClosed}
-          onMarkCoreBlockClosed={handleMarkCoreBlockClosed}
+          onCloseCoreBlock={handleCloseCoreBlock}
         />
       </div>
     </AppShell>
