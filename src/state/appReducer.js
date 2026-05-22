@@ -1,6 +1,7 @@
 import { APP_ACTIONS } from "./appActions";
 import { buildInitialDayLog } from "../utils/runtime/dayLogHelpers";
 import { buildInitialCoreBlockLog } from "../utils/runtime/coreLogHelpers";
+import { areAllTrainingDaysFinished } from "../utils/runtime/cycleStatusHelpers";
 
 const TRAINING_DAY_ORDER = ["d1", "d2", "d3", "d4", "d5", "d6"];
 
@@ -684,9 +685,22 @@ export function appReducer(state, action) {
       }
 
       const nextDayId = getNextTrainingDayId(dayId);
-      const isLastTrainingDay = nextDayId === null;
+
+      const nextDayLogs = {
+        ...currentCycle.dayLogs,
+        [dayId]: {
+          ...dayLog,
+          finishedAt,
+        },
+      };
+
+      const isCycleComplete = areAllTrainingDaysFinished(
+        nextDayLogs,
+        TRAINING_DAY_ORDER,
+      );
 
       // Finishing a day records close intent only; completion remains derived from set rows.
+      // The cycle is complete only when all required training days have finishedAt.
       return {
         ...state,
         progressByPlan: {
@@ -697,19 +711,11 @@ export function appReducer(state, action) {
               ...planProgress.cycles,
               [currentCycleNumber]: {
                 ...currentCycle,
-                currentDayId: isLastTrainingDay
-                  ? currentCycle.currentDayId
-                  : nextDayId,
-                completedAt: isLastTrainingDay
+                currentDayId: nextDayId ?? currentCycle.currentDayId,
+                completedAt: isCycleComplete
                   ? finishedAt
                   : currentCycle.completedAt,
-                dayLogs: {
-                  ...currentCycle.dayLogs,
-                  [dayId]: {
-                    ...dayLog,
-                    finishedAt,
-                  },
-                },
+                dayLogs: nextDayLogs,
               },
             },
           },
