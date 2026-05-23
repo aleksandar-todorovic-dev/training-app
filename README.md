@@ -25,7 +25,7 @@ The MVP focuses on two predefined training systems:
 - **Bulk Pro**
 - **Cut Pro**
 
-Both use the same app structure:
+Both plans use the same product flow:
 
 ```text
 Plan
@@ -33,7 +33,7 @@ Plan
 -> Day
 -> Exercise/Core
 -> Finish day
--> End cycle
+-> End cycle recap
 -> Start new cycle
 ```
 
@@ -53,6 +53,7 @@ Build a clean, focused, mobile-first training app that supports:
 - runtime-derived exercise, core, day, and cycle status
 - partial and full day completion
 - previous-value carry-over across cycles
+- runtime-safe in-memory flow before persistence
 - local-first progress persistence in Phase 4
 
 ---
@@ -62,21 +63,23 @@ Build a clean, focused, mobile-first training app that supports:
 ```text
 Phase 1 — Foundation: complete
 Phase 2 — Static content and screen structure: complete and merged to main
-Phase 3 — Runtime logic: active
-Phase 4 — Local persistence: planned after runtime flow is stable in memory
+Phase 3 — Runtime logic: functionally implemented in memory
+Phase 4 — Local persistence: planned after sanity test and cleanup
 Phase 5 — Polish and stability: planned after persistence
 ```
 
 Current working branch:
 
 ```text
-phase-3-runtime-logic
+pre-phase-4-runtime-stabilization
 ```
 
 Current focus:
 
 ```text
-Final Phase 3 runtime stabilization before Phase 4 localStorage.
+Full Bulk + Cut in-memory sanity test,
+then runtime readability / component responsibility pass,
+then Phase 4 localStorage.
 ```
 
 ---
@@ -167,7 +170,7 @@ Implemented screens:
 Important Phase 2 decisions:
 
 - all MVP screens exist in static/UI form
-- static source data is separated from future runtime progress
+- static source data is separated from runtime progress
 - `+ Add set` was removed from the active Exercise screen MVP flow
 - users log prescribed working sets first
 - advanced techniques are guidance-only for MVP
@@ -195,6 +198,10 @@ Implemented:
   - exercise status derivation
   - day status derivation
   - core status derivation
+  - day mode derivation
+  - cycle completion checks
+  - missing-value warning summaries
+  - cycle recap summaries
   - main carry-over
   - core carry-over
 - Context + reducer runtime state foundation
@@ -222,24 +229,28 @@ MARK_CORE_BLOCK_CLOSED;
 FINISH_DAY;
 ```
 
-### Current working runtime loop
+---
+
+## Current runtime loop
 
 The app currently supports the main in-memory runtime path:
 
 ```text
 Start cycle
 -> create cycle shell
--> open day
+-> open current day
 -> ensure runtime day log
 -> derive DayPage progress/status
 -> open exercise
--> render runtime set rows
+-> render prescribed runtime set rows
 -> edit weight/reps/RIR values
 -> toggle set done
 -> close exercise intent
 -> finish day
 -> advance currentDayId
--> carry previous main exercise values into the next cycle
+-> complete cycle after all D1-D6 are finished
+-> review runtime cycle recap
+-> start next cycle explicitly
 ```
 
 Core runtime flow is also implemented:
@@ -251,7 +262,7 @@ Open core block
 -> edit load/reps/time/RIR where applicable
 -> toggle core set done
 -> derive core exercise/core block status
--> close core exercise/block intent
+-> close core block intent
 -> carry previous core values into the next cycle
 ```
 
@@ -456,8 +467,71 @@ Rules:
 
 - `currentDayId` points to the next meaningful training day
 - partial days are valid
-- cycle completion should require all D1-D6 training days to have `finishedAt`
+- cycle completion requires all D1-D6 training days to have `finishedAt`
 - cycle completion does not require all exercises to be perfect/complete
+
+---
+
+## Guided day access model
+
+The app now separates day access into three product modes:
+
+```text
+Current day  = active logging allowed
+Finished day = review/edit allowed with clear label
+Upcoming day = preview allowed, active logging disabled
+```
+
+### Current day
+
+Allowed:
+
+```text
+open day
+open exercise
+log set values
+check set completion
+close exercise
+open core
+log core values
+finish day
+```
+
+### Finished day
+
+Allowed:
+
+```text
+review day
+open exercise/core
+edit values
+check/uncheck sets
+update saved log
+```
+
+A finished day stays finished even if its set rows are edited later.
+
+### Upcoming day
+
+Allowed:
+
+```text
+preview day structure
+open exercise/core preview
+read static target rows and guidance
+```
+
+Not allowed:
+
+```text
+create current-cycle dayLog
+log active workout values
+check set completion
+close exercise/core
+finish future day
+```
+
+Upcoming exercise/core routes are read-only previews.
 
 ---
 
@@ -530,29 +604,106 @@ Core does not have its own independent cycle. Core belongs to the same day/cycle
 
 ---
 
-## Pre-Phase 4 runtime stabilization
+## Finish day warnings
 
-Before localStorage is added, the remaining Phase 3 work is a runtime stabilization pass.
+`FinishDaySheet` now gives informational warnings before a user finishes a day.
 
-This pass is documented in:
+Confirmed rule:
 
 ```text
-training-app-pre-phase-4-runtime-decisions.md
+Warnings do not block Finish day.
+Warnings do not change runtime state.
 ```
 
-Main decisions to implement before Phase 4:
+Warnings do not change:
 
-1. Active / Finished / Upcoming day mode
-2. PlanOverview CTA behavior fix
-3. Cycle completion guard
-4. Close action copy and navigation cleanup
-5. Finished day UI signal
-6. Upcoming day preview restrictions
-7. Missing-value warnings
-8. EndCyclePage runtime-derived recap
-9. Full Bulk + Cut in-memory sanity test
+```text
+isDone
+closedAt
+finishedAt
+carry-over rules
+```
 
-Phase 4 should start only after the in-memory flow behaves correctly.
+### Checked-set warning boundary
+
+Only checked sets are checked for missing values.
+
+```text
+Checked set + missing reps/RIR -> warning
+Unchecked set + empty fields -> no warning
+One checked set with valid values + several unchecked empty sets -> no warning
+```
+
+Reason:
+
+```text
+The app should not punish the user for unperformed work.
+It should only warn when performed work was logged incompletely.
+```
+
+### No completed sets warning
+
+If a user attempts to finish a day with:
+
+```text
+0 checked sets
+```
+
+the sheet warns that the day can still be finished, but it will not create useful new carry-over data.
+
+### Baseline vs carry-over warning
+
+Cycle 1:
+
+```text
+Baseline warning
+```
+
+Cycle 2+:
+
+```text
+Carry-over warning
+```
+
+This keeps the warning useful without introducing hard validation.
+
+---
+
+## EndCyclePage recap
+
+EndCyclePage now uses runtime state instead of placeholder statistics.
+
+If the current cycle is not complete:
+
+```text
+Cycle is not complete yet
+```
+
+and the normal `Start new cycle` CTA is not shown.
+
+When the cycle is complete, EndCyclePage shows:
+
+```text
+Cycle complete
+Training days: X/6
+Main exercises: X/Y
+Partial days: X
+Core blocks: X/3
+```
+
+The recap is intentionally minimal.
+
+It is not an analytics dashboard.
+
+Start new cycle remains explicit:
+
+```text
+Click Start new cycle
+-> dispatch START_PLAN_CYCLE
+-> create next cycle shell
+-> navigate to CyclePage
+-> D1 becomes Current
+```
 
 ---
 
@@ -603,6 +754,10 @@ src/utils/runtime/
   exerciseStatusHelpers.js
   dayStatusHelpers.js
   coreStatusHelpers.js
+  dayModeHelpers.js
+  cycleStatusHelpers.js
+  missingValueWarningHelpers.js
+  cycleSummaryHelpers.js
   inputHelpers.js
   coreInputHelpers.js
   carryOverHelpers.js
@@ -665,30 +820,17 @@ runtime state works in memory
 
 ---
 
-## Current next step
+## Current next steps
 
-Continue Phase 3 runtime stabilization before Phase 4.
-
-Recommended next implementation step:
+Before Phase 4 localStorage:
 
 ```text
-Active / Finished / Upcoming day mode
+1. Full Bulk + Cut in-memory sanity test
+2. Runtime readability / component responsibility pass
+3. Phase 4 localStorage planning
 ```
 
-Then continue through:
-
-```text
-PlanOverview CTA fix
-Cycle completion guard
-Close action cleanup
-Finished day UI signal
-Upcoming preview restrictions
-Missing-value warnings
-EndCyclePage runtime recap
-Full Bulk + Cut sanity test
-```
-
-Only after that:
+Then:
 
 ```text
 Phase 4 — localStorage persistence
