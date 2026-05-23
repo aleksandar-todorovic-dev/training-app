@@ -19,7 +19,8 @@ import WarmupSheet from "../components/warmup/WarmupSheet";
 import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getExercisesForDay } from "../data/exercises";
-import { getCoreBlockById } from "../data/core";
+import { getCoreBlockById, getCoreExercisesByIds } from "../data/core";
+import { getMissingValueWarningSummary } from "../utils/runtime/missingValueWarningHelpers";
 import { getWarmupById } from "../data/warmups";
 import { UI_STACK_LG, UI_TEXT_MUTED, UI_TITLE } from "../styles/ui";
 
@@ -59,6 +60,14 @@ export default function DayPage() {
     : null;
   const warmupId = dayDetails?.sessionInfo?.warmupId;
   const warmup = warmupId ? getWarmupById(planId, warmupId) : null;
+
+  const coreExercises = useMemo(() => {
+    if (!coreBlock) {
+      return [];
+    }
+
+    return getCoreExercisesByIds(coreBlock.exerciseIds);
+  }, [coreBlock]);
 
   // Read the current runtime cycle/day state so page mode and progress can be derived.
   const planProgress = state.progressByPlan[planId];
@@ -109,6 +118,12 @@ export default function DayPage() {
     : 0;
 
   const progressText = `${completedExerciseCount}/${totalExerciseCount} exercises completed`;
+
+  const missingValueWarningSummary = getMissingValueWarningSummary({
+    dayLog,
+    coreExercises,
+    currentCycleNumber,
+  });
 
   // Convert the runtime exercise status into the label shown on the Day screen.
   function getExerciseStatusLabel(exercise) {
@@ -260,6 +275,7 @@ export default function DayPage() {
           dayDetails={dayDetails}
           progressText={progressText}
           hasCoreBlock={Boolean(coreBlock)}
+          missingValueWarningSummary={missingValueWarningSummary}
           onClose={() => setIsFinishDayOpen(false)}
           onConfirmFinish={handleConfirmFinishDay}
         />
