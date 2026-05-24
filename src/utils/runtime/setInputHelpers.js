@@ -24,7 +24,7 @@ export function sanitizeSetInputValue(field, rawValue) {
 
       return isValidReps ? value : null;
     }
-    
+
     case "rir": {
       const isValidRir = value === "" || /^[0-5]$/.test(value);
 

@@ -18,12 +18,25 @@ function getNextTrainingDayId(dayId) {
 /**
  * Main runtime reducer for the local-first MVP.
  *
+ * Runtime model:
+ * - Set rows are the source of truth for performed work.
+ * - Input values describe the work, but never complete a set by themselves.
+ * - `closedAt` and `finishedAt` record user intent, not automatic completion.
+ * - Day, exercise, and core logs are created lazily so preview routes do not
+ *   invent progress.
+ * - Cycle completion is based on all required training days having `finishedAt`,
+ *   not on perfect exercise completion.
+ *
  * Runtime note:
  * The reducer receives the current state and an action, then returns the next
  * state without mutating the existing state object.
  */
 export function appReducer(state, action) {
   switch (action.type) {
+    // ---------------------------------------------------------------------------
+    // Plan / cycle lifecycle
+    // ---------------------------------------------------------------------------
+
     case APP_ACTIONS.SELECT_PLAN: {
       return {
         ...state,
@@ -39,6 +52,9 @@ export function appReducer(state, action) {
         ? existingPlanProgress.currentCycleNumber + 1
         : 1;
 
+      // Starting a cycle creates only the cycle shell.
+      // Day, exercise, and core logs are created later when the user opens the
+      // active workflow for that cycle.
       return {
         ...state,
         selectedPlanId: planId,
@@ -61,6 +77,10 @@ export function appReducer(state, action) {
         },
       };
     }
+
+    // ---------------------------------------------------------------------------
+    // Lazy day log creation
+    // ---------------------------------------------------------------------------
 
     case APP_ACTIONS.ENSURE_DAY_LOG: {
       const { planId, dayDetails, exercises } = action.payload;
@@ -115,10 +135,15 @@ export function appReducer(state, action) {
       };
     }
 
+    // ---------------------------------------------------------------------------
+    // Main exercise set updates
+    // ---------------------------------------------------------------------------
+
     case APP_ACTIONS.TOGGLE_EXERCISE_SET_DONE: {
       const { planId, dayId, exerciseId, setIndex } = action.payload;
 
       const planProgress = state.progressByPlan[planId];
+
       // Set updates can only run after a plan cycle exists.
       if (!planProgress) {
         return state;
@@ -142,7 +167,9 @@ export function appReducer(state, action) {
       if (!exerciseLog) {
         return state;
       }
+
       // Toggle only the targeted prescribed set row.
+      // `isDone` is the only field that marks a set as performed.
       const nextSets = exerciseLog.sets.map((set) => {
         if (set.setIndex !== setIndex) {
           return set;
@@ -184,6 +211,90 @@ export function appReducer(state, action) {
         },
       };
     }
+
+    case APP_ACTIONS.UPDATE_EXERCISE_SET_FIELD: {
+      const { planId, dayId, exerciseId, setIndex, field, value } =
+        action.payload;
+
+      const allowedFields = ["weight", "reps", "rir"];
+
+      if (!allowedFields.includes(field)) {
+        return state;
+      }
+
+      const planProgress = state.progressByPlan[planId];
+
+      // Set input updates can only run after a plan cycle exists.
+      if (!planProgress) {
+        return state;
+      }
+
+      const currentCycleNumber = planProgress.currentCycleNumber;
+      const currentCycle = planProgress.cycles[currentCycleNumber];
+
+      if (!currentCycle) {
+        return state;
+      }
+
+      const dayLog = currentCycle.dayLogs[dayId];
+
+      if (!dayLog) {
+        return state;
+      }
+
+      const exerciseLog = dayLog.mainExerciseLogs[exerciseId];
+
+      if (!exerciseLog) {
+        return state;
+      }
+
+      // Update only one editable field on the targeted prescribed set row.
+      // Changing input values does not mark the set as performed.
+      const nextSets = exerciseLog.sets.map((set) => {
+        if (set.setIndex !== setIndex) {
+          return set;
+        }
+
+        return {
+          ...set,
+          [field]: value,
+        };
+      });
+
+      // Store the updated set rows without mutating the existing exercise log.
+      return {
+        ...state,
+        progressByPlan: {
+          ...state.progressByPlan,
+          [planId]: {
+            ...planProgress,
+            cycles: {
+              ...planProgress.cycles,
+              [currentCycleNumber]: {
+                ...currentCycle,
+                dayLogs: {
+                  ...currentCycle.dayLogs,
+                  [dayId]: {
+                    ...dayLog,
+                    mainExerciseLogs: {
+                      ...dayLog.mainExerciseLogs,
+                      [exerciseId]: {
+                        ...exerciseLog,
+                        sets: nextSets,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+    }
+
+    // ---------------------------------------------------------------------------
+    // Core block lazy creation and set updates
+    // ---------------------------------------------------------------------------
 
     case APP_ACTIONS.ENSURE_CORE_BLOCK_LOG: {
       const { planId, dayId, coreBlock, coreExercises } = action.payload;
@@ -279,6 +390,7 @@ export function appReducer(state, action) {
       }
 
       // Toggle only the targeted prescribed core set row.
+      // Core completion stays separate from main day progress.
       const nextSets = coreExerciseLog.sets.map((set) => {
         if (set.setIndex !== setIndex) {
           return set;
@@ -362,6 +474,7 @@ export function appReducer(state, action) {
       }
 
       // Update only one editable field on the targeted prescribed core set row.
+      // Changing input values does not mark the core set as performed.
       const nextSets = coreExerciseLog.sets.map((set) => {
         if (set.setIndex !== setIndex) {
           return set;
@@ -407,84 +520,9 @@ export function appReducer(state, action) {
       };
     }
 
-    case APP_ACTIONS.UPDATE_EXERCISE_SET_FIELD: {
-      const { planId, dayId, exerciseId, setIndex, field, value } =
-        action.payload;
-
-      const allowedFields = ["weight", "reps", "rir"];
-
-      if (!allowedFields.includes(field)) {
-        return state;
-      }
-
-      const planProgress = state.progressByPlan[planId];
-
-      // Set input updates can only run after a plan cycle exists.
-      if (!planProgress) {
-        return state;
-      }
-
-      const currentCycleNumber = planProgress.currentCycleNumber;
-      const currentCycle = planProgress.cycles[currentCycleNumber];
-
-      if (!currentCycle) {
-        return state;
-      }
-
-      const dayLog = currentCycle.dayLogs[dayId];
-
-      if (!dayLog) {
-        return state;
-      }
-
-      const exerciseLog = dayLog.mainExerciseLogs[exerciseId];
-
-      if (!exerciseLog) {
-        return state;
-      }
-
-      // Update only one editable field on the targeted prescribed set row.
-      const nextSets = exerciseLog.sets.map((set) => {
-        if (set.setIndex !== setIndex) {
-          return set;
-        }
-
-        return {
-          ...set,
-          [field]: value,
-        };
-      });
-
-      // Store the updated set rows without mutating the existing exercise log.
-      return {
-        ...state,
-        progressByPlan: {
-          ...state.progressByPlan,
-          [planId]: {
-            ...planProgress,
-            cycles: {
-              ...planProgress.cycles,
-              [currentCycleNumber]: {
-                ...currentCycle,
-                dayLogs: {
-                  ...currentCycle.dayLogs,
-                  [dayId]: {
-                    ...dayLog,
-                    mainExerciseLogs: {
-                      ...dayLog.mainExerciseLogs,
-                      [exerciseId]: {
-                        ...exerciseLog,
-                        sets: nextSets,
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      };
-    }
+    // ---------------------------------------------------------------------------
+    // Close intent actions
+    // ---------------------------------------------------------------------------
 
     case APP_ACTIONS.MARK_EXERCISE_CLOSED: {
       const { planId, dayId, exerciseId, closedAt } = action.payload;
@@ -515,7 +553,8 @@ export function appReducer(state, action) {
         return state;
       }
 
-      // Closing an exercise records intent only; set completion stays derived from set rows.
+      // Closing an exercise records intent only; set completion stays derived
+      // from set rows.
       return {
         ...state,
         progressByPlan: {
@@ -551,7 +590,8 @@ export function appReducer(state, action) {
 
       const planProgress = state.progressByPlan[planId];
 
-      // Core exercise close can only run after a plan cycle exists.
+      // This action is reducer-supported but not currently exposed by the MVP UI.
+      // The active MVP closes the whole core block through MARK_CORE_BLOCK_CLOSED.
       if (!planProgress) {
         return state;
       }
@@ -576,7 +616,8 @@ export function appReducer(state, action) {
         return state;
       }
 
-      // Closing a core exercise records intent only; set completion stays derived from set rows.
+      // Closing a core exercise records intent only; set completion stays derived
+      // from core set rows.
       return {
         ...state,
         progressByPlan: {
@@ -633,7 +674,8 @@ export function appReducer(state, action) {
         return state;
       }
 
-      // Closing a core block records intent only; core status stays derived from core set rows.
+      // Closing a core block records intent only; core status stays derived from
+      // core set rows.
       return {
         ...state,
         progressByPlan: {
@@ -660,6 +702,10 @@ export function appReducer(state, action) {
         },
       };
     }
+
+    // ---------------------------------------------------------------------------
+    // Finish day / cycle completion
+    // ---------------------------------------------------------------------------
 
     case APP_ACTIONS.FINISH_DAY: {
       const { planId, dayId, finishedAt } = action.payload;
@@ -699,8 +745,11 @@ export function appReducer(state, action) {
         TRAINING_DAY_ORDER,
       );
 
-      // Finishing a day records close intent only; completion remains derived from set rows.
-      // The cycle is complete only when all required training days have finishedAt.
+      // Finishing a day records close intent only; completion remains derived
+      // from set rows.
+      //
+      // Partial days remain valid. The cycle is complete only when all required
+      // training days have finishedAt.
       return {
         ...state,
         progressByPlan: {

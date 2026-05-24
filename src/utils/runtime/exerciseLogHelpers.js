@@ -7,8 +7,8 @@ import { buildCarryOverSetValues } from "./carryOverHelpers";
  * Rows are generated from explicit scaffold metadata (`setCount`), not by
  * parsing the user-facing `prescription` string.
  *
- * Empty strings are intentional for controlled input fields. A set only
- * counts as performed when `isDone` is true.
+ * Carry-over can prefill previous values, but every new prescribed set starts
+ * unchecked. A set only counts as performed when `isDone` is true.
  */
 export function buildInitialSetRows(exercise, carryOverContext = {}) {
   const hasValidSetCount =

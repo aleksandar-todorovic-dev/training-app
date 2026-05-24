@@ -6,6 +6,9 @@ import { buildCoreCarryOverSetValues } from "./coreCarryOverHelpers";
  * Runtime note:
  * Core set rows use a flexible shape because core exercises can track reps,
  * time, and optionally load.
+ *
+ * Carry-over can prefill previous values, but every new prescribed core set
+ * starts unchecked. A core set only counts as performed when `isDone` is true.
  */
 export function buildInitialCoreSetRows(coreExercise, carryOverContext = {}) {
   const hasValidSetCount =
