@@ -1,3 +1,11 @@
+/**
+ * Contextual help content keyed by exercise advanced technique type.
+ *
+ * Product note:
+ * Advanced techniques are guidance-only in the MVP. These entries explain how
+ * and when to use a technique, but they do not change prescribed set counts,
+ * completion rules, or runtime progress.
+ */
 export const advancedTechniqueHelpByType = {
   dropset: {
     title: "Dropset",

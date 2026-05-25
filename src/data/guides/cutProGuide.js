@@ -1,3 +1,11 @@
+/**
+ * Static educational guide content for the Cut Pro plan.
+ *
+ * Product note:
+ * Guide content explains the training system, progression, recovery, and plan
+ * usage. It is read-only support content and does not affect runtime logs,
+ * day completion, or cycle state.
+ */
 export const cutProGuide = {
   id: "cut-pro",
   title: "Cut Pro Guide",

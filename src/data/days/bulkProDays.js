@@ -1,3 +1,11 @@
+/**
+ * Overview day source data for the Bulk Pro plan.
+ *
+ * Data note:
+ * This layer is used for plan/cycle overview screens. Detailed day structure,
+ * required exercise IDs, warm-up links, and core block links live in
+ * `data/dayDetails`.
+ */
 export const bulkProDays = [
   {
     id: "d1",

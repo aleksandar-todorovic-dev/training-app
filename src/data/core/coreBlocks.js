@@ -1,3 +1,12 @@
+/**
+ * Static core block source data.
+ *
+ * Product note:
+ * Core blocks are attached to selected training days, but core progress stays
+ * separate from the main exercise completion fraction.
+ *
+ * `exerciseIds` links each block to static core exercise definitions.
+ */
 export const coreBlocks = [
   {
     id: "core-a",

@@ -1,3 +1,11 @@
+/**
+ * Static educational guide content for the Bulk Pro plan.
+ *
+ * Product note:
+ * Guide content explains the training system, progression, recovery, and plan
+ * usage. It is read-only support content and does not affect runtime logs,
+ * day completion, or cycle state.
+ */
 export const bulkProGuide = {
   id: "bulk-pro",
   title: "Bulk Pro Guide",

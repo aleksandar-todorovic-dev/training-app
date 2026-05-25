@@ -1,6 +1,13 @@
 import { coreBlocks } from "./coreBlocks";
 import { coreExercises } from "./coreExercises";
 
+/**
+ * Core data access helpers.
+ *
+ * Data note:
+ * These helpers resolve static core block/exercise definitions only. Runtime
+ * core logs live separately in app state.
+ */
 export function getCoreBlocks() {
   return coreBlocks;
 }
