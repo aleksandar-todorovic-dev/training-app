@@ -24,10 +24,19 @@ import { getMissingValueWarningSummary } from "../utils/runtime/missingValueWarn
 import { getWarmupById } from "../data/warmups";
 import { UI_STACK_LG, UI_TEXT_MUTED, UI_TITLE } from "../styles/ui";
 
+/**
+ * Page-level orchestrator for one training day.
+ *
+ * Runtime note:
+ * DayPage resolves static day content, reads the active cycle/day log, lazily
+ * creates the active day log, derives progress/warnings, and delegates runtime
+ * changes through reducer actions.
+ */
 export default function DayPage() {
   const { planId, dayId } = useParams();
   const navigate = useNavigate();
   const { state, dispatch } = useAppState();
+  // Local sheet state only; sheet open/close does not write runtime progress.
   const [isWarmupOpen, setIsWarmupOpen] = useState(false);
   const [isFinishDayOpen, setIsFinishDayOpen] = useState(false);
 
@@ -43,6 +52,7 @@ export default function DayPage() {
     };
   }, [isWarmupOpen, isFinishDayOpen]);
 
+  // Static source data resolved from the current route.
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
 
@@ -106,7 +116,8 @@ export default function DayPage() {
     });
   }, [dispatch, plan, planId, dayDetails, exercises, dayMode]);
 
-  // Progress is derived from runtime exercise logs and completed set rows.
+  // Main day progress counts required main exercises only.
+  // Core, warm-up, guide/help, and optional work stay outside this fraction.
   const totalExerciseCount = dayLog
     ? Object.keys(dayLog.mainExerciseLogs).length
     : (dayDetails?.exerciseIds.length ?? 0);
@@ -119,6 +130,7 @@ export default function DayPage() {
 
   const progressText = `${completedExerciseCount}/${totalExerciseCount} exercises completed`;
 
+  // Finish-day warnings are informational and do not block closing the day.
   const missingValueWarningSummary = getMissingValueWarningSummary({
     dayLog,
     coreExercises,
@@ -156,6 +168,7 @@ export default function DayPage() {
     return "Not started";
   }
 
+  // Finish day records day-level close intent and returns to the cycle overview.
   function handleConfirmFinishDay() {
     dispatch({
       type: APP_ACTIONS.FINISH_DAY,
@@ -209,6 +222,7 @@ export default function DayPage() {
           </div>
         </header>
 
+        {/* Day mode banners explain whether the page is editable, finished, or preview-only. */}
         {dayMode === "finished" ? (
           <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4">
             <p className="text-sm font-semibold text-emerald-200">

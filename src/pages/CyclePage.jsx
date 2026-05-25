@@ -14,6 +14,8 @@ import { getDayDetails } from "../data/dayDetails";
 import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
 import { getDayMode, getDayModeLabel } from "../utils/runtime/dayModeHelpers";
 
+// Display-only hints for Cycle day cards.
+// Runtime day order and completion still come from plan data and app state.
 const STATIC_CORE_HINT_MAP = {
   d2: "Core A",
   d4: "Core B",
@@ -39,6 +41,13 @@ const STATIC_DAY_DETAIL_HINT_MAP = {
   },
 };
 
+/**
+ * Page-level overview for the active plan cycle.
+ *
+ * Runtime note:
+ * CyclePage reads current cycle progress, derives day-card display labels, and
+ * links into day workflows. It does not create or mutate day logs directly.
+ */
 export default function CyclePage() {
   const { planId } = useParams();
 
@@ -57,7 +66,8 @@ export default function CyclePage() {
     ? "Cycle finished"
     : `Current day: ${currentDayId.toUpperCase()}`;
 
-  // Derive Cycle screen day-card status from runtime logs and the active day pointer.
+  // Derive a display label for each day card from runtime logs and day mode.
+  // This is UI summary text only; completion rules stay in runtime helpers.
   function getDayCardStatus(day) {
     const dayDetails = getDayDetails(planId, day.id);
     const dayLog = currentCycle?.dayLogs?.[day.id];

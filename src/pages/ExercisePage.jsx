@@ -12,6 +12,13 @@ import ExerciseWorkflowCard from "../components/exercise/ExerciseWorkflowCard";
 import { sanitizeSetInputValue } from "../utils/runtime/setInputHelpers";
 import { getDayMode } from "../utils/runtime/dayModeHelpers";
 
+/**
+ * Builds display-only rows for upcoming exercise previews.
+ *
+ * Runtime note:
+ * These rows are not runtime scaffolding. Real exercise logs are created by
+ * the reducer/helper layer from structured metadata such as `setCount`.
+ */
 function buildStaticExerciseRows(exercise) {
   const setCount =
     Number.isInteger(exercise?.setCount) && exercise.setCount > 0
@@ -27,6 +34,13 @@ function buildStaticExerciseRows(exercise) {
   }));
 }
 
+/**
+ * Page-level orchestrator for one exercise workflow.
+ *
+ * Runtime note:
+ * ExercisePage chooses between read-only preview rows and runtime set rows,
+ * then delegates all set updates and close intent through reducer actions.
+ */
 export default function ExercisePage() {
   const { planId, dayId, exerciseId } = useParams();
   const navigate = useNavigate();
@@ -36,7 +50,7 @@ export default function ExercisePage() {
   const dayDetails = getDayDetails(planId, dayId);
   const exercise = getExerciseById(planId, exerciseId);
 
-  // Read the current runtime exercise log from the active cycle/day.
+  // Read the current runtime cycle/day/exercise state for this route.
   const planProgress = state.progressByPlan[planId];
   const currentCycleNumber = planProgress?.currentCycleNumber;
   const currentCycle = currentCycleNumber
@@ -73,9 +87,11 @@ export default function ExercisePage() {
 
   const previewSets = buildStaticExerciseRows(exercise);
 
+  // Upcoming days use static preview rows. Active/finished days use runtime rows.
   const displaySets = isUpcomingPreview ? previewSets : runtimeSets;
 
-  // Toggle the performed state for one prescribed runtime set row.
+  // Handler guards are a safety boundary: upcoming previews may render the
+  // target structure, but they must not dispatch runtime updates.
   function handleToggleSetDone(setNumber) {
     if (isUpcomingPreview) {
       return;
@@ -91,6 +107,7 @@ export default function ExercisePage() {
       },
     });
   }
+
   // Update one editable value on one prescribed runtime set row.
   function handleUpdateSetField(setNumber, field, value) {
     if (isUpcomingPreview) {
@@ -116,7 +133,8 @@ export default function ExercisePage() {
     });
   }
 
-  // Close the exercise without changing prescribed set completion.
+  // Close intent is stored on the exercise log; set completion remains derived
+  // from set rows.
   function handleCloseExercise() {
     if (isUpcomingPreview) {
       return;

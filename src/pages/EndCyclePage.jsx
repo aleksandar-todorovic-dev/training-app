@@ -13,6 +13,9 @@ import { getPlanById } from "../data/plans";
 import { getCycleSummary } from "../utils/runtime/cycleSummaryHelpers";
 import { UI_STACK_LG, UI_TEXT_MUTED, UI_TITLE } from "../styles/ui";
 
+/**
+ * Small display card for one cycle summary metric.
+ */
 function SummaryMetricCard({ label, value }) {
   return (
     <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-3">
@@ -26,6 +29,14 @@ function SummaryMetricCard({ label, value }) {
   );
 }
 
+/**
+ * Page-level review for a completed cycle.
+ *
+ * Runtime note:
+ * EndCyclePage blocks new-cycle creation until the current cycle is complete.
+ * Starting a new cycle dispatches START_PLAN_CYCLE and keeps previous cycle
+ * logs available in runtime state.
+ */
 export default function EndCyclePage() {
   const { planId } = useParams();
   const navigate = useNavigate();
@@ -37,6 +48,8 @@ export default function EndCyclePage() {
   const currentCycle = planProgress?.cycles?.[currentCycleNumber] ?? null;
   const isCycleComplete = Boolean(currentCycle?.completedAt);
 
+  // Static day details are needed so the summary can compare runtime logs
+  // against the expected training-day structure.
   const dayDetailsList = useMemo(() => {
     if (!plan) {
       return [];
@@ -52,6 +65,7 @@ export default function EndCyclePage() {
     dayDetailsList,
   });
 
+  // Start the next cycle while preserving previous cycle logs in app state.
   function handleStartNewCycle() {
     dispatch({
       type: APP_ACTIONS.START_PLAN_CYCLE,
@@ -83,6 +97,7 @@ export default function EndCyclePage() {
     );
   }
 
+  // Guard against starting a new cycle before all training days are closed.
   if (!isCycleComplete) {
     return (
       <AppShell>

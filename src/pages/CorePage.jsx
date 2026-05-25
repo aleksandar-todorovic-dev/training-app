@@ -13,6 +13,14 @@ import CoreWorkflowCard from "../components/core/CoreWorkflowCard";
 import { sanitizeCoreSetInputValue } from "../utils/runtime/coreInputHelpers";
 import { getDayMode } from "../utils/runtime/dayModeHelpers";
 
+/**
+ * Page-level orchestrator for one core block workflow.
+ *
+ * Runtime note:
+ * CorePage resolves route/static data, reads the active cycle core log, lazily
+ * ensures the core block log for active days, and delegates row updates to the
+ * reducer through intent handlers.
+ */
 export default function CorePage() {
   const { planId, dayId, coreId } = useParams();
   const navigate = useNavigate();
@@ -23,6 +31,7 @@ export default function CorePage() {
   const coreBlock = getCoreBlockById(coreId);
   const coreExercises = getCoreExercisesByIds(coreBlock?.exerciseIds ?? []);
 
+  // Read the current runtime cycle/day/core state used for page mode and rows.
   const planProgress = state.progressByPlan[planId];
   const currentCycleNumber = planProgress?.currentCycleNumber;
   const currentCycle = currentCycleNumber
@@ -44,7 +53,8 @@ export default function CorePage() {
 
   const isUpcomingPreview = dayMode === "upcoming";
 
-  // Ensure the opened core block has a runtime log once valid core data is loaded.
+  // Lazily create the core block log only when the core workflow is active.
+  // Upcoming preview routes stay static/read-only and must not create progress.
   useEffect(() => {
     if (!plan || !dayDetails || !coreBlock || isUpcomingPreview) {
       return;
@@ -70,6 +80,8 @@ export default function CorePage() {
     isUpcomingPreview,
   ]);
 
+  // Handler guards are a safety boundary: upcoming previews may render the
+  // structure, but they must not dispatch runtime updates.
   function handleToggleCoreSetDone(coreExerciseId, setNumber) {
     if (isUpcomingPreview) {
       return;
@@ -111,7 +123,8 @@ export default function CorePage() {
     });
   }
 
-  // Close the whole core block without changing core set completion.
+  // Close intent is stored at core-block level; set completion remains derived
+  // from core set rows.
   function handleCloseCoreBlock() {
     if (isUpcomingPreview) {
       return;

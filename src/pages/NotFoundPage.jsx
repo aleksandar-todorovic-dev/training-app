@@ -3,6 +3,13 @@ import ScreenHeader from "../components/layout/ScreenHeader";
 import SectionCard from "../components/layout/SectionCard";
 import { UI_STACK_LG, UI_TEXT_MUTED } from "../styles/ui";
 
+/**
+ * Fallback page for unmatched routes.
+ *
+ * UI note:
+ * This page is static and does not read or mutate runtime state.
+ */
+
 export default function NotFoundPage() {
   return (
     <AppShell>
