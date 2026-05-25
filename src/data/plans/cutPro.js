@@ -1,3 +1,11 @@
+/**
+ * Static plan metadata for Cut Pro.
+ *
+ * Runtime note:
+ * `dayOrder` defines the intended D1-D6 cycle order used by runtime navigation
+ * and day-mode logic. Starting a cycle still happens through app state actions,
+ * not by reading this object alone.
+ */
 export const cutPro = {
   id: "cut-pro",
   name: "Cut Pro",

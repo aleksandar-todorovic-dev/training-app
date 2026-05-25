@@ -11,6 +11,7 @@ export default function DayCard({ planId, day, status, coreHint, detailHint }) {
             {day.label} — {day.name}
           </h3>
 
+          {/* Detail and core hints stay muted so the day title remains the main scan target. */}
           {detailHint || coreHint ? (
             <p className={UI_TEXT_MUTED}>
               {detailHint}

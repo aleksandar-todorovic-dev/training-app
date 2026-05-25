@@ -1,3 +1,15 @@
+/**
+ * Static exercise source data for the Cut Pro plan.
+ *
+ * Runtime boundary:
+ * `prescription` is user-facing display text only. Runtime set rows must be
+ * generated from explicit scaffold metadata such as `setCount`, not by parsing
+ * the prescription string.
+ *
+ * MVP boundary:
+ * Optional work and advanced techniques are guidance-only unless represented
+ * by explicit runtime metadata.
+ */
 export const cutProExercises = [
   // D1 cut
   {
@@ -5,6 +17,7 @@ export const cutProExercises = [
     name: "Smith Bench Press",
     subtitle: "Primary chest strength signal",
     prescription: "3 x 5-7",
+    setCount: 3,
     cue: "Upper back tight, touch the lower chest under control, and keep leg drive steady",
     details: {
       tempo: "2-1-1",
@@ -25,6 +38,7 @@ export const cutProExercises = [
     name: "Incline DB Press",
     subtitle: "Upper-chest tension support",
     prescription: "2 x 8-10",
+    setCount: 2,
     cue: "Use a slight incline, pause briefly at the bottom, and press without losing shoulder position",
     details: {
       tempo: "2-1-1",
@@ -41,10 +55,11 @@ export const cutProExercises = [
     },
   },
   {
-    id: "dips-or-decline-db-press",
+    id: "dips-or-decline-db-press-d1",
     name: "Dips or Decline DB Press",
     subtitle: "Lower-chest support without excess fatigue",
     prescription: "2 x 8-10",
+    setCount: 2,
     cue: "Use the clean pain-free variation, keep the reps controlled, and do not force depth",
     details: {
       tempo: "2-0-2",
@@ -65,6 +80,7 @@ export const cutProExercises = [
     name: "Cable Stretch Fly",
     subtitle: "Light stretch-position chest finisher",
     prescription: "1 x 12-15",
+    setCount: 1,
     cue: "Keep a soft elbow bend, stay in a long controlled range, and let the chest stretch without forcing it",
     details: {
       tempo: "2-0-2",
@@ -85,6 +101,7 @@ export const cutProExercises = [
     name: "Overhead Rope Extension",
     subtitle: "Triceps stretch-focused support work",
     prescription: "3 x 12-15",
+    setCount: 3,
     cue: "Keep the elbows stable, use the full stretch, and finish with a clean squeeze",
     details: {
       tempo: "2-0-2",
@@ -105,6 +122,7 @@ export const cutProExercises = [
     name: "Standing Overhead Press (Light)",
     subtitle: "Light shoulder top-up work",
     prescription: "1 x 8",
+    setCount: 1,
     cue: "Brace hard, press in a clean path, and keep the set light enough to avoid fatigue spillover",
     details: {
       tempo: "2-1-1",
@@ -121,10 +139,11 @@ export const cutProExercises = [
     },
   },
   {
-    id: "lateral-raise-db",
+    id: "lateral-raise-db-d1",
     name: "Lateral Raise (DB)",
     subtitle: "Side-delt top-up and shoulder support",
     prescription: "2 x 12-15",
+    setCount: 2,
     cue: "Keep the shoulder down, lead with the elbow, and stop before the trap takes over",
     details: {
       tempo: "2-0-2",
@@ -145,6 +164,7 @@ export const cutProExercises = [
     name: "Face Pull",
     subtitle: "Rear-delt and scap health support",
     prescription: "2 x 12-15",
+    setCount: 2,
     cue: "Pull high, rotate out at the top, and finish with clean scap control",
     details: {
       tempo: "2-0-2",
@@ -167,6 +187,7 @@ export const cutProExercises = [
     name: "Weighted or Assisted Pull-up",
     subtitle: "Primary vertical back strength lift",
     prescription: "3 x 5-8",
+    setCount: 3,
     cue: "Set the shoulder blades down first, pull the chest up, and control the full range without swinging",
     details: {
       tempo: "2-1-1",
@@ -187,6 +208,7 @@ export const cutProExercises = [
     name: "Wide Grip Lat Pulldown",
     subtitle: "Upper lat width work",
     prescription: "2 x 8-10",
+    setCount: 2,
     cue: "Keep the shoulders down, drive the elbows into the pockets, and keep the torso stable",
     details: {
       tempo: "2-1-1",
@@ -207,6 +229,7 @@ export const cutProExercises = [
     name: "Neutral Close Grip Pulldown",
     subtitle: "Lower lat and mid-back support",
     prescription: "1 x 10-12",
+    setCount: 1,
     cue: "Stay stacked, keep the elbows close, and finish each rep without swinging back",
     details: {
       tempo: "2-1-1",
@@ -226,6 +249,7 @@ export const cutProExercises = [
     name: "Straight Arm Pulldown",
     subtitle: "Lat isolation with constant tension",
     prescription: "1 x 12-15",
+    setCount: 1,
     cue: "Keep a soft elbow bend, keep the ribs down, and pull with the lats instead of the triceps",
     details: {
       tempo: "2-0-2",
@@ -246,6 +270,7 @@ export const cutProExercises = [
     name: "Back Shrug",
     subtitle: "Upper-trap top-up work",
     prescription: "1 x 10-12",
+    setCount: 1,
     cue: "Lift straight up, hold the top cleanly for one second, and do not roll the shoulders",
     details: {
       tempo: "2-0-1",
@@ -266,6 +291,7 @@ export const cutProExercises = [
     name: "Back Extension",
     subtitle: "Lower-back health support",
     prescription: "1 x 12-15",
+    setCount: 1,
     cue: "Move from the hips, pause briefly at the top, and stop before the low back takes over",
     details: {
       tempo: "2-1-2",
@@ -286,6 +312,7 @@ export const cutProExercises = [
     name: "Barbell Curl",
     subtitle: "Primary biceps loading",
     prescription: "2 x 8-10",
+    setCount: 2,
     cue: "Keep the elbows by the body, squeeze at the top, and lower without swinging the torso",
     details: {
       tempo: "2-0-2",
@@ -306,6 +333,7 @@ export const cutProExercises = [
     name: "Hammer Curl",
     subtitle: "Brachialis and brachioradialis support",
     prescription: "2 x 10-12",
+    setCount: 2,
     cue: "Keep the wrists neutral, keep the upper arm still, and control the full arc",
     details: {
       tempo: "2-0-2",
@@ -326,6 +354,7 @@ export const cutProExercises = [
     name: "Reverse Curl (EZ or BB)",
     subtitle: "Forearm and elbow-flexor support",
     prescription: "1 x 12-15",
+    setCount: 1,
     cue: "Keep the knuckles up, keep the wrist neutral, and move the weight without shoulder cheating",
     details: {
       tempo: "2-0-2",
@@ -348,6 +377,7 @@ export const cutProExercises = [
     name: "High-Bar Back Squat",
     subtitle: "Primary quad strength lift",
     prescription: "3 x 6-8",
+    setCount: 3,
     cue: "Brace hard, keep the ribs down, and control the depth without losing foot pressure",
     details: {
       tempo: "3-1-1",
@@ -368,6 +398,7 @@ export const cutProExercises = [
     name: "Leg Press (Narrow)",
     subtitle: "Quad-focused secondary tension work",
     prescription: "2 x 10-12",
+    setCount: 2,
     cue: "Use a narrower stance, control the bottom, and keep quad tension without bouncing",
     details: {
       tempo: "2-0-2",
@@ -388,6 +419,7 @@ export const cutProExercises = [
     name: "Bulgarian Split Squat",
     subtitle: "Unilateral quad-bias support",
     prescription: "2 x 8-10",
+    setCount: 2,
     cue: "Use a shorter step, stay balanced, and drive through the front foot",
     details: {
       tempo: "2-1-1",
@@ -409,6 +441,7 @@ export const cutProExercises = [
     name: "Leg Extension",
     subtitle: "Controlled quad finisher",
     prescription: "1 x 12-15",
+    setCount: 1,
     cue: "Squeeze hard at the top, keep the hips still, and lower the weight under control",
     details: {
       tempo: "2-1-1",
@@ -429,6 +462,7 @@ export const cutProExercises = [
     name: "Lying or Seated Leg Curl",
     subtitle: "Hamstring spark work",
     prescription: "2 x 10-12",
+    setCount: 2,
     cue: "Keep the setup stable, lower slowly, and squeeze the hamstrings hard at the top",
     details: {
       tempo: "3-1-2",
@@ -449,6 +483,7 @@ export const cutProExercises = [
     name: "Standing Calf Raise",
     subtitle: "Gastrocnemius support work",
     prescription: "2 x 12-15",
+    setCount: 2,
     cue: "Use full range, pause in the stretch, and rise without bouncing",
     details: {
       tempo: "2-1-1",
@@ -469,6 +504,7 @@ export const cutProExercises = [
     name: "Seated Calf Raise",
     subtitle: "Soleus support work",
     prescription: "1 x 15-20",
+    setCount: 1,
     cue: "Stay controlled through the full range, hold the top, and do not bounce out of the stretch",
     details: {
       tempo: "2-1-1",
@@ -489,6 +525,7 @@ export const cutProExercises = [
     name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
     prescription: "1 x 12-15",
+    setCount: 1,
     cue: "Move both directions with control and keep the transition short but clean",
     details: {
       tempo: "2-0-2",
@@ -512,6 +549,7 @@ export const cutProExercises = [
     name: "Standing Overhead Press (BB)",
     subtitle: "Primary shoulder strength press",
     prescription: "3 x 6-8",
+    setCount: 3,
     cue: "Brace hard, keep the ribs down, and press close to the face without leaning back",
     details: {
       tempo: "2-1-1",
@@ -528,10 +566,11 @@ export const cutProExercises = [
     },
   },
   {
-    id: "lateral-raise-db",
+    id: "lateral-raise-db-d4",
     name: "Lateral Raise (DB)",
     subtitle: "Side-delt pump support",
     prescription: "2 x 12-15",
+    setCount: 2,
     cue: "Keep the shoulder down, lead with the elbow, and stop before the trap takes over",
     details: {
       tempo: "2-0-2",
@@ -552,6 +591,7 @@ export const cutProExercises = [
     name: "Cable Lateral (Lean-away)",
     subtitle: "Constant-tension side-delt top-up",
     prescription: "1 x 12-15",
+    setCount: 1,
     cue: "Lean slightly, keep the shoulder down, and hold tension on the delt through the full arc",
     details: {
       tempo: "2-0-2",
@@ -572,6 +612,7 @@ export const cutProExercises = [
     name: "Reverse Pec-Deck",
     subtitle: "Rear-delt support work",
     prescription: "2 x 12-15",
+    setCount: 2,
     cue: "Keep the neck relaxed, hold the rear-delt squeeze, and control the return",
     details: {
       tempo: "2-1-2",
@@ -592,6 +633,7 @@ export const cutProExercises = [
     name: "Upright Row (DB)",
     subtitle: "Trap support work",
     prescription: "1 x 8-10",
+    setCount: 1,
     cue: "Use a wider path, lift only to shoulder height, and keep the shoulders down",
     details: {
       tempo: "2-0-2",
@@ -612,6 +654,7 @@ export const cutProExercises = [
     name: "Dumbbell Shrug",
     subtitle: "Upper-trap squeeze work",
     prescription: "1 x 10-12",
+    setCount: 1,
     cue: "Lift straight up, hold the squeeze at the top, and do not roll the shoulders",
     details: {
       tempo: "2-1-1",
@@ -631,6 +674,7 @@ export const cutProExercises = [
     name: "Incline DB Curl",
     subtitle: "Biceps top-up work",
     prescription: "2 x 10-12",
+    setCount: 2,
     cue: "Keep the shoulders pinned back, let the elbows stay behind the torso, and use the full range without swinging",
     details: {
       tempo: "2-1-2",
@@ -651,6 +695,7 @@ export const cutProExercises = [
     name: "Rope Pushdown",
     subtitle: "Light triceps pump work",
     prescription: "1 x 12-15",
+    setCount: 1,
     cue: "Keep the elbows pinned, spread the rope at the bottom, and finish with a clean squeeze",
     details: {
       tempo: "2-1-1",
@@ -669,10 +714,11 @@ export const cutProExercises = [
 
   // CUT — D5
   {
-    id: "dips-or-decline-db-press",
+    id: "dips-or-decline-db-press-d5",
     name: "Dips or Decline DB Press",
     subtitle: "Lower-chest pump press",
     prescription: "2 x 8-10",
+    setCount: 2,
     cue: "Use the shoulder-friendly option, control the eccentric, and stop before form starts to break",
     details: {
       tempo: "2-0-2",
@@ -693,6 +739,7 @@ export const cutProExercises = [
     name: "Low-to-High Cable Fly",
     subtitle: "Upper-fiber chest pump work",
     prescription: "1 x 12-15",
+    setCount: 1,
     cue: "Drive low to high, keep constant tension, and hold the squeeze at the top",
     details: {
       tempo: "2-0-2",
@@ -713,6 +760,7 @@ export const cutProExercises = [
     name: "Push-up",
     subtitle: "Chest flush finisher",
     prescription: "1 x 10-20",
+    setCount: 1,
     cue: "Keep the body tight, lower under control, and stop before the shape breaks down",
     details: {
       tempo: "2-0-1",
@@ -733,6 +781,7 @@ export const cutProExercises = [
     name: "Assisted Pull-up",
     subtitle: "Vertical pull bridge before rows",
     prescription: "2 x 6-8",
+    setCount: 2,
     cue: "Stay smooth, keep the range clean, and stop before the reps turn grindy",
     details: {
       tempo: "2-1-1",
@@ -753,6 +802,7 @@ export const cutProExercises = [
     name: "T-Bar Row",
     subtitle: "Primary row bridge strength work",
     prescription: "2 x 6-8",
+    setCount: 2,
     cue: "Keep the torso stable, drive the elbows toward the hips, and hold the squeeze briefly at the top",
     details: {
       tempo: "2-1-1",
@@ -773,6 +823,7 @@ export const cutProExercises = [
     name: "Chest Supported Row (45°)",
     subtitle: "Stable row thickness work",
     prescription: "1 x 8-10",
+    setCount: 1,
     cue: "Stay glued to the pad, set the shoulder blades first, and pull without any body swing",
     details: {
       tempo: "2-1-1",
@@ -793,6 +844,7 @@ export const cutProExercises = [
     name: "Seated Cable Row",
     subtitle: "Metabolic row finisher",
     prescription: "1 x 12-15",
+    setCount: 1,
     cue: "Pull with the elbows, hold the squeeze for one second, and control the return without rocking back",
     details: {
       tempo: "2-1-2",
@@ -813,6 +865,7 @@ export const cutProExercises = [
     name: "Skull Crusher (EZ)",
     subtitle: "Triceps lock-out support",
     prescription: "1 x 8-10",
+    setCount: 1,
     cue: "Keep the upper arms slightly back, lower with control, and extend without throwing the shoulders",
     details: {
       tempo: "2-0-2",
@@ -833,6 +886,7 @@ export const cutProExercises = [
     name: "Overhead DB Extension",
     subtitle: "Long-head triceps stretch work",
     prescription: "1 x 10-12",
+    setCount: 1,
     cue: "Keep the ribs down, use the full stretch, and finish with a clean extension",
     details: {
       tempo: "2-0-2",
@@ -855,6 +909,7 @@ export const cutProExercises = [
     name: "Romanian Deadlift",
     subtitle: "Primary posterior-chain strength lift",
     prescription: "3 x 6-8",
+    setCount: 3,
     cue: "Keep the bar close, push the hips back, and stay braced without hyperextending at the top",
     details: {
       tempo: "3-1-1",
@@ -875,6 +930,7 @@ export const cutProExercises = [
     name: "Seated Leg Curl",
     subtitle: "Hamstring contraction work",
     prescription: "2 x 10-12",
+    setCount: 2,
     cue: "Stay pinned into the seat, squeeze hard at the top, and lower under control",
     details: {
       tempo: "2-1-1",
@@ -895,6 +951,7 @@ export const cutProExercises = [
     name: "Machine Glute Kickback",
     subtitle: "Glute-focused support work",
     prescription: "2 x 12-15",
+    setCount: 2,
     cue: "Keep the pelvis stable, drive back through the heel, and finish with a clean glute squeeze",
     details: {
       tempo: "2-1-2",
@@ -916,6 +973,7 @@ export const cutProExercises = [
     name: "Walking Lunge",
     subtitle: "Quad top-up with short-step bias",
     prescription: "2 x 10-12",
+    setCount: 2,
     cue: "Use a shorter step, stay balanced, and drive through the front foot with control",
     details: {
       tempo: "2-0-2",
@@ -937,6 +995,7 @@ export const cutProExercises = [
     name: "Back Extension",
     subtitle: "Lower-back health support",
     prescription: "1 x 12-15",
+    setCount: 1,
     cue: "Move from the hips, let the glutes lead, and stop before the low back takes over",
     details: {
       tempo: "2-1-2",
@@ -957,6 +1016,7 @@ export const cutProExercises = [
     name: "Leg-Press Calf Raise",
     subtitle: "Calf support work",
     prescription: "2 x 12-15",
+    setCount: 2,
     cue: "Use full range, pause in the stretch, and rise with a hard squeeze without bouncing",
     details: {
       tempo: "2-1-1",
@@ -977,6 +1037,7 @@ export const cutProExercises = [
     name: "Seated Calf Raise",
     subtitle: "Soleus support work",
     prescription: "2 x 15-20",
+    setCount: 2,
     cue: "Stay controlled through the full range, hold the squeeze, and do not bounce out of the stretch",
     details: {
       tempo: "2-1-1",
@@ -997,6 +1058,7 @@ export const cutProExercises = [
     name: "Preacher Curl (EZ)",
     subtitle: "Primary biceps support work",
     prescription: "2 x 10-12",
+    setCount: 2,
     cue: "Stay locked to the pad, squeeze at the top, and lower under control without letting the elbow drift",
     details: {
       tempo: "2-1-2",
@@ -1017,6 +1079,7 @@ export const cutProExercises = [
     name: "Behind-the-Back Wrist Curl",
     subtitle: "Forearm maintenance work",
     prescription: "1 x 12-15",
+    setCount: 1,
     cue: "Let the bar roll to the fingers, curl it back up, and hold the top briefly without jerking",
     details: {
       tempo: "2-1-2",
@@ -1038,6 +1101,7 @@ export const cutProExercises = [
     name: "Abductor and Adductor Machine",
     subtitle: "Hip stability superset",
     prescription: "1 x 12-15",
+    setCount: 1,
     cue: "Move both directions with control and keep the transition short but clean",
     details: {
       tempo: "2-0-2",

@@ -4,6 +4,13 @@ import PlanCard from "../components/plans/PlanCard";
 import { plans } from "../data/plans";
 import { UI_STACK_LG } from "../styles/ui";
 
+/**
+ * Landing page for selecting one of the predefined MVP plans.
+ *
+ * Runtime note:
+ * Rendering plan cards does not create user progress. Runtime cycle creation
+ * starts from the plan overview flow.
+ */
 export default function HomePage() {
   return (
     <AppShell>

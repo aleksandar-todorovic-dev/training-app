@@ -2,6 +2,13 @@ import SectionCard from "../layout/SectionCard";
 import GuideTopicBlock from "./GuideTopicBlock";
 import { UI_STACK_LG, UI_STACK_MD, UI_TEXT_MUTED } from "../../styles/ui";
 
+/**
+ * Displays one guide section group with its related guide topics.
+ *
+ * UI note:
+ * Guide content is educational/support content only. It does not affect
+ * workout progress, completion, or runtime state.
+ */
 export default function GuideGroupCard({ group }) {
   return (
     <SectionCard>

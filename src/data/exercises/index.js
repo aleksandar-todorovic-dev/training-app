@@ -1,6 +1,14 @@
 import { bulkProExercises } from "./bulkProExercises";
 import { cutProExercises } from "./cutProExercises";
 
+/**
+ * Exercise data access helpers.
+ *
+ * Data note:
+ * These helpers resolve static exercise definitions for a selected plan/day.
+ * Runtime exercise logs live separately in app state and are generated from
+ * explicit metadata such as `setCount`.
+ */
 const exercisesByPlan = {
   "bulk-pro": bulkProExercises,
   "cut-pro": cutProExercises,

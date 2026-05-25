@@ -24,6 +24,7 @@ function DetailBlock({ title, children }) {
   );
 }
 
+// Keeps preview targets shorter so row cells stay readable on mobile.
 function normalizeCoreTarget(target) {
   return target
     .replace(/\s*\/\s*side\b/i, "")
@@ -31,6 +32,14 @@ function normalizeCoreTarget(target) {
     .trim();
 }
 
+/**
+ * Builds display-only fallback rows for core previews.
+ *
+ * Runtime note:
+ * These rows are not runtime scaffolding. Real core logs are created by the
+ * reducer/helper layer from structured metadata such as `setCount`, `logType`,
+ * and `tracksLoad`.
+ */
 function buildStaticRows(exercise) {
   const prescription = exercise?.prescription ?? "3 x 8-12";
   const match = prescription.match(/^(\d+)\s*x\s*(.+)$/i);
@@ -71,7 +80,23 @@ function getCoreSetSummary(exercise, tracksLoad) {
   return cleanSummaryValue(getCoreSetCount(exercise));
 }
 
-export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
+/**
+ * Displays one full core block workflow.
+ *
+ * Runtime note:
+ * The card receives runtime core logs from the page layer and delegates all
+ * row updates upward. It may show static preview rows, but it does not create
+ * or mutate runtime logs itself.
+ */
+export default function CoreWorkflowCard({
+  coreBlock,
+  exercises = [],
+  isReadOnly = false,
+  coreBlockLog,
+  onToggleCoreSetDone,
+  onUpdateCoreSetField,
+  onCloseCoreBlock,
+}) {
   if (!coreBlock) {
     return null;
   }
@@ -156,15 +181,34 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
         <div className="space-y-4">
           <div className="border-b border-zinc-800/80 pb-3">
             <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
-              Pre-filled from previous core session
+              {isReadOnly
+                ? "Static core target preview"
+                : "Pre-filled from previous core session"}
             </p>
             <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
-              Update the reps, time, or load below based on today's performance.
+              {isReadOnly
+                ? "Core logging is disabled until this day becomes current."
+                : "Update the reps, time, or load below based on today's performance."}
             </p>
           </div>
 
           {exercises.map((exercise, exerciseIndex) => {
-            const rows = buildStaticRows(exercise);
+            const coreExerciseLog =
+              coreBlockLog?.coreExerciseLogs?.[exercise.id] ?? null;
+
+            const staticRows = buildStaticRows(exercise);
+
+            // Runtime rows are preferred when a core log exists.
+            // Static rows are only a read-only preview/fallback display.
+            const rows =
+              coreExerciseLog?.sets.map((set, index) => ({
+                setNumber: set.setIndex,
+                target: staticRows[index]?.target ?? "—",
+                load: set.load,
+                logged: exercise.logType === "time" ? set.time : set.reps,
+                effort: set.rir,
+                isDone: set.isDone,
+              })) ?? staticRows;
             const isLastExercise = exerciseIndex === exercises.length - 1;
             const valueLabel = getCoreValueLabel(exercise);
             const tracksLoad = Boolean(exercise.tracksLoad);
@@ -248,6 +292,7 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
                     {rows.map((row, index) => (
                       <CoreSetRow
                         key={`${exercise.id}-set-${row.setNumber}`}
+                        isReadOnly={isReadOnly}
                         setNumber={row.setNumber}
                         target={row.target}
                         load={row.load}
@@ -256,14 +301,20 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
                         effort={row.effort}
                         tracksLoad={tracksLoad}
                         isLast={index === rows.length - 1}
+                        isDone={row.isDone}
+                        onToggleDone={() =>
+                          onToggleCoreSetDone?.(exercise.id, row.setNumber)
+                        }
+                        onSetFieldChange={(field, value) =>
+                          onUpdateCoreSetField?.(
+                            exercise.id,
+                            row.setNumber,
+                            field,
+                            value,
+                          )
+                        }
                       />
                     ))}
-                  </div>
-
-                  <div className="pt-1">
-                    <PrimaryButton type="button" className="w-full">
-                      Mark exercise done
-                    </PrimaryButton>
                   </div>
                 </div>
               </div>
@@ -272,9 +323,15 @@ export default function CoreWorkflowCard({ coreBlock, exercises = [] }) {
         </div>
       </SectionCard>
 
-      <PrimaryButton type="button" className="w-full">
-        Mark core block done
-      </PrimaryButton>
+      {!isReadOnly ? (
+        <PrimaryButton
+          type="button"
+          className="w-full"
+          onClick={onCloseCoreBlock}
+        >
+          Close core block
+        </PrimaryButton>
+      ) : null}
     </div>
   );
 }

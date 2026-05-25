@@ -1,3 +1,15 @@
+/**
+ * Static day-detail source data for the Cut Pro plan.
+ *
+ * Runtime boundary:
+ * `exerciseIds` defines the required main exercises used for main day progress
+ * and completion. Core, warm-up, guide/help content, advanced techniques, and
+ * optional work stay outside the main exercise completion fraction.
+ *
+ * Product rule:
+ * `coreBlockId` links supporting core work to a day, but core completion is
+ * tracked separately from the main workout.
+ */
 export const cutProDayDetails = [
   // D1 cut
   {
@@ -13,11 +25,11 @@ export const cutProDayDetails = [
     exerciseIds: [
       "smith-bench-press",
       "incline-db-press",
-      "dips-or-decline-db-press",
+      "dips-or-decline-db-press-d1",
       "cable-stretch-fly",
       "overhead-rope-extension",
       "standing-ohp-light",
-      "lateral-raise-db",
+      "lateral-raise-db-d1",
       "face-pull",
     ],
     coreBlockId: null,
@@ -82,7 +94,7 @@ export const cutProDayDetails = [
     },
     exerciseIds: [
       "standing-overhead-press-bb",
-      "lateral-raise-db",
+      "lateral-raise-db-d4",
       "cable-lateral-lean-away",
       "reverse-pec-deck",
       "db-upright-row",
@@ -104,7 +116,7 @@ export const cutProDayDetails = [
       warmupId: "warmup-d5",
     },
     exerciseIds: [
-      "dips-or-decline-db-press",
+      "dips-or-decline-db-press-d5",
       "low-to-high-cable-fly",
       "push-up",
       "assisted-pull-up-light",

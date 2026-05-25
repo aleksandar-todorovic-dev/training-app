@@ -3,6 +3,13 @@ import { useEffect } from "react";
 import SecondaryButton from "./SecondaryButton";
 import { UI_TEXT_MUTED, UI_TITLE } from "../../styles/ui";
 
+/**
+ * Shared bottom-sheet help pattern used for local guidance content.
+ *
+ * UI note:
+ * This sheet owns only presentation behavior such as body scroll lock and
+ * Escape-to-close. It does not write runtime workout progress.
+ */
 export default function HelpSheet({
   isOpen,
   title,

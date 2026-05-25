@@ -1,6 +1,13 @@
 import { Link } from "react-router-dom";
 import { UI_BUTTON_PRIMARY } from "../../styles/ui";
 
+/**
+ * Shared primary CTA.
+ *
+ * UI note:
+ * Pass `to` for route navigation, or omit it to render a native button for
+ * local/runtime actions.
+ */
 export default function PrimaryButton({
   to,
   children,

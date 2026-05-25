@@ -1,3 +1,10 @@
+/**
+ * Static warm-up guidance for the Cut Pro plan.
+ *
+ * Product note:
+ * Warm-ups prepare the selected day and stay outside runtime completion.
+ * Opening or closing warm-up guidance does not create workout progress.
+ */
 export const cutProWarmups = [
   {
     id: "warmup-d1",

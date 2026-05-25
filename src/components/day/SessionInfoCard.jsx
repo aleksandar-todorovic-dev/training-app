@@ -2,6 +2,12 @@ import SectionCard from "../layout/SectionCard";
 import SecondaryButton from "../common/SecondaryButton";
 import { UI_STACK_MD, UI_TEXT_MUTED } from "../../styles/ui";
 
+/**
+ * Displays day-level session guidance.
+ *
+ * Runtime note:
+ * Warm-up opens as local guidance from DayPage and does not affect completion.
+ */
 export default function SessionInfoCard({ sessionInfo, onWarmupClick }) {
   return (
     <SectionCard>

@@ -16,14 +16,23 @@ import {
   UI_TITLE,
 } from "../styles/ui";
 
+/**
+ * Page-level guide reader for one predefined plan.
+ *
+ * Runtime note:
+ * GuidePage reads static educational content and uses local UI state to switch
+ * guide sections. It does not read or mutate workout progress.
+ */
 export default function GuidePage() {
   const { planId } = useParams();
 
   const plan = getPlanById(planId);
   const guide = getGuideByPlanId(planId);
 
+  // Local guide navigation state only; selecting a group does not affect runtime progress.
   const [activeGroupId, setActiveGroupId] = useState(null);
 
+  // Resolve the currently selected guide group from static guide data.
   const activeGroup = useMemo(() => {
     if (!guide?.groups?.length || !activeGroupId) return null;
     return guide.groups.find((group) => group.id === activeGroupId) ?? null;
@@ -62,6 +71,7 @@ export default function GuidePage() {
           <p className={UI_TEXT_MUTED}>{guide.intro}</p>
         </header>
 
+        {/* Show section picker first, then the selected guide group. */}
         {!activeGroup ? (
           <section className={UI_STACK_MD}>
             <p className="text-sm font-medium text-zinc-400">

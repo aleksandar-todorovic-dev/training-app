@@ -1,3 +1,11 @@
+/**
+ * Quick contextual help shown inside the Exercise workflow.
+ *
+ * Product note:
+ * This is guidance content only. It explains training rules near the logging
+ * flow, but it does not affect set completion, exercise status, or progression
+ * logic.
+ */
 export const exerciseHelp = {
   id: "exercise-help",
   title: "Exercise help",

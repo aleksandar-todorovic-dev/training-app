@@ -1,4 +1,7 @@
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { APP_ACTIONS } from "../state/appActions";
+import { useAppState } from "../state/useAppState";
 import AppShell from "../components/layout/AppShell";
 import SectionCard from "../components/layout/SectionCard";
 import BackButton from "../components/common/BackButton";
@@ -7,14 +10,137 @@ import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getCoreBlockById, getCoreExercisesByIds } from "../data/core";
 import CoreWorkflowCard from "../components/core/CoreWorkflowCard";
+import { sanitizeCoreSetInputValue } from "../utils/runtime/coreInputHelpers";
+import { getDayMode } from "../utils/runtime/dayModeHelpers";
 
+/**
+ * Page-level orchestrator for one core block workflow.
+ *
+ * Runtime note:
+ * CorePage resolves route/static data, reads the active cycle core log, lazily
+ * ensures the core block log for active days, and delegates row updates to the
+ * reducer through intent handlers.
+ */
 export default function CorePage() {
   const { planId, dayId, coreId } = useParams();
+  const navigate = useNavigate();
+  const { state, dispatch } = useAppState();
 
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
   const coreBlock = getCoreBlockById(coreId);
   const coreExercises = getCoreExercisesByIds(coreBlock?.exerciseIds ?? []);
+
+  // Read the current runtime cycle/day/core state used for page mode and rows.
+  const planProgress = state.progressByPlan[planId];
+  const currentCycleNumber = planProgress?.currentCycleNumber;
+  const currentCycle = currentCycleNumber
+    ? planProgress?.cycles?.[currentCycleNumber]
+    : null;
+  const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
+  const coreBlockLog = dayLog?.coreBlockLog ?? null;
+  const currentDayId = currentCycle?.currentDayId ?? "d1";
+  const dayOrder = plan?.dayOrder ?? [];
+
+  const dayMode = dayDetails
+    ? getDayMode({
+        dayId: dayDetails.id,
+        currentDayId,
+        dayLog,
+        dayOrder,
+      })
+    : "inactive";
+
+  const isUpcomingPreview = dayMode === "upcoming";
+
+  // Lazily create the core block log only when the core workflow is active.
+  // Upcoming preview routes stay static/read-only and must not create progress.
+  useEffect(() => {
+    if (!plan || !dayDetails || !coreBlock || isUpcomingPreview) {
+      return;
+    }
+
+    dispatch({
+      type: APP_ACTIONS.ENSURE_CORE_BLOCK_LOG,
+      payload: {
+        planId,
+        dayId,
+        coreBlock,
+        coreExercises,
+      },
+    });
+  }, [
+    dispatch,
+    plan,
+    planId,
+    dayId,
+    dayDetails,
+    coreBlock,
+    coreExercises,
+    isUpcomingPreview,
+  ]);
+
+  // Handler guards are a safety boundary: upcoming previews may render the
+  // structure, but they must not dispatch runtime updates.
+  function handleToggleCoreSetDone(coreExerciseId, setNumber) {
+    if (isUpcomingPreview) {
+      return;
+    }
+
+    dispatch({
+      type: APP_ACTIONS.TOGGLE_CORE_SET_DONE,
+      payload: {
+        planId,
+        dayId,
+        coreExerciseId,
+        setIndex: setNumber,
+      },
+    });
+  }
+
+  // Update one editable value on one prescribed core set row.
+  function handleUpdateCoreSetField(coreExerciseId, setNumber, field, value) {
+    if (isUpcomingPreview) {
+      return;
+    }
+
+    const sanitizedValue = sanitizeCoreSetInputValue(field, value);
+
+    if (sanitizedValue === null) {
+      return;
+    }
+
+    dispatch({
+      type: APP_ACTIONS.UPDATE_CORE_SET_FIELD,
+      payload: {
+        planId,
+        dayId,
+        coreExerciseId,
+        setIndex: setNumber,
+        field,
+        value: sanitizedValue,
+      },
+    });
+  }
+
+  // Close intent is stored at core-block level; set completion remains derived
+  // from core set rows.
+  function handleCloseCoreBlock() {
+    if (isUpcomingPreview) {
+      return;
+    }
+
+    dispatch({
+      type: APP_ACTIONS.MARK_CORE_BLOCK_CLOSED,
+      payload: {
+        planId,
+        dayId,
+        closedAt: new Date().toISOString(),
+      },
+    });
+
+    navigate(`/plan/${planId}/day/${dayId}`);
+  }
 
   if (!plan || !dayDetails || !coreBlock) {
     return (
@@ -51,7 +177,27 @@ export default function CorePage() {
           </div>
         </div>
 
-        <CoreWorkflowCard coreBlock={coreBlock} exercises={coreExercises} />
+        {isUpcomingPreview ? (
+          <div className="rounded-2xl border border-zinc-700 bg-zinc-900/60 p-4">
+            <p className="text-sm font-semibold text-zinc-100">
+              Upcoming core preview
+            </p>
+            <p className="mt-1 text-sm leading-relaxed text-zinc-400">
+              This core block belongs to an upcoming day. You can review the
+              structure, but logging unlocks when this day becomes current.
+            </p>
+          </div>
+        ) : null}
+
+        <CoreWorkflowCard
+          coreBlock={coreBlock}
+          exercises={coreExercises}
+          coreBlockLog={coreBlockLog}
+          isReadOnly={isUpcomingPreview}
+          onToggleCoreSetDone={handleToggleCoreSetDone}
+          onUpdateCoreSetField={handleUpdateCoreSetField}
+          onCloseCoreBlock={handleCloseCoreBlock}
+        />
       </div>
     </AppShell>
   );

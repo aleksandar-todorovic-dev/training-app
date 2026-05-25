@@ -2,6 +2,13 @@ import SectionCard from "../layout/SectionCard";
 import PrimaryButton from "../common/PrimaryButton";
 import { UI_STACK_MD, UI_TITLE, UI_TEXT_MUTED } from "../../styles/ui";
 
+/**
+ * Displays one predefined plan entry on the Home screen.
+ *
+ * UI note:
+ * PlanCard uses static plan metadata only. Opening a plan does not start a
+ * runtime cycle by itself.
+ */
 export default function PlanCard({ plan }) {
   return (
     <SectionCard>

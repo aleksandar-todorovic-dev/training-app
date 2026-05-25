@@ -1,5 +1,7 @@
 import { useParams } from "react-router-dom";
 
+import { APP_ACTIONS } from "../state/appActions";
+import { useAppState } from "../state/useAppState";
 import AppShell from "../components/layout/AppShell";
 import ScreenHeader from "../components/layout/ScreenHeader";
 import SectionCard from "../components/layout/SectionCard";
@@ -10,6 +12,8 @@ import { getPlanById } from "../data/plans";
 import { getDaysByPlanId } from "../data/days";
 import { UI_ACTION_ROW, UI_STACK_LG, UI_TEXT_MUTED } from "../styles/ui";
 
+// Display labels for the overview training rhythm.
+// These labels are presentation-only; runtime day order comes from plan.dayOrder.
 const TRAINING_DAY_ORDER_LABELS_BY_PLAN = {
   "bulk-pro": {
     d1: "Chest & Triceps with Shoulder Top-up",
@@ -29,13 +33,50 @@ const TRAINING_DAY_ORDER_LABELS_BY_PLAN = {
   },
 };
 
+/**
+ * Page-level overview for one predefined plan.
+ *
+ * Runtime note:
+ * This page decides whether the primary action should start, continue, or
+ * review a cycle. Starting a cycle is the only action here that writes runtime
+ * state.
+ */
 export default function PlanOverviewPage() {
   const { planId } = useParams();
+  const { state, dispatch } = useAppState();
   const plan = getPlanById(planId);
   const days = getDaysByPlanId(planId);
 
+  const planProgress = state.progressByPlan[planId];
+  const currentCycleNumber = planProgress?.currentCycleNumber;
+  const currentCycle = currentCycleNumber
+    ? planProgress?.cycles?.[currentCycleNumber]
+    : null;
+
+  // Primary CTA is derived from current runtime progress:
+  // start = no current cycle, continue = active cycle, review = completed cycle.
+  const primaryCta = !currentCycle
+    ? {
+        mode: "start",
+        label: "Start cycle",
+        to: plan ? `/plan/${plan.id}/cycle` : `/plan/${planId}/cycle`,
+      }
+    : currentCycle.completedAt
+      ? {
+          mode: "review",
+          label: "Review cycle",
+          to: plan ? `/plan/${plan.id}/end-cycle` : `/plan/${planId}/end-cycle`,
+        }
+      : {
+          mode: "continue",
+          label: "Continue cycle",
+          to: plan ? `/plan/${plan.id}/cycle` : `/plan/${planId}/cycle`,
+        };
+
   const dayOrderLabels = TRAINING_DAY_ORDER_LABELS_BY_PLAN[planId] ?? {};
 
+  // Presentation-only 9-day rhythm shown to the user.
+  // This does not replace plan.dayOrder as the runtime day sequence.
   const trainingDayOrder = [
     `${days[0]?.label} — ${dayOrderLabels[days[0]?.id] ?? days[0]?.name}`,
     `${days[1]?.label} — ${dayOrderLabels[days[1]?.id] ?? days[1]?.name}`,
@@ -68,6 +109,22 @@ export default function PlanOverviewPage() {
         </div>
       </AppShell>
     );
+  }
+
+  // Only the "start" CTA creates runtime progress.
+  // Continue/review navigation is handled by the PrimaryButton route.
+  function handlePrimaryCtaClick() {
+    if (primaryCta.mode !== "start") {
+      return;
+    }
+
+    dispatch({
+      type: APP_ACTIONS.START_PLAN_CYCLE,
+      payload: {
+        planId: plan.id,
+        startedAt: new Date().toISOString(),
+      },
+    });
   }
 
   return (
@@ -137,8 +194,8 @@ export default function PlanOverviewPage() {
 
         <SectionCard>
           <div className={UI_ACTION_ROW}>
-            <PrimaryButton to={`/plan/${plan.id}/cycle`}>
-              Start cycle
+            <PrimaryButton to={primaryCta.to} onClick={handlePrimaryCtaClick}>
+              {primaryCta.label}
             </PrimaryButton>
           </div>
         </SectionCard>

@@ -31,7 +31,21 @@ function DetailBlock({ title, children }) {
   );
 }
 
-export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
+/**
+ * Displays one full exercise workflow.
+ *
+ * Runtime note:
+ * The card receives runtime or preview set rows from the page layer and
+ * delegates all row updates upward. It does not create or mutate runtime logs.
+ */
+export default function ExerciseWorkflowCard({
+  exercise,
+  sets = [],
+  isReadOnly = false,
+  onToggleSetDone,
+  onUpdateSetField,
+  onCloseExercise,
+}) {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isAdvancedHelpOpen, setIsAdvancedHelpOpen] = useState(false);
 
@@ -121,10 +135,14 @@ export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
           <div className="space-y-3 border-t border-zinc-800/80 pt-3">
             <div>
               <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
-                Pre-filled from previous workout
+                {isReadOnly
+                  ? "Static target preview"
+                  : "Pre-filled from previous workout"}
               </p>
               <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
-                Update the numbers below based on today’s performance.
+                {isReadOnly
+                  ? "Logging is disabled until this day becomes current."
+                  : "Update the numbers below based on today's performance."}
               </p>
             </div>
 
@@ -176,21 +194,32 @@ export default function ExerciseWorkflowCard({ exercise, sets = [] }) {
           </div>
 
           <div className="space-y-0 border-t border-zinc-800/80 pt-2">
+            {/* Set rows may be runtime logs or read-only preview rows; updates are delegated upward. */}
             {sets.map((set, index) => (
               <SetRow
                 key={`${exercise.id}-set-${set.setNumber}`}
+                isReadOnly={isReadOnly}
                 setNumber={set.setNumber}
                 weight={set.weight}
                 reps={set.reps}
                 rir={set.rir}
+                isDone={set.isDone}
                 isLast={index === sets.length - 1}
+                onToggleDone={() => onToggleSetDone?.(set.setNumber)}
+                onSetFieldChange={(field, value) =>
+                  onUpdateSetField?.(set.setNumber, field, value)
+                }
               />
             ))}
           </div>
 
-          <div className="flex flex-col gap-3 pt-1">
-            <PrimaryButton type="button">Mark exercise done</PrimaryButton>
-          </div>
+          {!isReadOnly ? (
+            <div className="flex flex-col gap-3 pt-1">
+              <PrimaryButton type="button" onClick={onCloseExercise}>
+                Close exercise
+              </PrimaryButton>
+            </div>
+          ) : null}
         </div>
       </SectionCard>
 

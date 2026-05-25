@@ -1,31 +1,82 @@
-import { useParams } from "react-router-dom";
+import { useMemo } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import AppShell from "../components/layout/AppShell";
 import BackButton from "../components/common/BackButton";
 import PrimaryButton from "../components/common/PrimaryButton";
 import SectionCard from "../components/layout/SectionCard";
+
+import { APP_ACTIONS } from "../state/appActions";
+import { useAppState } from "../state/useAppState";
+import { getDayDetails } from "../data/dayDetails";
 import { getPlanById } from "../data/plans";
+import { getCycleSummary } from "../utils/runtime/cycleSummaryHelpers";
 import { UI_STACK_LG, UI_TEXT_MUTED, UI_TITLE } from "../styles/ui";
 
-const STATIC_CYCLE_RECAP = {
-  "bulk-pro": {
-    trainingDays: "6/6",
-    exerciseCompletion: "Preview",
-  },
-  "cut-pro": {
-    trainingDays: "6/6",
-    exerciseCompletion: "Preview",
-  },
-};
+/**
+ * Small display card for one cycle summary metric.
+ */
+function SummaryMetricCard({ label, value }) {
+  return (
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-3">
+      <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
+        {label}
+      </p>
+      <p className="mt-2 text-xl font-semibold tracking-tight text-zinc-100">
+        {value}
+      </p>
+    </div>
+  );
+}
 
+/**
+ * Page-level review for a completed cycle.
+ *
+ * Runtime note:
+ * EndCyclePage blocks new-cycle creation until the current cycle is complete.
+ * Starting a new cycle dispatches START_PLAN_CYCLE and keeps previous cycle
+ * logs available in runtime state.
+ */
 export default function EndCyclePage() {
   const { planId } = useParams();
-  const plan = getPlanById(planId);
+  const navigate = useNavigate();
+  const { state, dispatch } = useAppState();
 
-  const recap = STATIC_CYCLE_RECAP[planId] ?? {
-    trainingDays: "6/6",
-    exerciseCompletion: "Preview",
-  };
+  const plan = getPlanById(planId);
+  const planProgress = state.progressByPlan[planId];
+  const currentCycleNumber = planProgress?.currentCycleNumber ?? 1;
+  const currentCycle = planProgress?.cycles?.[currentCycleNumber] ?? null;
+  const isCycleComplete = Boolean(currentCycle?.completedAt);
+
+  // Static day details are needed so the summary can compare runtime logs
+  // against the expected training-day structure.
+  const dayDetailsList = useMemo(() => {
+    if (!plan) {
+      return [];
+    }
+
+    return plan.dayOrder
+      .map((dayId) => getDayDetails(planId, dayId))
+      .filter(Boolean);
+  }, [plan, planId]);
+
+  const cycleSummary = getCycleSummary({
+    cycle: currentCycle,
+    dayDetailsList,
+  });
+
+  // Start the next cycle while preserving previous cycle logs in app state.
+  function handleStartNewCycle() {
+    dispatch({
+      type: APP_ACTIONS.START_PLAN_CYCLE,
+      payload: {
+        planId,
+        startedAt: new Date().toISOString(),
+      },
+    });
+
+    navigate(`/plan/${planId}/cycle`);
+  }
 
   if (!plan) {
     return (
@@ -46,6 +97,55 @@ export default function EndCyclePage() {
     );
   }
 
+  // Guard against starting a new cycle before all training days are closed.
+  if (!isCycleComplete) {
+    return (
+      <AppShell>
+        <div className={UI_STACK_LG}>
+          <div className="flex justify-start">
+            <BackButton to={`/plan/${planId}/cycle`}>Back to Cycle</BackButton>
+          </div>
+
+          <header className="flex flex-col gap-3">
+            <p className="text-sm font-medium text-zinc-500">
+              {plan.name} — Cycle {currentCycleNumber}
+            </p>
+
+            <h1 className={UI_TITLE}>Cycle is not complete yet</h1>
+
+            <p className={UI_TEXT_MUTED}>
+              This cycle has not been fully closed. Return to the cycle screen
+              and finish the remaining training days before starting a new
+              cycle.
+            </p>
+          </header>
+
+          <SectionCard>
+            <div className="space-y-2">
+              <h2 className="text-sm font-semibold text-zinc-100">
+                Current progress
+              </h2>
+
+              <p className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>
+                Training days finished: {cycleSummary.finishedTrainingDaysCount}
+                /{cycleSummary.totalTrainingDaysCount}
+              </p>
+
+              <p className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>
+                A new cycle should only be started after all training days in
+                the current cycle are closed.
+              </p>
+            </div>
+          </SectionCard>
+
+          <PrimaryButton to={`/plan/${planId}/cycle`}>
+            Back to Cycle
+          </PrimaryButton>
+        </div>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell>
       <div className={UI_STACK_LG}>
@@ -55,13 +155,14 @@ export default function EndCyclePage() {
 
         <header className="flex flex-col gap-3">
           <p className="text-sm font-medium text-zinc-500">
-            {plan.name} — Cycle 1
+            {plan.name} — Cycle {currentCycleNumber}
           </p>
 
           <h1 className={UI_TITLE}>Cycle complete</h1>
 
           <p className={UI_TEXT_MUTED}>
-            Review the cycle summary and prepare the next run of the plan.
+            All training days in this cycle have been closed. Review the
+            summary, then start the next cycle when you are ready.
           </p>
         </header>
 
@@ -73,29 +174,31 @@ export default function EndCyclePage() {
               </h2>
 
               <p className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>
-                This summary will later reflect your real completed training
-                days, exercise completion, and logged work.
+                This recap uses your saved runtime logs from the completed
+                cycle.
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-3">
-                <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-                  Training days
-                </p>
-                <p className="mt-2 text-xl font-semibold tracking-tight text-zinc-100">
-                  {recap.trainingDays}
-                </p>
-              </div>
+              <SummaryMetricCard
+                label="Training days"
+                value={`${cycleSummary.finishedTrainingDaysCount}/${cycleSummary.totalTrainingDaysCount}`}
+              />
 
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-3">
-                <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-                  Exercises
-                </p>
-                <p className="mt-2 text-xl font-semibold tracking-tight text-zinc-100">
-                  {recap.exerciseCompletion}
-                </p>
-              </div>
+              <SummaryMetricCard
+                label="Main exercises"
+                value={`${cycleSummary.completedMainExercisesCount}/${cycleSummary.totalMainExercisesCount}`}
+              />
+
+              <SummaryMetricCard
+                label="Partial days"
+                value={cycleSummary.partialDaysCount}
+              />
+
+              <SummaryMetricCard
+                label="Core blocks"
+                value={`${cycleSummary.completedCoreBlocksCount}/${cycleSummary.totalCoreBlocksCount}`}
+              />
             </div>
 
             <div className="space-y-2 border-t border-zinc-800 pt-5">
@@ -104,19 +207,20 @@ export default function EndCyclePage() {
               </h2>
 
               <p className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>
-                Your previous logged values will later become the base for the
-                next cycle.
+                Start a new cycle when you are ready. Logged values from this
+                cycle can be used as the starting point for the next one.
               </p>
 
               <p className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>
-                Once workout logic is active, starting a new cycle will keep
-                those values available as your next baseline.
+                Starting a new cycle creates a fresh Cycle{" "}
+                {currentCycleNumber + 1} and keeps this completed cycle
+                available in runtime state.
               </p>
             </div>
           </div>
         </SectionCard>
 
-        <PrimaryButton to={`/plan/${planId}/cycle`}>
+        <PrimaryButton type="button" onClick={handleStartNewCycle}>
           Start new cycle
         </PrimaryButton>
       </div>

@@ -1,6 +1,12 @@
 import SectionCard from "../layout/SectionCard";
 import { UI_STACK_MD, UI_TEXT_MUTED } from "../../styles/ui";
 
+/**
+ * Displays one guide topic with optional paragraph and bullet content.
+ *
+ * UI note:
+ * Topic blocks render static educational content from the guide data layer.
+ */
 export default function GuideTopicBlock({ topic }) {
   return (
     <div className={UI_STACK_MD}>

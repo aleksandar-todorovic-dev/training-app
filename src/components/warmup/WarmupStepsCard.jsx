@@ -1,6 +1,12 @@
 import SectionCard from "../layout/SectionCard";
 import { UI_STACK_MD, UI_TEXT_MUTED } from "../../styles/ui";
 
+/**
+ * Displays the ordered warm-up steps from static warm-up data.
+ *
+ * UI note:
+ * Warm-up steps are informational only; they are not logged as runtime tasks.
+ */
 export default function WarmupStepsCard({ steps }) {
   return (
     <SectionCard>

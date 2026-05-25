@@ -2,6 +2,13 @@ import SecondaryButton from "../common/SecondaryButton";
 import WarmupStepsCard from "./WarmupStepsCard";
 import { UI_TEXT_MUTED, UI_TITLE } from "../../styles/ui";
 
+/**
+ * Displays the warm-up guidance sheet for the selected day.
+ *
+ * Runtime note:
+ * Warm-up is local guidance only. Opening or closing this sheet does not affect
+ * day progress, exercise completion, or cycle state.
+ */
 export default function WarmupSheet({ dayDetails, warmup, onClose }) {
   if (!warmup) return null;
 
