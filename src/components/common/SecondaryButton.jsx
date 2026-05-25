@@ -1,6 +1,13 @@
 import { Link } from "react-router-dom";
 import { UI_BUTTON_SECONDARY } from "../../styles/ui";
 
+/**
+ * Shared secondary CTA.
+ *
+ * UI note:
+ * Pass `to` for route navigation, or omit it to render a native button for
+ * local sheet/actions.
+ */
 export default function SecondaryButton({
   to,
   children,
