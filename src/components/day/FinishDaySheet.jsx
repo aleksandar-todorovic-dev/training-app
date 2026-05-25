@@ -2,6 +2,16 @@ import PrimaryButton from "../common/PrimaryButton";
 import SecondaryButton from "../common/SecondaryButton";
 import { UI_TEXT_MUTED, UI_TITLE } from "../../styles/ui";
 
+/**
+ * Confirmation sheet for closing the active training day.
+ *
+ * Runtime note:
+ * This component presents finish-day guidance and warning details only.
+ * The actual runtime state change is delegated upward through `onConfirmFinish`.
+ *
+ * Warning note:
+ * Missing-value warnings are informational. They do not block finishing the day.
+ */
 export default function FinishDaySheet({
   dayDetails,
   progressText,
@@ -52,6 +62,7 @@ export default function FinishDaySheet({
               </p>
             </section>
 
+            {/* Warnings explain carry-over/baseline consequences but do not block confirmation. */}
             {hasWarnings ? (
               <section className="space-y-3 border-t border-amber-500/20 pt-5">
                 <h3 className="text-sm font-semibold text-amber-200">

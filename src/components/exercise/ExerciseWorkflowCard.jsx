@@ -31,6 +31,13 @@ function DetailBlock({ title, children }) {
   );
 }
 
+/**
+ * Displays one full exercise workflow.
+ *
+ * Runtime note:
+ * The card receives runtime or preview set rows from the page layer and
+ * delegates all row updates upward. It does not create or mutate runtime logs.
+ */
 export default function ExerciseWorkflowCard({
   exercise,
   sets = [],
@@ -187,7 +194,7 @@ export default function ExerciseWorkflowCard({
           </div>
 
           <div className="space-y-0 border-t border-zinc-800/80 pt-2">
-            {/* Set rows are runtime-derived; done changes are delegated upward. */}
+            {/* Set rows may be runtime logs or read-only preview rows; updates are delegated upward. */}
             {sets.map((set, index) => (
               <SetRow
                 key={`${exercise.id}-set-${set.setNumber}`}
