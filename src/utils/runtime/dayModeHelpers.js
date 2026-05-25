@@ -27,6 +27,9 @@ export function getDayMode({ dayId, currentDayId, dayLog, dayOrder = [] }) {
   return "inactive";
 }
 
+/**
+ * Converts internal day mode values into user-facing Cycle screen labels.
+ */
 export function getDayModeLabel(dayMode) {
   if (dayMode === "active") {
     return "Current";

@@ -7,8 +7,8 @@ import { AppStateContext } from "./AppStateContext";
  * Provides global runtime state for the local-first MVP.
  *
  * Runtime note:
- * This connects the reducer to React. Screens can later read runtime state and
- * dispatch workout-flow actions through this provider.
+ * This connects the reducer to React. Screens read runtime state and dispatch
+ * workout-flow actions through this provider.
  */
 export function AppStateProvider({ children }) {
   const [state, dispatch] = useReducer(appReducer, appInitialState);

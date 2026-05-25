@@ -2,10 +2,12 @@ function hasValue(value) {
   return value !== null && value !== undefined && String(value).trim() !== "";
 }
 
+// First cycle warnings focus on baseline quality; later cycles focus on carry-over quality.
 function getWarningType(currentCycleNumber) {
   return currentCycleNumber === 1 ? "baseline" : "carry-over";
 }
 
+// Keep the summary shape stable so FinishDaySheet can render warnings safely.
 function createEmptySummary(currentCycleNumber) {
   return {
     hasWarnings: false,
@@ -43,6 +45,8 @@ export function getMissingValueWarningSummary({
     return summary;
   }
 
+  // Only checked sets are inspected. Unchecked sets are treated as not performed,
+  // not as missing data.
   Object.values(dayLog.mainExerciseLogs ?? {}).forEach((exerciseLog) => {
     exerciseLog.sets?.forEach((set) => {
       if (!set.isDone) {
@@ -67,6 +71,7 @@ export function getMissingValueWarningSummary({
 
   const coreExerciseLogs = dayLog.coreBlockLog?.coreExerciseLogs ?? {};
 
+  // Core warnings use each exercise log type to decide whether reps or time is required.
   coreExercises.forEach((coreExercise) => {
     const coreExerciseLog = coreExerciseLogs[coreExercise.id];
 

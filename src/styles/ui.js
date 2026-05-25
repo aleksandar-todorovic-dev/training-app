@@ -1,3 +1,13 @@
+/**
+ * Shared Tailwind UI presets for the MVP.
+ *
+ * UI note:
+ * These constants keep repeated layout, card, text, and button styles
+ * consistent across screens without introducing a larger component system yet.
+ *
+ * Keep these presets generic. Screen-specific visual decisions should stay in
+ * the screen/component that owns that UI.
+ */
 export const UI_PAGE = "min-h-screen bg-zinc-950 text-zinc-100 font-sans";
 export const UI_CONTAINER =
   "mx-auto flex min-h-screen w-full max-w-md flex-col px-4 pb-8 pt-6";
