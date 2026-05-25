@@ -24,6 +24,7 @@ function DetailBlock({ title, children }) {
   );
 }
 
+// Keeps preview targets shorter so row cells stay readable on mobile.
 function normalizeCoreTarget(target) {
   return target
     .replace(/\s*\/\s*side\b/i, "")
@@ -31,6 +32,14 @@ function normalizeCoreTarget(target) {
     .trim();
 }
 
+/**
+ * Builds display-only fallback rows for core previews.
+ *
+ * Runtime note:
+ * These rows are not runtime scaffolding. Real core logs are created by the
+ * reducer/helper layer from structured metadata such as `setCount`, `logType`,
+ * and `tracksLoad`.
+ */
 function buildStaticRows(exercise) {
   const prescription = exercise?.prescription ?? "3 x 8-12";
   const match = prescription.match(/^(\d+)\s*x\s*(.+)$/i);
@@ -71,6 +80,14 @@ function getCoreSetSummary(exercise, tracksLoad) {
   return cleanSummaryValue(getCoreSetCount(exercise));
 }
 
+/**
+ * Displays one full core block workflow.
+ *
+ * Runtime note:
+ * The card receives runtime core logs from the page layer and delegates all
+ * row updates upward. It may show static preview rows, but it does not create
+ * or mutate runtime logs itself.
+ */
 export default function CoreWorkflowCard({
   coreBlock,
   exercises = [],
@@ -181,6 +198,8 @@ export default function CoreWorkflowCard({
 
             const staticRows = buildStaticRows(exercise);
 
+            // Runtime rows are preferred when a core log exists.
+            // Static rows are only a read-only preview/fallback display.
             const rows =
               coreExerciseLog?.sets.map((set, index) => ({
                 setNumber: set.setIndex,

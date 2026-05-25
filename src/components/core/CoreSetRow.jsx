@@ -1,3 +1,11 @@
+/**
+ * Displays one prescribed core set row and forwards row actions upward.
+ *
+ * Runtime note:
+ * CoreSetRow does not update global state directly. It receives the current
+ * core set values and `isDone` state, then forwards input changes and
+ * done-toggle intent to the parent workflow.
+ */
 function CheckBox({ isDone = false }) {
   return (
     <span
