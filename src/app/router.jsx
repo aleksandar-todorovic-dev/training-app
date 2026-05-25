@@ -1,53 +1,55 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
-import HomePage from '../pages/HomePage'
-import PlanOverviewPage from '../pages/PlanOverviewPage'
-import CyclePage from '../pages/CyclePage'
-import DayPage from '../pages/DayPage'
-import ExercisePage from '../pages/ExercisePage'
-import CorePage from '../pages/CorePage'
-import GuidePage from '../pages/GuidePage'
-import EndCyclePage from '../pages/EndCyclePage'
-import NotFoundPage from '../pages/NotFoundPage'
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import HomePage from "../pages/HomePage";
+import PlanOverviewPage from "../pages/PlanOverviewPage";
+import CyclePage from "../pages/CyclePage";
+import DayPage from "../pages/DayPage";
+import ExercisePage from "../pages/ExercisePage";
+import CorePage from "../pages/CorePage";
+import GuidePage from "../pages/GuidePage";
+import EndCyclePage from "../pages/EndCyclePage";
+import NotFoundPage from "../pages/NotFoundPage";
 
+// Active MVP route map.
+// Warm-up and Finish day are sheet flows opened from DayPage, not standalone routes.
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: <HomePage />,
   },
   {
-    path: '/plan/:planId',
+    path: "/plan/:planId",
     element: <PlanOverviewPage />,
   },
   {
-    path: '/plan/:planId/cycle',
+    path: "/plan/:planId/cycle",
     element: <CyclePage />,
   },
   {
-    path: '/plan/:planId/day/:dayId',
+    path: "/plan/:planId/day/:dayId",
     element: <DayPage />,
   },
   {
-    path: '/plan/:planId/day/:dayId/exercise/:exerciseId',
+    path: "/plan/:planId/day/:dayId/exercise/:exerciseId",
     element: <ExercisePage />,
   },
   {
-    path: '/plan/:planId/day/:dayId/core/:coreId',
+    path: "/plan/:planId/day/:dayId/core/:coreId",
     element: <CorePage />,
   },
   {
-    path: '/plan/:planId/guide',
+    path: "/plan/:planId/guide",
     element: <GuidePage />,
   },
   {
-    path: '/plan/:planId/end-cycle',
+    path: "/plan/:planId/end-cycle",
     element: <EndCyclePage />,
   },
   {
-    path: '*',
+    path: "*",
     element: <NotFoundPage />,
   },
-])
+]);
 
 export default function AppRouter() {
-  return <RouterProvider router={router} />
+  return <RouterProvider router={router} />;
 }
