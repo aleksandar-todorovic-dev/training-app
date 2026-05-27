@@ -1,8 +1,8 @@
 # Training App
 
-Structured training app MVP built with React, Vite, Tailwind CSS, and React Router.
+Structured training app MVP built with React, Vite, Tailwind CSS, React Router, and Context + reducer state.
 
-This project is not just a workout tracker. It is a local-first, guided training app built around structured programs, cycle-based progression, prescribed set logging, previous-value carry-over, and real-life flexibility.
+This project is not just a workout tracker. It is a local-first, guided training app built around structured training systems, cycle-based progression, prescribed set logging, previous-value carry-over, and real-life flexibility.
 
 ---
 
@@ -37,6 +37,8 @@ Plan
 -> Start new cycle
 ```
 
+The app guides the user through a structured cycle instead of behaving like a free-form workout notebook.
+
 ---
 
 ## MVP goal
@@ -53,8 +55,9 @@ Build a clean, focused, mobile-first training app that supports:
 - runtime-derived exercise, core, day, and cycle status
 - partial and full day completion
 - previous-value carry-over across cycles
-- runtime-safe in-memory flow before persistence
-- local-first progress persistence in Phase 4
+- local-first runtime progress persistence
+- safe refresh behavior through localStorage
+- controlled local progress reset
 
 ---
 
@@ -63,23 +66,19 @@ Build a clean, focused, mobile-first training app that supports:
 ```text
 Phase 1 — Foundation: complete
 Phase 2 — Static content and screen structure: complete and merged to main
-Phase 3 — Runtime logic: functionally implemented in memory
-Phase 4 — Local persistence: planned after sanity test and cleanup
-Phase 5 — Polish and stability: planned after persistence
+Phase 3 — Runtime logic: functionally complete in memory
+Pre-Phase-4 stabilization: complete
+Phase 4 — Local persistence: complete
+Phase 5 — Polish and stability: next
 ```
 
-Current working branch:
+Current project state:
 
 ```text
-pre-phase-4-runtime-stabilization
-```
-
-Current focus:
-
-```text
-Full Bulk + Cut in-memory sanity test,
-then runtime readability / component responsibility pass,
-then Phase 4 localStorage.
+The MVP screen flow works.
+The runtime workout flow works.
+Progress survives browser refresh.
+The app behaves like a usable local-first MVP.
 ```
 
 ---
@@ -91,6 +90,7 @@ then Phase 4 localStorage.
 - Tailwind CSS
 - React Router
 - Context + reducer runtime state
+- localStorage persistence
 - GitHub Actions basic CI
 - Firebase Hosting for live MVP preview only
 
@@ -105,6 +105,20 @@ No payment/unlock system
 ```
 
 The app is intentionally local-first for the MVP.
+
+---
+
+## Live preview
+
+The project has Firebase Hosting configured for MVP preview:
+
+```text
+https://training-app-mvp.web.app
+```
+
+Hosting is used for live preview and device testing only.
+
+No backend or cloud sync logic is part of the MVP.
 
 ---
 
@@ -180,11 +194,9 @@ Important Phase 2 decisions:
 
 ---
 
-## Phase 3 — Runtime logic
+### Phase 3 — Runtime logic
 
-Phase 3 turns the app from a static prototype into an in-memory workout tool.
-
-### Runtime foundation implemented
+Phase 3 turned the app from a static prototype into an in-memory workout tool.
 
 Implemented:
 
@@ -209,10 +221,89 @@ Implemented:
 - `useAppState`
 - reducer action constants in `APP_ACTIONS`
 - app wrapped with runtime provider
+- active / finished / upcoming day modes
+- read-only upcoming previews
+- finished day review/edit behavior
+- missing-value warnings before Finish day
+- runtime-derived EndCyclePage recap
+- explicit Start new cycle behavior
 
-### Current runtime actions
+Full Bulk + Cut in-memory sanity testing passed before persistence was added.
 
-Current runtime action set includes:
+---
+
+### Phase 4 — Local persistence
+
+Phase 4 made the existing runtime state survive refresh.
+
+Implemented:
+
+- dedicated storage layer
+- versioned localStorage wrapper
+- shallow storage validation
+- safe fallback for missing, invalid, outdated, or broken storage
+- AppStateProvider hydration from localStorage
+- provider-level persistence after reducer state updates
+- `RESET_APP_STATE`
+- local progress reset UI on Home
+- full refresh acceptance test pass
+
+Storage file:
+
+```text
+src/storage/appStateStorage.js
+```
+
+Storage key:
+
+```js
+"training-app:v1:app-state";
+```
+
+Stored wrapper format:
+
+```js
+{
+  version: 1,
+  savedAt: "ISO timestamp",
+  state: {
+    selectedPlanId: null,
+    progressByPlan: {}
+  }
+}
+```
+
+Storage API:
+
+```js
+loadStoredAppState();
+saveStoredAppState(state);
+clearStoredAppState();
+```
+
+Phase 4 acceptance tests passed:
+
+```text
+Bulk progress survives refresh — passed
+Cut progress survives refresh — passed
+Exercise values survive refresh — passed
+Core values survive refresh — passed
+Finished day/current day survives refresh — passed
+Completed cycle survives refresh — passed
+Cycle 2 carry-over survives refresh — passed
+Bulk/Cut progress stay separate — passed
+Reset clears progress — passed
+Broken localStorage does not crash app — passed
+Upcoming preview after refresh stays read-only — passed
+Finished day edit after refresh keeps finished state and edited values — passed
+Reset after both plans have progress clears both plans — passed
+```
+
+---
+
+## Runtime action set
+
+Current reducer actions:
 
 ```js
 SELECT_PLAN;
@@ -227,13 +318,14 @@ MARK_EXERCISE_CLOSED;
 MARK_CORE_EXERCISE_CLOSED;
 MARK_CORE_BLOCK_CLOSED;
 FINISH_DAY;
+RESET_APP_STATE;
 ```
 
 ---
 
 ## Current runtime loop
 
-The app currently supports the main in-memory runtime path:
+The app supports the main persisted runtime path:
 
 ```text
 Start cycle
@@ -251,6 +343,9 @@ Start cycle
 -> complete cycle after all D1-D6 are finished
 -> review runtime cycle recap
 -> start next cycle explicitly
+-> carry previous checked values into the next cycle
+-> persist runtime state locally
+-> restore progress after refresh
 ```
 
 Core runtime flow is also implemented:
@@ -264,6 +359,7 @@ Open core block
 -> derive core exercise/core block status
 -> close core block intent
 -> carry previous core values into the next cycle
+-> persist core progress locally
 ```
 
 ---
@@ -298,6 +394,8 @@ Runtime user data owns:
 - carry-over values
 
 These layers must stay separate.
+
+Static source data is not stored in localStorage.
 
 ---
 
@@ -474,7 +572,7 @@ Rules:
 
 ## Guided day access model
 
-The app now separates day access into three product modes:
+The app separates day access into three product modes:
 
 ```text
 Current day  = active logging allowed
@@ -537,13 +635,7 @@ Upcoming exercise/core routes are read-only previews.
 
 ## Carry-over behavior
 
-### Main exercise carry-over
-
-Main carry-over fields:
-
-```js
-["weight", "reps", "rir"];
-```
+Carry-over is field-by-field.
 
 A value can carry over only when:
 
@@ -552,9 +644,17 @@ previous set has isDone: true
 and the field is not an empty string
 ```
 
-Carry-over is field-by-field.
+Main carry-over fields:
 
-This means one missing value does not erase another useful previous value.
+```js
+["weight", "reps", "rir"];
+```
+
+Core carry-over fields:
+
+```js
+["load", "reps", "time", "rir"];
+```
 
 Not carried over:
 
@@ -565,48 +665,25 @@ finishedAt
 completedAt
 ```
 
----
-
-### Core carry-over
-
-Core carry-over fields:
-
-```js
-["load", "reps", "time", "rir"];
-```
-
-A value can carry over only when:
+Important product rule:
 
 ```text
-previous core set has isDone: true
-and the field is not an empty string
+Unchecked edited values are persisted as local log input,
+but they are not eligible for future carry-over.
 ```
 
-Core carry-over identity:
+This preserves the distinction between:
 
 ```text
-previous cycle
-same dayId
-same coreExerciseId
-same setIndex
-same field
+input value = user-entered log detail
+isDone      = confirmed performed set
 ```
-
-Not carried over:
-
-```text
-isDone
-coreExerciseLog.closedAt
-coreBlockLog.closedAt
-```
-
-Core does not have its own independent cycle. Core belongs to the same day/cycle system as the main workout.
 
 ---
 
 ## Finish day warnings
 
-`FinishDaySheet` now gives informational warnings before a user finishes a day.
+`FinishDaySheet` gives informational warnings before a user finishes a day.
 
 Confirmed rule:
 
@@ -671,7 +748,7 @@ This keeps the warning useful without introducing hard validation.
 
 ## EndCyclePage recap
 
-EndCyclePage now uses runtime state instead of placeholder statistics.
+EndCyclePage uses runtime state instead of placeholder statistics.
 
 If the current cycle is not complete:
 
@@ -707,6 +784,64 @@ Click Start new cycle
 
 ---
 
+## Local persistence behavior
+
+The app persists runtime user progress under one versioned localStorage key:
+
+```text
+training-app:v1:app-state
+```
+
+Stored runtime state includes:
+
+```text
+selectedPlanId
+progressByPlan
+current cycle data
+day logs
+exercise logs
+core logs
+set input values
+set done state
+closedAt
+finishedAt
+completedAt
+carry-over relevant previous-cycle data
+```
+
+Not stored:
+
+```text
+static plan data
+exercise source data
+core definitions
+warmups
+guides
+contextual help
+local UI sheet open/closed state
+```
+
+Broken or invalid storage behavior:
+
+```text
+invalid/missing/outdated/broken storage
+-> fallback to appInitialState
+-> app remains usable
+```
+
+Reset behavior:
+
+```text
+Home
+-> Reset local progress
+-> confirmation
+-> clearStoredAppState()
+-> dispatch RESET_APP_STATE
+-> runtime state returns to appInitialState
+```
+
+---
+
 ## Project file structure
 
 Current high-level structure:
@@ -718,6 +853,7 @@ src/
   components/
   data/
   state/
+  storage/
   styles/
   utils/
 ```
@@ -736,7 +872,7 @@ src/data/
   contextualHelp/
 ```
 
-Important runtime/state layers:
+Important runtime/state/storage layers:
 
 ```text
 src/state/
@@ -746,6 +882,9 @@ src/state/
   AppStateContext.js
   AppStateProvider.jsx
   useAppState.js
+
+src/storage/
+  appStateStorage.js
 
 src/utils/runtime/
   exerciseLogHelpers.js
@@ -795,8 +934,8 @@ src/utils/runtime/
 - no backend
 - no cloud sync
 - no payments
-- runtime state first
-- localStorage only after runtime flow is stable
+- runtime state is persisted locally
+- localStorage is the only persistence layer in the MVP
 
 ---
 
@@ -807,6 +946,7 @@ Before committing implementation checkpoints:
 ```bash
 npm run lint
 npm run build
+git diff --check
 ```
 
 Expected result:
@@ -814,26 +954,38 @@ Expected result:
 ```text
 lint passes
 production build passes
+no trailing whitespace issues
 app boots correctly
-runtime state works in memory
+runtime state works
+localStorage persistence works
 ```
+
+Phase 4 acceptance testing has passed.
 
 ---
 
 ## Current next steps
 
-Before Phase 4 localStorage:
+Next MVP phase:
 
 ```text
-1. Full Bulk + Cut in-memory sanity test
-2. Runtime readability / component responsibility pass
-3. Phase 4 localStorage planning
+Phase 5 — polish and stability
 ```
 
-Then:
+Likely focus areas:
+
+- small UX polish around persisted runtime flow
+- route/deep-link fallback polish
+- final mobile UI review
+- documentation cleanup
+- README/project presentation pass
+- final testing before portfolio/demo positioning
+
+Possible non-blocking polish item:
 
 ```text
-Phase 4 — localStorage persistence
+If a deep runtime route is opened with no active cycle,
+show a clearer empty-state / back-to-plan message.
 ```
 
 ---
@@ -847,6 +999,7 @@ training-app-mvp-roadmap.md
 training-app-technical-roadmap-v2.md
 training-app-phase-3-runtime-logic-roadmap-final.md
 training-app-pre-phase-4-runtime-decisions.md
+training-app-phase-4-local-storage-decisions.md
 training-app-architecture-notes.md
 training-app-build-log.md
 training-app-ui-system.md
@@ -860,7 +1013,8 @@ Use them as:
 - technical roadmap = architecture and implementation direction
 - Phase 3 roadmap = runtime model and helper/reducer direction
 - pre-Phase-4 decisions = runtime stabilization decisions before persistence
-- architecture notes = source-of-truth decisions and state/data boundaries
+- Phase 4 decisions = localStorage persistence plan and implementation result
+- architecture notes = source-of-truth decisions and state/data/storage boundaries
 - build log = completed implementation history
 - UI system = reusable UI rules and visual consistency
 - screen map = active screen/route flow
@@ -878,11 +1032,12 @@ The goal is to keep the project:
 - mobile-first
 - understandable
 - local-first
-- runtime-safe before persistence
+- runtime-safe
+- persistence-safe
 - useful as a serious portfolio project
 
 Current guiding rule:
 
 ```text
-Make runtime behavior correct in memory before saving it permanently.
+Make the persisted runtime flow stable before expanding product scope.
 ```

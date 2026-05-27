@@ -1,4 +1,5 @@
 import { APP_ACTIONS } from "./appActions";
+import { appInitialState } from "./appInitialState";
 import { buildInitialDayLog } from "../utils/runtime/dayLogHelpers";
 import { buildInitialCoreBlockLog } from "../utils/runtime/coreLogHelpers";
 import { areAllTrainingDaysFinished } from "../utils/runtime/cycleStatusHelpers";
@@ -36,6 +37,12 @@ export function appReducer(state, action) {
     // ---------------------------------------------------------------------------
     // Plan / cycle lifecycle
     // ---------------------------------------------------------------------------
+
+    case APP_ACTIONS.RESET_APP_STATE: {
+      // Reset only the in-memory runtime state. Storage clearing is handled by the
+      // dedicated storage layer before this action is dispatched.
+      return appInitialState;
+    }
 
     case APP_ACTIONS.SELECT_PLAN: {
       return {
