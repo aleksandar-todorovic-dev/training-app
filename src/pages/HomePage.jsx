@@ -1,12 +1,22 @@
 import AppShell from "../components/layout/AppShell";
-import ScreenHeader from "../components/layout/ScreenHeader";
 import SecondaryButton from "../components/common/SecondaryButton";
 import PlanCard from "../components/plans/PlanCard";
 import { plans } from "../data/plans";
 import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
 import { clearStoredAppState } from "../storage/appStateStorage";
-import { UI_STACK_LG } from "../styles/ui";
+import {
+  UI_PILL_PRODUCT,
+  UI_PILL_PRODUCT_ACCENT,
+  UI_STACK_LG,
+} from "../styles/ui";
+
+const HOME_VALUE_CHIPS = [
+  "Cycle-based",
+  "Fast logging",
+  "Previous values",
+  "Partial days allowed",
+];
 
 /**
  * Landing page for selecting one of the predefined MVP plans.
@@ -39,22 +49,58 @@ export default function HomePage() {
   }
 
   return (
-    <AppShell>
-      <div className={UI_STACK_LG}>
-        <ScreenHeader
-          title="Training App"
-          subtitle="Structured training for real life. Choose a plan and start your cycle."
-        />
+    <AppShell mode="product">
+      <div className="flex flex-col gap-8 py-2">
+        <header className="flex flex-col gap-5">
+          <div className="flex flex-wrap gap-2">
+            <span className={UI_PILL_PRODUCT_ACCENT}>
+              Structured training system
+            </span>
+            <span className={UI_PILL_PRODUCT}>Local-first MVP</span>
+          </div>
 
-        <div className={UI_STACK_LG}>
-          {plans.map((plan) => (
-            <PlanCard key={plan.id} plan={plan} />
-          ))}
-        </div>
+          <div className="flex flex-col gap-3">
+            <h1 className="text-4xl font-semibold tracking-tight text-zinc-950">
+              Your training cycle, organized.
+            </h1>
 
-        <div className="pt-2">
+            <p className="text-base leading-7 text-zinc-600">
+              Follow a structured Bulk or Cut plan, log working sets fast, and
+              keep the cycle moving even when real life changes the schedule.
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {HOME_VALUE_CHIPS.map((chip) => (
+              <span key={chip} className={UI_PILL_PRODUCT}>
+                {chip}
+              </span>
+            ))}
+          </div>
+        </header>
+
+        <section className={UI_STACK_LG}>
+          <div className="flex flex-col gap-1">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-950">
+              Choose your plan
+            </h2>
+            <p className="text-sm leading-6 text-zinc-600">
+              Start with the goal that matches your current phase. You can keep
+              Bulk and Cut progress separate.
+            </p>
+          </div>
+
+          <div className={UI_STACK_LG}>
+            {plans.map((plan) => (
+              <PlanCard key={plan.id} plan={plan} />
+            ))}
+          </div>
+        </section>
+
+        <div className="border-t border-zinc-200 pt-4">
           <SecondaryButton
             type="button"
+            variant="product"
             className="w-full"
             onClick={handleResetLocalProgress}
           >
