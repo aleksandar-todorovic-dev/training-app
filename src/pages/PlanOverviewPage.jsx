@@ -1,4 +1,20 @@
-import { useParams } from "react-router-dom";
+import { createElement } from "react";
+import { Link, useParams } from "react-router-dom";
+import {
+  ArrowUpRight,
+  BarChart3,
+  BookOpen,
+  CalendarCheck,
+  ChevronRight,
+  Dumbbell,
+  Leaf,
+  Moon,
+  Repeat2,
+  ShieldCheck,
+  Target,
+  TrendingUp,
+  Zap,
+} from "lucide-react";
 
 import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
@@ -6,32 +22,149 @@ import AppShell from "../components/layout/AppShell";
 import ScreenHeader from "../components/layout/ScreenHeader";
 import SectionCard from "../components/layout/SectionCard";
 import BackButton from "../components/common/BackButton";
-import PrimaryButton from "../components/common/PrimaryButton";
-import SecondaryButton from "../components/common/SecondaryButton";
 import { getPlanById } from "../data/plans";
 import { getDaysByPlanId } from "../data/days";
-import { UI_ACTION_ROW, UI_STACK_LG, UI_TEXT_MUTED } from "../styles/ui";
+import { UI_STACK_LG, UI_TEXT_MUTED } from "../styles/ui";
 
-// Display labels for the overview training rhythm.
-// These labels are presentation-only; runtime day order comes from plan.dayOrder.
-const TRAINING_DAY_ORDER_LABELS_BY_PLAN = {
+const PLAN_OVERVIEW_META = {
   "bulk-pro": {
-    d1: "Chest & Triceps with Shoulder Top-up",
-    d2: "Back & Biceps with Trap Top-up",
-    d3: "Quads Heavy with Hamstring and Calf Support",
-    d4: "Shoulders & Arms Light with Trap Work",
-    d5: "Chest Pump & Rows with Triceps Support",
-    d6: "Posterior Chain with Quad, Arm, and Calf Support",
+    eyebrow: "Plan overview",
+    title: "Bulk Pro",
+    lead: "Build muscle through repeatable volume.",
+    description:
+      "A structured 6-day cycle built for progression, productive workload, and clear next steps.",
+    chips: [
+      { label: "Growth", icon: ArrowUpRight },
+      { label: "Progression", icon: TrendingUp },
+      { label: "6 training days", icon: CalendarCheck },
+      { label: "Cycle-based", icon: Repeat2 },
+    ],
+    statusAccentClassName: "text-emerald-700",
+    statusIconClassName: "bg-emerald-100 text-emerald-800",
+    ctaClassName:
+      "bg-emerald-950 text-white hover:bg-emerald-900 focus-visible:ring-emerald-700",
+    rhythmActiveClassName: "border-emerald-100 bg-emerald-50 text-emerald-950",
+    rhythmIconClassName: "text-emerald-700",
+    facts: [
+      { label: "Training days", value: "6", icon: CalendarCheck },
+      { label: "Rhythm", value: "2 on / 1 off", icon: BarChart3 },
+      {
+        label: "Previous values",
+        value: "Saved between cycles",
+        icon: TrendingUp,
+      },
+      { label: "Partial days", value: "Allowed", icon: ShieldCheck },
+    ],
+    principlesTitle: "How this plan works",
+    principles: [
+      {
+        title: "Add reps first",
+        body: "Progress inside the rep range before adding load.",
+        icon: BarChart3,
+      },
+      {
+        title: "Volume is planned",
+        body: "The workload is structured so you can repeat it.",
+        icon: Dumbbell,
+      },
+      {
+        title: "Advanced methods are selective",
+        body: "Only use them where the plan calls for them.",
+        icon: Target,
+      },
+      {
+        title: "Rest days matter",
+        body: "Recovery is built into the cycle, not left to chance.",
+        icon: Moon,
+      },
+    ],
   },
   "cut-pro": {
-    d1: "Chest & Triceps with Shoulder Top-up",
-    d2: "Back & Biceps with Trap Top-up",
-    d3: "Quads Heavy with Hamstring Spark and Calf Support",
-    d4: "Shoulders & Arms Light with Trap Work",
-    d5: "Chest Pump & Rows with Triceps Support",
-    d6: "Posterior Chain with Quad, Arm, and Calf Support",
+    eyebrow: "Plan overview",
+    title: "Cut Pro",
+    lead: "Preserve strength while fatigue is higher.",
+    description:
+      "A recovery-aware cut built to preserve strength, control fatigue, and keep momentum through real-life scheduling.",
+    chips: [
+      { label: "Recovery-aware", icon: Leaf },
+      { label: "Fast logging", icon: Zap },
+      { label: "Previous values", icon: TrendingUp },
+      { label: "Partial days allowed", icon: CalendarCheck },
+    ],
+    statusAccentClassName: "text-emerald-700",
+    statusIconClassName: "bg-emerald-100 text-emerald-800",
+    ctaClassName:
+      "bg-emerald-950 text-white hover:bg-emerald-900 focus-visible:ring-emerald-700",
+    rhythmActiveClassName: "border-emerald-100 bg-emerald-50 text-emerald-950",
+    rhythmIconClassName: "text-emerald-700",
+    facts: [
+      { label: "Goal", value: "Retention", icon: Target },
+      { label: "Focus", value: "Fatigue control", icon: BarChart3 },
+      { label: "Mindset", value: "Hold strength", icon: ShieldCheck },
+      { label: "Recovery", value: "Built in", icon: Leaf },
+    ],
+    principlesTitle: "Key rules",
+    principles: [
+      {
+        title: "Keep reps clean and controlled.",
+        body: "Quality over quantity always.",
+        icon: Target,
+      },
+      {
+        title: "Use partial days when needed.",
+        body: "Progress beats perfection.",
+        icon: CalendarCheck,
+      },
+      {
+        title: "Maintaining strength is already a win.",
+        body: "Protect what you have built.",
+        icon: ShieldCheck,
+      },
+    ],
   },
 };
+
+const RHYTHM_DAY_LABELS = {
+  d1: "Chest",
+  d2: "Back",
+  d3: "Quads",
+  d4: "Shoulders",
+  d5: "Pump",
+  d6: "Posterior",
+};
+
+function getPrimaryCta({ currentCycle, currentCycleNumber, plan, planId }) {
+  if (!currentCycle) {
+    return {
+      mode: "start",
+      eyebrow: "Current status",
+      title: "Ready to start?",
+      body: "Start your first cycle and follow the plan day by day.",
+      label: currentCycleNumber ? "Start cycle" : "Start Cycle 1",
+      to: plan ? `/plan/${plan.id}/cycle` : `/plan/${planId}/cycle`,
+    };
+  }
+
+  if (currentCycle.completedAt) {
+    return {
+      mode: "review",
+      eyebrow: "Current status",
+      title: `Cycle ${currentCycleNumber} complete`,
+      body: "Review your completed cycle before starting the next one.",
+      label: "Review cycle",
+      to: plan ? `/plan/${plan.id}/end-cycle` : `/plan/${planId}/end-cycle`,
+    };
+  }
+
+  return {
+    mode: "continue",
+    eyebrow: "Current status",
+    title: `Cycle ${currentCycleNumber} in progress`,
+    body: "Continue from your current training day and keep the cycle moving.",
+    label: "Continue cycle",
+    to: plan ? `/plan/${plan.id}/cycle` : `/plan/${planId}/cycle`,
+  };
+}
 
 /**
  * Page-level overview for one predefined plan.
@@ -53,54 +186,21 @@ export default function PlanOverviewPage() {
     ? planProgress?.cycles?.[currentCycleNumber]
     : null;
 
-  // Primary CTA is derived from current runtime progress:
-  // start = no current cycle, continue = active cycle, review = completed cycle.
-  const primaryCta = !currentCycle
-    ? {
-        mode: "start",
-        label: "Start cycle",
-        to: plan ? `/plan/${plan.id}/cycle` : `/plan/${planId}/cycle`,
-      }
-    : currentCycle.completedAt
-      ? {
-          mode: "review",
-          label: "Review cycle",
-          to: plan ? `/plan/${plan.id}/end-cycle` : `/plan/${planId}/end-cycle`,
-        }
-      : {
-          mode: "continue",
-          label: "Continue cycle",
-          to: plan ? `/plan/${plan.id}/cycle` : `/plan/${planId}/cycle`,
-        };
-
-  const dayOrderLabels = TRAINING_DAY_ORDER_LABELS_BY_PLAN[planId] ?? {};
-
-  // Presentation-only 9-day rhythm shown to the user.
-  // This does not replace plan.dayOrder as the runtime day sequence.
-  const trainingDayOrder = [
-    `${days[0]?.label} — ${dayOrderLabels[days[0]?.id] ?? days[0]?.name}`,
-    `${days[1]?.label} — ${dayOrderLabels[days[1]?.id] ?? days[1]?.name}`,
-    "Rest / light recovery",
-    `${days[2]?.label} — ${dayOrderLabels[days[2]?.id] ?? days[2]?.name}`,
-    `${days[3]?.label} — ${dayOrderLabels[days[3]?.id] ?? days[3]?.name}`,
-    "Rest / light recovery",
-    `${days[4]?.label} — ${dayOrderLabels[days[4]?.id] ?? days[4]?.name}`,
-    `${days[5]?.label} — ${dayOrderLabels[days[5]?.id] ?? days[5]?.name}`,
-    "Rest / light recovery",
-  ];
-
   if (!plan) {
     return (
-      <AppShell>
+      <AppShell mode="product">
         <div className={UI_STACK_LG}>
-          <BackButton to="/">Back to Home</BackButton>
+          <BackButton variant="product" to="/">
+            Back to Home
+          </BackButton>
 
           <ScreenHeader
+            variant="product"
             title="Plan not found"
             subtitle="The selected plan could not be loaded."
           />
 
-          <SectionCard>
+          <SectionCard variant="product">
             <p className={UI_TEXT_MUTED}>
               Check the selected route or return to Home and choose a valid
               plan.
@@ -111,8 +211,29 @@ export default function PlanOverviewPage() {
     );
   }
 
+  const meta = PLAN_OVERVIEW_META[plan.id] ?? PLAN_OVERVIEW_META["bulk-pro"];
+
+  const primaryCta = getPrimaryCta({
+    currentCycle,
+    currentCycleNumber,
+    plan,
+    planId,
+  });
+
+  const rhythmItems = [
+    days[0],
+    days[1],
+    { id: "rest-1", label: "Rest", name: "Rest" },
+    days[2],
+    days[3],
+    { id: "rest-2", label: "Rest", name: "Rest" },
+    days[4],
+    days[5],
+    { id: "rest-3", label: "Rest", name: "Rest" },
+  ].filter(Boolean);
+
   // Only the "start" CTA creates runtime progress.
-  // Continue/review navigation is handled by the PrimaryButton route.
+  // Continue/review navigation is handled by the route target only.
   function handlePrimaryCtaClick() {
     if (primaryCta.mode !== "start") {
       return;
@@ -128,77 +249,209 @@ export default function PlanOverviewPage() {
   }
 
   return (
-    <AppShell>
-      <div className={UI_STACK_LG}>
-        <div className="flex items-center justify-between gap-3">
-          <BackButton to="/">Back to Home</BackButton>
+    <AppShell mode="product">
+      <div className="flex flex-col gap-7 py-2">
+        <header className="flex flex-col gap-5">
+          <BackButton variant="product" to="/">
+            Back
+          </BackButton>
 
-          <SecondaryButton to={`/plan/${plan.id}/guide`}>
-            View guide
-          </SecondaryButton>
-        </div>
+          <div className="flex flex-col gap-3">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800">
+              {meta.eyebrow}
+            </p>
 
-        <ScreenHeader title={plan.name} subtitle={plan.goal} />
+            <div className="flex flex-col gap-3">
+              <h1 className="text-5xl font-semibold leading-none tracking-tight text-zinc-950">
+                {meta.title}
+              </h1>
 
-        <SectionCard>
-          <div className={UI_STACK_LG}>
-            <p className={UI_TEXT_MUTED}>{plan.intro}</p>
-          </div>
-        </SectionCard>
-
-        <SectionCard>
-          <div className={UI_STACK_LG}>
-            <h2 className="text-lg font-semibold text-zinc-100">
-              Training system
-            </h2>
-
-            <div className={UI_ACTION_ROW}>
-              {plan.coreSystem.map((item) => (
-                <p key={item} className={UI_TEXT_MUTED}>
-                  - {item}
+              <div className="flex flex-col gap-2">
+                <p className="text-lg font-medium leading-7 text-zinc-700">
+                  {meta.lead}
                 </p>
-              ))}
+                <p className="max-w-sm text-base leading-7 text-zinc-600">
+                  {meta.description}
+                </p>
+              </div>
             </div>
           </div>
-        </SectionCard>
 
-        <SectionCard>
-          <div className={UI_STACK_LG}>
-            <h2 className="text-lg font-semibold text-zinc-100">Key rules</h2>
-
-            <div className={UI_ACTION_ROW}>
-              {plan.keyRules.map((rule) => (
-                <p key={rule} className={UI_TEXT_MUTED}>
-                  - {rule}
-                </p>
-              ))}
-            </div>
+          <div className="grid grid-cols-2 gap-2">
+            {meta.chips.map(({ label, icon }) => (
+              <span
+                key={label}
+                className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 shadow-sm"
+              >
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+                  {createElement(icon, {
+                    className: "h-3.5 w-3.5",
+                    "aria-hidden": "true",
+                  })}
+                </span>
+                <span className="leading-tight">{label}</span>
+              </span>
+            ))}
           </div>
-        </SectionCard>
+        </header>
 
-        <SectionCard>
-          <div className={UI_STACK_LG}>
-            <h2 className="text-lg font-semibold text-zinc-100">
-              Training day order
-            </h2>
+        <section className="overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-md">
+          <div className="relative flex flex-col gap-5 p-5">
+            <div className="pointer-events-none absolute right-4 top-4 h-24 w-24 rounded-full border-12 border-emerald-600/90 opacity-90" />{" "}
+            <div className="pointer-events-none absolute right-9 top-4 h-4 w-4 rounded-full bg-emerald-700" />
+            <div className="relative max-w-[70%]">
+              <p
+                className={`text-xs font-semibold uppercase tracking-[0.18em] ${meta.statusAccentClassName}`}
+              >
+                {primaryCta.eyebrow}
+              </p>
 
-            <div className={UI_ACTION_ROW}>
-              {trainingDayOrder.map((item, index) => (
-                <p key={`${item}-${index}`} className={UI_TEXT_MUTED}>
-                  {item}
-                </p>
-              ))}
+              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-zinc-950">
+                {primaryCta.title}
+              </h2>
+
+              <p className="mt-2 text-sm leading-6 text-zinc-600">
+                {primaryCta.body}
+              </p>
             </div>
-          </div>
-        </SectionCard>
-
-        <SectionCard>
-          <div className={UI_ACTION_ROW}>
-            <PrimaryButton to={primaryCta.to} onClick={handlePrimaryCtaClick}>
+            <Link
+              to={primaryCta.to}
+              onClick={handlePrimaryCtaClick}
+              className={`relative inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${meta.ctaClassName}`}
+            >
               {primaryCta.label}
-            </PrimaryButton>
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
           </div>
-        </SectionCard>
+        </section>
+
+        <section className="grid grid-cols-2 gap-3">
+          {meta.facts.map(({ label, value, icon }) => (
+            <div
+              key={label}
+              className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm"
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                {createElement(icon, {
+                  className: "h-4 w-4",
+                  "aria-hidden": "true",
+                })}
+              </div>
+
+              <p className="mt-3 text-xs font-medium text-zinc-500">{label}</p>
+              <p className="mt-1 text-lg font-semibold leading-tight text-zinc-950">
+                {value}
+              </p>
+            </div>
+          ))}
+        </section>
+
+        <section className="flex flex-col gap-3">
+          <div>
+            <h2 className="text-xl font-semibold tracking-tight text-zinc-950">
+              Cycle rhythm
+            </h2>
+            <p className="text-sm leading-6 text-zinc-600">
+              Your 9-day training rhythm keeps the plan moving in a fixed order.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2">
+            {rhythmItems.map((item) => {
+              const isRest = item.label === "Rest";
+              const rhythmLabel = isRest
+                ? "Rest"
+                : (RHYTHM_DAY_LABELS[item.id] ?? item.name);
+
+              return (
+                <div
+                  key={item.id}
+                  className={`flex min-h-24 flex-col justify-between rounded-2xl border p-3 text-center shadow-sm ${
+                    isRest
+                      ? "border-zinc-200 bg-zinc-50 text-zinc-500"
+                      : meta.rhythmActiveClassName
+                  }`}
+                >
+                  <p className="text-xs font-semibold">{item.label}</p>
+                  <p className="text-sm font-medium leading-tight">
+                    {rhythmLabel}
+                  </p>
+
+                  <div
+                    className={`mx-auto flex h-6 w-6 items-center justify-center ${
+                      isRest ? "text-zinc-500" : meta.rhythmIconClassName
+                    }`}
+                  >
+                    {isRest ? (
+                      <Moon className="h-4 w-4" aria-hidden="true" />
+                    ) : (
+                      <Dumbbell className="h-4 w-4" aria-hidden="true" />
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="flex flex-col gap-3">
+          <h2 className="text-xl font-semibold tracking-tight text-zinc-950">
+            {meta.principlesTitle}
+          </h2>
+
+          <div className="overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm">
+            {meta.principles.map(({ title, body, icon }, index) => (
+              <div
+                key={title}
+                className={`flex items-center gap-3 p-4 ${
+                  index > 0 ? "border-t border-zinc-100" : ""
+                }`}
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                  {createElement(icon, {
+                    className: "h-4 w-4",
+                    "aria-hidden": "true",
+                  })}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-zinc-950">{title}</p>
+                  <p className="text-sm leading-5 text-zinc-600">{body}</p>
+                </div>
+
+                <ChevronRight
+                  className="h-4 w-4 shrink-0 text-zinc-400"
+                  aria-hidden="true"
+                />
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-3xl border border-emerald-100 bg-white p-5 shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800">
+              <BookOpen className="h-7 w-7" aria-hidden="true" />
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <h2 className="text-lg font-semibold tracking-tight text-zinc-950">
+                Coach guide
+              </h2>
+              <p className="text-sm leading-6 text-zinc-600">
+                Learn how RIR, progression, recovery, and cycle structure work.
+              </p>
+            </div>
+          </div>
+
+          <Link
+            to={`/plan/${plan.id}/guide`}
+            className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl border border-emerald-800 px-4 text-sm font-semibold text-emerald-950 transition-colors hover:bg-emerald-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-700 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+          >
+            Open guide
+            <ChevronRight className="h-4 w-4" aria-hidden="true" />
+          </Link>
+        </section>
       </div>
     </AppShell>
   );
