@@ -1,15 +1,32 @@
-import { UI_CONTAINER, UI_PAGE } from "../../styles/ui";
+import {
+  UI_CONTAINER,
+  UI_PAGE_PRODUCT,
+  UI_PAGE_TRAINING,
+} from "../../styles/ui";
+
+const PAGE_MODE_CLASS_NAMES = {
+  product: UI_PAGE_PRODUCT,
+  training: UI_PAGE_TRAINING,
+};
 
 /**
  * Provides the shared page frame for all MVP screens.
  *
- * UI note:
- * AppShell owns the global page/container spacing so individual screens can
- * focus on their content instead of repeating layout wrappers.
+ * Phase 5 note:
+ * AppShell now supports two visual modes:
+ *
+ * - product: overview, learning, review, and plan-selection screens
+ * - training: execution, logging, and workout-flow screens
+ *
+ * Default remains "training" so existing screens keep their current dark
+ * behavior until they are intentionally migrated during Phase 5 polish.
  */
-export default function AppShell({ children }) {
+export default function AppShell({ children, mode = "training" }) {
+  const pageClassName =
+    PAGE_MODE_CLASS_NAMES[mode] ?? PAGE_MODE_CLASS_NAMES.training;
+
   return (
-    <main className={UI_PAGE}>
+    <main className={pageClassName}>
       <div className={UI_CONTAINER}>{children}</div>
     </main>
   );
