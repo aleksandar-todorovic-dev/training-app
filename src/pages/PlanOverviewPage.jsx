@@ -5,6 +5,7 @@ import {
   BarChart3,
   BookOpen,
   CalendarCheck,
+  ChevronLeft,
   ChevronRight,
   Dumbbell,
   Leaf,
@@ -50,7 +51,7 @@ const PLAN_OVERVIEW_META = {
       { label: "Rhythm", value: "2 on / 1 off", icon: BarChart3 },
       {
         label: "Previous values",
-        value: "Saved between cycles",
+        value: "Saved",
         icon: TrendingUp,
       },
       { label: "Partial days", value: "Allowed", icon: ShieldCheck },
@@ -86,7 +87,7 @@ const PLAN_OVERVIEW_META = {
     description:
       "A recovery-aware cut built to preserve strength, control fatigue, and keep momentum through real-life scheduling.",
     chips: [
-      { label: "Recovery-aware", icon: Leaf },
+      { label: "Recovery aware", icon: Leaf },
       { label: "Fast logging", icon: Zap },
       { label: "Previous values", icon: TrendingUp },
       { label: "Partial days allowed", icon: CalendarCheck },
@@ -250,11 +251,15 @@ export default function PlanOverviewPage() {
 
   return (
     <AppShell mode="product">
-      <div className="flex flex-col gap-7 py-2">
-        <header className="flex flex-col gap-5">
-          <BackButton variant="product" to="/">
+      <div className="flex flex-col gap-6 py-2">
+        <header className="flex flex-col gap-4">
+          <Link
+            to="/"
+            className="inline-flex self-start items-center gap-2 rounded-xl px-1 text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-950"
+          >
+            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
             Back
-          </BackButton>
+          </Link>
 
           <div className="flex flex-col gap-3">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-800">
@@ -297,8 +302,9 @@ export default function PlanOverviewPage() {
 
         <section className="overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-md">
           <div className="relative flex flex-col gap-5 p-5">
-            <div className="pointer-events-none absolute right-4 top-4 h-24 w-24 rounded-full border-12 border-emerald-600/90 opacity-90" />{" "}
-            <div className="pointer-events-none absolute right-9 top-4 h-4 w-4 rounded-full bg-emerald-700" />
+            <div className="pointer-events-none absolute right-5 top-5 h-20 w-20 rounded-full border-10 border-emerald-600/90 opacity-90" />
+            <div className="pointer-events-none absolute right-10 top-5 h-3.5 w-3.5 rounded-full bg-emerald-700" />
+
             <div className="relative max-w-[70%]">
               <p
                 className={`text-xs font-semibold uppercase tracking-[0.18em] ${meta.statusAccentClassName}`}
@@ -314,6 +320,7 @@ export default function PlanOverviewPage() {
                 {primaryCta.body}
               </p>
             </div>
+
             <Link
               to={primaryCta.to}
               onClick={handlePrimaryCtaClick}
@@ -329,7 +336,7 @@ export default function PlanOverviewPage() {
           {meta.facts.map(({ label, value, icon }) => (
             <div
               key={label}
-              className="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm"
+              className="rounded-2xl border border-zinc-200 bg-white p-3.5 shadow-sm"
             >
               <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
                 {createElement(icon, {
@@ -339,7 +346,7 @@ export default function PlanOverviewPage() {
               </div>
 
               <p className="mt-3 text-xs font-medium text-zinc-500">{label}</p>
-              <p className="mt-1 text-lg font-semibold leading-tight text-zinc-950">
+              <p className="mt-1 text-base font-semibold leading-tight text-zinc-950">
                 {value}
               </p>
             </div>
@@ -366,7 +373,7 @@ export default function PlanOverviewPage() {
               return (
                 <div
                   key={item.id}
-                  className={`flex min-h-24 flex-col justify-between rounded-2xl border p-3 text-center shadow-sm ${
+                  className={`flex min-h-20 flex-col justify-between rounded-2xl border p-2.5 text-center shadow-sm ${
                     isRest
                       ? "border-zinc-200 bg-zinc-50 text-zinc-500"
                       : meta.rhythmActiveClassName
