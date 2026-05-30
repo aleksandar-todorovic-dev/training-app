@@ -1,22 +1,30 @@
+import { Link } from "react-router-dom";
+import { TrendingDown, TrendingUp } from "lucide-react";
+
 import SectionCard from "../layout/SectionCard";
-import PrimaryButton from "../common/PrimaryButton";
-import {
-  UI_PILL_PRODUCT,
-  UI_PILL_PRODUCT_ACCENT,
-  UI_TEXT_MUTED_PRODUCT,
-  UI_TITLE_PRODUCT,
-} from "../../styles/ui";
 
 const PLAN_CARD_META = {
   "bulk-pro": {
     badge: "Growth phase",
-    promise: "Build size through repeatable volume and clear progression.",
-    accentClassName: "bg-emerald-400",
+    promise: "Build momentum through repeatable volume and clear progression.",
+    chips: ["Growth", "Progression", "Volume"],
+    icon: TrendingUp,
+    iconClassName: "bg-emerald-100 text-emerald-800",
+    accentClassName: "bg-emerald-500",
+    ctaClassName:
+      "bg-emerald-950 text-white hover:bg-emerald-900 focus-visible:ring-emerald-700",
+    chipClassName: "bg-emerald-50 text-emerald-800",
   },
   "cut-pro": {
     badge: "Cut phase",
     promise: "Preserve strength while keeping fatigue under control.",
-    accentClassName: "bg-lime-400",
+    chips: ["Retention", "Fatigue control", "Recovery-aware"],
+    icon: TrendingDown,
+    iconClassName: "bg-amber-100 text-amber-800",
+    accentClassName: "bg-amber-700",
+    ctaClassName:
+      "bg-amber-800 text-white hover:bg-amber-700 focus-visible:ring-amber-700",
+    chipClassName: "bg-amber-50 text-amber-900",
   },
 };
 
@@ -28,45 +36,54 @@ const PLAN_CARD_META = {
  * runtime cycle by itself.
  */
 export default function PlanCard({ plan }) {
-  const meta = PLAN_CARD_META[plan.id] ?? {
-    badge: "Structured plan",
-    promise: plan.goal,
-    accentClassName: "bg-emerald-400",
-  };
+  const meta = PLAN_CARD_META[plan.id] ?? PLAN_CARD_META["bulk-pro"];
+  const Icon = meta.icon;
 
   return (
-    <SectionCard variant="product" className="overflow-hidden p-0">
-      <div className={`h-1 ${meta.accentClassName}`} />
+    <SectionCard
+      variant="product"
+      className="overflow-hidden border-zinc-200/80 bg-white/95 p-0 shadow-md"
+    >
+      <div className={`h-1.5 ${meta.accentClassName}`} />
 
-      <div className="flex flex-col gap-5 p-4">
-        <div className="flex flex-col gap-3">
-          <div className="flex flex-wrap gap-2">
-            <span className={UI_PILL_PRODUCT_ACCENT}>{meta.badge}</span>
-            <span className={UI_PILL_PRODUCT}>{plan.cycleLabel}</span>
-          </div>
+      <div className="flex flex-col gap-4 p-5">
+        <div className="flex items-center justify-between gap-4">
+          <span className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            {meta.badge}
+          </span>
 
-          <div className="flex flex-col gap-2">
-            <h2 className={UI_TITLE_PRODUCT}>{plan.name}</h2>
-            <p className="text-sm font-medium leading-6 text-zinc-800">
-              {meta.promise}
-            </p>
+          <div
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${meta.iconClassName}`}
+          >
+            <Icon className="h-6 w-6" aria-hidden="true" />
           </div>
         </div>
 
-        <p className={UI_TEXT_MUTED_PRODUCT}>{plan.shortDescription}</p>
+        <div className="flex flex-col gap-2">
+          <h2 className="text-3xl font-semibold tracking-tight text-zinc-950">
+            {plan.name}
+          </h2>
 
-        <div className="rounded-2xl border border-zinc-100 bg-zinc-50 p-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
-            Best for
-          </p>
-          <p className="mt-1 text-sm leading-6 text-zinc-700">
-            {plan.audience}
-          </p>
+          <p className="text-base leading-7 text-zinc-700">{meta.promise}</p>
         </div>
 
-        <PrimaryButton variant="product" to={`/plan/${plan.id}`}>
+        <div className="flex flex-wrap gap-2">
+          {meta.chips.map((chip) => (
+            <span
+              key={chip}
+              className={`rounded-full px-3 py-1 text-xs font-medium ${meta.chipClassName}`}
+            >
+              {chip}
+            </span>
+          ))}
+        </div>
+
+        <Link
+          to={`/plan/${plan.id}`}
+          className={`inline-flex min-h-12 items-center justify-center rounded-xl px-4 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${meta.ctaClassName}`}
+        >
           View plan
-        </PrimaryButton>
+        </Link>
       </div>
     </SectionCard>
   );
