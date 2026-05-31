@@ -27,6 +27,8 @@ import { getPlanById } from "../data/plans";
 import { getDaysByPlanId } from "../data/days";
 import { UI_STACK_LG, UI_TEXT_MUTED } from "../styles/ui";
 
+// Screen-specific presentation metadata for the Phase 5 Plan Overview UI.
+// This does not replace the static plan source data from src/data/plans.
 const PLAN_OVERVIEW_META = {
   "bulk-pro": {
     eyebrow: "Plan overview",
@@ -242,6 +244,8 @@ export default function PlanOverviewPage() {
     planId,
   });
 
+  // Rest items are display-only rhythm markers.
+  // They do not create rest-day routes, logs, or runtime state.
   const rhythmItems = [
     days[0],
     days[1],
@@ -454,7 +458,7 @@ export default function PlanOverviewPage() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-emerald-100 bg-linear-to-br from-white to-emerald-50/50 p-5 shadow-sm">
+        <section className="rounded-3xl border border-emerald-100 bg-white p-5 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800">
               <BookOpen className="h-7 w-7" aria-hidden="true" />

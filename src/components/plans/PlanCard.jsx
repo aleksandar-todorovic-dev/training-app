@@ -18,7 +18,7 @@ const PLAN_CARD_META = {
   "cut-pro": {
     badge: "Cut phase",
     promise: "Preserve strength while keeping fatigue under control.",
-    chips: ["Retention", "Fatigue control", "Recovery-aware"],
+    chips: ["Retention", "Fatigue control", "Recovery aware"],
     icon: TrendingDown,
     iconClassName: "bg-amber-100 text-amber-800",
     accentClassName: "bg-amber-700",
@@ -42,11 +42,13 @@ export default function PlanCard({ plan }) {
   return (
     <SectionCard
       variant="product"
-      className="overflow-hidden border-zinc-200/80 bg-white/95 p-0 shadow-md"
+      className="overflow-hidden border-zinc-200/80 bg-white p-0 shadow-md"
     >
-      <div className={`h-1.5 ${meta.accentClassName}`} />
+      <div className="px-5 pt-4">
+        <div className={`h-1.5 rounded-full ${meta.accentClassName}`} />
+      </div>
 
-      <div className="flex flex-col gap-4 p-5">
+      <div className="flex flex-col gap-4 p-5 pt-4">
         <div className="flex items-center justify-between gap-4">
           <span className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
             {meta.badge}

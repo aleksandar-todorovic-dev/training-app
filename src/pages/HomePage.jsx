@@ -98,9 +98,9 @@ export default function HomePage() {
             {HOME_VALUE_CHIPS.map(({ label, icon }) => (
               <span
                 key={label}
-                className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 shadow-sm"
+                className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-emerald-100 bg-white px-3 py-2 text-sm font-medium text-zinc-700 shadow-sm"
               >
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
                   {createElement(icon, {
                     className: "h-3.5 w-3.5",
                     "aria-hidden": "true",
