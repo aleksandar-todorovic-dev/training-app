@@ -1,6 +1,6 @@
 import { createElement } from "react";
 import {
-  CalendarCheck,
+  CalendarClock,
   Dumbbell,
   History,
   Repeat2,
@@ -29,7 +29,7 @@ const HOME_VALUE_CHIPS = [
   },
   {
     label: "Partial days",
-    icon: CalendarCheck,
+    icon: CalendarClock,
   },
 ];
 

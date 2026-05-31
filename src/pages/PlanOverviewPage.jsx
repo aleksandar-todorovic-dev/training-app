@@ -2,17 +2,19 @@ import { createElement } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowUpRight,
-  BarChart3,
   BookOpen,
   CalendarCheck,
+  CalendarClock,
   ChevronLeft,
   ChevronRight,
   Dumbbell,
+  Gauge,
+  History,
   Leaf,
   Moon,
   Repeat2,
   ShieldCheck,
-  Target,
+  SlidersHorizontal,
   TrendingUp,
   Zap,
 } from "lucide-react";
@@ -49,20 +51,20 @@ const PLAN_OVERVIEW_META = {
     rhythmIconClassName: "text-emerald-700",
     facts: [
       { label: "Training days", value: "6 days", icon: CalendarCheck },
-      { label: "Rhythm", value: "2 on / 1 off", icon: BarChart3 },
+      { label: "Rhythm", value: "2 on / 1 off", icon: Repeat2 },
       {
         label: "Previous values",
         value: "Saved",
-        icon: TrendingUp,
+        icon: History,
       },
-      { label: "Partial days", value: "Allowed", icon: ShieldCheck },
+      { label: "Partial days", value: "Allowed", icon: CalendarClock },
     ],
     principlesTitle: "How this plan works",
     principles: [
       {
         title: "Add reps first",
         body: "Progress inside the rep range before adding load.",
-        icon: BarChart3,
+        icon: TrendingUp,
       },
       {
         title: "Volume is planned",
@@ -72,7 +74,7 @@ const PLAN_OVERVIEW_META = {
       {
         title: "Advanced methods are selective",
         body: "Only use them where the plan calls for them.",
-        icon: Target,
+        icon: SlidersHorizontal,
       },
       {
         title: "Rest days matter",
@@ -90,8 +92,8 @@ const PLAN_OVERVIEW_META = {
     chips: [
       { label: "Recovery aware", icon: Leaf },
       { label: "Fast logging", icon: Zap },
-      { label: "Previous values", icon: TrendingUp },
-      { label: "Partial days allowed", icon: CalendarCheck },
+      { label: "Previous values", icon: History },
+      { label: "Partial days allowed", icon: CalendarClock },
     ],
     statusAccentClassName: "text-emerald-700",
     ctaClassName:
@@ -99,9 +101,9 @@ const PLAN_OVERVIEW_META = {
     rhythmActiveClassName: "border-emerald-100 bg-emerald-50 text-emerald-950",
     rhythmIconClassName: "text-emerald-700",
     facts: [
-      { label: "Goal", value: "Retention", icon: Target },
-      { label: "Focus", value: "Fatigue control", icon: BarChart3 },
-      { label: "Mindset", value: "Hold strength", icon: ShieldCheck },
+      { label: "Goal", value: "Retention", icon: ShieldCheck },
+      { label: "Focus", value: "Fatigue control", icon: Gauge },
+      { label: "Mindset", value: "Hold strength", icon: Dumbbell },
       { label: "Recovery", value: "Built in", icon: Leaf },
     ],
     principlesTitle: "Key rules",
@@ -109,12 +111,12 @@ const PLAN_OVERVIEW_META = {
       {
         title: "Keep reps clean and controlled.",
         body: "Quality over quantity always.",
-        icon: Target,
+        icon: SlidersHorizontal,
       },
       {
         title: "Use partial days when needed.",
         body: "Progress beats perfection.",
-        icon: CalendarCheck,
+        icon: CalendarClock,
       },
       {
         title: "Maintaining strength is already a win.",
@@ -126,12 +128,12 @@ const PLAN_OVERVIEW_META = {
 };
 
 const RHYTHM_DAY_LABELS = {
-  d1: "Chest",
-  d2: "Back",
-  d3: "Quads",
-  d4: "Shoulders",
-  d5: "Pump",
-  d6: "Posterior",
+  d1: "Chest & Triceps",
+  d2: "Back & Biceps",
+  d3: "Quads Heavy",
+  d4: "Shoulders & Arms",
+  d5: "Chest Pump & Rows",
+  d6: "Posterior Chain",
 };
 
 function StatusRing() {
