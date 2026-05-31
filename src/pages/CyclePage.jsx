@@ -435,41 +435,41 @@ export default function CyclePage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-emerald-900/35 bg-slate-950/22 px-4 py-3">
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-slate-300">
-                  <span className="inline-flex items-center gap-1.5">
-                    <Dumbbell
-                      className="h-4 w-4 text-emerald-300/80"
-                      aria-hidden="true"
-                    />
-                    {currentDaySummary?.totalExerciseCount ?? 0} exercises
-                  </span>
-
-                  <span className="h-1 w-1 rounded-full bg-slate-600" />
-
-                  <span className="inline-flex items-center gap-1.5">
-                    <Flame
-                      className="h-4 w-4 text-amber-300/80"
-                      aria-hidden="true"
-                    />
-                    Warm-up ready
-                  </span>
-                </div>
-
-                <div className="mt-2 flex min-w-0 items-center gap-2 text-sm">
-                  <ArrowRight
-                    className="h-4 w-4 shrink-0 text-emerald-300/80"
-                    aria-hidden="true"
-                  />
-
-                  <p className="min-w-0 text-slate-300">
-                    <span className="font-medium text-emerald-200/90">
-                      Next up:
-                    </span>{" "}
-                    <span className="font-semibold text-slate-100">
-                      {nextExerciseName}
+              <div className="border-t border-emerald-900/35 pt-4">
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-slate-300">
+                    <span className="inline-flex items-center gap-1.5">
+                      <Dumbbell
+                        className="h-4 w-4 text-emerald-300/80"
+                        aria-hidden="true"
+                      />
+                      {currentDaySummary?.totalExerciseCount ?? 0} exercises
                     </span>
-                  </p>
+
+                    <span className="inline-flex items-center gap-1.5">
+                      <Flame
+                        className="h-4 w-4 text-amber-300/80"
+                        aria-hidden="true"
+                      />
+                      Warm-up ready
+                    </span>
+                  </div>
+
+                  <div className="flex min-w-0 items-center gap-2 text-sm">
+                    <ArrowRight
+                      className="h-4 w-4 shrink-0 text-emerald-300/80"
+                      aria-hidden="true"
+                    />
+
+                    <p className="min-w-0 text-slate-300">
+                      <span className="font-medium text-emerald-200/90">
+                        Next up:
+                      </span>{" "}
+                      <span className="font-semibold text-slate-100">
+                        {nextExerciseName}
+                      </span>
+                    </p>
+                  </div>
                 </div>
               </div>
 
