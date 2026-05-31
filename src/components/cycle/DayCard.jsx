@@ -10,23 +10,24 @@ export default function DayCard({
   mode = "upcoming",
 }) {
   const isFinished = mode === "finished";
+  const compactStatus = statusDetail ? `${status} · ${statusDetail}` : status;
 
   return (
     <Link
       to={`/plan/${planId}/day/${day.id}`}
       className={[
-        "group flex items-center gap-3 rounded-2xl border p-3.5 transition-colors",
+        "group flex items-center gap-3 rounded-2xl border px-3 py-3 transition-colors",
         isFinished
-          ? "border-emerald-900/35 bg-emerald-950/12 hover:border-emerald-800/50"
-          : "border-white/10 bg-white/[0.032] hover:border-white/20",
+          ? "border-emerald-900/30 bg-slate-900/45 hover:border-emerald-800/45"
+          : "border-white/10 bg-slate-900/55 hover:border-white/20",
       ].join(" ")}
     >
       <div
         className={[
-          "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold",
+          "flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold",
           isFinished
-            ? "border border-emerald-800/35 bg-emerald-950/32 text-emerald-300/85"
-            : "bg-white/[0.052] text-slate-200",
+            ? "border border-emerald-800/35 bg-emerald-950/28 text-emerald-300/85"
+            : "bg-white/5.5 text-slate-200",
         ].join(" ")}
       >
         {isFinished ? (
@@ -37,20 +38,16 @@ export default function DayCard({
       </div>
 
       <div className="min-w-0 flex-1">
-        <h3 className="line-clamp-2 text-base font-semibold leading-snug text-slate-100">
+        <h3 className="line-clamp-1 text-[0.98rem] font-semibold leading-snug text-slate-100">
           {day.label} {day.name}
         </h3>
 
-        <div className="mt-1 flex flex-col gap-0.5 text-sm font-medium leading-snug">
-          <span className="text-slate-400">{status}</span>
-
-          {statusDetail ? (
-            <span className="text-slate-500">{statusDetail}</span>
-          ) : null}
-        </div>
+        <p className="mt-1 line-clamp-1 text-sm font-medium text-slate-400">
+          {compactStatus}
+        </p>
 
         {meta ? (
-          <p className="mt-1 line-clamp-1 text-sm text-slate-600">{meta}</p>
+          <p className="mt-0.5 line-clamp-1 text-sm text-slate-500">{meta}</p>
         ) : null}
       </div>
 

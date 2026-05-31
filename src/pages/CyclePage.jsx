@@ -1,5 +1,6 @@
 import { Link, useParams } from "react-router-dom";
 import {
+  ArrowLeft,
   ArrowRight,
   CheckCircle2,
   ChevronRight,
@@ -11,7 +12,6 @@ import {
 
 import { useAppState } from "../state/useAppState";
 import AppShell from "../components/layout/AppShell";
-import BackButton from "../components/common/BackButton";
 import DayCard from "../components/cycle/DayCard";
 import CycleHeader from "../components/cycle/CycleHeader";
 import PrimaryButton from "../components/common/PrimaryButton";
@@ -309,11 +309,13 @@ export default function CyclePage() {
     return (
       <AppShell>
         <div className={UI_STACK_LG}>
-          <div className="flex justify-start">
-            <BackButton to={`/plan/${planId}`}>
-              Back to Plan Overview
-            </BackButton>
-          </div>
+          <Link
+            to={`/plan/${planId}`}
+            className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-emerald-300/90 transition-colors hover:text-emerald-200"
+          >
+            <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+            Back to plan
+          </Link>
 
           <CycleHeader
             planName="Plan not found"
@@ -330,10 +332,14 @@ export default function CyclePage() {
 
   return (
     <AppShell>
-      <div className="flex flex-col gap-7 py-1">
-        <div className="flex justify-start">
-          <BackButton to={`/plan/${planId}`}>Back to plan</BackButton>
-        </div>
+      <div className="flex flex-col gap-5 py-0">
+        <Link
+          to={`/plan/${planId}`}
+          className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-emerald-300/90 transition-colors hover:text-emerald-200"
+        >
+          <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+          Back to plan
+        </Link>
 
         <CycleHeader
           planName={plan.name}
@@ -354,7 +360,7 @@ export default function CyclePage() {
                 return (
                   <div
                     key={slot.id}
-                    className="flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-white/10 bg-white/3 text-slate-500"
+                    className="flex h-15 w-15 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-white/10 bg-slate-900/55 text-slate-500"
                   >
                     <span className="text-xs font-medium">Rest</span>
                     <Moon className="h-4 w-4" aria-hidden="true" />
@@ -374,15 +380,15 @@ export default function CyclePage() {
                   key={slot.day.id}
                   to={`/plan/${planId}/day/${slot.day.id}`}
                   className={[
-                    "flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border text-center transition-colors",
+                    "flex h-15 w-15 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border text-center transition-colors",
                     isCurrent
-                      ? "border-emerald-500/60 bg-emerald-950/30 text-emerald-100 shadow-[0_0_14px_rgba(16,185,129,0.08)]"
+                      ? "border-emerald-500/55 bg-emerald-950/28 text-emerald-100 shadow-[0_0_12px_rgba(16,185,129,0.07)]"
                       : "",
                     isFinished
-                      ? "border-emerald-800/38 bg-emerald-950/22 text-emerald-200"
+                      ? "border-emerald-800/35 bg-emerald-950/18 text-emerald-200"
                       : "",
                     !isCurrent && !isFinished
-                      ? "border-white/10 bg-white/3 text-slate-400 hover:border-white/20"
+                      ? "border-white/10 bg-slate-900/55 text-slate-400 hover:border-white/20"
                       : "",
                   ].join(" ")}
                 >
@@ -392,7 +398,7 @@ export default function CyclePage() {
 
                   {isFinished ? (
                     <CheckCircle2
-                      className="h-4 w-4 text-emerald-400/85"
+                      className="h-4 w-4 text-emerald-400/80"
                       aria-hidden="true"
                     />
                   ) : isCurrent ? (
@@ -407,9 +413,9 @@ export default function CyclePage() {
         </section>
 
         {currentDay ? (
-          <section className="relative overflow-hidden rounded-3xl border border-emerald-900/55 bg-emerald-950/20 p-5 shadow-[0_18px_50px_rgba(0,0,0,0.34)]">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_84%_28%,rgba(22,101,52,0.18),transparent_34%),radial-gradient(circle_at_18%_100%,rgba(6,78,59,0.13),transparent_42%)]" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[linear-gradient(135deg,transparent,rgba(5,46,22,0.14))]" />
+          <section className="relative overflow-hidden rounded-3xl border border-emerald-900/50 bg-emerald-950/18 p-5 shadow-[0_18px_46px_rgba(0,0,0,0.32)]">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_84%_28%,rgba(22,101,52,0.17),transparent_34%),radial-gradient(circle_at_18%_100%,rgba(6,78,59,0.12),transparent_42%)]" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[linear-gradient(135deg,transparent,rgba(5,46,22,0.13))]" />
 
             <div className="relative flex flex-col gap-4">
               <div className="flex flex-col gap-3">
@@ -429,7 +435,7 @@ export default function CyclePage() {
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-emerald-900/35 bg-slate-950/24 px-4 py-3">
+              <div className="rounded-2xl border border-emerald-900/35 bg-slate-950/22 px-4 py-3">
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-slate-300">
                   <span className="inline-flex items-center gap-1.5">
                     <Dumbbell
@@ -485,7 +491,7 @@ export default function CyclePage() {
         ) : null}
 
         {upcomingDays.length > 0 ? (
-          <section className="flex flex-col gap-3">
+          <section className="mt-1 flex flex-col gap-2.5">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
               Up next
             </p>
@@ -512,7 +518,7 @@ export default function CyclePage() {
         ) : null}
 
         {completedDays.length > 0 ? (
-          <section className="flex flex-col gap-3">
+          <section className="mt-1 flex flex-col gap-2.5">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
               Completed
             </p>
@@ -538,8 +544,8 @@ export default function CyclePage() {
           </section>
         ) : null}
 
-        <section className="flex items-center gap-4 rounded-3xl border border-emerald-900/45 bg-emerald-950/20 p-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-emerald-800/45 bg-emerald-950/45 text-emerald-300/90">
+        <section className="mt-1 flex items-center gap-4 rounded-3xl border border-emerald-900/40 bg-slate-900/50 p-4">
+          <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-full border border-emerald-800/40 bg-emerald-950/35 text-emerald-300/90">
             <Sparkles className="h-6 w-6" aria-hidden="true" />
           </div>
 
