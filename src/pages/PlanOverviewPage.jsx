@@ -41,13 +41,12 @@ const PLAN_OVERVIEW_META = {
       { label: "Cycle-based", icon: Repeat2 },
     ],
     statusAccentClassName: "text-emerald-700",
-    statusIconClassName: "bg-emerald-100 text-emerald-800",
     ctaClassName:
       "bg-emerald-950 text-white hover:bg-emerald-900 focus-visible:ring-emerald-700",
     rhythmActiveClassName: "border-emerald-100 bg-emerald-50 text-emerald-950",
     rhythmIconClassName: "text-emerald-700",
     facts: [
-      { label: "Training days", value: "6", icon: CalendarCheck },
+      { label: "Training days", value: "6 days", icon: CalendarCheck },
       { label: "Rhythm", value: "2 on / 1 off", icon: BarChart3 },
       {
         label: "Previous values",
@@ -93,7 +92,6 @@ const PLAN_OVERVIEW_META = {
       { label: "Partial days allowed", icon: CalendarCheck },
     ],
     statusAccentClassName: "text-emerald-700",
-    statusIconClassName: "bg-emerald-100 text-emerald-800",
     ctaClassName:
       "bg-emerald-950 text-white hover:bg-emerald-900 focus-visible:ring-emerald-700",
     rhythmActiveClassName: "border-emerald-100 bg-emerald-50 text-emerald-950",
@@ -133,6 +131,29 @@ const RHYTHM_DAY_LABELS = {
   d5: "Pump",
   d6: "Posterior",
 };
+
+function StatusRing() {
+  return (
+    <svg
+      className="pointer-events-none absolute right-5 top-10 h-20 w-20 text-emerald-700"
+      viewBox="0 0 100 100"
+      aria-hidden="true"
+    >
+      <circle
+        cx="50"
+        cy="50"
+        r="35"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="7"
+        strokeLinecap="round"
+        strokeDasharray="200 28"
+        transform="rotate(-70 50 50)"
+        opacity="0.9"
+      />
+    </svg>
+  );
+}
 
 function getPrimaryCta({ currentCycle, currentCycleNumber, plan, planId }) {
   if (!currentCycle) {
@@ -224,13 +245,13 @@ export default function PlanOverviewPage() {
   const rhythmItems = [
     days[0],
     days[1],
-    { id: "rest-1", label: "Rest", name: "Rest" },
+    { id: "rest-1", label: "Rest", name: "Recovery" },
     days[2],
     days[3],
-    { id: "rest-2", label: "Rest", name: "Rest" },
+    { id: "rest-2", label: "Rest", name: "Recovery" },
     days[4],
     days[5],
-    { id: "rest-3", label: "Rest", name: "Rest" },
+    { id: "rest-3", label: "Rest", name: "Recovery" },
   ].filter(Boolean);
 
   // Only the "start" CTA creates runtime progress.
@@ -286,9 +307,9 @@ export default function PlanOverviewPage() {
             {meta.chips.map(({ label, icon }) => (
               <span
                 key={label}
-                className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 shadow-sm"
+                className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-emerald-100 bg-white px-3 py-2 text-sm font-medium text-zinc-700 shadow-sm"
               >
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-700">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
                   {createElement(icon, {
                     className: "h-3.5 w-3.5",
                     "aria-hidden": "true",
@@ -301,9 +322,10 @@ export default function PlanOverviewPage() {
         </header>
 
         <section className="overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-md">
-          <div className="relative flex flex-col gap-5 p-5">
-            <div className="pointer-events-none absolute right-5 top-5 h-20 w-20 rounded-full border-10 border-emerald-600/90 opacity-90" />
-            <div className="pointer-events-none absolute right-10 top-5 h-3.5 w-3.5 rounded-full bg-emerald-700" />
+          <div className="relative flex flex-col gap-5 overflow-hidden p-5">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_18%,rgba(16,185,129,0.16),transparent_34%),radial-gradient(circle_at_18%_92%,rgba(132,204,22,0.12),transparent_38%)]" />
+            <div className="pointer-events-none absolute inset-0 bg-linear-to-br from-white/85 via-white/70 to-emerald-50/25" />
+            <StatusRing />
 
             <div className="relative max-w-[70%]">
               <p
@@ -338,15 +360,20 @@ export default function PlanOverviewPage() {
               key={label}
               className="rounded-2xl border border-zinc-200 bg-white p-3.5 shadow-sm"
             >
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
-                {createElement(icon, {
-                  className: "h-4 w-4",
-                  "aria-hidden": "true",
-                })}
+              <div className="flex items-center gap-2">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+                  {createElement(icon, {
+                    className: "h-3.5 w-3.5",
+                    "aria-hidden": "true",
+                  })}
+                </div>
+
+                <p className="text-xs font-medium leading-tight text-zinc-500">
+                  {label}
+                </p>
               </div>
 
-              <p className="mt-3 text-xs font-medium text-zinc-500">{label}</p>
-              <p className="mt-1 text-base font-semibold leading-tight text-zinc-950">
+              <p className="mt-3 text-base font-semibold leading-tight text-zinc-950">
                 {value}
               </p>
             </div>
@@ -367,8 +394,9 @@ export default function PlanOverviewPage() {
             {rhythmItems.map((item) => {
               const isRest = item.label === "Rest";
               const rhythmLabel = isRest
-                ? "Rest"
+                ? item.name
                 : (RHYTHM_DAY_LABELS[item.id] ?? item.name);
+              const RhythmIcon = isRest ? Moon : Dumbbell;
 
               return (
                 <div
@@ -389,11 +417,7 @@ export default function PlanOverviewPage() {
                       isRest ? "text-zinc-500" : meta.rhythmIconClassName
                     }`}
                   >
-                    {isRest ? (
-                      <Moon className="h-4 w-4" aria-hidden="true" />
-                    ) : (
-                      <Dumbbell className="h-4 w-4" aria-hidden="true" />
-                    )}
+                    <RhythmIcon className="h-4 w-4" aria-hidden="true" />
                   </div>
                 </div>
               );
@@ -425,17 +449,12 @@ export default function PlanOverviewPage() {
                   <p className="text-sm font-semibold text-zinc-950">{title}</p>
                   <p className="text-sm leading-5 text-zinc-600">{body}</p>
                 </div>
-
-                <ChevronRight
-                  className="h-4 w-4 shrink-0 text-zinc-400"
-                  aria-hidden="true"
-                />
               </div>
             ))}
           </div>
         </section>
 
-        <section className="rounded-3xl border border-emerald-100 bg-white p-5 shadow-sm">
+        <section className="rounded-3xl border border-emerald-100 bg-linear-to-br from-white to-emerald-50/50 p-5 shadow-sm">
           <div className="flex items-center gap-4">
             <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-800">
               <BookOpen className="h-7 w-7" aria-hidden="true" />
