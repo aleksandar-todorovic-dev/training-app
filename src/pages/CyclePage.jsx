@@ -49,7 +49,57 @@ const STATIC_DAY_DETAIL_HINT_MAP = {
   },
 };
 
-const REST_SLOTS = new Set(["after-d2", "after-d4", "after-d6"]);
+function getDoneSetCount(dayLog) {
+  if (!dayLog) {
+    return 0;
+  }
+
+  return Object.values(dayLog.mainExerciseLogs).reduce(
+    (doneSetTotal, exerciseLog) => {
+      const doneSets =
+        exerciseLog.sets?.filter((set) => set.isDone).length ?? 0;
+
+      return doneSetTotal + doneSets;
+    },
+    0,
+  );
+}
+
+function getLoggedSetLabel(doneSetCount) {
+  return doneSetCount === 1 ? "1 set logged" : `${doneSetCount} sets logged`;
+}
+
+function getClosedStatusLabels({
+  completedExerciseCount,
+  totalExerciseCount,
+  doneSetCount,
+}) {
+  if (completedExerciseCount === totalExerciseCount && totalExerciseCount > 0) {
+    return {
+      statusLabel: "Closed",
+      statusDetail: `${completedExerciseCount}/${totalExerciseCount} exercises done`,
+    };
+  }
+
+  if (completedExerciseCount > 0) {
+    return {
+      statusLabel: "Closed partial",
+      statusDetail: `${completedExerciseCount}/${totalExerciseCount} exercises done`,
+    };
+  }
+
+  if (doneSetCount > 0) {
+    return {
+      statusLabel: "Closed partial",
+      statusDetail: getLoggedSetLabel(doneSetCount),
+    };
+  }
+
+  return {
+    statusLabel: "Closed partial",
+    statusDetail: "No sets logged",
+  };
+}
 
 function getDayRuntimeSummary({
   planId,
@@ -78,6 +128,7 @@ function getDayRuntimeSummary({
       ).length
     : 0;
 
+  const doneSetCount = getDoneSetCount(dayLog);
   const progressLabel = `${completedExerciseCount}/${totalExerciseCount} done`;
   const dayModeLabel = getDayModeLabel(dayMode);
 
@@ -86,7 +137,12 @@ function getDayRuntimeSummary({
       dayMode,
       completedExerciseCount,
       totalExerciseCount,
-      statusLabel: `Closed · ${progressLabel}`,
+      doneSetCount,
+      ...getClosedStatusLabels({
+        completedExerciseCount,
+        totalExerciseCount,
+        doneSetCount,
+      }),
     };
   }
 
@@ -95,7 +151,9 @@ function getDayRuntimeSummary({
       dayMode,
       completedExerciseCount,
       totalExerciseCount,
+      doneSetCount,
       statusLabel: `Current · ${progressLabel}`,
+      statusDetail: null,
     };
   }
 
@@ -104,7 +162,9 @@ function getDayRuntimeSummary({
       dayMode,
       completedExerciseCount,
       totalExerciseCount,
-      statusLabel: `${dayModeLabel} · ${totalExerciseCount} exercises`,
+      doneSetCount,
+      statusLabel: `${totalExerciseCount} exercises`,
+      statusDetail: null,
     };
   }
 
@@ -113,7 +173,9 @@ function getDayRuntimeSummary({
       dayMode,
       completedExerciseCount,
       totalExerciseCount,
+      doneSetCount,
       statusLabel: `In progress · ${progressLabel}`,
+      statusDetail: null,
     };
   }
 
@@ -121,7 +183,9 @@ function getDayRuntimeSummary({
     dayMode,
     completedExerciseCount,
     totalExerciseCount,
+    doneSetCount,
     statusLabel: dayModeLabel,
+    statusDetail: null,
   };
 }
 
@@ -266,7 +330,7 @@ export default function CyclePage() {
 
   return (
     <AppShell>
-      <div className="flex flex-col gap-8 py-2">
+      <div className="flex flex-col gap-7 py-1">
         <div className="flex justify-start">
           <BackButton to={`/plan/${planId}`}>Back to plan</BackButton>
         </div>
@@ -280,14 +344,17 @@ export default function CyclePage() {
           progressPercent={progressPercent}
         />
 
-        <section aria-label="Cycle rhythm" className="overflow-x-auto pb-1">
+        <section
+          aria-label="Cycle rhythm"
+          className="overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
           <div className="flex min-w-max items-center gap-2">
             {rhythmSlots.map((slot) => {
               if (slot.type === "rest") {
                 return (
                   <div
                     key={slot.id}
-                    className="flex h-[4.75rem] w-[4.75rem] shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-white/10 bg-white/[0.03] text-slate-400"
+                    className="flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-white/10 bg-white/3 text-slate-500"
                   >
                     <span className="text-xs font-medium">Rest</span>
                     <Moon className="h-4 w-4" aria-hidden="true" />
@@ -307,15 +374,15 @@ export default function CyclePage() {
                   key={slot.day.id}
                   to={`/plan/${planId}/day/${slot.day.id}`}
                   className={[
-                    "flex h-[4.75rem] w-[4.75rem] shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border text-center transition-colors",
+                    "flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border text-center transition-colors",
                     isCurrent
-                      ? "border-emerald-400 bg-emerald-500/10 text-emerald-100 shadow-[0_0_24px_rgba(52,211,153,0.22)]"
+                      ? "border-emerald-500/60 bg-emerald-950/30 text-emerald-100 shadow-[0_0_14px_rgba(16,185,129,0.08)]"
                       : "",
                     isFinished
-                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-100"
+                      ? "border-emerald-800/38 bg-emerald-950/22 text-emerald-200"
                       : "",
                     !isCurrent && !isFinished
-                      ? "border-white/10 bg-white/[0.03] text-slate-400 hover:border-white/20"
+                      ? "border-white/10 bg-white/3 text-slate-400 hover:border-white/20"
                       : "",
                   ].join(" ")}
                 >
@@ -324,11 +391,14 @@ export default function CyclePage() {
                   </span>
 
                   {isFinished ? (
-                    <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                    <CheckCircle2
+                      className="h-4 w-4 text-emerald-400/85"
+                      aria-hidden="true"
+                    />
                   ) : isCurrent ? (
-                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/75" />
                   ) : (
-                    <span className="h-2.5 w-2.5 rounded-full bg-white/20" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
                   )}
                 </Link>
               );
@@ -337,56 +407,73 @@ export default function CyclePage() {
         </section>
 
         {currentDay ? (
-          <section className="relative overflow-hidden rounded-3xl border border-emerald-500/20 bg-emerald-950/30 p-5 shadow-[0_18px_60px_rgba(0,0,0,0.35)]">
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[radial-gradient(circle_at_70%_35%,rgba(74,222,128,0.20),transparent_42%),linear-gradient(135deg,transparent,rgba(34,197,94,0.08))]" />
+          <section className="relative overflow-hidden rounded-3xl border border-emerald-900/55 bg-emerald-950/20 p-5 shadow-[0_18px_50px_rgba(0,0,0,0.34)]">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_84%_28%,rgba(22,101,52,0.18),transparent_34%),radial-gradient(circle_at_18%_100%,rgba(6,78,59,0.13),transparent_42%)]" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[linear-gradient(135deg,transparent,rgba(5,46,22,0.14))]" />
 
-            <div className="relative flex flex-col gap-5">
+            <div className="relative flex flex-col gap-4">
               <div className="flex flex-col gap-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300">
+                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300/85">
                   Current day
                 </p>
 
                 <div className="flex flex-col gap-2">
-                  <h2 className="text-4xl font-semibold tracking-tight text-white">
+                  <h2 className="text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl">
                     {currentDay.label} {currentDay.name}
                   </h2>
 
-                  <p className="max-w-sm text-base leading-7 text-slate-300">
+                  <p className="max-w-sm text-base leading-6 text-slate-300">
                     {currentDayDetails?.goal ??
                       "Open the current training day and keep the cycle moving."}
                   </p>
                 </div>
               </div>
 
-              <div className="flex flex-wrap gap-2">
-                <span className="inline-flex min-h-10 items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 text-sm font-medium text-emerald-100">
-                  <Dumbbell className="h-4 w-4" aria-hidden="true" />
-                  {currentDaySummary?.totalExerciseCount ?? 0} exercises
-                </span>
+              <div className="rounded-2xl border border-emerald-900/35 bg-slate-950/24 px-4 py-3">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-medium text-slate-300">
+                  <span className="inline-flex items-center gap-1.5">
+                    <Dumbbell
+                      className="h-4 w-4 text-emerald-300/80"
+                      aria-hidden="true"
+                    />
+                    {currentDaySummary?.totalExerciseCount ?? 0} exercises
+                  </span>
 
-                <span className="inline-flex min-h-10 items-center gap-2 rounded-full border border-amber-300/20 bg-amber-300/10 px-3 text-sm font-medium text-amber-100">
-                  <Flame className="h-4 w-4" aria-hidden="true" />
-                  Warm-up ready
-                </span>
+                  <span className="h-1 w-1 rounded-full bg-slate-600" />
 
-                <span className="inline-flex min-h-10 items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/10 px-3 text-sm font-medium text-emerald-100">
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                  Next: {nextExerciseName}
-                </span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <Flame
+                      className="h-4 w-4 text-amber-300/80"
+                      aria-hidden="true"
+                    />
+                    Warm-up ready
+                  </span>
+                </div>
+
+                <div className="mt-2 flex min-w-0 items-center gap-2 text-sm">
+                  <ArrowRight
+                    className="h-4 w-4 shrink-0 text-emerald-300/80"
+                    aria-hidden="true"
+                  />
+
+                  <p className="min-w-0 text-slate-300">
+                    <span className="font-medium text-emerald-200/90">
+                      Next up:
+                    </span>{" "}
+                    <span className="font-semibold text-slate-100">
+                      {nextExerciseName}
+                    </span>
+                  </p>
+                </div>
               </div>
 
-              <div className="flex flex-col gap-3">
-                <PrimaryButton to={`/plan/${planId}/day/${currentDay.id}`}>
-                  Continue day
-                </PrimaryButton>
-
-                <Link
-                  to={`/plan/${planId}/day/${currentDay.id}`}
-                  className="inline-flex min-h-11 items-center justify-center rounded-xl text-sm font-semibold text-emerald-300 transition-colors hover:text-emerald-200"
-                >
-                  Preview warm-up
-                </Link>
-              </div>
+              <Link
+                to={`/plan/${planId}/day/${currentDay.id}`}
+                className="inline-flex min-h-13 items-center justify-center rounded-2xl bg-emerald-700/80 px-5 text-base font-semibold text-white shadow-[0_8px_22px_rgba(6,78,59,0.2)] ring-1 ring-emerald-400/10 transition-colors hover:bg-emerald-600/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+              >
+                Continue day
+                <ChevronRight className="ml-2 h-5 w-5" aria-hidden="true" />
+              </Link>
             </div>
           </section>
         ) : null}
@@ -404,14 +491,14 @@ export default function CyclePage() {
             </p>
 
             <div className="flex flex-col gap-2">
-              {upcomingDays.map(({ day, statusLabel, totalExerciseCount }) => (
+              {upcomingDays.map(({ day, statusLabel, statusDetail }) => (
                 <DayCard
                   key={day.id}
                   planId={planId}
                   day={day}
                   status={statusLabel}
+                  statusDetail={statusDetail}
                   meta={[
-                    `${totalExerciseCount} exercises`,
                     STATIC_CORE_HINT_MAP[day.id],
                     STATIC_DAY_DETAIL_HINT_MAP[planId]?.[day.id],
                   ]
@@ -431,12 +518,13 @@ export default function CyclePage() {
             </p>
 
             <div className="flex flex-col gap-2">
-              {completedDays.map(({ day, statusLabel }) => (
+              {completedDays.map(({ day, statusLabel, statusDetail }) => (
                 <DayCard
                   key={day.id}
                   planId={planId}
                   day={day}
                   status={statusLabel}
+                  statusDetail={statusDetail}
                   meta={[
                     STATIC_CORE_HINT_MAP[day.id],
                     STATIC_DAY_DETAIL_HINT_MAP[planId]?.[day.id],
@@ -450,8 +538,8 @@ export default function CyclePage() {
           </section>
         ) : null}
 
-        <section className="flex items-center gap-4 rounded-3xl border border-emerald-500/20 bg-emerald-500/10 p-4">
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-emerald-400/30 bg-emerald-400/10 text-emerald-300">
+        <section className="flex items-center gap-4 rounded-3xl border border-emerald-900/45 bg-emerald-950/20 p-4">
+          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-emerald-800/45 bg-emerald-950/45 text-emerald-300/90">
             <Sparkles className="h-6 w-6" aria-hidden="true" />
           </div>
 
