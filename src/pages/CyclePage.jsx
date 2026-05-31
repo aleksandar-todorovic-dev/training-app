@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -14,7 +15,6 @@ import { useAppState } from "../state/useAppState";
 import AppShell from "../components/layout/AppShell";
 import DayCard from "../components/cycle/DayCard";
 import CycleHeader from "../components/cycle/CycleHeader";
-import PrimaryButton from "../components/common/PrimaryButton";
 
 import { getPlanById } from "../data/plans";
 import { getDaysByPlanId } from "../data/days";
@@ -77,14 +77,14 @@ function getClosedStatusLabels({
   if (completedExerciseCount === totalExerciseCount && totalExerciseCount > 0) {
     return {
       statusLabel: "Closed",
-      statusDetail: `${completedExerciseCount}/${totalExerciseCount} exercises done`,
+      statusDetail: `${completedExerciseCount}/${totalExerciseCount} done`,
     };
   }
 
   if (completedExerciseCount > 0) {
     return {
       statusLabel: "Closed partial",
-      statusDetail: `${completedExerciseCount}/${totalExerciseCount} exercises done`,
+      statusDetail: `${completedExerciseCount}/${totalExerciseCount} done`,
     };
   }
 
@@ -96,9 +96,54 @@ function getClosedStatusLabels({
   }
 
   return {
-    statusLabel: "Closed partial",
+    statusLabel: "Closed",
     statusDetail: "No sets logged",
   };
+}
+
+function hasDayActivity(dayLog) {
+  if (!dayLog) {
+    return false;
+  }
+
+  return Object.values(dayLog.mainExerciseLogs).some((exerciseLog) => {
+    const hasClosedExercise = Boolean(exerciseLog.closedAt);
+    const hasDoneSet = exerciseLog.sets?.some((set) => set.isDone) ?? false;
+
+    return hasClosedExercise || hasDoneSet;
+  });
+}
+
+function areAllMainExercisesClosed(dayDetails, dayLog) {
+  if (!dayDetails?.exerciseIds?.length || !dayLog) {
+    return false;
+  }
+
+  return dayDetails.exerciseIds.every((exerciseId) => {
+    const exerciseLog = dayLog.mainExerciseLogs?.[exerciseId];
+
+    return Boolean(exerciseLog?.closedAt);
+  });
+}
+
+function getHeroCtaLabel({
+  isCycleComplete,
+  currentDayDetails,
+  currentDayLog,
+}) {
+  if (isCycleComplete) {
+    return "Review cycle";
+  }
+
+  if (areAllMainExercisesClosed(currentDayDetails, currentDayLog)) {
+    return "Review day";
+  }
+
+  if (!hasDayActivity(currentDayLog)) {
+    return "Start day";
+  }
+
+  return "Continue day";
 }
 
 function getDayRuntimeSummary({
@@ -200,16 +245,23 @@ function getNextExerciseName({ planId, dayDetails, dayLog }) {
     return exercises[0]?.name ?? "Open workout";
   }
 
-  const nextExerciseId =
-    dayDetails.exerciseIds.find((exerciseId) => {
-      const exerciseLog = dayLog.mainExerciseLogs?.[exerciseId];
+  const nextExerciseId = dayDetails.exerciseIds.find((exerciseId) => {
+    const exerciseLog = dayLog.mainExerciseLogs?.[exerciseId];
 
-      if (!exerciseLog) {
-        return true;
-      }
+    if (!exerciseLog) {
+      return true;
+    }
 
-      return getExerciseStatus(exerciseLog) !== "complete";
-    }) ?? dayDetails.exerciseIds[0];
+    if (exerciseLog.closedAt) {
+      return false;
+    }
+
+    return getExerciseStatus(exerciseLog) !== "complete";
+  });
+
+  if (!nextExerciseId) {
+    return "Ready to finish day";
+  }
 
   return (
     exercises.find((exercise) => exercise.id === nextExerciseId)?.name ??
@@ -246,6 +298,7 @@ function buildRhythmSlots(days) {
  */
 export default function CyclePage() {
   const { planId } = useParams();
+  const currentRhythmItemRef = useRef(null);
 
   const { state } = useAppState();
   const plan = getPlanById(planId);
@@ -256,6 +309,15 @@ export default function CyclePage() {
   const currentCycle = planProgress?.cycles?.[currentCycleNumber] ?? null;
   const currentDayId = currentCycle?.currentDayId ?? "d1";
   const dayOrder = plan?.dayOrder ?? days.map((day) => day.id);
+  const isCycleComplete = Boolean(currentCycle?.completedAt);
+
+  useEffect(() => {
+    currentRhythmItemRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+      inline: "center",
+    });
+  }, [currentDayId]);
 
   const daySummaries = days.map((day) => ({
     day,
@@ -293,6 +355,12 @@ export default function CyclePage() {
     planId,
     dayDetails: currentDayDetails,
     dayLog: currentDayLog,
+  });
+
+  const heroCtaLabel = getHeroCtaLabel({
+    isCycleComplete,
+    currentDayDetails,
+    currentDayLog,
   });
 
   const upcomingDays = daySummaries.filter(
@@ -378,6 +446,7 @@ export default function CyclePage() {
               return (
                 <Link
                   key={slot.day.id}
+                  ref={isCurrent ? currentRhythmItemRef : null}
                   to={`/plan/${planId}/day/${slot.day.id}`}
                   className={[
                     "flex h-15 w-15 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border text-center transition-colors",
@@ -420,74 +489,89 @@ export default function CyclePage() {
             <div className="relative flex flex-col gap-4">
               <div className="flex flex-col gap-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300/85">
-                  Current day
+                  {isCycleComplete ? "Current cycle" : "Current day"}
                 </p>
 
                 <div className="flex flex-col gap-2">
                   <h2 className="text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl">
-                    {currentDay.label} {currentDay.name}
+                    {isCycleComplete
+                      ? "Cycle complete"
+                      : `${currentDay.label} ${currentDay.name}`}
                   </h2>
 
                   <p className="max-w-sm text-base leading-6 text-slate-300">
-                    {currentDayDetails?.goal ??
-                      "Open the current training day and keep the cycle moving."}
+                    {isCycleComplete
+                      ? `All ${totalTrainingDays} training days are closed. Review your cycle before starting the next one.`
+                      : (currentDayDetails?.goal ??
+                        "Open the current training day and keep the cycle moving.")}
                   </p>
                 </div>
               </div>
 
               <div className="border-t border-emerald-900/35 pt-4">
-                <div className="flex flex-col gap-2">
-                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-slate-300">
-                    <span className="inline-flex items-center gap-1.5">
-                      <Dumbbell
-                        className="h-4 w-4 text-emerald-300/80"
-                        aria-hidden="true"
-                      />
-                      {currentDaySummary?.totalExerciseCount ?? 0} exercises
-                    </span>
-
-                    <span className="inline-flex items-center gap-1.5">
-                      <Flame
-                        className="h-4 w-4 text-amber-300/80"
-                        aria-hidden="true"
-                      />
-                      Warm-up ready
-                    </span>
-                  </div>
-
-                  <div className="flex min-w-0 items-center gap-2 text-sm">
-                    <ArrowRight
+                {isCycleComplete ? (
+                  <div className="flex items-center gap-2 text-sm font-medium text-slate-300">
+                    <CheckCircle2
                       className="h-4 w-4 shrink-0 text-emerald-300/80"
                       aria-hidden="true"
                     />
-
-                    <p className="min-w-0 text-slate-300">
-                      <span className="font-medium text-emerald-200/90">
-                        Next up:
-                      </span>{" "}
-                      <span className="font-semibold text-slate-100">
-                        {nextExerciseName}
-                      </span>
-                    </p>
+                    <span>
+                      {completedDayCount}/{totalTrainingDays} training days
+                      closed
+                    </span>
                   </div>
-                </div>
+                ) : (
+                  <div className="flex flex-col gap-2">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-slate-300">
+                      <span className="inline-flex items-center gap-1.5">
+                        <Dumbbell
+                          className="h-4 w-4 text-emerald-300/80"
+                          aria-hidden="true"
+                        />
+                        {currentDaySummary?.totalExerciseCount ?? 0} exercises
+                      </span>
+
+                      <span className="inline-flex items-center gap-1.5">
+                        <Flame
+                          className="h-4 w-4 text-amber-300/80"
+                          aria-hidden="true"
+                        />
+                        Warm-up ready
+                      </span>
+                    </div>
+
+                    <div className="flex min-w-0 items-center gap-2 text-sm">
+                      <ArrowRight
+                        className="h-4 w-4 shrink-0 text-emerald-300/80"
+                        aria-hidden="true"
+                      />
+
+                      <p className="min-w-0 text-slate-300">
+                        <span className="font-medium text-emerald-200/90">
+                          Next up:
+                        </span>{" "}
+                        <span className="font-semibold text-slate-100">
+                          {nextExerciseName}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <Link
-                to={`/plan/${planId}/day/${currentDay.id}`}
+                to={
+                  isCycleComplete
+                    ? `/plan/${planId}/end-cycle`
+                    : `/plan/${planId}/day/${currentDay.id}`
+                }
                 className="inline-flex min-h-13 items-center justify-center rounded-2xl bg-emerald-700/80 px-5 text-base font-semibold text-white shadow-[0_8px_22px_rgba(6,78,59,0.2)] ring-1 ring-emerald-400/10 transition-colors hover:bg-emerald-600/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
               >
-                Continue day
+                {heroCtaLabel}
                 <ChevronRight className="ml-2 h-5 w-5" aria-hidden="true" />
               </Link>
             </div>
           </section>
-        ) : null}
-
-        {currentCycle?.completedAt ? (
-          <PrimaryButton to={`/plan/${planId}/end-cycle`}>
-            Review cycle
-          </PrimaryButton>
         ) : null}
 
         {upcomingDays.length > 0 ? (

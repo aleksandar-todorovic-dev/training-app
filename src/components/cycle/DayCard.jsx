@@ -11,6 +11,7 @@ export default function DayCard({
 }) {
   const isFinished = mode === "finished";
   const compactStatus = statusDetail ? `${status} · ${statusDetail}` : status;
+  const title = isFinished ? `${day.label} ${day.name}` : day.name;
 
   return (
     <Link
@@ -39,7 +40,7 @@ export default function DayCard({
 
       <div className="min-w-0 flex-1">
         <h3 className="line-clamp-1 text-[0.98rem] font-semibold leading-snug text-slate-100">
-          {day.label} {day.name}
+          {title}
         </h3>
 
         <p className="mt-1 line-clamp-1 text-sm font-medium text-slate-400">
