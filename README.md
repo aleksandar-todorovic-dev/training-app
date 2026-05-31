@@ -1,8 +1,8 @@
 # Training App
 
-Structured training app MVP built with React, Vite, Tailwind CSS, React Router, and Context + reducer state.
+Structured training app MVP built with React, Vite, Tailwind CSS, React Router, Context + reducer state, and localStorage persistence.
 
-This project is not just a workout tracker. It is a local-first, guided training app built around structured training systems, cycle-based progression, prescribed set logging, previous-value carry-over, and real-life flexibility.
+This project is not just a workout tracker. It is a local-first, guided training app built around structured training systems, cycle-based progression, prescribed set logging, previous-value carry-over, partial-day flexibility, and a mobile-first product experience.
 
 ---
 
@@ -58,6 +58,7 @@ Build a clean, focused, mobile-first training app that supports:
 - local-first runtime progress persistence
 - safe refresh behavior through localStorage
 - controlled local progress reset
+- a premium product polish layer across product and training screens
 
 ---
 
@@ -69,7 +70,7 @@ Phase 2 — Static content and screen structure: complete and merged to main
 Phase 3 — Runtime logic: functionally complete in memory
 Pre-Phase-4 stabilization: complete
 Phase 4 — Local persistence: complete
-Phase 5 — Polish and stability: next
+Phase 5 — Product UI polish: in progress
 ```
 
 Current project state:
@@ -78,7 +79,18 @@ Current project state:
 The MVP screen flow works.
 The runtime workout flow works.
 Progress survives browser refresh.
-The app behaves like a usable local-first MVP.
+Home and Plan Overview have received the first product-shell polish pass.
+Cycle Dashboard has received the first dark training-mode polish pass.
+The app now feels closer to a polished local-first product, not only a working MVP.
+```
+
+Current Phase 5 polish status:
+
+```text
+Screen 1 — Home: polished for current Phase 5 pass
+Screen 2 — Plan Overview: polished for current Phase 5 pass
+Screen 3 — Cycle Dashboard: functionally complete for current Phase 5 pass
+Next focus — Screen 4 Day screen polish
 ```
 
 ---
@@ -143,6 +155,40 @@ Current route decisions:
 - Finish day confirmation is not a standalone route.
 - Finish day confirmation opens from `DayPage` as `FinishDaySheet`.
 - End cycle remains a dedicated route-driven page.
+
+---
+
+## Visual product direction
+
+Phase 5 uses a hybrid product/training visual system.
+
+```text
+Light mode = understanding, choosing, reviewing, learning.
+Dark mode  = doing, logging, executing, finishing workouts.
+```
+
+Current screen grouping:
+
+- **Light product shell:** Home, Plan Overview, Guide, End Cycle
+- **Dark training mode:** Cycle Dashboard, Day, Exercise, Core, Warm-up sheet, Finish Day sheet
+
+Current visual principles:
+
+- the app should feel modern, serious, premium, calm, and mobile-first
+- polish should improve hierarchy first, not just colors
+- green/emerald should guide attention, not decorate everything
+- product screens can feel lighter and more open
+- training screens should feel focused, dark, and execution-oriented
+
+Current Screen 3 dark training reference:
+
+- slate-based dark surfaces
+- restrained emerald accents
+- compact review rows
+- current-day/current-cycle hero as the main focus
+- rest days visible as part of the cycle rhythm
+
+Reusable dark training tokens may be extracted later after Day, Exercise, and Core screens confirm the same patterns.
 
 ---
 
@@ -298,6 +344,87 @@ Upcoming preview after refresh stays read-only — passed
 Finished day edit after refresh keeps finished state and edited values — passed
 Reset after both plans have progress clears both plans — passed
 ```
+
+---
+
+### Phase 5 — Product UI polish
+
+Phase 5 is currently in progress.
+
+Goal:
+
+```text
+Turn the functional local-first MVP into a clearer, more premium, more sellable training product while preserving confirmed runtime behavior.
+```
+
+Completed so far:
+
+#### Screen 1 — Home
+
+Home was polished into a stronger product entry screen.
+
+Completed:
+
+- light product shell direction
+- clearer product hero
+- stronger product positioning around cycles, guided workouts, previous values, and partial-day flexibility
+- compact value pills
+- cleaner plan cards
+- plan-specific Home card identity
+- quiet reset local progress action
+
+#### Screen 2 — Plan Overview
+
+Plan Overview was polished into a plan entry / mini-dashboard screen.
+
+Completed:
+
+- runtime-aware CTA moved closer to the top
+- stronger current-status card
+- compact plan fact cards
+- scannable 9-day rhythm map
+- cleaner principle/rules rows
+- quieter Coach guide entry
+- improved rhythm labels
+- first icon semantics pass
+
+Runtime-safe CTA behavior was preserved:
+
+```text
+No current cycle -> Start cycle
+Unfinished current cycle -> Continue cycle
+Completed current cycle -> Review cycle
+```
+
+#### Screen 3 — Cycle Dashboard
+
+Cycle Dashboard was polished from a flat D1-D6 list into a dark training-mode dashboard.
+
+Completed:
+
+- dark training dashboard direction
+- local green `Back to plan` link
+- cycle header with progress status and check icon
+- compact horizontal rhythm strip with rest days
+- current day / current cycle hero
+- runtime-aware hero CTA states
+- `Next up` behavior that skips closed exercises
+- completed-cycle hero state
+- compact upcoming/completed rows
+- truthful partial/no-set completed copy
+- current day auto-centering in the rhythm strip
+- coach reminder card
+
+Current hero CTA states:
+
+```text
+Fresh day with no activity -> Start day
+Day has logged/closed activity -> Continue day
+All main exercises closed, day not finished -> Review day
+Cycle complete -> Review cycle
+```
+
+Cycle Dashboard is considered functionally complete for the current Phase 5 polish round.
 
 ---
 
@@ -937,6 +1064,12 @@ src/utils/runtime/
 - runtime state is persisted locally
 - localStorage is the only persistence layer in the MVP
 
+### Product polish safety
+
+- Phase 5 polish must preserve confirmed runtime behavior
+- polish should not change reducer rules, route decisions, storage shape, or completion logic unless explicitly planned
+- visual hierarchy should clarify the workout flow instead of adding noise
+
 ---
 
 ## Verification workflow
@@ -962,24 +1095,31 @@ localStorage persistence works
 
 Phase 4 acceptance testing has passed.
 
+During Phase 5 polish, also manually verify the changed screen behavior before committing.
+
 ---
 
 ## Current next steps
 
-Next MVP phase:
+Current MVP phase:
 
 ```text
-Phase 5 — polish and stability
+Phase 5 — Product UI polish and stability
 ```
 
-Likely focus areas:
+Completed in this phase:
 
-- small UX polish around persisted runtime flow
-- route/deep-link fallback polish
-- final mobile UI review
-- documentation cleanup
-- README/project presentation pass
-- final testing before portfolio/demo positioning
+- Home product-shell polish
+- Plan Overview product-shell polish
+- Cycle Dashboard dark training-mode polish
+
+Next likely focus:
+
+- Screen 4 Day screen polish
+- continue dark training-mode consistency across Day, Exercise, Core, Warm-up, and Finish Day
+- keep reusable UI tokens/pills/cards consistent only after patterns repeat across screens
+- final mobile UI review after the main screen polish pass
+- documentation cleanup and portfolio/demo presentation pass
 
 Possible non-blocking polish item:
 
@@ -1005,6 +1145,8 @@ training-app-build-log.md
 training-app-ui-system.md
 training-app-mvp-screen-map-final-fixed.md
 training-app-product-positioning-and-cycle-logic.md
+training-app-phase-5-product-ui-polish-master-plan.md
+training-app-phase-5-screen-implementation-notes-final.md
 ```
 
 Use them as:
@@ -1019,6 +1161,8 @@ Use them as:
 - UI system = reusable UI rules and visual consistency
 - screen map = active screen/route flow
 - product positioning = product philosophy and cycle logic
+- Phase 5 master plan = product polish strategy and visual direction
+- Phase 5 screen notes = screen-by-screen polish implementation guide
 
 ---
 
@@ -1034,10 +1178,10 @@ The goal is to keep the project:
 - local-first
 - runtime-safe
 - persistence-safe
-- useful as a serious portfolio project
+- visually clear enough for a serious portfolio/demo project
 
 Current guiding rule:
 
 ```text
-Make the persisted runtime flow stable before expanding product scope.
+Polish the product experience without breaking the confirmed local-first runtime flow.
 ```
