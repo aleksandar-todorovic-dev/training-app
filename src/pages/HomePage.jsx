@@ -64,43 +64,48 @@ export default function HomePage() {
   }
 
   return (
-    <AppShell mode="product">
-      <div className="flex flex-col gap-7 py-2">
-        <header className="flex flex-col gap-6">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-800">
-              <Repeat2 className="h-5 w-5" aria-hidden="true" />
+    <AppShell mode="training">
+      <div className="relative isolate flex flex-col gap-8 py-2">
+        <div
+          className="pointer-events-none absolute -top-20 left-1/2 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-[#3FA8B6]/10 blur-3xl"
+          aria-hidden="true"
+        />
+
+        <header className="flex flex-col gap-7">
+          <div className="inline-flex w-fit items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#3FA8B6]/22 bg-[#10292E]/70 text-[#8FDCE5]">
+              <Repeat2 className="h-6 w-6" aria-hidden="true" />
             </div>
 
             <div className="flex flex-col">
-              <p className="text-base font-semibold tracking-tight text-zinc-950">
+              <p className="text-lg font-semibold tracking-tight text-[#F4F7F8]">
                 Cycle Coach
               </p>
-              <p className="text-xs font-medium text-zinc-500">
+              <p className="text-sm font-medium text-[#A9B0B5]">
                 Structured training companion
               </p>
             </div>
           </div>
 
           <div className="flex flex-col gap-4">
-            <h1 className="text-4xl font-semibold leading-[1.03] tracking-tight text-zinc-950">
+            <h1 className="max-w-sm text-[2.85rem] font-semibold leading-[0.98] tracking-tight text-[#F4F7F8]">
               Your training cycle, organized
-              <span className="text-emerald-600">.</span>
+              <span className="text-[#5EC7D5]">.</span>
             </h1>
 
-            <p className="max-w-sm text-base leading-7 text-zinc-600">
+            <p className="max-w-sm text-base leading-7 text-[#A9B0B5]">
               Follow Bulk or Cut cycles with guided workouts, previous values,
               and flexible progress when real life changes the schedule.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-2.5">
             {HOME_VALUE_CHIPS.map(({ label, icon }) => (
               <span
                 key={label}
-                className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-emerald-100 bg-white px-3 py-2 text-sm font-medium text-zinc-700 shadow-sm"
+                className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.032] px-3 py-2 text-sm font-medium text-[#D3D8DB]"
               >
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl border border-[#3FA8B6]/14 bg-[#10292E]/60 text-[#8FDCE5]/82">
                   {createElement(icon, {
                     className: "h-3.5 w-3.5",
                     "aria-hidden": "true",
@@ -112,12 +117,12 @@ export default function HomePage() {
           </div>
         </header>
 
-        <section className="flex flex-col gap-3">
+        <section className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
-            <h2 className="text-xl font-semibold tracking-tight text-zinc-950">
+            <h2 className="text-2xl font-semibold tracking-tight text-[#F4F7F8]">
               Choose your plan
             </h2>
-            <p className="text-sm leading-6 text-zinc-600">
+            <p className="text-sm leading-6 text-[#A9B0B5]">
               Pick the phase that matches your current goal.
             </p>
           </div>
@@ -129,13 +134,13 @@ export default function HomePage() {
           </div>
         </section>
 
-        <div className="-mb-4 border-t border-zinc-200 pt-2">
+        <div className="-mt-4 -mb-6 border-t border-white/8 pt-2">
           <button
             type="button"
-            className="mx-auto flex min-h-9 items-center justify-center gap-2 rounded-xl px-3 text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-950"
+            className="mx-auto flex min-h-8 items-center justify-center gap-2 rounded-xl px-3 text-xs font-medium text-zinc-700 transition-colors hover:text-zinc-400"
             onClick={handleResetLocalProgress}
           >
-            <RotateCcw className="h-4 w-4" aria-hidden="true" />
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
             Reset local progress
           </button>
         </div>

@@ -24,12 +24,16 @@ import { UI_STACK_LG } from "../styles/ui";
 import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
 import { getDayMode, getDayModeLabel } from "../utils/runtime/dayModeHelpers";
 
+// Screen-specific display hints for Cycle cards.
+// These do not affect day completion or core runtime state.
 const STATIC_CORE_HINT_MAP = {
   d2: "Core A",
   d4: "Core B",
   d5: "Core C",
 };
 
+// Screen-specific day detail hints.
+// The base day data stays unchanged; this only improves CyclePage display.
 const STATIC_DAY_DETAIL_HINT_MAP = {
   "bulk-pro": {
     d1: "Shoulder top-up",
@@ -49,6 +53,9 @@ const STATIC_DAY_DETAIL_HINT_MAP = {
   },
 };
 
+// CyclePage display helpers.
+// They derive labels from existing runtime logs without creating or mutating
+// day, exercise, or core runtime state.
 function getDoneSetCount(dayLog) {
   if (!dayLog) {
     return 0;
@@ -146,6 +153,9 @@ function getHeroCtaLabel({
   return "Continue day";
 }
 
+// Builds the display summary used by CyclePage and DayCard.
+// Day mode still comes from runtime helpers; this function only formats what
+// the cycle dashboard should show.
 function getDayRuntimeSummary({
   planId,
   day,
@@ -269,6 +279,8 @@ function getNextExerciseName({ planId, dayDetails, dayLog }) {
   );
 }
 
+// Rest slots are display-only rhythm markers.
+// They do not create rest-day routes, logs, completion state, or persistence.
 function buildRhythmSlots(days) {
   return days.flatMap((day) => {
     const slots = [{ type: "day", day }];
@@ -290,11 +302,12 @@ function buildRhythmSlots(days) {
 }
 
 /**
- * Page-level dashboard for the active plan cycle.
+ * Runtime-aware cycle dashboard for one selected plan.
  *
- * Runtime note:
- * CyclePage reads current cycle progress and derives display labels only.
- * It does not create or mutate day logs directly.
+ * Runtime boundary:
+ * CyclePage reads the current cycle, derives day display states, and routes the
+ * user toward the current day or cycle review. It does not create day logs for
+ * upcoming preview days.
  */
 export default function CyclePage() {
   const { planId } = useParams();
@@ -311,6 +324,7 @@ export default function CyclePage() {
   const dayOrder = plan?.dayOrder ?? days.map((day) => day.id);
   const isCycleComplete = Boolean(currentCycle?.completedAt);
 
+  // Keep the current day visible inside the horizontal rhythm strip.
   useEffect(() => {
     currentRhythmItemRef.current?.scrollIntoView({
       behavior: "smooth",
@@ -345,7 +359,9 @@ export default function CyclePage() {
     ? getDayDetails(planId, currentDay.id)
     : null;
 
-  const currentDayLog = currentCycle?.dayLogs?.[currentDayId];
+  const currentDayLog = currentDay
+    ? currentCycle?.dayLogs?.[currentDay.id]
+    : null;
 
   const currentDaySummary = currentDay
     ? daySummaries.find(({ day }) => day.id === currentDay.id)
@@ -375,11 +391,11 @@ export default function CyclePage() {
 
   if (!plan) {
     return (
-      <AppShell>
+      <AppShell mode="training">
         <div className={UI_STACK_LG}>
           <Link
             to={`/plan/${planId}`}
-            className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-emerald-300/90 transition-colors hover:text-emerald-200"
+            className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-[#5EC7D5]/85 transition-colors hover:text-[#8FDCE5]"
           >
             <ArrowLeft className="h-5 w-5" aria-hidden="true" />
             Back to plan
@@ -389,8 +405,6 @@ export default function CyclePage() {
             planName="Plan not found"
             cycleLabel=""
             statusSummary="The selected plan could not be loaded."
-            completedDayCount={0}
-            totalTrainingDays={0}
             progressPercent={0}
           />
         </div>
@@ -398,12 +412,54 @@ export default function CyclePage() {
     );
   }
 
+  // CyclePage is a runtime dashboard, not a pre-start preview.
+  // If the cycle has not been created yet, send the user back to Plan Overview
+  // where the explicit Start Cycle action lives.
+  if (!currentCycle) {
+    return (
+      <AppShell mode="training">
+        <div className="flex flex-col gap-6 py-0">
+          <Link
+            to={`/plan/${planId}`}
+            className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-[#5EC7D5]/85 transition-colors hover:text-[#8FDCE5]"
+          >
+            <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+            Back to plan
+          </Link>
+
+          <section className="rounded-3xl border border-white/10 bg-[#151A1D] p-5 shadow-[0_12px_28px_rgba(0,0,0,0.18)]">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8FDCE5]/78">
+              Cycle not started
+            </p>
+
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#F4F7F8]">
+              Start your cycle first
+            </h1>
+
+            <p className="mt-3 text-base leading-7 text-[#A9B0B5]">
+              This dashboard becomes active after you start the plan cycle from
+              the plan overview screen.
+            </p>
+
+            <Link
+              to={`/plan/${planId}`}
+              className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] shadow-[0_8px_20px_rgba(63,168,182,0.13)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151A1D]"
+            >
+              Go to plan overview
+              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </section>
+        </div>
+      </AppShell>
+    );
+  }
+
   return (
-    <AppShell>
+    <AppShell mode="training">
       <div className="flex flex-col gap-5 py-0">
         <Link
           to={`/plan/${planId}`}
-          className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-emerald-300/90 transition-colors hover:text-emerald-200"
+          className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-[#5EC7D5]/85 transition-colors hover:text-[#8FDCE5]"
         >
           <ArrowLeft className="h-5 w-5" aria-hidden="true" />
           Back to plan
@@ -413,14 +469,12 @@ export default function CyclePage() {
           planName={plan.name}
           cycleLabel={`Cycle ${currentCycleNumber}`}
           statusSummary={`${completedDayCount} of ${totalTrainingDays} training days closed`}
-          completedDayCount={completedDayCount}
-          totalTrainingDays={totalTrainingDays}
           progressPercent={progressPercent}
         />
 
         <section
           aria-label="Cycle rhythm"
-          className="overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="mt-1 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           <div className="flex min-w-max items-center gap-2">
             {rhythmSlots.map((slot) => {
@@ -428,7 +482,7 @@ export default function CyclePage() {
                 return (
                   <div
                     key={slot.id}
-                    className="flex h-15 w-15 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-white/10 bg-slate-900/55 text-slate-500"
+                    className="flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-white/8 bg-white/5 text-zinc-500"
                   >
                     <span className="text-xs font-medium">Rest</span>
                     <Moon className="h-4 w-4" aria-hidden="true" />
@@ -449,15 +503,15 @@ export default function CyclePage() {
                   ref={isCurrent ? currentRhythmItemRef : null}
                   to={`/plan/${planId}/day/${slot.day.id}`}
                   className={[
-                    "flex h-15 w-15 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border text-center transition-colors",
+                    "flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border text-center transition-colors",
                     isCurrent
-                      ? "border-emerald-500/55 bg-emerald-950/28 text-emerald-100 shadow-[0_0_12px_rgba(16,185,129,0.07)]"
+                      ? "border-[#3FA8B6]/70 bg-[#10292E] text-[#DDF8FB]"
                       : "",
                     isFinished
-                      ? "border-emerald-800/35 bg-emerald-950/18 text-emerald-200"
+                      ? "border-[#24515A] bg-[#0D2227] text-[#9CE2EA]"
                       : "",
                     !isCurrent && !isFinished
-                      ? "border-white/10 bg-slate-900/55 text-slate-400 hover:border-white/20"
+                      ? "border-white/8 bg-white/5 text-zinc-500 hover:border-[#3FA8B6]/30"
                       : "",
                   ].join(" ")}
                 >
@@ -467,13 +521,13 @@ export default function CyclePage() {
 
                   {isFinished ? (
                     <CheckCircle2
-                      className="h-4 w-4 text-emerald-400/80"
+                      className="h-4 w-4 text-[#8FDCE5]"
                       aria-hidden="true"
                     />
                   ) : isCurrent ? (
-                    <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/75" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#5EC7D5]" />
                   ) : (
-                    <span className="h-2.5 w-2.5 rounded-full bg-white/15" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-white/14" />
                   )}
                 </Link>
               );
@@ -482,24 +536,24 @@ export default function CyclePage() {
         </section>
 
         {currentDay ? (
-          <section className="relative overflow-hidden rounded-3xl border border-emerald-900/50 bg-emerald-950/18 p-5 shadow-[0_18px_46px_rgba(0,0,0,0.32)]">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_84%_28%,rgba(22,101,52,0.17),transparent_34%),radial-gradient(circle_at_18%_100%,rgba(6,78,59,0.12),transparent_42%)]" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[linear-gradient(135deg,transparent,rgba(5,46,22,0.13))]" />
+          <section className="relative overflow-hidden rounded-3xl border border-[#3FA8B6]/18 bg-[#10292E] p-5 shadow-[0_18px_46px_rgba(0,0,0,0.36)]">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_18%,rgba(95,199,213,0.12),transparent_34%),radial-gradient(circle_at_10%_100%,rgba(63,168,182,0.09),transparent_42%)]" />
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-2/5 bg-[linear-gradient(135deg,transparent,rgba(255,255,255,0.045))]" />
 
             <div className="relative flex flex-col gap-4">
               <div className="flex flex-col gap-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-emerald-300/85">
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8FDCE5]/90">
                   {isCycleComplete ? "Current cycle" : "Current day"}
                 </p>
 
                 <div className="flex flex-col gap-2">
-                  <h2 className="text-3xl font-semibold leading-tight tracking-tight text-white sm:text-4xl">
+                  <h2 className="text-3xl font-semibold leading-tight tracking-tight text-[#F4F7F8] sm:text-4xl">
                     {isCycleComplete
                       ? "Cycle complete"
                       : `${currentDay.label} ${currentDay.name}`}
                   </h2>
 
-                  <p className="max-w-sm text-base leading-6 text-slate-300">
+                  <p className="max-w-sm text-base leading-6 text-[#C7D0D4]">
                     {isCycleComplete
                       ? `All ${totalTrainingDays} training days are closed. Review your cycle before starting the next one.`
                       : (currentDayDetails?.goal ??
@@ -508,11 +562,11 @@ export default function CyclePage() {
                 </div>
               </div>
 
-              <div className="border-t border-emerald-900/35 pt-4">
+              <div className="border-t border-white/10 pt-4">
                 {isCycleComplete ? (
-                  <div className="flex items-center gap-2 text-sm font-medium text-slate-300">
+                  <div className="flex items-center gap-2 text-sm font-medium text-[#C7D0D4]">
                     <CheckCircle2
-                      className="h-4 w-4 shrink-0 text-emerald-300/80"
+                      className="h-4 w-4 shrink-0 text-[#8FDCE5]"
                       aria-hidden="true"
                     />
                     <span>
@@ -522,10 +576,10 @@ export default function CyclePage() {
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2">
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-slate-300">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-[#C7D0D4]">
                       <span className="inline-flex items-center gap-1.5">
                         <Dumbbell
-                          className="h-4 w-4 text-emerald-300/80"
+                          className="h-4 w-4 text-[#5EC7D5]"
                           aria-hidden="true"
                         />
                         {currentDaySummary?.totalExerciseCount ?? 0} exercises
@@ -533,7 +587,7 @@ export default function CyclePage() {
 
                       <span className="inline-flex items-center gap-1.5">
                         <Flame
-                          className="h-4 w-4 text-amber-300/80"
+                          className="h-4 w-4 text-amber-300"
                           aria-hidden="true"
                         />
                         Warm-up ready
@@ -542,15 +596,15 @@ export default function CyclePage() {
 
                     <div className="flex min-w-0 items-center gap-2 text-sm">
                       <ArrowRight
-                        className="h-4 w-4 shrink-0 text-emerald-300/80"
+                        className="h-4 w-4 shrink-0 text-[#5EC7D5]"
                         aria-hidden="true"
                       />
 
-                      <p className="min-w-0 text-slate-300">
-                        <span className="font-medium text-emerald-200/90">
+                      <p className="min-w-0 text-[#C7D0D4]">
+                        <span className="font-medium text-[#8FDCE5]">
                           Next up:
                         </span>{" "}
-                        <span className="font-semibold text-slate-100">
+                        <span className="font-semibold text-[#F4F7F8]">
                           {nextExerciseName}
                         </span>
                       </p>
@@ -565,7 +619,7 @@ export default function CyclePage() {
                     ? `/plan/${planId}/end-cycle`
                     : `/plan/${planId}/day/${currentDay.id}`
                 }
-                className="inline-flex min-h-13 items-center justify-center rounded-2xl bg-emerald-700/80 px-5 text-base font-semibold text-white shadow-[0_8px_22px_rgba(6,78,59,0.2)] ring-1 ring-emerald-400/10 transition-colors hover:bg-emerald-600/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                className="inline-flex min-h-13 items-center justify-center rounded-2xl bg-[#5EC7D5] px-5 text-base font-semibold text-[#031014] shadow-[0_10px_24px_rgba(63,168,182,0.17)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#10292E]"
               >
                 {heroCtaLabel}
                 <ChevronRight className="ml-2 h-5 w-5" aria-hidden="true" />
@@ -576,7 +630,7 @@ export default function CyclePage() {
 
         {upcomingDays.length > 0 ? (
           <section className="mt-1 flex flex-col gap-2.5">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#A9B0B5]">
               Up next
             </p>
 
@@ -603,7 +657,7 @@ export default function CyclePage() {
 
         {completedDays.length > 0 ? (
           <section className="mt-1 flex flex-col gap-2.5">
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#A9B0B5]">
               Completed
             </p>
 
@@ -628,12 +682,12 @@ export default function CyclePage() {
           </section>
         ) : null}
 
-        <section className="mt-1 flex items-center gap-4 rounded-3xl border border-emerald-900/40 bg-slate-900/50 p-4">
-          <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-full border border-emerald-800/40 bg-emerald-950/35 text-emerald-300/90">
+        <section className="mt-1 flex items-center gap-4 rounded-3xl border border-white/8 bg-[#171C1F] p-4">
+          <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-full border border-[#3FA8B6]/20 bg-[#10292E] text-[#8FDCE5]">
             <Sparkles className="h-6 w-6" aria-hidden="true" />
           </div>
 
-          <p className="text-base font-medium leading-6 text-slate-100">
+          <p className="text-base font-medium leading-6 text-[#F4F7F8]">
             Rest days are part of the cycle, not empty space.
           </p>
         </section>

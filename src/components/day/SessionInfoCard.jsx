@@ -1,6 +1,6 @@
 import { ShieldCheck, Target, TrendingUp } from "lucide-react";
 
-function InfoTile({ icon: title, value, tone = "emerald" }) {
+function InfoTile({ icon: Icon, title, value, tone = "emerald" }) {
   const iconClass =
     tone === "purple" ? "text-violet-300/90" : "text-emerald-300/90";
 
