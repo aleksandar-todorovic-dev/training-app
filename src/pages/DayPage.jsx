@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -6,6 +6,7 @@ import {
   ChevronRight,
   Flame,
   ListChecks,
+  ShieldCheck,
 } from "lucide-react";
 
 import { APP_ACTIONS } from "../state/appActions";
@@ -17,7 +18,6 @@ import { getDayMode } from "../utils/runtime/dayModeHelpers";
 import AppShell from "../components/layout/AppShell";
 import SessionInfoCard from "../components/day/SessionInfoCard";
 import ExerciseListCard from "../components/day/ExerciseListCard";
-import CoreBlockCard from "../components/day/CoreBlockCard";
 import FinishDaySheet from "../components/day/FinishDaySheet";
 import WarmupSheet from "../components/warmup/WarmupSheet";
 
@@ -84,6 +84,52 @@ function getExerciseActionLabel(exerciseLog) {
   return "Start exercise";
 }
 
+function getCoreStatusLabelValue(status) {
+  if (status === "Complete") {
+    return "Complete";
+  }
+
+  if (status === "Partial") {
+    return "Partial";
+  }
+
+  return "Flexible block";
+}
+
+function CoreFlowRow({ planId, dayId, coreBlock, status }) {
+  return (
+    <Link
+      to={`/plan/${planId}/day/${dayId}/core/${coreBlock.id}`}
+      className="group flex items-center gap-3 rounded-2xl px-2.5 py-3 transition-colors hover:bg-violet-300/4"
+    >
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-violet-300/18 bg-violet-300/5 text-violet-200/85">
+        <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <div className="flex min-w-0 items-center gap-2">
+          <h3 className="line-clamp-1 text-[0.93rem] font-semibold leading-snug text-[#D3D8DB]">
+            {coreBlock.name}
+          </h3>
+
+          <span className="rounded-full border border-violet-300/16 bg-violet-300/4.5 px-2 py-0.5 text-[0.68rem] font-medium text-violet-200/80">
+            {getCoreStatusLabelValue(status)}
+          </span>
+        </div>
+
+        <p className="mt-0.5 line-clamp-2 text-xs font-medium leading-5 text-[#8B949B]">
+          Flexible core block. Move to a rest day if needed.
+        </p>
+      </div>
+
+      <ChevronRight
+        className="h-5 w-5 shrink-0 text-[#59636B] transition-colors group-hover:text-violet-200"
+        aria-hidden="true"
+      />
+    </Link>
+  );
+}
+
 /**
  * Page-level orchestrator for one training day.
  *
@@ -97,11 +143,9 @@ export default function DayPage() {
   const navigate = useNavigate();
   const { state, dispatch } = useAppState();
 
-  // Local sheet state only; sheet open/close does not write runtime progress.
   const [isWarmupOpen, setIsWarmupOpen] = useState(false);
   const [isFinishDayOpen, setIsFinishDayOpen] = useState(false);
 
-  // Lock body scroll while a DayPage sheet is open.
   useEffect(() => {
     if (!isWarmupOpen && !isFinishDayOpen) return;
 
@@ -113,11 +157,9 @@ export default function DayPage() {
     };
   }, [isWarmupOpen, isFinishDayOpen]);
 
-  // Static source data resolved from the current route.
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
 
-  // Keep resolved day exercises stable for the runtime ensure-day effect.
   const exercises = useMemo(() => {
     if (!dayDetails) {
       return [];
@@ -141,7 +183,6 @@ export default function DayPage() {
     return getCoreExercisesByIds(coreBlock.exerciseIds);
   }, [coreBlock]);
 
-  // Read the current runtime cycle/day state so page mode and progress can be derived.
   const planProgress = state.progressByPlan[planId];
   const currentCycleNumber = planProgress?.currentCycleNumber;
   const currentCycle = currentCycleNumber
@@ -162,8 +203,6 @@ export default function DayPage() {
       })
     : "inactive";
 
-  // Ensure only the active day creates a runtime day log.
-  // Upcoming days stay static preview-only and do not create current-cycle logs.
   useEffect(() => {
     if (!plan || !dayDetails || dayMode !== "active") {
       return;
@@ -179,8 +218,6 @@ export default function DayPage() {
     });
   }, [dispatch, plan, planId, dayDetails, exercises, dayMode]);
 
-  // Main day progress counts required main exercises only.
-  // Core, warm-up, guide/help, and optional work stay outside this fraction.
   const totalExerciseCount = dayLog
     ? Object.keys(dayLog.mainExerciseLogs).length
     : (dayDetails?.exerciseIds.length ?? 0);
@@ -201,14 +238,12 @@ export default function DayPage() {
   const nextExerciseLog = nextAction?.exerciseLog ?? null;
   const nextExerciseCtaLabel = getExerciseActionLabel(nextExerciseLog);
 
-  // Finish-day warnings are informational and do not block closing the day.
   const missingValueWarningSummary = getMissingValueWarningSummary({
     dayLog,
     coreExercises,
     currentCycleNumber,
   });
 
-  // Convert the runtime exercise status into the label shown on the Day screen.
   function getExerciseStatusLabel(exercise) {
     const exerciseLog = dayLog?.mainExerciseLogs?.[exercise.id];
     const status = getExerciseStatus(exerciseLog);
@@ -224,7 +259,6 @@ export default function DayPage() {
     return "Not started";
   }
 
-  // Convert the runtime core block status into the label shown on the Day screen.
   function getCoreStatusLabel() {
     const status = getCoreBlockStatus(coreBlockLog);
 
@@ -239,7 +273,6 @@ export default function DayPage() {
     return "Not started";
   }
 
-  // Finish day records day-level close intent and returns to the cycle overview.
   function handleConfirmFinishDay() {
     dispatch({
       type: APP_ACTIONS.FINISH_DAY,
@@ -279,6 +312,8 @@ export default function DayPage() {
     );
   }
 
+  const coreStatusLabel = getCoreStatusLabel();
+
   return (
     <AppShell mode="training">
       <div className="relative isolate flex flex-col gap-5">
@@ -295,200 +330,218 @@ export default function DayPage() {
           Back to Cycle
         </Link>
 
-        <header className="flex flex-col gap-3">
-          <p className="text-sm font-medium text-[#A9B0B5]">
-            {plan.name}
-            {currentCycleNumber ? ` · Cycle ${currentCycleNumber}` : ""}
-          </p>
-
-          <div className="flex flex-col gap-2">
-            <h1 className="text-[2.65rem] font-semibold leading-[1.02] tracking-tight text-[#F4F7F8]">
-              {dayDetails.label} — {dayDetails.name}
-            </h1>
-
-            <p className="text-base leading-7 text-[#A9B0B5]">
-              {dayDetails.goal}
+        <section className="overflow-hidden rounded-4xl border border-white/7.5 bg-[#101619]/72 shadow-[0_18px_46px_rgba(0,0,0,0.2)]">
+          <div className="px-4 pb-4 pt-4">
+            <p className="text-sm font-medium text-[#8B949B]">
+              {plan.name}
+              {currentCycleNumber ? ` · Cycle ${currentCycleNumber}` : ""}
             </p>
-          </div>
-        </header>
 
-        <section className="rounded-3xl border border-white/10 bg-[#11171A]/78 p-4 shadow-[0_14px_34px_rgba(0,0,0,0.18)]">
-          <div className="flex items-center gap-4">
-            <div
-              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full p-1"
-              style={{
-                background: `conic-gradient(rgba(94, 199, 213, 0.9) ${
-                  progressPercent * 3.6
-                }deg, rgba(255, 255, 255, 0.12) 0deg)`,
-              }}
-            >
-              <div className="h-full w-full rounded-full bg-[#070A0B]" />
-            </div>
+            <div className="mt-2.5 flex flex-col gap-1.5">
+              <h1 className="text-[1.68rem] font-semibold leading-[1.04] tracking-tight text-[#F4F7F8]">
+                {dayDetails.label} — {dayDetails.name}
+              </h1>
 
-            <div className="min-w-0 flex-1">
-              <p className="text-lg font-semibold text-[#F4F7F8]">
-                {completedExerciseCount}/{totalExerciseCount} completed
+              <p className="text-sm leading-6 text-[#A9B0B5]">
+                {dayDetails.goal}
               </p>
+            </div>
+          </div>
 
-              <p
-                className={[
-                  "mt-0.5 text-sm font-medium",
-                  dayMode === "active" ? "text-[#8FDCE5]" : "",
-                  dayMode === "finished" ? "text-[#8FDCE5]/90" : "",
-                  dayMode === "upcoming" ? "text-[#747D84]" : "",
-                  dayMode !== "active" &&
-                  dayMode !== "finished" &&
-                  dayMode !== "upcoming"
-                    ? "text-[#747D84]"
-                    : "",
-                ].join(" ")}
+          <div className="px-4 pb-4">
+            <div className="flex items-center gap-3 rounded-2xl bg-white/[0.018] px-3 py-3">
+              <div
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full p-1"
+                style={{
+                  background: `conic-gradient(rgba(94, 199, 213, 0.9) ${
+                    progressPercent * 3.6
+                  }deg, rgba(255, 255, 255, 0.12) 0deg)`,
+                }}
               >
-                {dayMode === "active"
-                  ? "Current day"
-                  : dayMode === "finished"
-                    ? "Finished day"
-                    : dayMode === "upcoming"
-                      ? "Upcoming day"
-                      : "Inactive day"}
-              </p>
+                <div className="h-full w-full rounded-full bg-[#070A0B]" />
+              </div>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex items-baseline justify-between gap-3">
+                  <p className="text-base font-semibold text-[#F4F7F8]">
+                    {completedExerciseCount}/{totalExerciseCount} completed
+                  </p>
+
+                  <p
+                    className={[
+                      "shrink-0 text-xs font-semibold",
+                      dayMode === "active" ? "text-[#8FDCE5]" : "",
+                      dayMode === "finished" ? "text-[#8FDCE5]/90" : "",
+                      dayMode === "upcoming" ? "text-[#747D84]" : "",
+                      dayMode !== "active" &&
+                      dayMode !== "finished" &&
+                      dayMode !== "upcoming"
+                        ? "text-[#747D84]"
+                        : "",
+                    ].join(" ")}
+                  >
+                    {dayMode === "active"
+                      ? "Current day"
+                      : dayMode === "finished"
+                        ? "Finished"
+                        : dayMode === "upcoming"
+                          ? "Upcoming"
+                          : "Inactive"}
+                  </p>
+                </div>
+
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
+                  <div
+                    className="h-full rounded-full bg-[#5EC7D5] transition-all"
+                    style={{ width: `${Math.min(progressPercent, 100)}%` }}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-white/10">
-            <div
-              className="h-full rounded-full bg-[#5EC7D5] transition-all"
-              style={{ width: `${Math.min(progressPercent, 100)}%` }}
-            />
-          </div>
-        </section>
+          {dayMode === "active" ? (
+            <div className="px-4 pb-4">
+              <div className="rounded-[1.75rem] bg-[#10292E]/22 p-4">
+                {nextExercise ? (
+                  <div className="flex flex-col gap-3.5">
+                    <div className="flex flex-col gap-2.5">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8FDCE5]">
+                        Next exercise
+                      </p>
 
-        {/* Day mode banners explain whether the page is editable, finished, or preview-only. */}
-        {dayMode === "finished" ? (
-          <section className="rounded-3xl border border-[#3FA8B6]/18 bg-[#10292E]/32 p-4">
-            <p className="text-sm font-semibold text-[#B9EEF4]">Finished day</p>
-            <p className="mt-1 text-sm leading-relaxed text-[#A9B0B5]">
-              This day has already been finished. Changes will update this saved
-              log.
-            </p>
-          </section>
-        ) : null}
+                      <div className="flex flex-col gap-1.5">
+                        <h2 className="text-[1.62rem] font-semibold leading-tight tracking-tight text-[#F4F7F8]">
+                          {nextExercise.name}
+                        </h2>
 
-        {dayMode === "upcoming" ? (
-          <section className="rounded-3xl border border-white/10 bg-[#11171A]/78 p-4">
-            <p className="text-sm font-semibold text-[#F4F7F8]">Upcoming day</p>
-            <p className="mt-1 text-sm leading-relaxed text-[#A9B0B5]">
-              This day is not active yet. You can preview the structure, but
-              logging unlocks when this becomes the current day.
-            </p>
-          </section>
-        ) : null}
+                        {nextExercise.subtitle ? (
+                          <p className="text-base leading-6 text-[#A9B0B5]">
+                            {nextExercise.subtitle}
+                          </p>
+                        ) : null}
+                      </div>
 
-        {dayMode === "active" ? (
-          <section className="relative overflow-hidden rounded-3xl border border-[#3FA8B6]/20 bg-[#10292E]/42 p-5 shadow-[0_18px_46px_rgba(0,0,0,0.28)]">
-            <div
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_24%,rgba(94,199,213,0.13),transparent_34%),radial-gradient(circle_at_12%_100%,rgba(63,168,182,0.1),transparent_42%)]"
-              aria-hidden="true"
-            />
+                      <div className="flex w-fit items-center gap-2 rounded-2xl border border-white/10 bg-[#070A0B]/36 px-3 py-2 text-sm font-medium text-[#D3D8DB]">
+                        <ListChecks
+                          className="h-4 w-4 text-[#8FDCE5]/75"
+                          aria-hidden="true"
+                        />
+                        <span>{nextExercise.prescription}</span>
 
-            <div className="relative flex flex-col gap-4">
-              {nextExercise ? (
-                <>
-                  <div className="flex flex-col gap-3">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8FDCE5]">
-                      Next up
-                    </p>
-
-                    <div className="flex flex-col gap-2">
-                      <h2 className="text-3xl font-semibold leading-tight tracking-tight text-[#F4F7F8]">
-                        {nextExercise.name}
-                      </h2>
-
-                      {nextExercise.subtitle ? (
-                        <p className="text-base leading-6 text-[#A9B0B5]">
-                          {nextExercise.subtitle}
-                        </p>
-                      ) : null}
+                        {nextExercise.details?.targetRir ? (
+                          <>
+                            <span className="text-[#59636B]">·</span>
+                            <span>RIR {nextExercise.details.targetRir}</span>
+                          </>
+                        ) : null}
+                      </div>
                     </div>
 
-                    <div className="flex w-fit items-center gap-2 rounded-2xl border border-white/10 bg-[#070A0B]/42 px-3 py-2 text-sm font-medium text-[#D3D8DB]">
-                      <ListChecks
-                        className="h-4 w-4 text-[#8FDCE5]/75"
+                    <Link
+                      to={`/plan/${planId}/day/${dayId}/exercise/${nextExercise.id}`}
+                      className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-[#5EC7D5] px-5 text-base font-semibold text-[#031014] shadow-[0_8px_22px_rgba(63,168,182,0.16)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#071012]"
+                    >
+                      {nextExerciseCtaLabel}
+                      <ChevronRight
+                        className="ml-2 h-5 w-5"
                         aria-hidden="true"
                       />
-                      <span>{nextExercise.prescription}</span>
+                    </Link>
 
-                      {nextExercise.details?.targetRir ? (
-                        <>
-                          <span className="text-[#59636B]">·</span>
-                          <span>RIR {nextExercise.details.targetRir}</span>
-                        </>
-                      ) : null}
+                    <button
+                      type="button"
+                      onClick={() => setIsWarmupOpen(true)}
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#070A0B]/32 px-4 text-sm font-semibold text-[#D3D8DB] transition-colors hover:border-white/20 hover:text-[#F4F7F8]"
+                    >
+                      <Flame
+                        className="h-4 w-4 text-[#C9B57A]"
+                        aria-hidden="true"
+                      />
+                      View warm-up
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col gap-3.5">
+                    <div className="flex flex-col gap-2">
+                      <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8FDCE5]">
+                        Ready to finish
+                      </p>
+
+                      <h2 className="text-[1.62rem] font-semibold leading-tight tracking-tight text-[#F4F7F8]">
+                        Ready to finish day
+                      </h2>
+
+                      <p className="text-base leading-6 text-[#A9B0B5]">
+                        All main exercises have been closed. Review anything you
+                        need, then finish the day when ready.
+                      </p>
                     </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setIsFinishDayOpen(true)}
+                      className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-[#5EC7D5] px-5 text-base font-semibold text-[#031014] shadow-[0_8px_22px_rgba(63,168,182,0.16)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#071012]"
+                    >
+                      Finish day
+                      <CheckCircle2
+                        className="ml-2 h-5 w-5"
+                        aria-hidden="true"
+                      />
+                    </button>
                   </div>
-
-                  <Link
-                    to={`/plan/${planId}/day/${dayId}/exercise/${nextExercise.id}`}
-                    className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-[#5EC7D5] px-5 text-base font-semibold text-[#031014] shadow-[0_8px_22px_rgba(63,168,182,0.16)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#071012]"
-                  >
-                    {nextExerciseCtaLabel}
-                    <ChevronRight className="ml-2 h-5 w-5" aria-hidden="true" />
-                  </Link>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsWarmupOpen(true)}
-                    className="inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl border border-white/10 bg-[#070A0B]/36 px-4 text-sm font-semibold text-[#D3D8DB] transition-colors hover:border-white/20 hover:text-[#F4F7F8]"
-                  >
-                    <Flame
-                      className="h-4 w-4 text-[#C9B57A]"
-                      aria-hidden="true"
-                    />
-                    View warm-up
-                  </button>
-                </>
-              ) : (
-                <>
-                  <div className="flex flex-col gap-2">
-                    <p className="text-xs font-semibold uppercase tracking-[0.22em] text-[#8FDCE5]">
-                      Ready to finish
-                    </p>
-
-                    <h2 className="text-3xl font-semibold leading-tight tracking-tight text-[#F4F7F8]">
-                      Ready to finish day
-                    </h2>
-
-                    <p className="text-base leading-6 text-[#A9B0B5]">
-                      All main exercises have been closed. Review anything you
-                      need, then finish the day when ready.
-                    </p>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setIsFinishDayOpen(true)}
-                    className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-[#5EC7D5] px-5 text-base font-semibold text-[#031014] shadow-[0_8px_22px_rgba(63,168,182,0.16)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#071012]"
-                  >
-                    Finish day
-                    <CheckCircle2 className="ml-2 h-5 w-5" aria-hidden="true" />
-                  </button>
-                </>
-              )}
+                )}
+              </div>
             </div>
-          </section>
-        ) : null}
+          ) : null}
 
-        <SessionInfoCard
-          sessionInfo={dayDetails.sessionInfo}
-          dayGoal={dayDetails.goal}
-          coreBlock={coreBlock}
-        />
+          {dayMode === "finished" ? (
+            <div className="px-4 pb-4">
+              <div className="rounded-2xl bg-[#10292E]/20 px-3 py-3">
+                <p className="text-sm font-semibold text-[#B9EEF4]">
+                  Finished day
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-[#A9B0B5]">
+                  This day has already been finished. Changes will update this
+                  saved log.
+                </p>
+              </div>
+            </div>
+          ) : null}
 
-        <section className="flex flex-col gap-2.5">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#747D84]">
-            Workout flow
-          </p>
+          {dayMode === "upcoming" ? (
+            <div className="px-4 pb-4">
+              <div className="rounded-2xl bg-white/[0.018] px-3 py-3">
+                <p className="text-sm font-semibold text-[#F4F7F8]">
+                  Upcoming day
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-[#A9B0B5]">
+                  You can preview the structure now. Logging opens when this day
+                  becomes current.
+                </p>
+              </div>
+            </div>
+          ) : null}
 
-          <div className="overflow-hidden rounded-3xl border border-white/10 bg-[#11171A]/78">
+          <div className="px-4 pb-4">
+            <SessionInfoCard
+              sessionInfo={dayDetails.sessionInfo}
+              dayGoal={dayDetails.goal}
+              coreBlock={coreBlock}
+            />
+          </div>
+
+          <div className="px-4 pb-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#747D84]">
+              Workout flow
+            </p>
+
+            <p className="mt-0.5 text-xs font-medium text-[#59636B]">
+              {exercises.length} exercises{coreBlock ? " + core block" : ""}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-0 px-2 pb-4">
             {exercises.map((exercise, index) => (
               <ExerciseListCard
                 key={exercise.id}
@@ -502,17 +555,17 @@ export default function DayPage() {
                 }
               />
             ))}
+
+            {coreBlock ? (
+              <CoreFlowRow
+                planId={planId}
+                dayId={dayId}
+                coreBlock={coreBlock}
+                status={coreStatusLabel}
+              />
+            ) : null}
           </div>
         </section>
-
-        {coreBlock ? (
-          <CoreBlockCard
-            planId={planId}
-            dayId={dayId}
-            coreBlock={coreBlock}
-            status={getCoreStatusLabel()}
-          />
-        ) : null}
 
         {dayMode === "active" && nextExercise ? (
           <button
