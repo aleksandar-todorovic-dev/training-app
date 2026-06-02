@@ -688,7 +688,7 @@ export default function CyclePage() {
           </div>
 
           <p className="text-base font-medium leading-6 text-[#F4F7F8]">
-            Rest days are part of the cycle, not empty space.
+            Rest days keep the cycle moving.
           </p>
         </section>
       </div>
