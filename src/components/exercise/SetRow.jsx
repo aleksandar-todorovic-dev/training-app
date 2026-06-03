@@ -1,10 +1,10 @@
 function CheckBox({ isDone = false }) {
   return (
     <span
-      className={`flex h-5 w-5 items-center justify-center rounded border transition ${
+      className={`flex h-6 w-6 items-center justify-center rounded-lg border transition ${
         isDone
-          ? "border-emerald-500 bg-emerald-500/20 text-emerald-300"
-          : "border-zinc-700 bg-zinc-950/40"
+          ? "border-cyan-300 bg-cyan-300 text-zinc-950 shadow-[0_0_22px_rgba(103,232,249,0.35)]"
+          : "border-zinc-700 bg-zinc-950/60"
       }`}
     >
       {isDone ? "✓" : null}
@@ -12,14 +12,11 @@ function CheckBox({ isDone = false }) {
   );
 }
 
-function MetricCell({ label, name, value, onChange, isReadOnly = false }) {
+function MetricCell({ name, value, onChange, isReadOnly = false }) {
   if (isReadOnly) {
     return (
-      <div className="min-w-0 text-center">
-        <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-          {label}
-        </p>
-        <p className="mt-1 text-base font-semibold tabular-nums text-zinc-100">
+      <div className="min-w-0 rounded-lg border border-zinc-800 bg-zinc-950/50 px-2 py-2 text-center">
+        <p className="text-base font-semibold tabular-nums text-zinc-100">
           {value || "—"}
         </p>
       </div>
@@ -27,21 +24,15 @@ function MetricCell({ label, name, value, onChange, isReadOnly = false }) {
   }
 
   return (
-    <label className="min-w-0 text-center">
-      <span className="block text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-        {label}
-      </span>
-
-      <input
-        name={name}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        inputMode="decimal"
-        autoComplete="off"
-        placeholder="—"
-        className="mt-1 w-full bg-transparent text-center text-base font-semibold tabular-nums text-zinc-100 outline-none placeholder:text-zinc-100"
-      />
-    </label>
+    <input
+      name={name}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+      inputMode="decimal"
+      autoComplete="off"
+      placeholder="—"
+      className="w-full rounded-lg border border-zinc-800 bg-zinc-950/55 px-2 py-2 text-center text-base font-semibold tabular-nums text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-cyan-300/70 focus:bg-zinc-950"
+    />
   );
 }
 
@@ -66,30 +57,29 @@ export default function SetRow({
 }) {
   return (
     <div
-      className={`grid grid-cols-[40px_1fr_1fr_1fr_24px] items-center gap-2 py-3 ${
-        !isLast ? "border-b border-zinc-800/80" : ""
+      className={`grid grid-cols-[34px_1fr_1fr_1fr_32px] items-center gap-2 py-2.5 ${
+        !isLast ? "border-b border-zinc-800/70" : ""
       }`}
     >
-      <span className="text-sm font-semibold tabular-nums text-zinc-100">
-        S{setNumber}
+      <span className="flex h-full items-center justify-center text-sm font-semibold tabular-nums text-zinc-100">
+        {setNumber}
       </span>
 
       <MetricCell
-        label="Kg"
         name={`set-${setNumber}-weight`}
         value={weight}
         isReadOnly={isReadOnly}
         onChange={(value) => onSetFieldChange?.("weight", value)}
       />
+
       <MetricCell
-        label="Reps"
         name={`set-${setNumber}-reps`}
         value={reps}
         isReadOnly={isReadOnly}
         onChange={(value) => onSetFieldChange?.("reps", value)}
       />
+
       <MetricCell
-        label="RIR"
         name={`set-${setNumber}-rir`}
         value={rir}
         isReadOnly={isReadOnly}
@@ -102,7 +92,7 @@ export default function SetRow({
         aria-pressed={isDone}
         disabled={isReadOnly}
         onClick={isReadOnly ? undefined : onToggleDone}
-        className={`mt-4.5 flex items-center justify-center ${
+        className={`flex items-center justify-center ${
           isReadOnly ? "cursor-not-allowed opacity-50" : ""
         }`}
       >

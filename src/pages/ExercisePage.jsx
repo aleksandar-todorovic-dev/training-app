@@ -1,10 +1,10 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+
 import { useAppState } from "../state/useAppState";
 import { APP_ACTIONS } from "../state/appActions";
 import AppShell from "../components/layout/AppShell";
 import SectionCard from "../components/layout/SectionCard";
-import BackButton from "../components/common/BackButton";
-import { UI_STACK_LG, UI_STACK_MD, UI_TEXT_MUTED } from "../styles/ui";
+import { UI_TEXT_MUTED } from "../styles/ui";
 import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getExerciseById } from "../data/exercises";
@@ -156,12 +156,14 @@ export default function ExercisePage() {
   if (!plan || !dayDetails || !exercise) {
     return (
       <AppShell>
-        <div className={UI_STACK_LG}>
-          <div className="flex justify-start">
-            <BackButton to={planId ? `/plan/${planId}/cycle` : "/"}>
-              Back
-            </BackButton>
-          </div>
+        <div className="space-y-6">
+          <Link
+            to={planId ? `/plan/${planId}/cycle` : "/"}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 transition hover:text-cyan-100"
+          >
+            <span aria-hidden="true">←</span>
+            Back
+          </Link>
 
           <SectionCard>
             <p className={UI_TEXT_MUTED}>
@@ -175,36 +177,39 @@ export default function ExercisePage() {
 
   return (
     <AppShell>
-      <div className={UI_STACK_LG}>
-        <div className="flex justify-start">
-          <BackButton to={`/plan/${planId}/day/${dayId}`}>
-            Back to Day
-          </BackButton>
-        </div>
+      <div className="space-y-6">
+        <header className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <Link
+              to={`/plan/${planId}/day/${dayId}`}
+              className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-cyan-200 transition hover:text-cyan-100"
+            >
+              <span aria-hidden="true">←</span>
+              Back to Day
+            </Link>
 
-        <div className={UI_STACK_MD}>
-          <p className={UI_TEXT_MUTED}>
-            {dayDetails.label} — {dayDetails.name}
-          </p>
+            <p className="min-w-0 truncate text-right text-xs font-medium text-zinc-500">
+              {plan.name} · Cycle {currentCycleNumber ?? 1} · {dayDetails.label}
+            </p>
+          </div>
 
-          <div className={UI_STACK_MD}>
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
+          <div className="space-y-1.5">
+            <h1 className="text-3xl font-semibold tracking-tight text-zinc-100">
               {exercise.name}
             </h1>
 
-            <p className={UI_TEXT_MUTED}>{exercise.subtitle}</p>
+            <p className="text-sm leading-6 text-zinc-400">
+              {exercise.subtitle}
+            </p>
           </div>
-        </div>
+        </header>
 
         {isUpcomingPreview ? (
-          <div className="rounded-2xl border border-zinc-700 bg-zinc-900/60 p-4">
-            <p className="text-sm font-semibold text-zinc-100">
-              Upcoming exercise preview
-            </p>
+          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4">
+            <p className="text-sm font-semibold text-zinc-100">Preview only</p>
             <p className="mt-1 text-sm leading-relaxed text-zinc-400">
-              This exercise is part of an upcoming day. You can review the
-              target structure, but logging unlocks when this day becomes
-              current.
+              You can review the target structure, but logging unlocks when this
+              day becomes current.
             </p>
           </div>
         ) : null}
