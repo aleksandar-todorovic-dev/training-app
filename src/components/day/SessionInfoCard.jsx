@@ -26,13 +26,13 @@ export default function SessionInfoCard({ sessionInfo, dayGoal, coreBlock }) {
   if (coreBlock) {
     notes.push({
       label: "Core",
-      value: `${coreBlock.name} · Can move to a rest day`,
+      value: `${coreBlock.name} · Flexible block`,
     });
   }
 
   const helperText = coreBlock
-    ? "Effort, technique, and core notes"
-    : "Effort and technique notes";
+    ? "Effort, technique, and core focus"
+    : "Effort and technique focus";
 
   return (
     <div className="flex flex-col">

@@ -1,6 +1,14 @@
 import { Link } from "react-router-dom";
 import { CheckCircle2, ChevronRight } from "lucide-react";
 
+function formatTargetRir(targetRir) {
+  if (!targetRir) {
+    return null;
+  }
+
+  return targetRir.replace("≈", "").trim();
+}
+
 export default function ExerciseListCard({
   planId,
   dayId,
@@ -9,7 +17,7 @@ export default function ExerciseListCard({
   orderNumber,
   isNext = false,
 }) {
-  const targetRir = exercise.details?.targetRir;
+  const targetRir = formatTargetRir(exercise.details?.targetRir);
   const isComplete = status === "Complete";
   const isPartial = status === "Partial";
 
