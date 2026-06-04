@@ -73,6 +73,7 @@ export default function ExercisePage() {
       })
     : "inactive";
 
+  // Upcoming mode is preview-only: no input edits, done toggles, or close action.
   const isUpcomingPreview = dayMode === "upcoming";
 
   // Adapt runtime set rows to the display shape expected by ExerciseWorkflowCard.

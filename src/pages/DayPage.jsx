@@ -28,6 +28,9 @@ import { getCoreBlockById, getCoreExercisesByIds } from "../data/core";
 import { getMissingValueWarningSummary } from "../utils/runtime/missingValueWarningHelpers";
 import { getWarmupById } from "../data/warmups";
 
+// DayPage display helpers.
+// They derive labels and next-action data from existing static content and
+// runtime logs without mutating workout state.
 function getDoneMainExerciseCount(dayLog) {
   if (!dayLog) {
     return 0;
@@ -104,6 +107,8 @@ function getCoreStatusLabelValue(status) {
   return "Flexible";
 }
 
+// Core is shown as a separate movable support block.
+// Its status stays separate from main exercise completion.
 function CoreFlowRow({
   planId,
   dayId,
@@ -160,6 +165,7 @@ export default function DayPage() {
   const [isWarmupOpen, setIsWarmupOpen] = useState(false);
   const [isFinishDayOpen, setIsFinishDayOpen] = useState(false);
 
+  // Prevent background scrolling while day-level sheets are open.
   useEffect(() => {
     if (!isWarmupOpen && !isFinishDayOpen) return;
 
@@ -219,6 +225,8 @@ export default function DayPage() {
       })
     : "inactive";
 
+  // Active days lazily create their runtime day log.
+  // Finished/upcoming days must not create new logs from this page.
   useEffect(() => {
     if (!plan || !dayDetails || dayMode !== "active") {
       return;
@@ -258,6 +266,8 @@ export default function DayPage() {
     nextExercise?.details?.targetRir,
   );
 
+  // Finish-day warnings are informational only.
+  // They do not block finishing and do not change runtime state.
   const missingValueWarningSummary = getMissingValueWarningSummary({
     dayLog,
     coreExercises,
@@ -293,6 +303,7 @@ export default function DayPage() {
     return "Not started";
   }
 
+  // Finish day records day-level close intent and returns to the cycle dashboard.
   function handleConfirmFinishDay() {
     dispatch({
       type: APP_ACTIONS.FINISH_DAY,
