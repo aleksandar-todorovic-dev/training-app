@@ -14,11 +14,12 @@ function CheckBox({ isDone = false }) {
 
 function InlineMetric({ name, value, onChange, isReadOnly = false }) {
   const displayValue = value || "—";
+  const inputValue = value === "—" ? "" : value;
 
   if (isReadOnly) {
     return (
-      <div className="mx-auto flex w-[80%] min-w-0 items-center justify-center border-b border-zinc-800/35 pb-1.5">
-        <span className="text-base font-semibold tabular-nums text-zinc-100">
+      <div className="mx-auto flex w-[72%] min-w-0 items-center justify-center border-b border-zinc-800/30 pb-1.5">
+        <span className="whitespace-nowrap text-base font-semibold tabular-nums text-zinc-100">
           {displayValue}
         </span>
       </div>
@@ -28,12 +29,12 @@ function InlineMetric({ name, value, onChange, isReadOnly = false }) {
   return (
     <input
       name={name}
-      value={value}
-      onChange={(event) => onChange(event.target.value)}
+      value={inputValue}
+      onChange={(event) => onChange?.(event.target.value)}
       inputMode="decimal"
       autoComplete="off"
       placeholder="—"
-      className="mx-auto w-[80%] min-w-0 border-b border-zinc-800/35 bg-transparent pb-1.5 text-center text-base font-semibold tabular-nums text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:w-full focus:border-cyan-300/70"
+      className="mx-auto w-[72%] min-w-0 border-b border-zinc-800/30 bg-transparent pb-1.5 text-center text-base font-semibold tabular-nums text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:border-cyan-300/70"
     />
   );
 }
@@ -60,7 +61,7 @@ export default function SetRow({
   return (
     <div
       className={`grid grid-cols-[34px_1fr_1fr_1fr_32px] items-center gap-3 py-3 ${
-        !isLast ? "border-b border-zinc-800/18" : ""
+        !isLast ? "border-b border-zinc-800/16" : ""
       }`}
     >
       <span className="flex h-9 items-center justify-center text-sm font-semibold tabular-nums text-zinc-200">

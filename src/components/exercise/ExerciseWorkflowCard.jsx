@@ -29,7 +29,8 @@ function cleanSummaryValue(value) {
 
 function compactSummaryValue(value) {
   return cleanSummaryValue(value)
-    .replace(/\s*x\s*/i, "×")
+    .replace(/\s*x\s*/i, " x ")
+    .replace(/\s*-\s*/g, "-")
     .replace(/\s*s\b/i, "s");
 }
 
@@ -63,7 +64,7 @@ function TargetItem({ label, value }) {
       <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
         {label}
       </p>
-      <p className="mt-1 text-base font-semibold tracking-tight tabular-nums text-zinc-100">
+      <p className="mt-1 whitespace-nowrap text-base font-semibold tracking-tight tabular-nums text-zinc-100">
         {value}
       </p>
     </div>
@@ -203,7 +204,7 @@ export default function ExerciseWorkflowCard({
           </section>
         ) : null}
 
-        <section className="space-y-4 rounded-4xl bg-linear-to-b from-cyan-950/20 via-zinc-950/10 to-transparent px-3 pt-5 pb-3">
+        <section className="-mx-5 space-y-4 rounded-4xl bg-linear-to-b from-cyan-950/20 via-zinc-950/10 to-transparent px-5 pt-5 pb-3">
           <div>
             <div className="mb-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
@@ -226,11 +227,11 @@ export default function ExerciseWorkflowCard({
               </button>
             </div>
 
-            <div className="grid grid-cols-4 py-1">
+            <div className="grid grid-cols-[1.35fr_1fr_1.1fr_0.75fr] gap-3 py-1">
               <TargetItem label="Sets" value={cleanedPrescriptionDisplay} />
-              <TargetItem label="RIR" value={cleanedTargetRir} />
-              <TargetItem label="Rest" value={cleanedRest} />
               <TargetItem label="Tempo" value={cleanedTempo} />
+              <TargetItem label="Rest" value={cleanedRest} />
+              <TargetItem label="RIR" value={cleanedTargetRir} />
             </div>
           </div>
 
