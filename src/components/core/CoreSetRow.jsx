@@ -1,3 +1,54 @@
+function CheckBox({ isDone = false }) {
+  return (
+    <span
+      className={`flex h-7 w-7 items-center justify-center rounded-lg border transition ${
+        isDone
+          ? "border-violet-200 bg-violet-200 text-zinc-950 shadow-[0_0_14px_rgba(196,181,253,0.24)]"
+          : "border-zinc-700/70 bg-zinc-950/20"
+      }`}
+    >
+      {isDone ? "✓" : null}
+    </span>
+  );
+}
+
+function InlineMetric({
+  name,
+  value,
+  onChange,
+  isReadOnly = false,
+  isTarget = false,
+}) {
+  const displayValue = value || "—";
+  const inputValue = value === "—" ? "" : value;
+
+  if (isReadOnly || isTarget) {
+    return (
+      <div className="mx-auto flex w-[82%] min-w-0 items-center justify-center border-b border-zinc-800/30 pb-1.5">
+        <span
+          className={`whitespace-nowrap text-base font-semibold tabular-nums ${
+            isTarget ? "text-zinc-300" : "text-zinc-100"
+          }`}
+        >
+          {displayValue}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <input
+      name={name}
+      value={inputValue}
+      onChange={(event) => onChange?.(event.target.value)}
+      inputMode="decimal"
+      autoComplete="off"
+      placeholder="—"
+      className="mx-auto w-[82%] min-w-0 border-b border-zinc-800/30 bg-transparent pb-1.5 text-center text-base font-semibold tabular-nums text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:w-full focus:border-violet-300/70"
+    />
+  );
+}
+
 /**
  * Displays one prescribed core set row and forwards row actions upward.
  *
@@ -6,53 +57,6 @@
  * core set values and `isDone` state, then forwards input changes and
  * done-toggle intent to the parent workflow.
  */
-function CheckBox({ isDone = false }) {
-  return (
-    <span
-      className={`flex h-5 w-5 items-center justify-center rounded border transition ${
-        isDone
-          ? "border-emerald-500 bg-emerald-500/20 text-emerald-300"
-          : "border-zinc-700 bg-zinc-950/40"
-      }`}
-    >
-      {isDone ? "✓" : null}
-    </span>
-  );
-}
-
-function MetricCell({ label, name, value, onChange, isEditable = true }) {
-  if (!isEditable) {
-    return (
-      <div className="min-w-0 text-center">
-        <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-          {label}
-        </p>
-        <p className="mt-1 text-base font-semibold tabular-nums text-zinc-100">
-          {value || "—"}
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <label className="min-w-0 text-center">
-      <span className="block text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-        {label}
-      </span>
-
-      <input
-        name={name}
-        value={value}
-        onChange={(event) => onChange?.(event.target.value)}
-        inputMode="decimal"
-        autoComplete="off"
-        placeholder="—"
-        className="mt-1 w-full bg-transparent text-center text-base font-semibold tabular-nums text-zinc-100 outline-none placeholder:text-zinc-100"
-      />
-    </label>
-  );
-}
-
 export default function CoreSetRow({
   setNumber,
   target,
@@ -60,49 +64,44 @@ export default function CoreSetRow({
   load = "—",
   logged = "—",
   valueLabel = "Reps",
-  effort = "1-2",
+  effort = "—",
   tracksLoad = false,
   isLast = false,
   isDone = false,
   onToggleDone,
   onSetFieldChange,
 }) {
+  const loggedField = valueLabel === "Time" ? "time" : "reps";
+
   return (
     <div
-      className={`grid grid-cols-[40px_1fr_1fr_1fr_24px] items-center gap-2 py-3 ${
-        !isLast ? "border-b border-zinc-800/80" : ""
+      className={`grid grid-cols-[34px_1.25fr_1fr_0.85fr_32px] items-center gap-3 py-3 ${
+        !isLast ? "border-b border-zinc-800/16" : ""
       }`}
     >
-      <span className="text-sm font-semibold tabular-nums text-zinc-100">
-        S{setNumber}
+      <span className="flex h-9 items-center justify-center text-sm font-semibold tabular-nums text-zinc-200">
+        {setNumber}
       </span>
 
-      {tracksLoad ? (
-        <MetricCell
-          label="Kg"
-          name={`core-set-${setNumber}-load`}
-          value={load}
-          isEditable={!isReadOnly}
-          onChange={(value) => onSetFieldChange?.("load", value)}
-        />
-      ) : (
-        <MetricCell label="Target" value={target} isEditable={false} />
-      )}
-      <MetricCell
-        label={valueLabel}
-        name={`core-set-${setNumber}-${valueLabel.toLowerCase()}`}
-        value={logged}
-        isEditable={!isReadOnly}
-        onChange={(value) =>
-          onSetFieldChange?.(valueLabel === "Time" ? "time" : "reps", value)
-        }
+      <InlineMetric
+        name={`core-set-${setNumber}-load`}
+        value={tracksLoad ? load : target}
+        isReadOnly={isReadOnly}
+        isTarget={!tracksLoad}
+        onChange={(value) => onSetFieldChange?.("load", value)}
       />
 
-      <MetricCell
-        label="RIR"
+      <InlineMetric
+        name={`core-set-${setNumber}-${loggedField}`}
+        value={logged}
+        isReadOnly={isReadOnly}
+        onChange={(value) => onSetFieldChange?.(loggedField, value)}
+      />
+
+      <InlineMetric
         name={`core-set-${setNumber}-rir`}
         value={effort}
-        isEditable={!isReadOnly}
+        isReadOnly={isReadOnly}
         onChange={(value) => onSetFieldChange?.("rir", value)}
       />
 
@@ -112,7 +111,7 @@ export default function CoreSetRow({
         aria-pressed={isDone}
         disabled={isReadOnly}
         onClick={isReadOnly ? undefined : onToggleDone}
-        className={`mt-4.5 flex items-center justify-center ${
+        className={`flex h-9 items-center justify-center ${
           isReadOnly ? "cursor-not-allowed opacity-50" : ""
         }`}
       >

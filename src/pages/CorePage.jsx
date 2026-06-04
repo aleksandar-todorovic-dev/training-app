@@ -1,11 +1,11 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import { useEffect, useMemo } from "react";
+
 import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
 import AppShell from "../components/layout/AppShell";
 import SectionCard from "../components/layout/SectionCard";
-import BackButton from "../components/common/BackButton";
-import { UI_STACK_LG, UI_STACK_MD, UI_TEXT_MUTED } from "../styles/ui";
+import { UI_TEXT_MUTED } from "../styles/ui";
 import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getCoreBlockById, getCoreExercisesByIds } from "../data/core";
@@ -29,7 +29,11 @@ export default function CorePage() {
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
   const coreBlock = getCoreBlockById(coreId);
-  const coreExercises = getCoreExercisesByIds(coreBlock?.exerciseIds ?? []);
+
+  const coreExercises = useMemo(
+    () => getCoreExercisesByIds(coreBlock?.exerciseIds ?? []),
+    [coreBlock],
+  );
 
   // Read the current runtime cycle/day/core state used for page mode and rows.
   const planProgress = state.progressByPlan[planId];
@@ -37,8 +41,10 @@ export default function CorePage() {
   const currentCycle = currentCycleNumber
     ? planProgress?.cycles?.[currentCycleNumber]
     : null;
+
   const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
   const coreBlockLog = dayLog?.coreBlockLog ?? null;
+
   const currentDayId = currentCycle?.currentDayId ?? "d1";
   const dayOrder = plan?.dayOrder ?? [];
 
@@ -145,8 +151,14 @@ export default function CorePage() {
   if (!plan || !dayDetails || !coreBlock) {
     return (
       <AppShell>
-        <div className={UI_STACK_LG}>
-          <BackButton to={planId ? `/plan/${planId}/cycle` : "/"} />
+        <div className="space-y-6">
+          <Link
+            to={planId ? `/plan/${planId}/cycle` : "/"}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 transition hover:text-cyan-100"
+          >
+            <span aria-hidden="true">←</span>
+            Back
+          </Link>
 
           <SectionCard>
             <p className={UI_TEXT_MUTED}>
@@ -160,31 +172,48 @@ export default function CorePage() {
 
   return (
     <AppShell>
-      <div className={UI_STACK_LG}>
-        <BackButton to={`/plan/${planId}/day/${dayId}`} />
+      <div className="space-y-6">
+        <header className="space-y-4">
+          <div className="flex items-center justify-between gap-3">
+            <Link
+              to={`/plan/${planId}/day/${dayId}`}
+              className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-cyan-200 transition hover:text-cyan-100"
+            >
+              <span aria-hidden="true">←</span>
+              Back to Day
+            </Link>
 
-        <div className={UI_STACK_MD}>
-          <p className={UI_TEXT_MUTED}>
-            {dayDetails.label} — {dayDetails.name}
-          </p>
+            <p className="flex min-w-0 items-center justify-end gap-2 truncate text-right text-xs font-medium text-zinc-500">
+              <span className="min-w-0 truncate">
+                {plan.name} · Cycle {currentCycleNumber ?? 1} ·{" "}
+                {dayDetails.label}
+              </span>
 
-          <div className={UI_STACK_MD}>
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
+              <span
+                className="h-2 w-2 shrink-0 rounded-full bg-violet-300 shadow-[0_0_14px_rgba(196,181,253,0.45)]"
+                aria-hidden="true"
+              />
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
+            <h1 className="text-3xl font-semibold tracking-tight text-zinc-100">
               {coreBlock.name}
             </h1>
 
-            <p className={UI_TEXT_MUTED}>{coreBlock.focus}</p>
+            <p className="text-sm leading-6 text-zinc-400">{coreBlock.focus}</p>
           </div>
-        </div>
+        </header>
 
         {isUpcomingPreview ? (
-          <div className="rounded-2xl border border-zinc-700 bg-zinc-900/60 p-4">
-            <p className="text-sm font-semibold text-zinc-100">
-              Upcoming core preview
+          <div className="rounded-[1.75rem] border border-violet-300/12 bg-violet-300/[0.035] px-5 py-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-200">
+              Preview mode
             </p>
-            <p className="mt-1 text-sm leading-relaxed text-zinc-400">
-              This core block belongs to an upcoming day. You can review the
-              structure, but logging unlocks when this day becomes current.
+
+            <p className="mt-2 text-sm leading-6 text-zinc-400">
+              Review the core structure now. Logging unlocks when this day
+              becomes current.
             </p>
           </div>
         ) : null}
@@ -193,6 +222,7 @@ export default function CorePage() {
           coreBlock={coreBlock}
           exercises={coreExercises}
           coreBlockLog={coreBlockLog}
+          dayMode={dayMode}
           isReadOnly={isUpcomingPreview}
           onToggleCoreSetDone={handleToggleCoreSetDone}
           onUpdateCoreSetField={handleUpdateCoreSetField}

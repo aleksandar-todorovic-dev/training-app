@@ -1,7 +1,7 @@
-import SectionCard from "../layout/SectionCard";
-import PrimaryButton from "../common/PrimaryButton";
+import { ChevronDown, ListChecks, ShieldCheck } from "lucide-react";
+import { useState } from "react";
+
 import CoreSetRow from "./CoreSetRow";
-import { UI_TEXT_MUTED } from "../../styles/ui";
 
 function cleanSummaryValue(value) {
   if (!value || typeof value !== "string") {
@@ -11,24 +11,13 @@ function cleanSummaryValue(value) {
   return value.replace(/^≈\s*/, "").trim();
 }
 
-function DetailBlock({ title, children }) {
-  if (!children) {
-    return null;
-  }
-
-  return (
-    <div className="space-y-1.5">
-      <h3 className="text-sm font-semibold text-zinc-100">{title}</h3>
-      <div className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>{children}</div>
-    </div>
-  );
-}
-
 // Keeps preview targets shorter so row cells stay readable on mobile.
 function normalizeCoreTarget(target) {
   return target
     .replace(/\s*\/\s*side\b/i, "")
     .replace(/\s*total\b/i, "")
+    .replace(/\s*-\s*/g, "–")
+    .replace(/\s+s\b/i, "s")
     .trim();
 }
 
@@ -53,7 +42,8 @@ function buildStaticRows(exercise) {
     target: targetValue,
     load: "—",
     logged: "—",
-    effort: "1-2",
+    effort: "—",
+    isDone: false,
   }));
 }
 
@@ -80,6 +70,146 @@ function getCoreSetSummary(exercise, tracksLoad) {
   return cleanSummaryValue(getCoreSetCount(exercise));
 }
 
+function SummaryMetric({ label, value }) {
+  return (
+    <div className="min-w-0 text-center">
+      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+        {label}
+      </p>
+
+      <p className="mt-2 text-lg font-semibold leading-none tracking-tight text-zinc-100">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function CoreExerciseSection({
+  exercise,
+  exerciseNumber,
+  rows,
+  isReadOnly,
+  valueLabel,
+  tracksLoad,
+  onToggleCoreSetDone,
+  onUpdateCoreSetField,
+}) {
+  const setSummary = getCoreSetSummary(exercise, tracksLoad);
+  const tempo = cleanSummaryValue(exercise.details?.tempo);
+  const rest = cleanSummaryValue(exercise.details?.rest);
+
+  return (
+    <section className="border-t border-zinc-800/35 pt-6 first:border-t-0 first:pt-0">
+      <div className="space-y-4">
+        <div className="flex items-start gap-3">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-violet-300/18 bg-violet-300/4.5 text-sm font-semibold tabular-nums text-violet-200">
+            {exerciseNumber}
+          </div>
+
+          <div className="min-w-0 flex-1 space-y-1">
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-100">
+              {exercise.name}
+            </h2>
+
+            {exercise.subtitle ? (
+              <p className="text-sm leading-6 text-zinc-400">
+                {exercise.subtitle}
+              </p>
+            ) : null}
+          </div>
+        </div>
+
+        {exercise.cue ? (
+          <div className="border-l border-violet-300/25 pl-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-200/85">
+              Cue
+            </p>
+
+            <p className="mt-2 text-sm leading-6 text-zinc-300">
+              {exercise.cue}
+            </p>
+          </div>
+        ) : null}
+
+        <div className="grid grid-cols-3 gap-3">
+          <SummaryMetric label="Sets" value={setSummary} />
+          <SummaryMetric label="Tempo" value={tempo} />
+          <SummaryMetric label="Rest" value={rest} />
+        </div>
+
+        <div className="space-y-2 pt-1">
+          <div className="grid grid-cols-[34px_1.25fr_1fr_0.85fr_32px] items-center gap-3 border-b border-zinc-800/35 pb-2">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+              Set
+            </p>
+
+            <p className="text-center text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+              {tracksLoad ? "Kg" : "Target"}
+            </p>
+
+            <p className="text-center text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+              {valueLabel}
+            </p>
+
+            <p className="text-center text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+              RIR
+            </p>
+
+            <p className="text-center text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+              Done
+            </p>
+          </div>
+
+          <div>
+            {rows.map((row, index) => (
+              <CoreSetRow
+                key={`${exercise.id}-set-${row.setNumber}`}
+                isReadOnly={isReadOnly}
+                setNumber={row.setNumber}
+                target={row.target}
+                load={row.load}
+                logged={row.logged}
+                valueLabel={valueLabel}
+                effort={row.effort}
+                tracksLoad={tracksLoad}
+                isLast={index === rows.length - 1}
+                isDone={row.isDone}
+                onToggleDone={() =>
+                  onToggleCoreSetDone?.(exercise.id, row.setNumber)
+                }
+                onSetFieldChange={(field, value) =>
+                  onUpdateCoreSetField?.(
+                    exercise.id,
+                    row.setNumber,
+                    field,
+                    value,
+                  )
+                }
+              />
+            ))}
+          </div>
+        </div>
+
+        {exercise.details?.extraCues?.length > 0 ? (
+          <div className="space-y-1.5 pt-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-500">
+              Extra cues
+            </p>
+
+            <ul className="space-y-1">
+              {exercise.details.extraCues.map((item) => (
+                <li key={item} className="text-sm leading-6 text-zinc-400">
+                  - {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
 /**
  * Displays one full core block workflow.
  *
@@ -92,104 +222,96 @@ export default function CoreWorkflowCard({
   coreBlock,
   exercises = [],
   isReadOnly = false,
+  dayMode = "inactive",
   coreBlockLog,
   onToggleCoreSetDone,
   onUpdateCoreSetField,
   onCloseCoreBlock,
 }) {
+  const [isCoachNotesOpen, setIsCoachNotesOpen] = useState(false);
+
   if (!coreBlock) {
     return null;
   }
 
+  const hasCoreNotes =
+    Boolean(coreBlock.details?.progression) ||
+    Boolean(coreBlock.note) ||
+    coreBlock.details?.notes?.length > 0;
+
+  const coreStatusLabel =
+    dayMode === "upcoming"
+      ? "Preview"
+      : dayMode === "finished"
+        ? "Finished"
+        : "Active";
+
   return (
-    <div className="space-y-4">
-      <SectionCard>
-        <div className="space-y-4">
-          <div className="space-y-1">
-            <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-300">
-              Core block
-            </h2>
-            <p className="text-sm leading-6 text-zinc-100">
-              {coreBlock.details?.purpose ?? "—"}
-            </p>
-          </div>
+    <div className="space-y-6">
+      <section className="rounded-4xl border border-violet-300/12 bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.11),transparent_34%),linear-gradient(180deg,rgba(15,23,42,0.22),rgba(2,6,23,0.08))] px-5 py-5 shadow-[0_18px_55px_rgba(0,0,0,0.18)]">
+        <div className="space-y-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-violet-300/18 bg-violet-300/5.5 text-violet-200">
+                <ShieldCheck className="h-5 w-5" aria-hidden="true" />
+              </div>
 
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-              Exercises
-            </p>
-            <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-              Sets
-            </p>
-            <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-              RIR
-            </p>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
-              {coreBlock.mainInfo?.exercises ?? "—"}
-            </p>
-            <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
-              {coreBlock.mainInfo?.sets ?? "—"}
-            </p>
-            <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
-              {coreBlock.mainInfo?.targetRir ?? "—"}
-            </p>
-          </div>
-
-          {coreBlock.details?.progression && (
-            <div className="space-y-1.5 border-t border-zinc-800/80 pt-3">
-              <h3 className="text-sm font-semibold text-zinc-100">
-                Progression
-              </h3>
-              <p className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>
-                {coreBlock.details.progression}
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-200">
+                Core work
               </p>
             </div>
-          )}
 
-          {coreBlock.details?.notes?.length > 0 && (
-            <div className="space-y-1.5 border-t border-zinc-800/80 pt-3">
-              <h3 className="text-sm font-semibold text-zinc-100">
-                Key reminders
-              </h3>
-              <ul className="space-y-1">
-                {coreBlock.details.notes.map((note) => (
-                  <li
-                    key={note}
-                    className={`text-sm leading-6 ${UI_TEXT_MUTED}`}
-                  >
-                    - {note}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+            <span className="shrink-0 rounded-full border border-violet-300/16 bg-violet-300/4 px-3 py-1 text-xs font-semibold text-violet-200/85">
+              {coreStatusLabel}
+            </span>
+          </div>
 
-          {coreBlock.note && (
-            <p
-              className={`border-t border-zinc-800/80 pt-3 text-sm leading-6 ${UI_TEXT_MUTED}`}
-            >
-              {coreBlock.note}
-            </p>
-          )}
+          <p className="text-sm leading-6 text-zinc-400">
+            {coreBlock.details?.purpose ?? "Flexible core block"}
+          </p>
+
+          <div className="grid grid-cols-3 gap-3">
+            <SummaryMetric
+              label="Exercises"
+              value={coreBlock.mainInfo?.exercises ?? exercises.length}
+            />
+
+            <SummaryMetric
+              label="Sets"
+              value={coreBlock.mainInfo?.sets ?? "—"}
+            />
+
+            <SummaryMetric
+              label="Focus"
+              value={coreBlock.mainInfo?.targetRir ? "Effort" : "Control"}
+            />
+          </div>
         </div>
-      </SectionCard>
+      </section>
 
-      <SectionCard>
-        <div className="space-y-4">
-          <div className="border-b border-zinc-800/80 pb-3">
-            <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
-              {isReadOnly
-                ? "Static core target preview"
-                : "Pre-filled from previous core session"}
-            </p>
-            <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
-              {isReadOnly
-                ? "Core logging is disabled until this day becomes current."
-                : "Update the reps, time, or load below based on today's performance."}
-            </p>
+      <section className="rounded-4xl border border-zinc-800/45 bg-[linear-gradient(180deg,rgba(15,23,42,0.18),rgba(2,6,23,0.06))] px-5 py-5">
+        <div className="space-y-7">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <ListChecks
+                  className="h-5 w-5 text-violet-200/80"
+                  aria-hidden="true"
+                />
+
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+                  {isReadOnly ? "Preview sets" : "Log core sets"}
+                </p>
+              </div>
+
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight text-zinc-100">
+                {isReadOnly ? "Set preview" : "Core work"}
+              </h2>
+            </div>
+
+            <span className="shrink-0 rounded-full border border-zinc-700/70 bg-zinc-900/40 px-3 py-1 text-sm font-semibold text-zinc-400">
+              {exercises.length} exercises
+            </span>
           </div>
 
           {exercises.map((exercise, exerciseIndex) => {
@@ -209,128 +331,110 @@ export default function CoreWorkflowCard({
                 effort: set.rir,
                 isDone: set.isDone,
               })) ?? staticRows;
-            const isLastExercise = exerciseIndex === exercises.length - 1;
+
             const valueLabel = getCoreValueLabel(exercise);
             const tracksLoad = Boolean(exercise.tracksLoad);
 
-            const setSummary = getCoreSetSummary(exercise, tracksLoad);
-            const tempo = cleanSummaryValue(exercise.details?.tempo);
-            const targetRir = cleanSummaryValue(
-              exercise.details?.targetRir ?? coreBlock.mainInfo?.targetRir,
-            );
-            const rest = cleanSummaryValue(exercise.details?.rest);
-
             return (
-              <div
+              <CoreExerciseSection
                 key={exercise.id}
-                className={
-                  !isLastExercise ? "border-b border-zinc-800/80 pb-4" : ""
-                }
-              >
-                <div className="space-y-4">
-                  <div className="space-y-1">
-                    <h2 className="text-base font-semibold text-zinc-100">
-                      {exercise.name}
-                    </h2>
-
-                    {exercise.subtitle && (
-                      <p className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>
-                        {exercise.subtitle}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="space-y-4">
-                    <DetailBlock title="Cue">
-                      <p>{exercise.cue ?? "—"}</p>
-                    </DetailBlock>
-
-                    {exercise.details?.extraCues?.length > 0 && (
-                      <DetailBlock title="Extra cues">
-                        <ul className="space-y-1">
-                          {exercise.details.extraCues.map((item) => (
-                            <li key={item}>- {item}</li>
-                          ))}
-                        </ul>
-                      </DetailBlock>
-                    )}
-
-                    <div className="space-y-1.5 border-t border-zinc-800/80 pt-3">
-                      <div className="grid grid-cols-[1.4fr_1fr_0.9fr_1.1fr] gap-3 text-center">
-                        <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-                          Sets
-                        </p>
-                        <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-                          Tempo
-                        </p>
-                        <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-                          RIR
-                        </p>
-                        <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-                          Rest
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-[1.4fr_1fr_0.9fr_1.1fr] gap-3 text-center">
-                        <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
-                          {setSummary}
-                        </p>
-                        <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
-                          {tempo}
-                        </p>
-                        <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
-                          {targetRir}
-                        </p>
-                        <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
-                          {rest}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-0 border-t border-zinc-800/80 pt-2">
-                    {rows.map((row, index) => (
-                      <CoreSetRow
-                        key={`${exercise.id}-set-${row.setNumber}`}
-                        isReadOnly={isReadOnly}
-                        setNumber={row.setNumber}
-                        target={row.target}
-                        load={row.load}
-                        logged={row.logged}
-                        valueLabel={valueLabel}
-                        effort={row.effort}
-                        tracksLoad={tracksLoad}
-                        isLast={index === rows.length - 1}
-                        isDone={row.isDone}
-                        onToggleDone={() =>
-                          onToggleCoreSetDone?.(exercise.id, row.setNumber)
-                        }
-                        onSetFieldChange={(field, value) =>
-                          onUpdateCoreSetField?.(
-                            exercise.id,
-                            row.setNumber,
-                            field,
-                            value,
-                          )
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
+                exercise={exercise}
+                exerciseNumber={exerciseIndex + 1}
+                rows={rows}
+                isReadOnly={isReadOnly}
+                valueLabel={valueLabel}
+                tracksLoad={tracksLoad}
+                onToggleCoreSetDone={onToggleCoreSetDone}
+                onUpdateCoreSetField={onUpdateCoreSetField}
+              />
             );
           })}
         </div>
-      </SectionCard>
+      </section>
+
+      {hasCoreNotes ? (
+        <section className="space-y-4">
+          <button
+            type="button"
+            className="flex w-full items-start justify-between gap-4 text-left"
+            onClick={() => setIsCoachNotesOpen((currentValue) => !currentValue)}
+            aria-expanded={isCoachNotesOpen}
+          >
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight text-zinc-100">
+                Core notes
+              </h2>
+
+              <p className="mt-1 text-sm leading-6 text-zinc-400">
+                Progression and reminders for this block.
+              </p>
+            </div>
+
+            <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-violet-200">
+              {isCoachNotesOpen ? "Hide" : "View"}
+
+              <ChevronDown
+                className={[
+                  "h-4 w-4 text-zinc-500 transition-transform",
+                  isCoachNotesOpen ? "rotate-180" : "",
+                ].join(" ")}
+                aria-hidden="true"
+              />
+            </span>
+          </button>
+
+          {isCoachNotesOpen ? (
+            <div className="space-y-5 rounded-[1.75rem] border border-zinc-800/45 bg-white/[0.014] px-5 py-5">
+              {coreBlock.details?.progression ? (
+                <div className="space-y-2">
+                  <h3 className="text-sm font-semibold text-zinc-100">
+                    Progression
+                  </h3>
+
+                  <p className="text-sm leading-6 text-zinc-400">
+                    {coreBlock.details.progression}
+                  </p>
+                </div>
+              ) : null}
+
+              {coreBlock.details?.notes?.length > 0 ? (
+                <div className="space-y-2 border-t border-zinc-800/45 pt-5">
+                  <h3 className="text-sm font-semibold text-zinc-100">
+                    Key reminders
+                  </h3>
+
+                  <ul className="space-y-1">
+                    {coreBlock.details.notes.map((note) => (
+                      <li
+                        key={note}
+                        className="text-sm leading-6 text-zinc-400"
+                      >
+                        - {note}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+
+              {coreBlock.note ? (
+                <p className="border-t border-zinc-800/45 pt-5 text-sm leading-6 text-zinc-400">
+                  {coreBlock.note}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+        </section>
+      ) : null}
 
       {!isReadOnly ? (
-        <PrimaryButton
+        <button
           type="button"
-          className="w-full"
           onClick={onCloseCoreBlock}
+          className="flex w-full items-center justify-center gap-3 rounded-3xl border border-violet-300/22 bg-violet-300/80 px-5 py-4 text-base font-semibold text-zinc-950 shadow-[0_18px_60px_rgba(139,92,246,0.18)] transition hover:bg-violet-200"
         >
-          Close core block
-        </PrimaryButton>
+          Finish core block
+          <span aria-hidden="true">›</span>
+        </button>
       ) : null}
     </div>
   );
