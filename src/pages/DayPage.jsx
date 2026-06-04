@@ -131,8 +131,8 @@ function CoreFlowRow({
           </span>
         </div>
 
-        <p className="mt-0.5 line-clamp-2 text-xs font-medium leading-5 text-[#8B949B]">
-          {coreExerciseCount} core exercises · Flexible block
+        <p className="mt-0.5 line-clamp-1 text-xs font-medium leading-5 text-[#8B949B]">
+          {coreExerciseCount} core exercises · Movable block
         </p>
       </div>
 
@@ -334,6 +334,16 @@ export default function DayPage() {
 
   const coreStatusLabel = getCoreStatusLabel();
 
+  const isActiveDay = dayMode === "active";
+
+  const progressAccent = isActiveDay
+    ? "rgba(201, 181, 122, 0.92)"
+    : "rgba(94, 199, 213, 0.9)";
+
+  const progressBarClassName = isActiveDay
+    ? "bg-linear-to-r from-[#C9B57A] via-[#D8C891] to-[#5EC7D5]"
+    : "bg-[#5EC7D5]";
+
   return (
     <AppShell mode="training">
       <div className="relative isolate flex flex-col gap-5">
@@ -341,6 +351,13 @@ export default function DayPage() {
           className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-[#3FA8B6]/10 blur-3xl"
           aria-hidden="true"
         />
+
+        {isActiveDay ? (
+          <div
+            className="pointer-events-none absolute -top-16 right-0 -z-10 h-52 w-52 rounded-full bg-[#C9B57A]/7 blur-3xl"
+            aria-hidden="true"
+          />
+        ) : null}
 
         <Link
           to={`/plan/${planId}/cycle`}
@@ -371,7 +388,7 @@ export default function DayPage() {
           <div
             className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full p-1"
             style={{
-              background: `conic-gradient(rgba(94, 199, 213, 0.9) ${
+              background: `conic-gradient(${progressAccent} ${
                 progressPercent * 3.6
               }deg, rgba(255, 255, 255, 0.12) 0deg)`,
             }}
@@ -388,7 +405,7 @@ export default function DayPage() {
               <p
                 className={[
                   "shrink-0 text-xs font-semibold",
-                  dayMode === "active" ? "text-[#8FDCE5]" : "",
+                  dayMode === "active" ? "text-[#D8C891]" : "",
                   dayMode === "finished" ? "text-[#8FDCE5]/90" : "",
                   dayMode === "upcoming" ? "text-[#747D84]" : "",
                   dayMode !== "active" &&
@@ -410,7 +427,7 @@ export default function DayPage() {
 
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10">
               <div
-                className="h-full rounded-full bg-[#5EC7D5] transition-all"
+                className={`h-full rounded-full transition-all ${progressBarClassName}`}
                 style={{ width: `${Math.min(progressPercent, 100)}%` }}
               />
             </div>
@@ -418,11 +435,11 @@ export default function DayPage() {
         </section>
 
         {dayMode === "active" ? (
-          <section className="rounded-[1.75rem] bg-[#10292E]/22 p-4">
+          <section className="rounded-[1.75rem] bg-linear-to-b from-[#1D1C16]/28 via-[#10292E]/22 to-[#10292E]/16 p-4">
             {nextExercise ? (
               <div className="flex flex-col gap-3.5">
                 <div className="flex flex-col gap-2.5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8FDCE5]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#D8C891]">
                     Next exercise
                   </p>
 
@@ -440,7 +457,7 @@ export default function DayPage() {
 
                   <div className="flex items-center gap-2 text-sm font-medium leading-6 text-[#8B949B]">
                     <ListChecks
-                      className="h-4 w-4 shrink-0 text-[#8FDCE5]/65"
+                      className="h-4 w-4 shrink-0 text-[#D8C891]/75"
                       aria-hidden="true"
                     />
 
@@ -480,7 +497,7 @@ export default function DayPage() {
             ) : (
               <div className="flex flex-col gap-3.5">
                 <div className="flex flex-col gap-2">
-                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8FDCE5]">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#D8C891]">
                     Ready to finish
                   </p>
 
