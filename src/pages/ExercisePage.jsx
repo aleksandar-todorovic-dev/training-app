@@ -188,8 +188,16 @@ export default function ExercisePage() {
               Back to Day
             </Link>
 
-            <p className="min-w-0 truncate text-right text-xs font-medium text-zinc-500">
-              {plan.name} · Cycle {currentCycleNumber ?? 1} · {dayDetails.label}
+            <p className="flex min-w-0 items-center justify-end gap-2 text-right text-xs font-medium text-zinc-500">
+              <span className="min-w-0 truncate">
+                {plan.name} · Cycle {currentCycleNumber ?? 1} ·
+                {dayDetails.label}
+              </span>
+
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(103,232,249,0.55)]"
+              />
             </p>
           </div>
 

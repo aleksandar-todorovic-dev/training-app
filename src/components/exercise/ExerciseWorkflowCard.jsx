@@ -1,5 +1,6 @@
 import { useState } from "react";
 
+import { Crosshair, ListChecks, Zap } from "lucide-react";
 import HelpSheet from "../common/HelpSheet";
 import SetRow from "./SetRow";
 import {
@@ -136,10 +137,13 @@ export default function ExerciseWorkflowCard({
         ) : null}
 
         <section className="space-y-2">
-          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">
-            Today&apos;s focus
-          </p>
+          <div className="flex items-center gap-2">
+            <Crosshair aria-hidden="true" className="h-4 w-4 text-cyan-300" />
 
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">
+              Today&apos;s focus
+            </p>
+          </div>
           <p className="text-base leading-7 text-zinc-100">
             {exercise.cue ??
               "Keep the movement controlled and log the work you actually perform."}
@@ -155,9 +159,13 @@ export default function ExerciseWorkflowCard({
               className="flex w-full items-start justify-between gap-4 text-left"
             >
               <div className="min-w-0">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
-                  Prescribed method
-                </p>
+                <div className="flex items-center gap-2">
+                  <Zap aria-hidden="true" className="h-4 w-4 text-cyan-300" />
+
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
+                    Prescribed method
+                  </p>
+                </div>
                 <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
                   {isMethodOpen
                     ? "Review the exact method before logging."
@@ -198,9 +206,16 @@ export default function ExerciseWorkflowCard({
         <section className="space-y-4 rounded-4xl bg-linear-to-b from-cyan-950/20 via-zinc-950/10 to-transparent px-3 pt-5 pb-3">
           <div>
             <div className="mb-3 flex items-center justify-between gap-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
-                Working targets
-              </p>
+              <div className="flex items-center gap-2">
+                <ListChecks
+                  aria-hidden="true"
+                  className="h-4 w-4 text-cyan-300/80"
+                />
+
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                  Working targets
+                </p>
+              </div>
 
               <button
                 type="button"
