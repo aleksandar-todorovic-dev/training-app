@@ -204,16 +204,6 @@ export default function ExercisePage() {
           </div>
         </header>
 
-        {isUpcomingPreview ? (
-          <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-4">
-            <p className="text-sm font-semibold text-zinc-100">Preview only</p>
-            <p className="mt-1 text-sm leading-relaxed text-zinc-400">
-              You can review the target structure, but logging unlocks when this
-              day becomes current.
-            </p>
-          </div>
-        ) : null}
-
         <ExerciseWorkflowCard
           exercise={exercise}
           sets={displaySets}
