@@ -1,10 +1,10 @@
 function CheckBox({ isDone = false }) {
   return (
     <span
-      className={`flex h-6 w-6 items-center justify-center rounded-lg border transition ${
+      className={`flex h-7 w-7 items-center justify-center rounded-lg border transition ${
         isDone
-          ? "border-cyan-300 bg-cyan-300 text-zinc-950 shadow-[0_0_22px_rgba(103,232,249,0.35)]"
-          : "border-zinc-700 bg-zinc-950/60"
+          ? "border-cyan-300 bg-cyan-300 text-zinc-950 shadow-[0_0_12px_rgba(103,232,249,0.22)]"
+          : "border-zinc-700/70 bg-zinc-950/20"
       }`}
     >
       {isDone ? "✓" : null}
@@ -12,13 +12,15 @@ function CheckBox({ isDone = false }) {
   );
 }
 
-function MetricCell({ name, value, onChange, isReadOnly = false }) {
+function InlineMetric({ name, value, onChange, isReadOnly = false }) {
+  const displayValue = value || "—";
+
   if (isReadOnly) {
     return (
-      <div className="min-w-0 rounded-lg border border-zinc-800 bg-zinc-950/50 px-2 py-2 text-center">
-        <p className="text-base font-semibold tabular-nums text-zinc-100">
-          {value || "—"}
-        </p>
+      <div className="mx-auto flex w-[80%] min-w-0 items-center justify-center border-b border-zinc-800/35 pb-1.5">
+        <span className="text-base font-semibold tabular-nums text-zinc-100">
+          {displayValue}
+        </span>
       </div>
     );
   }
@@ -31,7 +33,7 @@ function MetricCell({ name, value, onChange, isReadOnly = false }) {
       inputMode="decimal"
       autoComplete="off"
       placeholder="—"
-      className="w-full rounded-lg border border-zinc-800 bg-zinc-950/55 px-2 py-2 text-center text-base font-semibold tabular-nums text-zinc-100 outline-none transition placeholder:text-zinc-500 focus:border-cyan-300/70 focus:bg-zinc-950"
+      className="mx-auto w-[80%] min-w-0 border-b border-zinc-800/35 bg-transparent pb-1.5 text-center text-base font-semibold tabular-nums text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:w-full focus:border-cyan-300/70"
     />
   );
 }
@@ -57,29 +59,29 @@ export default function SetRow({
 }) {
   return (
     <div
-      className={`grid grid-cols-[34px_1fr_1fr_1fr_32px] items-center gap-2 py-2.5 ${
-        !isLast ? "border-b border-zinc-800/70" : ""
+      className={`grid grid-cols-[34px_1fr_1fr_1fr_32px] items-center gap-3 py-3 ${
+        !isLast ? "border-b border-zinc-800/18" : ""
       }`}
     >
-      <span className="flex h-full items-center justify-center text-sm font-semibold tabular-nums text-zinc-100">
+      <span className="flex h-9 items-center justify-center text-sm font-semibold tabular-nums text-zinc-200">
         {setNumber}
       </span>
 
-      <MetricCell
+      <InlineMetric
         name={`set-${setNumber}-weight`}
         value={weight}
         isReadOnly={isReadOnly}
         onChange={(value) => onSetFieldChange?.("weight", value)}
       />
 
-      <MetricCell
+      <InlineMetric
         name={`set-${setNumber}-reps`}
         value={reps}
         isReadOnly={isReadOnly}
         onChange={(value) => onSetFieldChange?.("reps", value)}
       />
 
-      <MetricCell
+      <InlineMetric
         name={`set-${setNumber}-rir`}
         value={rir}
         isReadOnly={isReadOnly}
@@ -92,7 +94,7 @@ export default function SetRow({
         aria-pressed={isDone}
         disabled={isReadOnly}
         onClick={isReadOnly ? undefined : onToggleDone}
-        className={`flex items-center justify-center ${
+        className={`flex h-9 items-center justify-center ${
           isReadOnly ? "cursor-not-allowed opacity-50" : ""
         }`}
       >
