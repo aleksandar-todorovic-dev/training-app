@@ -119,9 +119,9 @@ function CoreFlowRow({
   return (
     <Link
       to={`/plan/${planId}/day/${dayId}/core/${coreBlock.id}`}
-      className="group flex items-center gap-3 rounded-2xl px-2.5 py-3 transition-colors hover:bg-violet-300/4"
+      className="group flex items-center gap-3 rounded-2xl px-2.5 py-3 transition-colors hover:bg-[#7C3AED]/6"
     >
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-violet-300/18 bg-violet-300/5 text-violet-200/85">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#8B5CF6]/34 bg-[#4C1D95]/22 text-[#C4B5FD] shadow-[0_0_16px_rgba(124,58,237,0.14)]">
         <ShieldCheck className="h-4 w-4" aria-hidden="true" />
       </div>
 
@@ -131,7 +131,7 @@ function CoreFlowRow({
             {coreBlock.name}
           </h3>
 
-          <span className="rounded-full border border-violet-300/16 bg-violet-300/4.5 px-2 py-0.5 text-[0.68rem] font-medium text-violet-200/80">
+          <span className="rounded-full border border-[#8B5CF6]/30 bg-[#4C1D95]/20 px-2 py-0.5 text-[0.68rem] font-medium text-[#C4B5FD]">
             {getCoreStatusLabelValue(status)}
           </span>
         </div>
@@ -142,7 +142,7 @@ function CoreFlowRow({
       </div>
 
       <ChevronRight
-        className="h-5 w-5 shrink-0 text-[#59636B] transition-colors group-hover:text-violet-200"
+        className="h-5 w-5 shrink-0 text-[#59636B] transition-colors group-hover:text-[#C4B5FD]"
         aria-hidden="true"
       />
     </Link>

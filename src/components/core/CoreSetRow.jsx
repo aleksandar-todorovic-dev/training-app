@@ -3,7 +3,7 @@ function CheckBox({ isDone = false }) {
     <span
       className={`flex h-7 w-7 items-center justify-center rounded-lg border transition ${
         isDone
-          ? "border-violet-200 bg-violet-200 text-zinc-950 shadow-[0_0_14px_rgba(196,181,253,0.24)]"
+          ? "border-[#C4B5FD] bg-[#7C3AED] text-white shadow-[0_0_16px_rgba(124,58,237,0.32)]"
           : "border-zinc-700/70 bg-zinc-950/20"
       }`}
     >
@@ -44,7 +44,7 @@ function InlineMetric({
       inputMode="decimal"
       autoComplete="off"
       placeholder="—"
-      className="mx-auto w-[82%] min-w-0 border-b border-zinc-800/30 bg-transparent pb-1.5 text-center text-base font-semibold tabular-nums text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:w-full focus:border-violet-300/70"
+      className="mx-auto w-[82%] min-w-0 border-b border-zinc-800/30 bg-transparent pb-1.5 text-center text-base font-semibold tabular-nums text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:w-full focus:border-[#A78BFA]/80"
     />
   );
 }

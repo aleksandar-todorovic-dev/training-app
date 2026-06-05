@@ -154,7 +154,7 @@ export default function CorePage() {
         <div className="space-y-6">
           <Link
             to={planId ? `/plan/${planId}/cycle` : "/"}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 transition hover:text-cyan-100"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-[#C4B5FD] transition hover:text-[#DDD6FE]"
           >
             <span aria-hidden="true">←</span>
             Back
@@ -177,7 +177,7 @@ export default function CorePage() {
           <div className="flex items-center justify-between gap-3">
             <Link
               to={`/plan/${planId}/day/${dayId}`}
-              className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-cyan-200 transition hover:text-cyan-100"
+              className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-[#C4B5FD] transition hover:text-[#DDD6FE]"
             >
               <span aria-hidden="true">←</span>
               Back to Day
@@ -190,7 +190,7 @@ export default function CorePage() {
               </span>
 
               <span
-                className="h-2 w-2 shrink-0 rounded-full bg-violet-300 shadow-[0_0_14px_rgba(196,181,253,0.45)]"
+                className="h-2 w-2 shrink-0 rounded-full bg-[#8B5CF6] shadow-[0_0_16px_rgba(139,92,246,0.58)]"
                 aria-hidden="true"
               />
             </p>
@@ -206,8 +206,8 @@ export default function CorePage() {
         </header>
 
         {isUpcomingPreview ? (
-          <div className="rounded-[1.75rem] border border-violet-300/12 bg-violet-300/[0.035] px-5 py-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-200">
+          <div className="rounded-[1.75rem] border border-[#8B5CF6]/28 bg-[#4C1D95]/14 px-5 py-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#C4B5FD]">
               Preview mode
             </p>
 

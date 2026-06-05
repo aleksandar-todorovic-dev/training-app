@@ -102,7 +102,7 @@ function CoreExerciseSection({
     <section className="border-t border-zinc-800/35 pt-6 first:border-t-0 first:pt-0">
       <div className="space-y-4">
         <div className="flex items-start gap-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-violet-300/18 bg-violet-300/4.5 text-sm font-semibold tabular-nums text-violet-200">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl border border-[#A78BFA]/35 bg-[#4C1D95]/28 text-sm font-semibold tabular-nums text-[#DDD6FE] shadow-[0_0_16px_rgba(124,58,237,0.14)]">
             {exerciseNumber}
           </div>
 
@@ -120,8 +120,8 @@ function CoreExerciseSection({
         </div>
 
         {exercise.cue ? (
-          <div className="border-l border-violet-300/25 pl-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-violet-200/85">
+          <div className="border-l border-[#A78BFA]/42 pl-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#C4B5FD]">
               Cue
             </p>
 
@@ -248,20 +248,20 @@ export default function CoreWorkflowCard({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-4xl border border-violet-300/12 bg-[radial-gradient(circle_at_top_right,rgba(139,92,246,0.11),transparent_34%),linear-gradient(180deg,rgba(15,23,42,0.22),rgba(2,6,23,0.08))] px-5 py-5 shadow-[0_18px_55px_rgba(0,0,0,0.18)]">
+      <section className="rounded-4xl border border-[#7C3AED]/42 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,0.30),transparent_38%),linear-gradient(180deg,rgba(30,27,75,0.34),rgba(2,6,23,0.08))] px-5 py-5 shadow-[0_18px_60px_rgba(0,0,0,0.24)]">
         <div className="space-y-5">
           <div className="flex items-start justify-between gap-4">
             <div className="flex min-w-0 items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-violet-300/18 bg-violet-300/5.5 text-violet-200">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-[#A78BFA]/42 bg-[#4C1D95]/42 text-[#DDD6FE] shadow-[0_0_24px_rgba(124,58,237,0.20)]">
                 <ShieldCheck className="h-5 w-5" aria-hidden="true" />
               </div>
 
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-violet-200">
+              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#DDD6FE]">
                 Core work
               </p>
             </div>
 
-            <span className="shrink-0 rounded-full border border-violet-300/16 bg-violet-300/4 px-3 py-1 text-xs font-semibold text-violet-200/85">
+            <span className="shrink-0 rounded-full border border-[#A78BFA]/38 bg-[#4C1D95]/36 px-3 py-1 text-xs font-semibold text-[#DDD6FE]">
               {coreStatusLabel}
             </span>
           </div>
@@ -289,13 +289,13 @@ export default function CoreWorkflowCard({
         </div>
       </section>
 
-      <section className="rounded-4xl border border-zinc-800/45 bg-[linear-gradient(180deg,rgba(15,23,42,0.18),rgba(2,6,23,0.06))] px-5 py-5">
+      <section className="rounded-4xl border border-[#7C3AED]/24 bg-[radial-gradient(circle_at_top_left,rgba(124,58,237,0.16),transparent_36%),linear-gradient(180deg,rgba(30,27,75,0.24),rgba(2,6,23,0.06))] px-5 py-5">
         <div className="space-y-7">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
                 <ListChecks
-                  className="h-5 w-5 text-violet-200/80"
+                  className="h-5 w-5 text-[#C4B5FD]"
                   aria-hidden="true"
                 />
 
@@ -309,7 +309,7 @@ export default function CoreWorkflowCard({
               </h2>
             </div>
 
-            <span className="shrink-0 rounded-full border border-zinc-700/70 bg-zinc-900/40 px-3 py-1 text-sm font-semibold text-zinc-400">
+            <span className="shrink-0 rounded-full border border-[#A78BFA]/32 bg-[#4C1D95]/30 px-3 py-1 text-sm font-semibold text-zinc-300">
               {exercises.length} exercises
             </span>
           </div>
@@ -320,8 +320,6 @@ export default function CoreWorkflowCard({
 
             const staticRows = buildStaticRows(exercise);
 
-            // Runtime rows are preferred when a core log exists.
-            // Static rows are only a read-only preview/fallback display.
             const rows =
               coreExerciseLog?.sets.map((set, index) => ({
                 setNumber: set.setIndex,
@@ -370,12 +368,12 @@ export default function CoreWorkflowCard({
               </p>
             </div>
 
-            <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-violet-200">
+            <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[#C4B5FD]">
               {isCoachNotesOpen ? "Hide" : "View"}
 
               <ChevronDown
                 className={[
-                  "h-4 w-4 text-zinc-500 transition-transform",
+                  "h-4 w-4 text-[#A78BFA]/80 transition-transform",
                   isCoachNotesOpen ? "rotate-180" : "",
                 ].join(" ")}
                 aria-hidden="true"
@@ -430,7 +428,7 @@ export default function CoreWorkflowCard({
         <button
           type="button"
           onClick={onCloseCoreBlock}
-          className="flex w-full items-center justify-center gap-3 rounded-3xl border border-violet-300/22 bg-violet-300/80 px-5 py-4 text-base font-semibold text-zinc-950 shadow-[0_18px_60px_rgba(139,92,246,0.18)] transition hover:bg-violet-200"
+          className="flex w-full items-center justify-center gap-3 rounded-3xl border border-[#A78BFA]/45 bg-linear-to-r from-[#5B21B6] via-[#6D28D9] to-[#7C3AED] px-5 py-4 text-base font-semibold text-white shadow-[0_20px_70px_rgba(109,40,217,0.34)] transition hover:brightness-110"
         >
           Finish core block
           <span aria-hidden="true">›</span>
