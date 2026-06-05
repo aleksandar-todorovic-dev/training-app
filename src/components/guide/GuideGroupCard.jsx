@@ -1,6 +1,4 @@
-import SectionCard from "../layout/SectionCard";
 import GuideTopicBlock from "./GuideTopicBlock";
-import { UI_STACK_LG, UI_STACK_MD, UI_TEXT_MUTED } from "../../styles/ui";
 
 /**
  * Displays one guide section group with its related guide topics.
@@ -11,21 +9,38 @@ import { UI_STACK_LG, UI_STACK_MD, UI_TEXT_MUTED } from "../../styles/ui";
  */
 export default function GuideGroupCard({ group }) {
   return (
-    <SectionCard>
-      <div className={UI_STACK_LG}>
-        <div className={UI_STACK_MD}>
-          <h2 className="text-lg font-semibold text-slate-100">
+    <div className="flex flex-col gap-7">
+      <header className="flex flex-col gap-4 border-b border-zinc-800 pb-6">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-300/80">
+            Guide section
+          </p>
+
+          <h2 className="mt-3 text-4xl font-semibold leading-tight tracking-tight text-zinc-50">
             {group.title}
           </h2>
-          <p className={UI_TEXT_MUTED}>{group.intro}</p>
+
+          <p className="mt-3 max-w-sm text-base leading-7 text-zinc-400">
+            {group.intro}
+          </p>
         </div>
 
-        <div className={UI_STACK_LG}>
-          {group.topics.map((topic) => (
-            <GuideTopicBlock key={topic.id} topic={topic} />
-          ))}
+        <div className="flex flex-wrap gap-2">
+          <span className="rounded-full border border-zinc-800 bg-zinc-900/70 px-3 py-1 text-xs font-medium text-zinc-400">
+            {group.topics.length} topics
+          </span>
+
+          <span className="rounded-full border border-amber-300/25 bg-amber-300/10 px-3 py-1 text-xs font-medium text-amber-200">
+            Coach notes
+          </span>
         </div>
+      </header>
+
+      <div className="flex flex-col divide-y divide-zinc-800/80">
+        {group.topics.map((topic, index) => (
+          <GuideTopicBlock key={topic.id} topic={topic} index={index} />
+        ))}
       </div>
-    </SectionCard>
+    </div>
   );
 }
