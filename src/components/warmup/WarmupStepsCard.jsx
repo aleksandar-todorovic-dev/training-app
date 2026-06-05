@@ -1,6 +1,3 @@
-import SectionCard from "../layout/SectionCard";
-import { UI_STACK_MD, UI_TEXT_MUTED } from "../../styles/ui";
-
 /**
  * Displays the ordered warm-up steps from static warm-up data.
  *
@@ -9,29 +6,41 @@ import { UI_STACK_MD, UI_TEXT_MUTED } from "../../styles/ui";
  */
 export default function WarmupStepsCard({ steps }) {
   return (
-    <SectionCard>
-      <div className="divide-y divide-zinc-800">
+    <div className="flex flex-col gap-4">
+      <div className="flex items-end justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
+            Flow
+          </p>
+
+          <h3 className="mt-1 text-lg font-semibold tracking-tight text-zinc-100">
+            Three quick steps
+          </h3>
+        </div>
+
+        <p className="text-xs font-medium text-zinc-500">3–8 min</p>
+      </div>
+
+      <div className="flex flex-col">
         {steps.map((step, index) => (
           <div
             key={step.title}
-            className={index === 0 ? "pb-4" : "py-4 last:pb-0"}
+            className="grid grid-cols-[2rem_1fr] gap-3 border-b border-zinc-800/70 py-3.5 first:pt-0 last:border-b-0 last:pb-0"
           >
-            <div className={UI_STACK_MD}>
-              <div className="flex flex-col gap-1">
-                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                  Step {index + 1}
-                </p>
+            <div className="flex h-8 w-8 items-center justify-center rounded-full border border-amber-300/25 bg-amber-300/10 text-xs font-semibold text-amber-200">
+              {index + 1}
+            </div>
 
-                <h2 className="text-base font-semibold text-zinc-100">
-                  {step.title}
-                </h2>
-              </div>
+            <div className="min-w-0">
+              <h4 className="text-base font-semibold text-zinc-100">
+                {step.title}
+              </h4>
 
-              <ul className="space-y-2">
+              <ul className="mt-2 space-y-1.5">
                 {step.items.map((item) => (
                   <li
                     key={item}
-                    className={`text-sm leading-relaxed ${UI_TEXT_MUTED}`}
+                    className="text-sm leading-relaxed text-zinc-400"
                   >
                     {item}
                   </li>
@@ -41,6 +50,6 @@ export default function WarmupStepsCard({ steps }) {
           </div>
         ))}
       </div>
-    </SectionCard>
+    </div>
   );
 }
