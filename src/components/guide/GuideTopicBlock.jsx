@@ -45,7 +45,7 @@ export default function GuideTopicBlock({ topic, index }) {
               Practical rules
             </p>
 
-            <ul className="mt-3 flex flex-col divide-y divide-zinc-800/80 border-y border-zinc-800/80">
+            <ul className="mt-3 flex flex-col divide-y divide-zinc-800/70 border-t border-zinc-800/70">
               {topic.bullets.map((bullet, bulletIndex) => (
                 <li
                   key={`${topic.id}-bullet-${bulletIndex}`}

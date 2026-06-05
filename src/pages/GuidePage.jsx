@@ -32,12 +32,12 @@ export default function GuidePage() {
   if (!plan || !guide) {
     return (
       <AppShell>
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-7">
           <Link
             to={plan ? `/plan/${planId}` : "/"}
-            className="inline-flex w-fit min-h-10 items-center text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
+            className="inline-flex w-fit items-center text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
           >
-            Back to {plan ? "Plan" : "Home"}
+            &larr; Back to {plan ? "plan" : "home"}
           </Link>
 
           <header className="flex flex-col gap-3">
@@ -60,16 +60,16 @@ export default function GuidePage() {
 
   return (
     <AppShell>
-      <div className="flex flex-col gap-8">
-        <Link
-          to={`/plan/${planId}`}
-          className="inline-flex w-fit min-h-10 items-center text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
-        >
-          Back to Plan
-        </Link>
-
+      <div className="flex flex-col gap-7">
         {!activeGroup ? (
           <>
+            <Link
+              to={`/plan/${planId}`}
+              className="inline-flex w-fit items-center text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
+            >
+              &larr; Back to plan
+            </Link>
+
             <header className="flex flex-col gap-5">
               <div className="flex flex-col gap-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300/80">
@@ -159,20 +159,22 @@ export default function GuidePage() {
             <button
               type="button"
               onClick={() => setActiveGroupId(null)}
-              className="inline-flex w-fit min-h-10 items-center text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
+              className="inline-flex w-fit items-center text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
             >
-              Back to guide sections
+              &larr; Guide sections
             </button>
 
             <GuideGroupCard group={activeGroup} />
 
-            <button
-              type="button"
-              onClick={() => setActiveGroupId(null)}
-              className="inline-flex w-fit min-h-10 items-center border-t border-zinc-800 pt-4 text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
-            >
-              Back to guide sections
-            </button>
+            <div className="border-t border-zinc-800/80 pt-5">
+              <button
+                type="button"
+                onClick={() => setActiveGroupId(null)}
+                className="inline-flex w-fit items-center text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
+              >
+                &larr; Guide sections
+              </button>
+            </div>
           </section>
         )}
       </div>
