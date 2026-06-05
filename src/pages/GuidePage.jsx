@@ -1,11 +1,21 @@
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import {
+  ArrowLeft,
+  BookOpen,
+  CheckSquare,
+  ChevronRight,
+  GitBranch,
+  Moon,
+} from "lucide-react";
 
 import AppShell from "../components/layout/AppShell";
 import GuideGroupCard from "../components/guide/GuideGroupCard";
 
 import { getPlanById } from "../data/plans";
 import { getGuideByPlanId } from "../data/guides";
+
+const GUIDE_SECTION_ICONS = [BookOpen, CheckSquare, GitBranch, Moon];
 
 /**
  * Page-level guide reader for one predefined plan.
@@ -35,9 +45,10 @@ export default function GuidePage() {
         <div className="flex flex-col gap-7">
           <Link
             to={plan ? `/plan/${planId}` : "/"}
-            className="inline-flex w-fit items-center text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
+            className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
           >
-            &larr; Back to {plan ? "plan" : "home"}
+            <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+            Back to {plan ? "plan" : "home"}
           </Link>
 
           <header className="flex flex-col gap-3">
@@ -65,9 +76,10 @@ export default function GuidePage() {
           <>
             <Link
               to={`/plan/${planId}`}
-              className="inline-flex w-fit items-center text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
+              className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
             >
-              &larr; Back to plan
+              <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+              Back to plan
             </Link>
 
             <header className="flex flex-col gap-5">
@@ -115,42 +127,54 @@ export default function GuidePage() {
               </div>
 
               <div className="flex flex-col divide-y divide-zinc-800/80 border-y border-zinc-800/80">
-                {guide.groups.map((group, index) => (
-                  <button
-                    key={group.id}
-                    type="button"
-                    onClick={() => setActiveGroupId(group.id)}
-                    className="group py-5 text-left transition"
-                  >
-                    <div className="grid grid-cols-[2.5rem_1fr] gap-4">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-cyan-300/25 bg-cyan-300/10 text-sm font-semibold text-cyan-200 shadow-[0_0_22px_rgba(103,232,249,0.08)]">
-                        {index + 1}
-                      </div>
+                {guide.groups.map((group, index) => {
+                  const SectionIcon = GUIDE_SECTION_ICONS[index] ?? BookOpen;
 
-                      <div className="min-w-0">
-                        <div className="flex items-start justify-between gap-4">
-                          <div className="min-w-0">
-                            <h3 className="text-lg font-semibold tracking-tight text-zinc-100 transition group-hover:text-cyan-100">
-                              {group.title}
-                            </h3>
-
-                            <p className="mt-2 text-sm leading-6 text-zinc-400">
-                              {group.intro}
-                            </p>
-                          </div>
-
-                          <span className="mt-0.5 shrink-0 text-xl leading-none text-zinc-600 transition group-hover:text-cyan-300">
-                            &rsaquo;
-                          </span>
+                  return (
+                    <button
+                      key={group.id}
+                      type="button"
+                      onClick={() => setActiveGroupId(group.id)}
+                      className="group py-5 text-left transition"
+                    >
+                      <div className="grid grid-cols-[2.5rem_1fr] gap-4">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-cyan-300/25 bg-cyan-300/10 text-sm font-semibold text-cyan-200 shadow-[0_0_22px_rgba(103,232,249,0.08)]">
+                          {index + 1}
                         </div>
 
-                        <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-600">
-                          {group.topics.length} topics
-                        </p>
+                        <div className="min-w-0">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <SectionIcon
+                                  aria-hidden="true"
+                                  className="h-4 w-4 shrink-0 text-cyan-300/70"
+                                />
+
+                                <h3 className="text-lg font-semibold tracking-tight text-zinc-100 transition group-hover:text-cyan-100">
+                                  {group.title}
+                                </h3>
+                              </div>
+
+                              <p className="mt-2 text-sm leading-6 text-zinc-400">
+                                {group.intro}
+                              </p>
+                            </div>
+
+                            <ChevronRight
+                              aria-hidden="true"
+                              className="mt-1 h-5 w-5 shrink-0 text-zinc-600 transition group-hover:text-cyan-300"
+                            />
+                          </div>
+
+                          <p className="mt-3 text-xs font-semibold uppercase tracking-[0.16em] text-zinc-600">
+                            {group.topics.length} topics
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                ))}
+                    </button>
+                  );
+                })}
               </div>
             </section>
           </>
@@ -159,9 +183,10 @@ export default function GuidePage() {
             <button
               type="button"
               onClick={() => setActiveGroupId(null)}
-              className="inline-flex w-fit items-center text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
+              className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
             >
-              &larr; Guide sections
+              <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+              Guide sections
             </button>
 
             <GuideGroupCard group={activeGroup} />
@@ -170,9 +195,10 @@ export default function GuidePage() {
               <button
                 type="button"
                 onClick={() => setActiveGroupId(null)}
-                className="inline-flex w-fit items-center text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
+                className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
               >
-                &larr; Guide sections
+                <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+                Guide sections
               </button>
             </div>
           </section>
