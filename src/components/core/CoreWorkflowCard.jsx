@@ -1,4 +1,9 @@
-import { ChevronDown, ListChecks, ShieldCheck } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  ListChecks,
+  ShieldCheck,
+} from "lucide-react";
 import { useState } from "react";
 
 import CoreSetRow from "./CoreSetRow";
@@ -431,7 +436,7 @@ export default function CoreWorkflowCard({
           className="flex w-full items-center justify-center gap-3 rounded-3xl border border-[#A78BFA]/45 bg-linear-to-r from-[#5B21B6] via-[#6D28D9] to-[#7C3AED] px-5 py-4 text-base font-semibold text-white shadow-[0_20px_70px_rgba(109,40,217,0.34)] transition hover:brightness-110"
         >
           Finish core block
-          <span aria-hidden="true">›</span>
+          <ChevronRight className="h-5 w-5" aria-hidden="true" />
         </button>
       ) : null}
     </div>

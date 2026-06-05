@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Crosshair, ListChecks, Zap } from "lucide-react";
+import { Crosshair, ListChecks, Zap, ChevronRight } from "lucide-react";
 import HelpSheet from "../common/HelpSheet";
 import SetRow from "./SetRow";
 import {
@@ -297,7 +297,7 @@ export default function ExerciseWorkflowCard({
                 className="flex w-full items-center justify-center gap-3 rounded-2xl bg-cyan-300 px-5 py-4 text-base font-semibold tracking-wide text-zinc-950 shadow-[0_18px_50px_rgba(34,211,238,0.22)] transition hover:bg-cyan-200"
               >
                 Finish exercise
-                <span aria-hidden="true">›</span>
+                <ChevronRight className="h-5 w-5" aria-hidden="true" />
               </button>
             ) : null}
           </div>
