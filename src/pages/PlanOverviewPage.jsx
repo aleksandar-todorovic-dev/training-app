@@ -395,7 +395,6 @@ export default function PlanOverviewPage() {
               const rhythmLabel = isRest
                 ? item.name
                 : (RHYTHM_DAY_LABELS[item.id] ?? item.name);
-              const RhythmIcon = isRest ? Moon : Dumbbell;
 
               return (
                 <div
@@ -431,7 +430,14 @@ export default function PlanOverviewPage() {
                       isRest ? "text-zinc-500" : "text-[#8FDCE5]/82",
                     ].join(" ")}
                   >
-                    <RhythmIcon className="h-4 w-4" aria-hidden="true" />
+                    {isRest ? (
+                      <Moon className="h-4 w-4" aria-hidden="true" />
+                    ) : (
+                      <span
+                        className="h-2 w-2 rounded-full bg-[#8FDCE5]/72"
+                        aria-hidden="true"
+                      />
+                    )}
                   </div>
                 </div>
               );
