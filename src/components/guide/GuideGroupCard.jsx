@@ -9,7 +9,7 @@ import GuideTopicBlock from "./GuideTopicBlock";
  */
 export default function GuideGroupCard({ group }) {
   return (
-    <div className="flex flex-col gap-7">
+    <div className="flex flex-col">
       <header className="flex flex-col gap-4 border-b border-zinc-800 pb-6">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-300/80">
@@ -36,9 +36,15 @@ export default function GuideGroupCard({ group }) {
         </div>
       </header>
 
-      <div className="flex flex-col divide-y divide-zinc-800/80">
+      <div className="flex flex-col">
         {group.topics.map((topic, index) => (
-          <GuideTopicBlock key={topic.id} topic={topic} index={index} />
+          <GuideTopicBlock
+            key={topic.id}
+            topic={topic}
+            index={index}
+            isFirst={index === 0}
+            isLast={index === group.topics.length - 1}
+          />
         ))}
       </div>
     </div>

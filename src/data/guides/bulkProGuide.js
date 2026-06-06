@@ -37,16 +37,15 @@ export const bulkProGuide = {
           id: "cycle-works",
           title: "How the cycle works",
           paragraphs: [
-            "The plan works in order.",
-            "You train D1 and D2, take a rest day, train D3 and D4, take another rest day, then train D5 and D6 before resting again. After D6, the next cycle starts back at D1.",
+            "The cycle follows a simple training rhythm.",
+            "Bulk Pro moves through two training days, one rest day, two more training days, another rest day, then the final two training days before resting again and returning to D1.",
             "Think of this as a repeating rhythm, not a strict Monday-to-Sunday schedule. The order matters more than the name of the day on the calendar.",
           ],
           bullets: [
-            "D1 -> D2 -> rest",
-            "D3 -> D4 -> rest",
-            "D5 -> D6 -> rest",
+            "Train the next planned day in order.",
+            "Use rest days as part of the rhythm.",
             "After D6, return to D1.",
-            "Rest days are part of the system.",
+            "Do not rebuild the plan around the calendar.",
           ],
         },
         {
@@ -54,7 +53,7 @@ export const bulkProGuide = {
           title: "When life interrupts the cycle",
           paragraphs: [
             "A delayed workout does not erase the plan.",
-            "If real life moves a session, do not restart the week and do not jump randomly to your favorite day. Continue from the next planned training day and keep the cycle order stable.",
+            "If real life moves a session, do not restart the cycle and do not jump randomly to your favorite day. Continue from the next planned training day and keep the cycle order stable.",
             "This works because the plan is built with overlap. Major muscle groups return regularly through main work, support work, or small top-up work, so the system stays useful even when the calendar is not perfect.",
             "Flexibility here does not mean training randomly. It means the cycle can absorb small schedule changes without falling apart.",
           ],
@@ -275,7 +274,7 @@ export const bulkProGuide = {
           paragraphs: [
             "Advanced techniques are extra intensity tools.",
             "Bulk Pro includes methods like rest-pause, dropsets, loaded stretches, clusters, or mechanical sets only where they are written. They are there to add a targeted stimulus, not to turn the whole workout into failure training.",
-            "Use them as part of the plan, not as a way to make every exercise harder. More intensity is not always a better signal if it damages the next sets, next day, or next cycle.",
+            "Use them as part of the plan, not as a way to make every exercise harder. They are not an automatic target for every cycle; if recovery, form, or performance is not there, clean straight work is the better choice. More intensity is not always a better signal if it damages the next sets, next day, or next cycle.",
           ],
           bullets: [
             "Use advanced techniques only where prescribed.",

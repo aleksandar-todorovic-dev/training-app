@@ -37,16 +37,15 @@ export const cutProGuide = {
           id: "cycle-works",
           title: "How the cycle works",
           paragraphs: [
-            "The plan works in order.",
-            "You train D1 and D2, take a rest day, train D3 and D4, take another rest day, then train D5 and D6 before resting again. After D6, the next cycle starts back at D1.",
+            "The cut cycle follows the same training rhythm, but with tighter fatigue control.",
+            "You move through two training days, one rest day, two more training days, another rest day, then the final two training days before resting again and returning to D1.",
             "Think of this as a repeating rhythm, not a strict Monday-to-Sunday schedule. On a cut, that rhythm matters because recovery needs more respect.",
           ],
           bullets: [
-            "D1 -> D2 -> rest",
-            "D3 -> D4 -> rest",
-            "D5 -> D6 -> rest",
+            "Train the next planned day in order.",
+            "Keep rest days as part of the system.",
             "After D6, return to D1.",
-            "Rest days are part of the system, not wasted days.",
+            "Do not turn the cut into random workouts.",
           ],
         },
         {
@@ -54,7 +53,7 @@ export const cutProGuide = {
           title: "When life interrupts the cycle",
           paragraphs: [
             "A delayed workout does not erase the plan.",
-            "If real life moves a session, do not restart the week and do not jump randomly to your favorite day. Continue from the next planned training day and keep the cycle order stable.",
+            "If real life moves a session, do not restart the cycle and do not jump randomly to your favorite day. Continue from the next planned training day and keep the cycle order stable.",
             "This works because the plan is built with overlap. Major muscle groups return regularly through main work, support work, or small top-up work, so the system stays useful even when the calendar is not perfect.",
             "On a cut, this flexibility is especially important. You may need to move a rest day earlier, keep one rest day fully passive, or add easy LISS only when recovery allows it. The goal is to adjust without turning the plan random.",
           ],
@@ -274,7 +273,7 @@ export const cutProGuide = {
           id: "advanced-techniques",
           title: "Most advanced techniques are removed on purpose",
           paragraphs: [
-            "Cut Pro is not the place to stack extra intensity just because motivation is high.",
+            "Cut Pro is not the place to stack extra intensity just because motivation is high or the session feels shorter.",
             "Most advanced techniques from Bulk Pro are removed on purpose. The deficit already adds stress, so the plan protects performance by keeping the training signal strong but controlled.",
             "If the plan does not prescribe extra intensity, do not invent more. The goal is to preserve strength, muscle, and technique while recovery is lower.",
           ],

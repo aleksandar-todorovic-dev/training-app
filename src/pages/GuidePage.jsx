@@ -191,13 +191,13 @@ export default function GuidePage() {
 
             <GuideGroupCard group={activeGroup} />
 
-            <div className="border-t border-zinc-800/80 pt-5">
+            <div className="pt-2">
               <button
                 type="button"
                 onClick={() => setActiveGroupId(null)}
-                className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
+                className="inline-flex w-fit items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300/80 transition hover:text-cyan-200"
               >
-                <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+                <ArrowLeft aria-hidden="true" className="h-3.5 w-3.5" />
                 Guide sections
               </button>
             </div>
