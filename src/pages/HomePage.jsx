@@ -21,15 +21,15 @@ const HOME_VALUE_CHIPS = [
     icon: Repeat2,
     title: "A cycle, not a random week",
     description:
-      "The app moves you through a stable 6-day training order inside a 9-day rhythm. If life or fatigue moves a workout, you continue from the next planned day instead of restarting the week or choosing randomly.",
+      "This is not a rigid weekly split. The app moves you through a stable 6-day training order inside a 9-day rhythm. If life or fatigue moves a workout, you continue from the next planned day instead of restarting the week or choosing randomly.",
   },
   {
     id: "guided-workouts",
     label: "Guided workouts",
     icon: Dumbbell,
-    title: "Less guessing during training",
+    title: "Know what to do next",
     description:
-      "Each session gives you the next exercise, targets, cues, warm-up guidance, coach notes, and a clear finish flow so the workout stays focused.",
+      "Each session gives you the next exercise, targets, cues, warm-up guidance, coach notes, and a clear finish flow so you can focus on execution instead of piecing the workout together.",
   },
   {
     id: "previous-values",
@@ -37,7 +37,7 @@ const HOME_VALUE_CHIPS = [
     icon: History,
     title: "Your last work stays useful",
     description:
-      "Completed sets become reference points for the next cycle. You can compare weight, reps, and RIR without trying to remember everything manually.",
+      "Completed sets become reference points for the next cycle. You can compare weight, reps, and RIR without relying on memory or old notes.",
   },
   {
     id: "partial-days",
@@ -45,7 +45,7 @@ const HOME_VALUE_CHIPS = [
     icon: CalendarClock,
     title: "Honest logs when life gets messy",
     description:
-      "Partial days are for low time, high fatigue, or sessions you cannot finish properly. The app records what actually happened instead of forcing fake completion.",
+      "Partial days are for low time, high fatigue, or sessions you cannot finish properly. The app records what actually happened instead of forcing fake completion, while the goal stays to train well when you can.",
   },
 ];
 
