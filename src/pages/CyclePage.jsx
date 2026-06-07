@@ -474,7 +474,7 @@ export default function CyclePage() {
 
         <section
           aria-label="Cycle rhythm"
-          className="mt-1 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="mt-1 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:[scrollbar-width:thin] sm:[scrollbar-color:rgba(36,81,90,0.75)_transparent] sm:[&::-webkit-scrollbar]:block sm:[&::-webkit-scrollbar]:h-1.5 sm:[&::-webkit-scrollbar-track]:bg-transparent sm:[&::-webkit-scrollbar-thumb]:rounded-full sm:[&::-webkit-scrollbar-thumb]:bg-[#24515A]/75"
         >
           <div className="flex min-w-max items-center gap-2">
             {rhythmSlots.map((slot) => {

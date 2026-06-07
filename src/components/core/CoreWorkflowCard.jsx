@@ -26,6 +26,22 @@ function normalizeCoreTarget(target) {
     .trim();
 }
 
+function getCoreTargetValue(exercise) {
+  const prescription = exercise?.prescription;
+
+  if (!prescription || typeof prescription !== "string") {
+    return "—";
+  }
+
+  const targetValue = prescription.split("x").slice(1).join("x").trim();
+
+  if (!targetValue) {
+    return "—";
+  }
+
+  return normalizeCoreTarget(targetValue);
+}
+
 /**
  * Builds display-only fallback rows for core previews.
  *
@@ -33,14 +49,14 @@ function normalizeCoreTarget(target) {
  * These rows are not runtime scaffolding. Real core logs are created by the
  * reducer/helper layer from structured metadata such as `setCount`, `logType`,
  * and `tracksLoad`.
+ *
+ * `prescription` remains display copy. It is used only to show the target value,
+ * not to decide how many rows should exist.
  */
 function buildStaticRows(exercise) {
-  const prescription = exercise?.prescription ?? "3 x 8-12";
-  const match = prescription.match(/^(\d+)\s*x\s*(.+)$/i);
+  const setCount = Number.isInteger(exercise?.setCount) ? exercise.setCount : 0;
 
-  const setCount = Number(match?.[1] ?? 3);
-  const rawTargetValue = match?.[2] ?? "—";
-  const targetValue = normalizeCoreTarget(rawTargetValue);
+  const targetValue = getCoreTargetValue(exercise);
 
   return Array.from({ length: setCount }, (_, index) => ({
     setNumber: index + 1,
@@ -60,19 +76,12 @@ function getCoreValueLabel(exercise) {
   return "Reps";
 }
 
-function getCoreSetCount(exercise) {
-  const prescription = exercise?.prescription ?? "";
-  const match = prescription.match(/^(\d+)\s*x\s*(.+)$/i);
-
-  return match?.[1] ?? "—";
-}
-
 function getCoreSetSummary(exercise, tracksLoad) {
   if (tracksLoad) {
     return cleanSummaryValue(exercise?.prescription);
   }
 
-  return cleanSummaryValue(getCoreSetCount(exercise));
+  return Number.isInteger(exercise?.setCount) ? exercise.setCount : "—";
 }
 
 function SummaryMetric({ label, value }) {

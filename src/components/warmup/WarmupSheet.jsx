@@ -39,7 +39,7 @@ export default function WarmupSheet({ dayDetails, warmup, onClose }) {
           </p>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-12 pt-4">
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-12 pt-4 [scrollbar-width:thin] [scrollbar-color:rgba(63,63,70,0.8)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-700/80">
           <WarmupStepsCard steps={warmup.steps} />
 
           <p className="mt-4 border-t border-zinc-800/80 pt-4 text-sm leading-relaxed text-zinc-500">

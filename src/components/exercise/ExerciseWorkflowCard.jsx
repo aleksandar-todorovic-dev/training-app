@@ -204,7 +204,7 @@ export default function ExerciseWorkflowCard({
           </section>
         ) : null}
 
-        <section className="-mx-5 space-y-4 rounded-4xl bg-linear-to-b from-cyan-950/20 via-zinc-950/10 to-transparent px-5 pt-5 pb-3">
+       <section className="-mx-3 space-y-4 rounded-4xl bg-linear-to-b from-cyan-950/20 via-zinc-950/10 to-transparent px-4 pt-5 pb-3">
           <div>
             <div className="mb-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
