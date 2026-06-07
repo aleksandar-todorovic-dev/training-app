@@ -10,7 +10,7 @@ export const bulkProGuide = {
   id: "bulk-pro",
   title: "Bulk Pro Guide",
   intro:
-    "Learn how the plan works, how to progress, and how to use it without overcomplicating things.",
+    "Learn how the plan works, how to progress, and how to keep the cycle productive even when your schedule is not perfect.",
   groups: [
     {
       id: "start-here",

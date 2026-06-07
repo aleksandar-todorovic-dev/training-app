@@ -10,7 +10,7 @@ export const cutProGuide = {
   id: "cut-pro",
   title: "Cut Pro Guide",
   intro:
-    "Learn how the cut plan works, how to keep training productive in a deficit, and how to preserve strength and muscle without overcomplicating things.",
+    "Learn how the cut plan works, how to keep training productive in a deficit, and how to preserve strength and muscle while recovery is lower.",
   groups: [
     {
       id: "start-here",
