@@ -39,6 +39,24 @@ export default function GuidePage() {
     return guide.groups.find((group) => group.id === activeGroupId) ?? null;
   }, [guide, activeGroupId]);
 
+  function scrollToPageTop() {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "auto",
+    });
+  }
+
+  function handleOpenGroup(groupId) {
+    setActiveGroupId(groupId);
+    scrollToPageTop();
+  }
+
+  function handleBackToSections() {
+    setActiveGroupId(null);
+    scrollToPageTop();
+  }
+
   if (!plan || !guide) {
     return (
       <AppShell>
@@ -134,7 +152,7 @@ export default function GuidePage() {
                     <button
                       key={group.id}
                       type="button"
-                      onClick={() => setActiveGroupId(group.id)}
+                      onClick={() => handleOpenGroup(group.id)}
                       className="group py-5 text-left transition"
                     >
                       <div className="grid grid-cols-[2.5rem_1fr] gap-4">
@@ -182,7 +200,7 @@ export default function GuidePage() {
           <section className="flex flex-col gap-6">
             <button
               type="button"
-              onClick={() => setActiveGroupId(null)}
+              onClick={handleBackToSections}
               className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
             >
               <ArrowLeft aria-hidden="true" className="h-4 w-4" />
@@ -194,7 +212,7 @@ export default function GuidePage() {
             <div className="pt-2">
               <button
                 type="button"
-                onClick={() => setActiveGroupId(null)}
+                onClick={handleBackToSections}
                 className="inline-flex w-fit items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300/80 transition hover:text-cyan-200"
               >
                 <ArrowLeft aria-hidden="true" className="h-3.5 w-3.5" />
