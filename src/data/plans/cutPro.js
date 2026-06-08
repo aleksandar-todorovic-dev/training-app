@@ -13,7 +13,7 @@ export const cutPro = {
   shortDescription:
     "Lower-volume structured cut plan designed to preserve strength and control fatigue.",
   audience:
-    "Natural lifters who want a structured cut without losing performance.",
+    "Lifters who want to preserve strength and muscle while managing fatigue in a deficit.",
   cycleLabel: "6 training days / 9-day cycle",
   intro:
     "Lower-volume structured cut plan designed to preserve strength and control fatigue.",

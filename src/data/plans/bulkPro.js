@@ -13,7 +13,7 @@ export const bulkPro = {
   shortDescription:
     "Higher-volume plan built for size, strength, and long-term progression.",
   audience:
-    "Natural lifters focused on structured bulking and progressive overload.",
+    "Lifters focused on structured progression, repeatable training, and long-term muscle growth.",
   cycleLabel: "6 training days / 9-day cycle",
   intro: "Higher-volume plan for size, strength, and long-term progression.",
   coreSystem: [

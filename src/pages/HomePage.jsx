@@ -19,9 +19,9 @@ const HOME_VALUE_CHIPS = [
     id: "cycle-based",
     label: "Cycle-based",
     icon: Repeat2,
-    title: "A cycle, not a random week",
+    title: "A cycle that stays connected",
     description:
-      "This is not a rigid weekly split. The app moves you through a stable 6-day training order inside a 9-day rhythm. If life or fatigue moves a workout, you continue from the next planned day instead of restarting the week or choosing randomly.",
+      "The plan is built around repeated training signals, not a perfect calendar week. Main work, support work, and smaller top-ups keep the cycle connected, so moving a rest day does not turn the plan random. Rest when needed, then continue with the next planned workout.",
   },
   {
     id: "guided-workouts",

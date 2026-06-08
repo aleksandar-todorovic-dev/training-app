@@ -27,7 +27,7 @@ export const exerciseHelp = {
       paragraphs: [
         "RIR means reps in reserve.",
         "RIR 2 means you stop with about 2 clean reps left. RIR 1 means you stop with about 1 clean rep left.",
-        "This helps you train hard without turning every set into failure. For natural lifters, this matters because recovery has to support the next exercise, the next day, and the whole cycle.",
+        "This helps you train hard without turning every set into failure. Recovery has to support the next exercise, the next day, and the whole cycle.",
       ],
       bullets: [
         "Stop before form breaks down.",
