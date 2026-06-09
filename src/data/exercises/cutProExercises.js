@@ -522,7 +522,7 @@ export const cutProExercises = [
   },
   {
     id: "abductor-adductor-machine-d3",
-    name: "Abductor / Adductor Machine",
+    name: "Abductor & Adductor Machine",
     subtitle: "Hip stability superset",
     prescription: "1 x 12-15",
     setCount: 1,
@@ -1098,7 +1098,7 @@ export const cutProExercises = [
   },
   {
     id: "abductor-adductor-machine-d6",
-    name: "Abductor / Adductor Machine",
+    name: "Abductor & Adductor Machine",
     subtitle: "Hip stability superset",
     prescription: "1 x 12-15",
     setCount: 1,

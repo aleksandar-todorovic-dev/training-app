@@ -530,7 +530,7 @@ export const bulkProExercises = [
   },
   {
     id: "hip-stability-ab-ad-d3",
-    name: "Abductor / Adductor Machine",
+    name: "Abductor & Adductor Machine",
     subtitle: "Hip stability superset",
     prescription: "3 x 15",
     setCount: 3,
@@ -1049,7 +1049,7 @@ export const bulkProExercises = [
   },
   {
     id: "hip-stability-ab-ad-d6",
-    name: "Abductor / Adductor Machine",
+    name: "Abductor & Adductor Machine",
     subtitle: "Hip stability superset",
     prescription: "1 x 15",
     setCount: 1,
