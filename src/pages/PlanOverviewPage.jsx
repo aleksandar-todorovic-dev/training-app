@@ -122,25 +122,69 @@ const RHYTHM_DAY_LABELS = {
   d6: "Posterior Chain",
 };
 
-function StatusRing() {
+function StatusRing({ value, total }) {
+  const radius = 35;
+  const circumference = 2 * Math.PI * radius;
+  const safeTotal = total > 0 ? total : 6;
+  const clampedValue = Math.min(Math.max(value, 0), safeTotal);
+  const progress = clampedValue / safeTotal;
+  const dashOffset = circumference * (1 - progress);
+
   return (
     <svg
-      className="pointer-events-none absolute right-5 top-10 h-20 w-20 text-[#5EC7D5]/58"
+      className="absolute right-5 top-9 h-22 w-22 text-[#5EC7D5]"
       viewBox="0 0 100 100"
-      aria-hidden="true"
+      role="img"
+      aria-label={`Cycle progress: ${clampedValue} of ${safeTotal} training days closed`}
     >
       <circle
         cx="50"
         cy="50"
-        r="35"
+        r={radius}
+        fill="none"
+        stroke="rgba(143,220,229,0.16)"
+        strokeWidth="7"
+      />
+
+      <circle
+        cx="50"
+        cy="50"
+        r={radius}
         fill="none"
         stroke="currentColor"
         strokeWidth="7"
         strokeLinecap="round"
-        strokeDasharray="200 28"
-        transform="rotate(-70 50 50)"
-        opacity="0.85"
+        strokeDasharray={circumference}
+        strokeDashoffset={dashOffset}
+        transform="rotate(-90 50 50)"
+        opacity={clampedValue === safeTotal ? "0.95" : "0.72"}
       />
+
+      <text
+        x="50"
+        y="48"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fill="#F4F7F8"
+        fontSize="17"
+        fontWeight="700"
+        letterSpacing="-0.04em"
+      >
+        {clampedValue}/{safeTotal}
+      </text>
+
+      <text
+        x="50"
+        y="64"
+        textAnchor="middle"
+        dominantBaseline="central"
+        fill="rgba(199,208,212,0.68)"
+        fontSize="8"
+        fontWeight="700"
+        letterSpacing="0.14em"
+      >
+        DAYS
+      </text>
     </svg>
   );
 }
@@ -198,6 +242,13 @@ export default function PlanOverviewPage() {
   const currentCycle = currentCycleNumber
     ? planProgress?.cycles?.[currentCycleNumber]
     : null;
+
+  // Status ring tracks closed training days only.
+  // Core blocks and exercise completion quality do not affect this value
+  const totalTrainingDays = days.length || 6;
+  const closedTrainingDays = currentCycle
+    ? days.filter((day) => currentCycle.dayLogs?.[day.id]?.finishedAt).length
+    : 0;
 
   if (!plan) {
     return (
@@ -322,9 +373,12 @@ export default function PlanOverviewPage() {
 
         <section className="overflow-hidden rounded-3xl border border-[#3FA8B6]/18 bg-[#10292E] shadow-[0_18px_46px_rgba(0,0,0,0.36)]">
           <div className="relative flex flex-col gap-5 overflow-hidden p-5">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_18%,rgba(95,199,213,0.12),transparent_34%),radial-gradient(circle_at_18%_92%,rgba(63,168,182,0.09),transparent_38%)]" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-2/5 bg-[linear-gradient(135deg,transparent,rgba(255,255,255,0.045))]" />
-            <StatusRing />
+            <div
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_18%,rgba(95,199,213,0.13),transparent_36%),radial-gradient(circle_at_12%_100%,rgba(63,168,182,0.10),transparent_42%)]"
+              aria-hidden="true"
+            />
+
+            <StatusRing value={closedTrainingDays} total={totalTrainingDays} />
 
             <div className="relative max-w-[72%]">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8FDCE5]/90">
