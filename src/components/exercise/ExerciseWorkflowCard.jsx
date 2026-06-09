@@ -27,11 +27,12 @@ function cleanSummaryValue(value) {
   return value.replace(/^≈\s*/, "").trim();
 }
 
+// Normalizes compact target values for metric cells without changing source data.
 function compactSummaryValue(value) {
   return cleanSummaryValue(value)
     .replace(/\s*x\s*/i, " x ")
     .replace(/\s*-\s*/g, "-")
-    .replace(/\s*s\b/i, "s");
+    .replace(/(\d)\s*s\b/gi, "$1 s");
 }
 
 function getMethodSummary(advancedTechniqueType) {
@@ -204,7 +205,7 @@ export default function ExerciseWorkflowCard({
           </section>
         ) : null}
 
-       <section className="-mx-3 space-y-4 rounded-4xl bg-linear-to-b from-cyan-950/20 via-zinc-950/10 to-transparent px-4 pt-5 pb-3">
+        <section className="-mx-3 space-y-4 rounded-4xl bg-linear-to-b from-cyan-950/20 via-zinc-950/10 to-transparent px-4 pt-5 pb-3">
           <div>
             <div className="mb-3 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">

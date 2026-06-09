@@ -21,8 +21,8 @@ function normalizeCoreTarget(target) {
   return target
     .replace(/\s*\/\s*side\b/i, "")
     .replace(/\s*total\b/i, "")
-    .replace(/\s*-\s*/g, "–")
-    .replace(/\s+s\b/i, "s")
+    .replace(/\s*-\s*/g, "-")
+    .replace(/(\d)\s*s\b/gi, "$1 s")
     .trim();
 }
 
