@@ -38,7 +38,7 @@ const STATIC_DAY_DETAIL_HINT_MAP = {
   "bulk-pro": {
     d1: "Shoulder top-up",
     d2: "Trap top-up",
-    d3: "Hamstring + calf support",
+    d3: "Hamstring & calf support",
     d4: "Trap work",
     d5: "Triceps support",
     d6: "Quad, arm, and calf support",
@@ -46,7 +46,7 @@ const STATIC_DAY_DETAIL_HINT_MAP = {
   "cut-pro": {
     d1: "Shoulder top-up",
     d2: "Trap top-up",
-    d3: "Hamstring spark + calf support",
+    d3: "Hamstring spark & calf support",
     d4: "Trap work",
     d5: "Triceps support",
     d6: "Quad, arm, and calf support",
@@ -474,9 +474,9 @@ export default function CyclePage() {
 
         <section
           aria-label="Cycle rhythm"
-          className="mt-1 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:[scrollbar-width:thin] sm:[scrollbar-color:rgba(36,81,90,0.75)_transparent] sm:[&::-webkit-scrollbar]:block sm:[&::-webkit-scrollbar]:h-1.5 sm:[&::-webkit-scrollbar-track]:bg-transparent sm:[&::-webkit-scrollbar-thumb]:rounded-full sm:[&::-webkit-scrollbar-thumb]:bg-[#24515A]/75"
+          className="mt-1 scroll-px-1 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:[scrollbar-width:thin] sm:[scrollbar-color:rgba(36,81,90,0.75)_transparent] sm:[&::-webkit-scrollbar]:block sm:[&::-webkit-scrollbar]:h-1.5 sm:[&::-webkit-scrollbar-track]:bg-transparent sm:[&::-webkit-scrollbar-thumb]:rounded-full sm:[&::-webkit-scrollbar-thumb]:bg-[#24515A]/75"
         >
-          <div className="flex min-w-max items-center gap-2">
+          <div className="flex min-w-max items-center gap-2 px-1">
             {rhythmSlots.map((slot) => {
               if (slot.type === "rest") {
                 return (
@@ -537,9 +537,10 @@ export default function CyclePage() {
 
         {currentDay ? (
           <section className="relative overflow-hidden rounded-3xl border border-[#3FA8B6]/18 bg-[#10292E] p-5 shadow-[0_18px_46px_rgba(0,0,0,0.36)]">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_18%,rgba(95,199,213,0.12),transparent_34%),radial-gradient(circle_at_10%_100%,rgba(63,168,182,0.09),transparent_42%)]" />
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-2/5 bg-[linear-gradient(135deg,transparent,rgba(255,255,255,0.045))]" />
-
+            <div
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_18%,rgba(95,199,213,0.13),transparent_36%),radial-gradient(circle_at_12%_100%,rgba(63,168,182,0.10),transparent_42%)]"
+              aria-hidden="true"
+            />
             <div className="relative flex flex-col gap-4">
               <div className="flex flex-col gap-3">
                 <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8FDCE5]/90">
