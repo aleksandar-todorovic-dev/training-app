@@ -83,6 +83,7 @@ export default function ExerciseWorkflowCard({
   exercise,
   sets = [],
   isReadOnly = false,
+  hasPreviousValues = false,
   onToggleSetDone,
   onUpdateSetField,
   onCloseExercise,
@@ -283,10 +284,14 @@ export default function ExerciseWorkflowCard({
             {!isReadOnly ? (
               <div className="pt-1">
                 <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">
-                  Previous values loaded
+                  {hasPreviousValues
+                    ? "Previous values available"
+                    : "No previous values yet"}
                 </p>
                 <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
-                  Adjust today based on performance.
+                  {hasPreviousValues
+                    ? "Use your last logged work as a guide."
+                    : "Log today to build your next-cycle reference."}
                 </p>
               </div>
             ) : null}

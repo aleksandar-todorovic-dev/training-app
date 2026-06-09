@@ -10,6 +10,7 @@ import { getDayDetails } from "../data/dayDetails";
 import { getExerciseById } from "../data/exercises";
 import ExerciseWorkflowCard from "../components/exercise/ExerciseWorkflowCard";
 import { sanitizeSetInputValue } from "../utils/runtime/setInputHelpers";
+import { hasCarryOverValuesForExercise } from "../utils/runtime/carryOverHelpers";
 import { getDayMode } from "../utils/runtime/dayModeHelpers";
 
 /**
@@ -90,6 +91,19 @@ export default function ExercisePage() {
 
   // Upcoming days use static preview rows. Active/finished days use runtime rows.
   const displaySets = isUpcomingPreview ? previewSets : runtimeSets;
+
+  // Previous-values UI must reflect historical carry-over availability only.
+  // Today's editable rows are intentionally ignored so typing new values does not
+  // turn the message into "Previous values available".
+  const hasPreviousValues =
+    !isUpcomingPreview &&
+    hasCarryOverValuesForExercise({
+      cycles: planProgress?.cycles,
+      currentCycleNumber,
+      dayId: dayDetails?.id,
+      exerciseId,
+      setCount: exercise?.setCount,
+    });
 
   // Handler guards are a safety boundary: upcoming previews may render the
   // target structure, but they must not dispatch runtime updates.
@@ -217,6 +231,7 @@ export default function ExercisePage() {
           exercise={exercise}
           sets={displaySets}
           isReadOnly={isUpcomingPreview}
+          hasPreviousValues={hasPreviousValues}
           onToggleSetDone={handleToggleSetDone}
           onUpdateSetField={handleUpdateSetField}
           onCloseExercise={handleCloseExercise}
