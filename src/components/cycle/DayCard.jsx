@@ -17,31 +17,31 @@ export default function DayCard({
     <Link
       to={`/plan/${planId}/day/${day.id}`}
       className={[
-        "group relative overflow-hidden rounded-2xl border shadow-sm transition-colors",
+        "group relative overflow-hidden rounded-xl border transition-colors",
         isFinished
-          ? "border-[#24515A]/75 bg-[#0D2227] hover:border-[#3FA8B6]/60"
-          : "border-white/8 bg-[#171C1F] hover:border-[#3FA8B6]/40",
+          ? "border-[#24515A]/50 bg-[#0D2227]/70 hover:border-[#3FA8B6]/45"
+          : "border-white/8 bg-[#171C1F]/82 hover:border-[#3FA8B6]/32",
       ].join(" ")}
     >
       <div
         className={[
-          "pointer-events-none absolute inset-y-0 left-0 w-1.5",
-          isFinished ? "bg-[#3FA8B6]/55" : "bg-[#2A5962]",
+          "pointer-events-none absolute inset-y-0 left-0 w-1",
+          isFinished ? "bg-[#3FA8B6]/38" : "bg-[#2A5962]/72",
         ].join(" ")}
         aria-hidden="true"
       />
 
-      <div className="flex items-center gap-3 px-3 py-3.5">
+      <div className="flex items-center gap-2.5 px-3 py-2.5">
         <div
           className={[
-            "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-sm font-semibold",
+            "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-semibold",
             isFinished
-              ? "border border-[#3FA8B6]/35 bg-[#123039] text-[#8FDCE5]"
+              ? "border border-[#3FA8B6]/24 bg-[#123039]/70 text-[#8FDCE5]/86"
               : "border border-white/10 bg-white/4 text-[#E8ECEE]",
           ].join(" ")}
         >
           {isFinished ? (
-            <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
+            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
           ) : (
             day.label
           )}
@@ -52,12 +52,12 @@ export default function DayCard({
             {title}
           </h3>
 
-          <p className="mt-1 line-clamp-1 text-sm font-medium text-[#A9B0B5]">
+          <p className="mt-0.5 line-clamp-1 text-xs font-medium text-[#A9B0B5]">
             {compactStatus}
           </p>
 
           {meta ? (
-            <p className="mt-0.5 line-clamp-1 text-sm text-[#747D84]">{meta}</p>
+            <p className="mt-0.5 line-clamp-1 text-xs text-[#747D84]">{meta}</p>
           ) : null}
         </div>
 

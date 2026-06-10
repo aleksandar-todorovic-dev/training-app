@@ -38,16 +38,18 @@ export default function SessionInfoCard({ sessionInfo, dayGoal, coreBlock }) {
     <div className="flex flex-col">
       <button
         type="button"
-        className="flex w-full items-center justify-between gap-4 rounded-2xl py-1.5 text-left"
+        className="flex w-full items-center justify-between gap-4 rounded-xl py-1 text-left"
         onClick={() => setIsOpen((currentValue) => !currentValue)}
         aria-expanded={isOpen}
       >
         <div className="min-w-0">
-          <p className="text-sm font-semibold tracking-[0.04em] text-[#D3D8DB]">
+          <p className="text-sm font-semibold text-[#D3D8DB]">
             Coach notes
           </p>
 
-          <p className="mt-1 text-sm leading-6 text-[#747D84]">{helperText}</p>
+          <p className="mt-0.5 text-xs leading-5 text-[#747D84]">
+            {helperText}
+          </p>
         </div>
 
         <span className="flex shrink-0 items-center gap-1.5 text-xs font-semibold text-[#8FDCE5]">
@@ -64,14 +66,14 @@ export default function SessionInfoCard({ sessionInfo, dayGoal, coreBlock }) {
       </button>
 
       {isOpen ? (
-        <div className="mt-4 flex flex-col gap-4 rounded-3xl bg-white/[0.018] px-4 py-4">
+        <div className="mt-2.5 flex flex-col gap-3 rounded-2xl bg-white/[0.018] px-3 py-3">
           {notes.map((note) => (
             <div key={note.label} className="flex flex-col gap-1.5">
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#747D84]">
+              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#747D84]">
                 {note.label}
               </p>
 
-              <p className="text-sm leading-6 text-[#A9B0B5]">{note.value}</p>
+              <p className="text-sm leading-5 text-[#A9B0B5]">{note.value}</p>
             </div>
           ))}
         </div>

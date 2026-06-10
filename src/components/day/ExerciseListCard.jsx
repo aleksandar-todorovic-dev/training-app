@@ -18,31 +18,31 @@ export default function ExerciseListCard({
   isNext = false,
 }) {
   const targetRir = formatTargetRir(exercise.details?.targetRir);
-  const isComplete = status === "Complete";
+  const isComplete = status === "Logged";
   const isPartial = status === "Partial";
 
   return (
     <Link
       to={`/plan/${planId}/day/${dayId}/exercise/${exercise.id}`}
       className={[
-        "group flex items-center gap-3 rounded-2xl px-2.5 py-2.5 transition-colors hover:bg-white/3",
-        isNext ? "bg-[#10292E]/28" : "",
+        "group flex items-center gap-2.5 rounded-xl px-2 py-2 transition-colors hover:bg-white/3",
+        isNext ? "bg-[#10292E]/22" : "",
       ].join(" ")}
     >
       <div
         className={[
-          "flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
+          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
           isNext
-            ? "border-[#3FA8B6]/42 bg-[#10292E]/62 text-[#8FDCE5]"
+            ? "border-[#3FA8B6]/34 bg-[#10292E]/54 text-[#8FDCE5]"
             : isComplete
-              ? "border-[#3FA8B6]/28 bg-[#10292E]/42 text-[#8FDCE5]"
+              ? "border-[#3FA8B6]/22 bg-[#10292E]/34 text-[#8FDCE5]/88"
               : isPartial
                 ? "border-[#C9B57A]/28 bg-[#1D1C16]/50 text-[#D8C891]"
                 : "border-white/10 bg-[#070A0B]/28 text-[#A9B0B5]",
         ].join(" ")}
       >
         {isComplete ? (
-          <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+          <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
         ) : (
           orderNumber
         )}

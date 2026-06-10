@@ -192,12 +192,12 @@ export default function ExercisePage() {
 
   return (
     <AppShell>
-      <div className="space-y-6">
-        <header className="space-y-4">
+      <div className="space-y-5">
+        <header className="space-y-3">
           <div className="flex items-center justify-between gap-3">
             <Link
               to={`/plan/${planId}/day/${dayId}`}
-              className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-cyan-200 transition hover:text-cyan-100"
+              className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
             >
               <span aria-hidden="true">←</span>
               Back to Day
@@ -211,17 +211,17 @@ export default function ExercisePage() {
 
               <span
                 aria-hidden="true"
-                className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300 shadow-[0_0_12px_rgba(103,232,249,0.55)]"
+                className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300/80"
               />
             </p>
           </div>
 
           <div className="space-y-1.5">
-            <h1 className="text-3xl font-semibold tracking-tight text-zinc-100">
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
               {exercise.name}
             </h1>
 
-            <p className="text-sm leading-6 text-zinc-400">
+            <p className="text-sm leading-5 text-zinc-400">
               {exercise.subtitle}
             </p>
           </div>

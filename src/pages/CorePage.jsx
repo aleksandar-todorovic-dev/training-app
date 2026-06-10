@@ -172,12 +172,12 @@ export default function CorePage() {
 
   return (
     <AppShell>
-      <div className="space-y-6">
-        <header className="space-y-4">
+      <div className="space-y-5">
+        <header className="space-y-3">
           <div className="flex items-center justify-between gap-3">
             <Link
               to={`/plan/${planId}/day/${dayId}`}
-              className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold text-[#C4B5FD] transition hover:text-[#DDD6FE]"
+              className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
             >
               <span aria-hidden="true">←</span>
               Back to Day
@@ -190,28 +190,28 @@ export default function CorePage() {
               </span>
 
               <span
-                className="h-2 w-2 shrink-0 rounded-full bg-[#8B5CF6] shadow-[0_0_16px_rgba(139,92,246,0.58)]"
+                className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#8B5CF6]/80"
                 aria-hidden="true"
               />
             </p>
           </div>
 
           <div className="space-y-1.5">
-            <h1 className="text-3xl font-semibold tracking-tight text-zinc-100">
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
               {coreBlock.name}
             </h1>
 
-            <p className="text-sm leading-6 text-zinc-400">{coreBlock.focus}</p>
+            <p className="text-sm leading-5 text-zinc-400">{coreBlock.focus}</p>
           </div>
         </header>
 
         {isUpcomingPreview ? (
-          <div className="rounded-[1.75rem] border border-[#8B5CF6]/28 bg-[#4C1D95]/14 px-5 py-5">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#C4B5FD]">
+          <div className="rounded-2xl border border-[#8B5CF6]/22 bg-[#4C1D95]/10 px-4 py-4">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#C4B5FD]">
               Preview mode
             </p>
 
-            <p className="mt-2 text-sm leading-6 text-zinc-400">
+            <p className="mt-1.5 text-sm leading-5 text-zinc-400">
               Review the core structure now. Logging unlocks when this day
               becomes current.
             </p>

@@ -41,43 +41,43 @@ export default function PlanCard({ plan }) {
   return (
     <SectionCard
       variant="training"
-      className="group relative overflow-hidden border-white/10 bg-[#151A1D] p-0 shadow-[0_16px_38px_rgba(0,0,0,0.22)] transition-colors hover:border-[#3FA8B6]/28"
+      className="group relative overflow-hidden border-white/8 bg-[#151A1D]/90 p-0 shadow-[0_10px_24px_rgba(0,0,0,0.16)] transition-colors hover:border-[#3FA8B6]/24"
     >
       <div
-        className={`pointer-events-none absolute left-5 right-5 top-4 h-1 rounded-full ${meta.accentClassName}`}
+        className={`pointer-events-none absolute left-4 right-4 top-3.5 h-0.5 rounded-full ${meta.accentClassName}`}
         aria-hidden="true"
       />
 
-      <div className="relative flex flex-col gap-5 px-5 pb-5 pt-9">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex min-w-0 flex-col gap-3.5">
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8B949B]">
+      <div className="relative flex flex-col gap-4 px-4 pb-4 pt-7">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 flex-col gap-3">
+            <span className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-[#8B949B]">
               {meta.badge}
             </span>
 
-            <div className="flex flex-col gap-2.5">
-              <h2 className="text-4xl font-semibold leading-none tracking-tight text-[#F4F7F8]">
+            <div className="flex flex-col gap-2">
+              <h2 className="text-3xl font-semibold leading-none tracking-tight text-[#F4F7F8]">
                 {plan.name}
               </h2>
 
-              <p className="max-w-[18rem] text-base leading-7 text-[#A9B0B5]">
+              <p className="max-w-[18rem] text-sm leading-6 text-[#A9B0B5]">
                 {meta.promise}
               </p>
             </div>
           </div>
 
           <div
-            className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border ${meta.iconClassName}`}
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border ${meta.iconClassName}`}
           >
-            <Icon className="h-7 w-7" aria-hidden="true" />
+            <Icon className="h-5 w-5" aria-hidden="true" />
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2 pt-1">
+        <div className="flex flex-wrap gap-1.5">
           {meta.chips.map((chip) => (
             <span
               key={chip}
-              className={`rounded-full border px-3 py-1 text-xs font-medium ${meta.chipClassName}`}
+              className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${meta.chipClassName}`}
             >
               {chip}
             </span>
@@ -86,7 +86,7 @@ export default function PlanCard({ plan }) {
 
         <Link
           to={`/plan/${plan.id}`}
-          className="mt-1 inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] shadow-[0_8px_20px_rgba(63,168,182,0.13)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151A1D]"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] shadow-[0_6px_16px_rgba(63,168,182,0.1)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151A1D]"
         >
           View plan
           <ChevronRight className="h-4 w-4" aria-hidden="true" />

@@ -9,22 +9,22 @@ export default function CycleHeader({
   const safeProgressPercent = Math.min(Math.max(progressPercent, 0), 100);
 
   return (
-    <header className="flex flex-col gap-4">
+    <header className="flex flex-col gap-3.5">
       <div className="flex flex-col gap-1">
-        <h1 className="text-[2.45rem] font-semibold leading-none tracking-tight text-[#F4F7F8]">
+        <h1 className="text-[2rem] font-semibold leading-none tracking-tight text-[#F4F7F8]">
           {planName}
         </h1>
 
         {cycleLabel ? (
-          <p className="text-base font-medium text-[#A9B0B5]">{cycleLabel}</p>
+          <p className="text-sm font-medium text-[#A9B0B5]">{cycleLabel}</p>
         ) : null}
       </div>
 
       {statusSummary ? (
-        <div className="flex flex-col gap-2.5">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2.5">
             <CheckCircle2
-              className="h-5 w-5 shrink-0 text-[#5EC7D5]/90"
+              className="h-4 w-4 shrink-0 text-[#5EC7D5]/78"
               aria-hidden="true"
             />
 

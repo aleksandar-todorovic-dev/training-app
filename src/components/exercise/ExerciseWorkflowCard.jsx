@@ -50,11 +50,11 @@ function DetailBlock({ title, children, hasDivider = false }) {
   return (
     <div
       className={`space-y-1.5 ${
-        hasDivider ? "border-t border-zinc-800/70 pt-5" : ""
+        hasDivider ? "border-t border-zinc-800/70 pt-4" : ""
       }`}
     >
       <h3 className="text-sm font-semibold text-zinc-100">{title}</h3>
-      <div className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>{children}</div>
+      <div className={`text-sm leading-5 ${UI_TEXT_MUTED}`}>{children}</div>
     </div>
   );
 }
@@ -62,10 +62,10 @@ function DetailBlock({ title, children, hasDivider = false }) {
 function TargetItem({ label, value }) {
   return (
     <div className="min-w-0 text-center">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+      <p className="text-[9px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
         {label}
       </p>
-      <p className="mt-1 whitespace-nowrap text-base font-semibold tracking-tight tabular-nums text-zinc-100">
+      <p className="mt-1 whitespace-nowrap text-sm font-semibold tracking-tight tabular-nums text-zinc-100">
         {value}
       </p>
     </div>
@@ -129,21 +129,21 @@ export default function ExerciseWorkflowCard({
   // Active and finished days keep DONE controls because saved logs remain editable.
   const showDoneControls = !isReadOnly;
   const setGridClass = showDoneControls
-    ? "grid-cols-[34px_1fr_1fr_1fr_32px]"
-    : "grid-cols-[34px_1fr_1fr_1fr]";
+    ? "grid-cols-[32px_1fr_1fr_1fr_30px]"
+    : "grid-cols-[32px_1fr_1fr_1fr]";
   const focusLabel = isReadOnly ? "Exercise focus" : "Today's focus";
   const isClosedLog = dayMode === "finished";
   const finishButtonLabel = isClosedLog ? "Save changes" : "Finish exercise";
 
   return (
     <>
-      <div className="space-y-6">
+      <div className="space-y-5">
         {isReadOnly ? (
-          <section className="rounded-2xl bg-cyan-400/5 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">
+          <section className="rounded-xl bg-cyan-400/5 p-3">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-cyan-200">
               Preview mode
             </p>
-            <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
+            <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
               Review the targets now. Logging unlocks when this day becomes
               current.
             </p>
@@ -151,33 +151,33 @@ export default function ExerciseWorkflowCard({
         ) : null}
 
         {isClosedLog ? (
-          <section className="rounded-2xl border border-cyan-400/15 bg-cyan-400/5 p-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">
+          <section className="rounded-xl border border-cyan-400/12 bg-cyan-400/5 p-3">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-cyan-200">
               Closed day log
             </p>
-            <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
+            <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
               Review or adjust the values you saved.
             </p>
           </section>
         ) : null}
 
-        <section className="space-y-2">
+        <section className="space-y-1.5">
           <div className="flex items-center gap-2">
             <Crosshair aria-hidden="true" className="h-4 w-4 text-cyan-300" />
 
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-cyan-200">
               {focusLabel}
             </p>
           </div>
 
-          <p className="text-base leading-7 text-zinc-100">
+          <p className="text-sm leading-6 text-zinc-100">
             {exercise.cue ??
               "Keep the movement controlled and log the work you actually perform."}
           </p>
         </section>
 
         {advancedTechnique ? (
-          <section className="space-y-3">
+          <section className="space-y-2.5">
             <button
               type="button"
               aria-expanded={isMethodOpen}
@@ -188,12 +188,12 @@ export default function ExerciseWorkflowCard({
                 <div className="flex items-center gap-2">
                   <Zap aria-hidden="true" className="h-4 w-4 text-cyan-300" />
 
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-200">
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-cyan-200">
                     Prescribed method
                   </p>
                 </div>
 
-                <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
+                <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
                   {isMethodOpen
                     ? "Review the exact method before logging."
                     : methodSummary}
@@ -206,12 +206,12 @@ export default function ExerciseWorkflowCard({
             </button>
 
             {isMethodOpen ? (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div>
                   <h3 className="text-sm font-semibold text-zinc-100">
                     Method
                   </h3>
-                  <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
+                  <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
                     {advancedTechnique}
                   </p>
                 </div>
@@ -220,7 +220,7 @@ export default function ExerciseWorkflowCard({
                   <button
                     type="button"
                     onClick={() => setIsAdvancedHelpOpen(true)}
-                    className="rounded-full border border-cyan-400/25 px-3 py-1.5 text-xs font-semibold text-cyan-200 transition hover:bg-cyan-400/10"
+                    className="rounded-full border border-cyan-400/22 px-3 py-1 text-xs font-semibold text-cyan-200 transition hover:bg-cyan-400/10"
                   >
                     Method help
                   </button>
@@ -230,16 +230,16 @@ export default function ExerciseWorkflowCard({
           </section>
         ) : null}
 
-        <section className="-mx-3 space-y-4 rounded-4xl bg-linear-to-b from-cyan-950/20 via-zinc-950/10 to-transparent px-4 pt-5 pb-3">
+        <section className="-mx-2 space-y-3 rounded-3xl bg-linear-to-b from-cyan-950/14 via-zinc-950/8 to-transparent px-3.5 pt-4 pb-3">
           <div>
-            <div className="mb-3 flex items-center justify-between gap-3">
+            <div className="mb-2.5 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <ListChecks
                   aria-hidden="true"
                   className="h-4 w-4 text-cyan-300/80"
                 />
 
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
                   Working targets
                 </p>
               </div>
@@ -247,13 +247,13 @@ export default function ExerciseWorkflowCard({
               <button
                 type="button"
                 onClick={() => setIsHelpOpen(true)}
-                className="rounded-full border border-zinc-800 px-2.5 py-1 text-xs font-semibold text-cyan-200 transition hover:border-cyan-400/40 hover:bg-cyan-400/10"
+                className="rounded-full border border-zinc-800 px-2.5 py-1 text-xs font-semibold text-cyan-200 transition hover:border-cyan-400/34 hover:bg-cyan-400/10"
               >
                 Help
               </button>
             </div>
 
-            <div className="grid grid-cols-[1.35fr_1fr_1.1fr_0.75fr] gap-3 py-1">
+            <div className="grid grid-cols-[1.35fr_1fr_1.1fr_0.75fr] gap-2 py-1">
               <TargetItem label="Sets" value={cleanedPrescriptionDisplay} />
               <TargetItem label="Tempo" value={cleanedTempo} />
               <TargetItem label="Rest" value={cleanedRest} />
@@ -261,24 +261,24 @@ export default function ExerciseWorkflowCard({
             </div>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-500">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
                   {logEyebrow}
                 </p>
-                <h2 className="mt-1 text-2xl font-semibold tracking-tight text-zinc-100">
+                <h2 className="mt-1 text-xl font-semibold tracking-tight text-zinc-100">
                   {logTitle}
                 </h2>
               </div>
 
-              <p className="shrink-0 rounded-full border border-zinc-800 bg-zinc-900/70 px-3 py-1 text-xs font-semibold text-zinc-400">
+              <p className="shrink-0 rounded-full border border-zinc-800 bg-zinc-900/62 px-2.5 py-0.5 text-xs font-semibold text-zinc-400">
                 {sets.length} {sets.length === 1 ? "set" : "sets"}
               </p>
             </div>
 
             <div
-              className={`grid ${setGridClass} items-center gap-2 border-b border-zinc-800/80 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500`}
+              className={`grid ${setGridClass} items-center gap-2 border-b border-zinc-800/70 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500`}
             >
               <span className="text-center">Set</span>
               <span className="text-center">Kg</span>
@@ -318,7 +318,7 @@ export default function ExerciseWorkflowCard({
                     ? "Previous values available"
                     : "No previous values yet"}
                 </p>
-                <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
+                <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
                   {hasPreviousValues
                     ? "Use your last logged work as a guide."
                     : "Log today to build your next-cycle reference."}
@@ -330,7 +330,7 @@ export default function ExerciseWorkflowCard({
               <button
                 type="button"
                 onClick={onCloseExercise}
-                className="flex w-full items-center justify-center gap-3 rounded-2xl bg-cyan-300 px-5 py-4 text-base font-semibold tracking-wide text-zinc-950 shadow-[0_18px_50px_rgba(34,211,238,0.22)] transition hover:bg-cyan-200"
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-zinc-950 shadow-[0_10px_28px_rgba(34,211,238,0.16)] transition hover:bg-cyan-200"
               >
                 {finishButtonLabel}
                 <ChevronRight className="h-5 w-5" aria-hidden="true" />
@@ -340,7 +340,7 @@ export default function ExerciseWorkflowCard({
         </section>
 
         {hasCoachNotes ? (
-          <section className="space-y-4 pt-1">
+          <section className="space-y-3 pt-1">
             <button
               type="button"
               aria-expanded={isCoachNotesOpen}
@@ -348,10 +348,10 @@ export default function ExerciseWorkflowCard({
               className="flex w-full items-start justify-between gap-4 text-left"
             >
               <div>
-                <h2 className="text-xl font-semibold tracking-tight text-zinc-100">
+                <h2 className="text-lg font-semibold tracking-tight text-zinc-100">
                   Coach notes
                 </h2>
-                <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
+                <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
                   Progression and extra cues for this exercise.
                 </p>
               </div>
@@ -362,7 +362,7 @@ export default function ExerciseWorkflowCard({
             </button>
 
             {isCoachNotesOpen ? (
-              <div className="space-y-5">
+              <div className="space-y-4">
                 {progression ? (
                   <DetailBlock title="Progression">
                     <p>{progression}</p>

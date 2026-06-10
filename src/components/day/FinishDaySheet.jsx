@@ -55,93 +55,93 @@ export default function FinishDaySheet({
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-zinc-950/85 px-4 pb-4 pt-10 backdrop-blur-sm">
-      <div className="flex h-[88vh] max-h-[88vh] w-full max-w-md flex-col overflow-hidden rounded-3xl border border-zinc-800 bg-zinc-950 shadow-2xl shadow-black/50">
-        <header className="shrink-0 border-b border-zinc-800/80 px-5 py-3.5">
-          <div className="flex items-start justify-between gap-4">
+      <div className="flex max-h-[84vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-950 shadow-2xl shadow-black/45">
+        <header className="shrink-0 border-b border-zinc-800/80 px-4 py-3">
+          <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-300/80">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-cyan-300/78">
                 Finish day
               </p>
 
-              <h2 className="mt-2 text-xl font-semibold leading-tight tracking-tight text-zinc-50">
+              <h2 className="mt-1.5 text-lg font-semibold leading-tight tracking-tight text-zinc-50">
                 Close training day?
               </h2>
 
-              <p className="mt-1 text-sm leading-relaxed text-zinc-500">
+              <p className="mt-0.5 text-xs leading-5 text-zinc-500">
                 {dayDetails.label} - {dayDetails.name}
               </p>
             </div>
 
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-200 shadow-[0_0_22px_rgba(103,232,249,0.08)]">
-              <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-cyan-300/20 bg-cyan-300/8 text-cyan-200">
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
             </div>
           </div>
 
-          <p className="mt-3 border-l border-cyan-300/35 pl-3 text-sm leading-relaxed text-zinc-400">
+          <p className="mt-2 border-l border-cyan-300/28 pl-3 text-sm leading-5 text-zinc-400">
             {progressText}. Closing this day moves the cycle forward.
           </p>
         </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pb-5 pt-4">
-          <div className="flex flex-col gap-4">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-3">
+          <div className="flex flex-col gap-3">
             <section>
               <h3 className="text-sm font-semibold text-zinc-100">
                 Before you finish
               </h3>
 
-              <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
+              <p className="mt-1 text-sm leading-5 text-zinc-400">
                 Checked sets count as performed. Unchecked sets are simply not
                 performed, not missing data.
               </p>
 
-              <p className="mt-2 text-sm leading-relaxed text-zinc-500">
+              <p className="mt-1.5 text-sm leading-5 text-zinc-500">
                 Partial days are valid. The app keeps the cycle order stable.
               </p>
             </section>
 
             {hasWarnings ? (
-              <section className="border-t border-amber-300/20 pt-4">
-                <div className="flex gap-3">
-                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-amber-300/25 bg-amber-300/10 text-amber-200">
+              <section className="border-t border-amber-300/18 pt-3">
+                <div className="flex gap-2.5">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-amber-300/22 bg-amber-300/8 text-amber-200">
                     <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                   </div>
 
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300/80">
+                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-amber-300/78">
                       {warningTitle}
                     </p>
 
-                    <p className="mt-1.5 text-sm leading-relaxed text-zinc-300">
+                    <p className="mt-1 text-sm leading-5 text-zinc-300">
                       {warningText}
                     </p>
 
                     {!hasNoLoggedValues && warningDetails.length ? (
-                      <ul className="mt-2 flex flex-col gap-1 text-sm leading-relaxed text-zinc-500">
+                      <ul className="mt-1.5 flex flex-col gap-1 text-sm leading-5 text-zinc-500">
                         {warningDetails.map((detail) => (
                           <li key={detail}>• {detail}</li>
                         ))}
                       </ul>
                     ) : null}
 
-                    <p className="mt-2 text-sm font-semibold text-amber-100">
+                    <p className="mt-1.5 text-sm font-semibold text-amber-100">
                       You can still finish the day.
                     </p>
                   </div>
                 </div>
               </section>
             ) : (
-              <section className="border-t border-cyan-300/20 pt-4">
-                <div className="flex gap-3">
-                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-200">
+              <section className="border-t border-cyan-300/18 pt-3">
+                <div className="flex gap-2.5">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-cyan-300/20 bg-cyan-300/8 text-cyan-200">
                     <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                   </div>
 
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300/80">
+                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-cyan-300/78">
                       Ready to close
                     </p>
 
-                    <p className="mt-1.5 text-sm leading-relaxed text-zinc-300">
+                    <p className="mt-1 text-sm leading-5 text-zinc-300">
                       Your logged work is saved for this day.
                     </p>
                   </div>
@@ -150,9 +150,9 @@ export default function FinishDaySheet({
             )}
 
             {hasCoreBlock ? (
-              <section className="border-t border-violet-500/25 pt-4">
-                <div className="flex gap-3">
-                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-violet-400/35 bg-violet-500/15 text-violet-200 shadow-[0_0_20px_rgba(139,92,246,0.1)]">
+              <section className="border-t border-violet-500/18 pt-3">
+                <div className="flex gap-2.5">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-violet-400/26 bg-violet-500/10 text-violet-200">
                     <ShieldCheck className="h-4 w-4" aria-hidden="true" />
                   </div>
 
@@ -161,7 +161,7 @@ export default function FinishDaySheet({
                       Core is tracked separately
                     </h3>
 
-                    <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
+                    <p className="mt-1 text-sm leading-5 text-zinc-400">
                       Main work and core work stay separate in your recap.
                     </p>
                   </div>
@@ -171,11 +171,11 @@ export default function FinishDaySheet({
           </div>
         </div>
 
-        <footer className="shrink-0 border-t border-zinc-800/80 bg-zinc-950/95 px-5 py-3.5">
+        <footer className="shrink-0 border-t border-zinc-800/80 bg-zinc-950/95 px-4 py-3">
           <button
             type="button"
             onClick={onConfirmFinish}
-            className="inline-flex min-h-11 w-full items-center justify-center rounded-2xl bg-cyan-300 px-4 text-sm font-semibold text-zinc-950 transition hover:bg-cyan-200"
+            className="inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-cyan-300 px-4 text-sm font-semibold text-zinc-950 transition hover:bg-cyan-200"
           >
             Finish and move on
           </button>
@@ -183,7 +183,7 @@ export default function FinishDaySheet({
           <button
             type="button"
             onClick={onClose}
-            className="mt-2.5 inline-flex min-h-10 w-full items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-900/60 px-4 text-sm font-semibold text-zinc-300 transition hover:border-zinc-700 hover:bg-zinc-900"
+            className="mt-2 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900/55 px-4 text-sm font-semibold text-zinc-300 transition hover:border-zinc-700 hover:bg-zinc-900"
           >
             Keep logging
           </button>

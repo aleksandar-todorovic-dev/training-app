@@ -1,9 +1,9 @@
 function CheckBox({ isDone = false }) {
   return (
     <span
-      className={`flex h-7 w-7 items-center justify-center rounded-lg border transition ${
+      className={`flex h-6 w-6 items-center justify-center rounded-md border text-xs transition ${
         isDone
-          ? "border-[#C4B5FD] bg-[#7C3AED] text-white shadow-[0_0_16px_rgba(124,58,237,0.32)]"
+          ? "border-[#C4B5FD] bg-[#7C3AED] text-white shadow-[0_0_10px_rgba(124,58,237,0.22)]"
           : "border-zinc-700/70 bg-zinc-950/20"
       }`}
     >
@@ -24,9 +24,9 @@ function InlineMetric({
 
   if (isReadOnly || isTarget) {
     return (
-      <div className="mx-auto flex w-[82%] min-w-0 items-center justify-center border-b border-zinc-800/30 pb-1.5">
+      <div className="mx-auto flex w-[82%] min-w-0 items-center justify-center border-b border-zinc-800/30 pb-1">
         <span
-          className={`whitespace-nowrap text-base font-semibold tabular-nums ${
+          className={`whitespace-nowrap text-sm font-semibold tabular-nums ${
             isTarget ? "text-zinc-300" : "text-zinc-100"
           }`}
         >
@@ -44,7 +44,7 @@ function InlineMetric({
       inputMode="decimal"
       autoComplete="off"
       placeholder="—"
-      className="mx-auto w-[82%] min-w-0 border-b border-zinc-800/30 bg-transparent pb-1.5 text-center text-base font-semibold tabular-nums text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:w-full focus:border-[#A78BFA]/80"
+      className="mx-auto w-[82%] min-w-0 border-b border-zinc-800/30 bg-transparent pb-1 text-center text-sm font-semibold tabular-nums text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:w-full focus:border-[#A78BFA]/80"
     />
   );
 }
@@ -76,16 +76,16 @@ export default function CoreSetRow({
 
   // Preview rows hide the DONE affordance entirely instead of showing a disabled checkbox.
   const rowGridClass = showDoneControl
-    ? "grid-cols-[34px_1.25fr_1fr_0.85fr_32px]"
-    : "grid-cols-[34px_1.25fr_1fr_0.85fr]";
+    ? "grid-cols-[32px_1.25fr_1fr_0.85fr_30px]"
+    : "grid-cols-[32px_1.25fr_1fr_0.85fr]";
 
   return (
     <div
-      className={`grid ${rowGridClass} items-center gap-3 py-3 ${
+      className={`grid ${rowGridClass} items-center gap-2 py-2.5 ${
         !isLast ? "border-b border-zinc-800/16" : ""
       }`}
     >
-      <span className="flex h-9 items-center justify-center text-sm font-semibold tabular-nums text-zinc-200">
+      <span className="flex h-8 items-center justify-center text-sm font-semibold tabular-nums text-zinc-200">
         {setNumber}
       </span>
 
@@ -118,7 +118,7 @@ export default function CoreSetRow({
           aria-pressed={isDone}
           disabled={isReadOnly}
           onClick={isReadOnly ? undefined : onToggleDone}
-          className={`flex h-9 items-center justify-center ${
+          className={`flex h-8 items-center justify-center ${
             isReadOnly ? "cursor-not-allowed opacity-50" : ""
           }`}
         >

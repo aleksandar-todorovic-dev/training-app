@@ -37,7 +37,7 @@ const HOME_VALUE_CHIPS = [
     icon: History,
     title: "Your last work stays useful",
     description:
-      "Completed sets become reference points for the next cycle. You can compare weight, reps, and RIR without relying on memory or old notes.",
+      "Logged sets become reference points for the next cycle. You can compare weight, reps, and RIR without relying on memory or old notes.",
   },
   {
     id: "partial-days",
@@ -94,35 +94,35 @@ export default function HomePage() {
 
   return (
     <AppShell mode="training">
-      <div className="relative isolate flex flex-col gap-8 py-2">
+      <div className="relative isolate flex flex-col gap-6 py-1">
         <div
-          className="pointer-events-none absolute -top-20 left-1/2 -z-10 h-72 w-72 -translate-x-1/2 rounded-full bg-[#3FA8B6]/10 blur-3xl"
+          className="pointer-events-none absolute -top-16 left-1/2 -z-10 h-56 w-56 -translate-x-1/2 rounded-full bg-[#3FA8B6]/7 blur-3xl"
           aria-hidden="true"
         />
 
-        <header className="flex flex-col gap-7">
-          <div className="inline-flex w-fit items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-[#3FA8B6]/22 bg-[#10292E]/70 text-[#8FDCE5]">
-              <Repeat2 className="h-6 w-6" aria-hidden="true" />
+        <header className="flex flex-col gap-5">
+          <div className="inline-flex w-fit items-center gap-2.5">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#3FA8B6]/16 bg-[#10292E]/60 text-[#8FDCE5]/90">
+              <Repeat2 className="h-5 w-5" aria-hidden="true" />
             </div>
 
             <div className="flex flex-col">
-              <p className="text-lg font-semibold tracking-tight text-[#F4F7F8]">
+              <p className="text-base font-semibold tracking-tight text-[#F4F7F8]">
                 Cycle Coach
               </p>
-              <p className="text-sm font-medium text-[#A9B0B5]">
+              <p className="text-xs font-medium text-[#A9B0B5]">
                 Structured training companion
               </p>
             </div>
           </div>
 
-          <div className="flex flex-col gap-4">
-            <h1 className="max-w-sm text-[2.85rem] font-semibold leading-[0.98] tracking-tight text-[#F4F7F8]">
+          <div className="flex flex-col gap-3">
+            <h1 className="max-w-sm text-[2.25rem] font-semibold leading-[1.03] tracking-tight text-[#F4F7F8]">
               Your training cycle, organized
               <span className="text-[#5EC7D5]">.</span>
             </h1>
 
-            <p className="max-w-sm text-base leading-7 text-[#A9B0B5]">
+            <p className="max-w-sm text-sm leading-6 text-[#A9B0B5]">
               Follow Bulk or Cut cycles with guided workouts, previous values,
               and flexible progress when real life changes the schedule.
             </p>
@@ -140,15 +140,15 @@ export default function HomePage() {
                   aria-controls={isActive ? "home-value-chip-panel" : undefined}
                   onClick={() => handleValueChipClick(id)}
                   className={[
-                    "inline-flex min-h-11 items-center gap-2 rounded-2xl border px-3 py-2 text-left text-sm font-medium transition-colors",
+                    "inline-flex min-h-10 items-center gap-2 rounded-xl border px-2.5 py-2 text-left text-xs font-medium transition-colors",
                     isActive
-                      ? "border-[#3FA8B6]/38 bg-[#10292E]/78 text-[#F4F7F8]"
-                      : "border-white/8 bg-white/[0.032] text-[#D3D8DB] hover:border-[#3FA8B6]/24 hover:bg-white/5",
+                      ? "border-[#3FA8B6]/28 bg-[#10292E]/64 text-[#F4F7F8]"
+                      : "border-white/8 bg-white/[0.026] text-[#D3D8DB] hover:border-[#3FA8B6]/20 hover:bg-white/4",
                   ].join(" ")}
                 >
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl border border-[#3FA8B6]/14 bg-[#10292E]/60 text-[#8FDCE5]/82">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-[#3FA8B6]/12 bg-[#10292E]/45 text-[#8FDCE5]/78">
                     {createElement(icon, {
-                      className: "h-3.5 w-3.5",
+                      className: "h-3 w-3",
                       "aria-hidden": "true",
                     })}
                   </span>
@@ -161,15 +161,15 @@ export default function HomePage() {
           {activeValueChip ? (
             <div
               id="home-value-chip-panel"
-              className="rounded-3xl border border-[#3FA8B6]/18 bg-[linear-gradient(180deg,rgba(16,41,46,0.72),rgba(255,255,255,0.028))] px-4 py-4 shadow-[0_16px_42px_rgba(0,0,0,0.22)]"
+              className="rounded-2xl border border-[#3FA8B6]/14 bg-[linear-gradient(180deg,rgba(16,41,46,0.52),rgba(255,255,255,0.022))] px-3.5 py-3"
             >
-              <div className="flex items-start justify-between gap-4">
+              <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8FDCE5]/82">
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#8FDCE5]/72">
                     Why it matters
                   </p>
 
-                  <h2 className="mt-2 text-lg font-semibold tracking-tight text-[#F4F7F8]">
+                  <h2 className="mt-1.5 text-base font-semibold tracking-tight text-[#F4F7F8]">
                     {activeValueChip.title}
                   </h2>
                 </div>
@@ -177,22 +177,22 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setActiveValueChipId(null)}
-                  className="shrink-0 rounded-full border border-white/8 px-2.5 py-1 text-xs font-semibold text-[#A9B0B5] transition hover:text-[#F4F7F8]"
+                  className="shrink-0 rounded-full border border-white/8 px-2.5 py-1 text-xs font-medium text-[#A9B0B5] transition hover:text-[#F4F7F8]"
                 >
                   Close
                 </button>
               </div>
 
-              <p className="mt-3 text-sm leading-6 text-[#A9B0B5]">
+              <p className="mt-2 text-sm leading-5 text-[#A9B0B5]">
                 {activeValueChip.description}
               </p>
             </div>
           ) : null}
         </header>
 
-        <section className="flex flex-col gap-4">
+        <section className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
-            <h2 className="text-2xl font-semibold tracking-tight text-[#F4F7F8]">
+            <h2 className="text-xl font-semibold tracking-tight text-[#F4F7F8]">
               Choose your plan
             </h2>
             <p className="text-sm leading-6 text-[#A9B0B5]">
@@ -200,17 +200,17 @@ export default function HomePage() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
             {plans.map((plan) => (
               <PlanCard key={plan.id} plan={plan} />
             ))}
           </div>
         </section>
 
-        <div className="-mt-4 -mb-6 border-t border-white/8 pt-2">
+        <div className="-mt-2 -mb-5 border-t border-white/8 pt-2">
           <button
             type="button"
-            className="mx-auto flex min-h-8 items-center justify-center gap-2 rounded-xl px-3 text-xs font-medium text-zinc-700 transition-colors hover:text-zinc-400"
+            className="mx-auto flex min-h-8 items-center justify-center gap-2 rounded-xl px-3 text-xs font-medium text-zinc-600 transition-colors hover:text-zinc-400"
             onClick={handleResetLocalProgress}
           >
             <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />

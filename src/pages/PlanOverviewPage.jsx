@@ -123,7 +123,7 @@ const RHYTHM_DAY_LABELS = {
 };
 
 function StatusRing({ value, total }) {
-  const radius = 35;
+  const radius = 31;
   const circumference = 2 * Math.PI * radius;
   const safeTotal = total > 0 ? total : 6;
   const clampedValue = Math.min(Math.max(value, 0), safeTotal);
@@ -132,7 +132,7 @@ function StatusRing({ value, total }) {
 
   return (
     <svg
-      className="absolute right-5 top-9 h-22 w-22 text-[#5EC7D5]"
+      className="absolute right-4 top-7 h-[4.5rem] w-[4.5rem] text-[#5EC7D5]"
       viewBox="0 0 100 100"
       role="img"
       aria-label={`Cycle progress: ${clampedValue} of ${safeTotal} training days closed`}
@@ -143,7 +143,7 @@ function StatusRing({ value, total }) {
         r={radius}
         fill="none"
         stroke="rgba(143,220,229,0.16)"
-        strokeWidth="7"
+        strokeWidth="6"
       />
 
       <circle
@@ -152,7 +152,7 @@ function StatusRing({ value, total }) {
         r={radius}
         fill="none"
         stroke="currentColor"
-        strokeWidth="7"
+        strokeWidth="6"
         strokeLinecap="round"
         strokeDasharray={circumference}
         strokeDashoffset={dashOffset}
@@ -166,7 +166,7 @@ function StatusRing({ value, total }) {
         textAnchor="middle"
         dominantBaseline="central"
         fill="#F4F7F8"
-        fontSize="17"
+        fontSize="15"
         fontWeight="700"
         letterSpacing="-0.04em"
       >
@@ -179,7 +179,7 @@ function StatusRing({ value, total }) {
         textAnchor="middle"
         dominantBaseline="central"
         fill="rgba(199,208,212,0.68)"
-        fontSize="8"
+        fontSize="7"
         fontWeight="700"
         letterSpacing="0.14em"
       >
@@ -317,79 +317,62 @@ export default function PlanOverviewPage() {
 
   return (
     <AppShell mode="training">
-      <div className="relative isolate flex flex-col gap-6 py-0">
+      <div className="relative isolate flex flex-col gap-5 py-0">
         <div
-          className="pointer-events-none absolute -top-16 left-1/2 -z-10 h-64 w-64 -translate-x-1/2 rounded-full bg-[#3FA8B6]/10 blur-3xl"
+          className="pointer-events-none absolute -top-14 left-1/2 -z-10 h-52 w-52 -translate-x-1/2 rounded-full bg-[#3FA8B6]/7 blur-3xl"
           aria-hidden="true"
         />
 
-        <header className="flex flex-col gap-5">
+        <header className="flex flex-col gap-4">
           <Link
             to="/"
-            className="inline-flex self-start items-center gap-2 rounded-xl px-1 text-sm font-semibold text-[#5EC7D5]/80 transition-colors hover:text-[#8FDCE5]"
+            className="inline-flex self-start items-center gap-1.5 rounded-lg px-1 text-xs font-medium text-[#8B949B] transition-colors hover:text-[#D3D8DB]"
           >
-            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+            <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
             Back
           </Link>
 
-          <div className="flex flex-col gap-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8FDCE5]/78">
+          <div className="flex flex-col gap-3">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#8FDCE5]/72">
               {meta.eyebrow}
             </p>
 
-            <div className="flex flex-col gap-3">
-              <h1 className="text-5xl font-semibold leading-none tracking-tight text-[#F4F7F8]">
+            <div className="flex flex-col gap-2.5">
+              <h1 className="text-4xl font-semibold leading-none tracking-tight text-[#F4F7F8]">
                 {meta.title}
               </h1>
 
-              <div className="flex flex-col gap-2">
-                <p className="max-w-sm text-xl font-semibold leading-8 text-[#E7ECEE]">
+              <div className="flex flex-col gap-1.5">
+                <p className="max-w-sm text-lg font-semibold leading-7 text-[#E7ECEE]">
                   {meta.lead}
                 </p>
-                <p className="max-w-sm text-base leading-7 text-[#A9B0B5]">
+                <p className="max-w-sm text-sm leading-6 text-[#A9B0B5]">
                   {meta.description}
                 </p>
               </div>
             </div>
           </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            {meta.chips.map(({ label, icon }) => (
-              <span
-                key={label}
-                className="inline-flex min-h-11 items-center gap-2 rounded-2xl border border-white/8 bg-white/[0.032] px-3 py-2 text-sm font-medium text-[#D3D8DB]"
-              >
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl border border-[#3FA8B6]/14 bg-[#10292E]/60 text-[#8FDCE5]/82">
-                  {createElement(icon, {
-                    className: "h-3.5 w-3.5",
-                    "aria-hidden": "true",
-                  })}
-                </span>
-                <span className="leading-tight">{label}</span>
-              </span>
-            ))}
-          </div>
         </header>
 
-        <section className="overflow-hidden rounded-3xl border border-[#3FA8B6]/18 bg-[#10292E] shadow-[0_18px_46px_rgba(0,0,0,0.36)]">
-          <div className="relative flex flex-col gap-5 overflow-hidden p-5">
+        <section className="overflow-hidden rounded-2xl border border-[#3FA8B6]/14 bg-[#10292E]/78 shadow-[0_12px_30px_rgba(0,0,0,0.24)]">
+          <div className="relative flex flex-col gap-4 overflow-hidden p-4">
             <div
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_18%,rgba(95,199,213,0.13),transparent_36%),radial-gradient(circle_at_12%_100%,rgba(63,168,182,0.10),transparent_42%)]"
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_18%,rgba(95,199,213,0.08),transparent_34%),radial-gradient(circle_at_12%_100%,rgba(63,168,182,0.06),transparent_40%)]"
               aria-hidden="true"
             />
 
             <StatusRing value={closedTrainingDays} total={totalTrainingDays} />
 
-            <div className="relative max-w-[72%]">
-              <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8FDCE5]/90">
+            <div className="relative max-w-[70%]">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#8FDCE5]/82">
                 {primaryCta.eyebrow}
               </p>
 
-              <h2 className="mt-2 text-3xl font-semibold tracking-tight text-[#F4F7F8]">
+              <h2 className="mt-1.5 text-2xl font-semibold tracking-tight text-[#F4F7F8]">
                 {primaryCta.title}
               </h2>
 
-              <p className="mt-2 text-sm leading-6 text-[#C7D0D4]">
+              <p className="mt-1.5 text-sm leading-5 text-[#C7D0D4]">
                 {primaryCta.body}
               </p>
             </div>
@@ -397,7 +380,7 @@ export default function PlanOverviewPage() {
             <Link
               to={primaryCta.to}
               onClick={handlePrimaryCtaClick}
-              className="relative inline-flex min-h-12 items-center justify-center gap-2 rounded-2xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] shadow-[0_10px_24px_rgba(63,168,182,0.17)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#10292E]"
+              className="relative inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] shadow-[0_8px_18px_rgba(63,168,182,0.13)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#10292E]"
             >
               {primaryCta.label}
               <ChevronRight className="h-4 w-4" aria-hidden="true" />
@@ -405,26 +388,26 @@ export default function PlanOverviewPage() {
           </div>
         </section>
 
-        <section className="grid grid-cols-2 gap-2.5">
+        <section className="grid grid-cols-2 gap-2">
           {meta.facts.map(({ label, value, icon }) => (
             <div
               key={label}
-              className="rounded-2xl border border-white/8 bg-[#111517]/80 px-3.5 py-3 shadow-[0_8px_20px_rgba(0,0,0,0.16)]"
+              className="rounded-xl border border-white/8 bg-[#111517]/70 px-3 py-2.5"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#747D84]">
+                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#747D84]">
                     {label}
                   </p>
 
-                  <p className="mt-2 text-lg font-semibold leading-tight text-[#F4F7F8]">
+                  <p className="mt-1.5 text-base font-semibold leading-tight text-[#F4F7F8]">
                     {value}
                   </p>
                 </div>
 
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#3FA8B6]/14 bg-[#10292E]/55 text-[#8FDCE5]/78">
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[#3FA8B6]/12 bg-[#10292E]/42 text-[#8FDCE5]/72">
                   {createElement(icon, {
-                    className: "h-3.5 w-3.5",
+                    className: "h-3 w-3",
                     "aria-hidden": "true",
                   })}
                 </div>
@@ -435,10 +418,10 @@ export default function PlanOverviewPage() {
 
         <section className="flex flex-col gap-3">
           <div>
-            <h2 className="text-xl font-semibold tracking-tight text-[#F4F7F8]">
+            <h2 className="text-lg font-semibold tracking-tight text-[#F4F7F8]">
               Cycle rhythm
             </h2>
-            <p className="text-sm leading-6 text-[#A9B0B5]">
+            <p className="text-sm leading-5 text-[#A9B0B5]">
               Your 9-day rhythm keeps the order stable while your schedule stays
               flexible.
             </p>
@@ -455,10 +438,10 @@ export default function PlanOverviewPage() {
                 <div
                   key={item.id}
                   className={[
-                    "flex min-h-20 flex-col justify-between rounded-2xl border p-2.5 text-center",
+                    "flex min-h-16 flex-col justify-between rounded-xl border p-2 text-center",
                     isRest
-                      ? "border-white/8 bg-white/[0.032] text-zinc-500"
-                      : "border-white/8 bg-[#151A1D] text-[#DDF8FB]",
+                      ? "border-white/8 bg-white/[0.026] text-zinc-500"
+                      : "border-white/8 bg-[#151A1D]/82 text-[#DDF8FB]",
                   ].join(" ")}
                 >
                   <p
@@ -472,7 +455,7 @@ export default function PlanOverviewPage() {
 
                   <p
                     className={[
-                      "text-sm font-medium leading-tight",
+                      "text-xs font-medium leading-tight",
                       isRest ? "text-zinc-500" : "text-[#F4F7F8]",
                     ].join(" ")}
                   >
@@ -481,15 +464,15 @@ export default function PlanOverviewPage() {
 
                   <div
                     className={[
-                      "mx-auto flex h-6 w-6 items-center justify-center",
+                      "mx-auto flex h-5 w-5 items-center justify-center",
                       isRest ? "text-zinc-500" : "text-[#8FDCE5]/82",
                     ].join(" ")}
                   >
                     {isRest ? (
-                      <Moon className="h-4 w-4" aria-hidden="true" />
+                      <Moon className="h-3.5 w-3.5" aria-hidden="true" />
                     ) : (
                       <span
-                        className="h-2 w-2 rounded-full bg-[#8FDCE5]/72"
+                        className="h-1.5 w-1.5 rounded-full bg-[#8FDCE5]/64"
                         aria-hidden="true"
                       />
                     )}
@@ -501,26 +484,26 @@ export default function PlanOverviewPage() {
         </section>
 
         <section className="flex flex-col gap-3">
-          <h2 className="text-xl font-semibold tracking-tight text-[#F4F7F8]">
+          <h2 className="text-lg font-semibold tracking-tight text-[#F4F7F8]">
             {meta.principlesTitle}
           </h2>
 
-          <div className="overflow-hidden rounded-3xl border border-white/10 bg-[#151A1D] shadow-[0_12px_28px_rgba(0,0,0,0.18)]">
+          <div className="overflow-hidden rounded-2xl border border-white/8 bg-[#151A1D]/86">
             {meta.principles.map(({ title, body, icon }, index) => (
               <div
                 key={title}
-                className={`relative flex items-center gap-3 p-4 ${
+                className={`relative flex items-center gap-3 p-3 ${
                   index > 0 ? "border-t border-[#272923]" : ""
                 }`}
               >
                 <div
-                  className="absolute bottom-0 left-0 top-0 w-1 bg-[#B69D68]/20"
+                  className="absolute bottom-0 left-0 top-0 w-0.5 bg-[#B69D68]/18"
                   aria-hidden="true"
                 />
 
-                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#4A4433] bg-[#1D1C16] text-[#C9B57A]">
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-[#4A4433]/80 bg-[#1D1C16]/80 text-[#C9B57A]/90">
                   {createElement(icon, {
-                    className: "h-4 w-4",
+                    className: "h-3.5 w-3.5",
                     "aria-hidden": "true",
                   })}
                 </div>
@@ -536,17 +519,17 @@ export default function PlanOverviewPage() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-white/10 bg-[#151A1D] p-5 shadow-[0_12px_28px_rgba(0,0,0,0.18)]">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-[#3FA8B6]/18 bg-[#10292E]/75 text-[#8FDCE5]/90">
-              <BookOpen className="h-7 w-7" aria-hidden="true" />
+        <section className="rounded-2xl border border-white/8 bg-[#151A1D]/82 p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#3FA8B6]/14 bg-[#10292E]/58 text-[#8FDCE5]/82">
+              <BookOpen className="h-5 w-5" aria-hidden="true" />
             </div>
 
             <div className="min-w-0 flex-1">
               <h2 className="text-lg font-semibold tracking-tight text-[#F4F7F8]">
                 Coach guide
               </h2>
-              <p className="text-sm leading-6 text-[#A9B0B5]">
+              <p className="text-sm leading-5 text-[#A9B0B5]">
                 Learn how RIR, progression, recovery, and cycle structure work.
               </p>
             </div>
@@ -554,7 +537,7 @@ export default function PlanOverviewPage() {
 
           <Link
             to={`/plan/${plan.id}/guide`}
-            className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl border border-[#3FA8B6]/35 px-4 text-sm font-semibold text-[#8FDCE5]/90 transition-colors hover:bg-[#10292E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151A1D]"
+            className="mt-3 inline-flex min-h-10 w-full items-center justify-center gap-2 rounded-xl border border-[#3FA8B6]/24 px-4 text-sm font-semibold text-[#8FDCE5]/84 transition-colors hover:bg-[#10292E]/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151A1D]"
           >
             Open guide
             <ChevronRight className="h-4 w-4" aria-hidden="true" />

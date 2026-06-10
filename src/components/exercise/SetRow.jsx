@@ -1,9 +1,9 @@
 function CheckBox({ isDone = false }) {
   return (
     <span
-      className={`flex h-7 w-7 items-center justify-center rounded-lg border transition ${
+      className={`flex h-6 w-6 items-center justify-center rounded-md border text-xs transition ${
         isDone
-          ? "border-cyan-300 bg-cyan-300 text-zinc-950 shadow-[0_0_12px_rgba(103,232,249,0.22)]"
+          ? "border-cyan-300 bg-cyan-300 text-zinc-950 shadow-[0_0_8px_rgba(103,232,249,0.16)]"
           : "border-zinc-700/70 bg-zinc-950/20"
       }`}
     >
@@ -18,8 +18,8 @@ function InlineMetric({ name, value, onChange, isReadOnly = false }) {
 
   if (isReadOnly) {
     return (
-      <div className="mx-auto flex w-[72%] min-w-0 items-center justify-center border-b border-zinc-800/30 pb-1.5">
-        <span className="whitespace-nowrap text-base font-semibold tabular-nums text-zinc-100">
+      <div className="mx-auto flex w-[72%] min-w-0 items-center justify-center border-b border-zinc-800/30 pb-1">
+        <span className="whitespace-nowrap text-sm font-semibold tabular-nums text-zinc-100">
           {displayValue}
         </span>
       </div>
@@ -34,7 +34,7 @@ function InlineMetric({ name, value, onChange, isReadOnly = false }) {
       inputMode="decimal"
       autoComplete="off"
       placeholder="—"
-      className="mx-auto w-[72%] min-w-0 border-b border-zinc-800/30 bg-transparent pb-1.5 text-center text-base font-semibold tabular-nums text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:border-cyan-300/70"
+      className="mx-auto w-[72%] min-w-0 border-b border-zinc-800/30 bg-transparent pb-1 text-center text-sm font-semibold tabular-nums text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:border-cyan-300/70"
     />
   );
 }
@@ -61,16 +61,16 @@ export default function SetRow({
 }) {
   // Preview rows hide the DONE affordance entirely instead of showing a disabled checkbox.
   const rowGridClass = showDoneControl
-    ? "grid-cols-[34px_1fr_1fr_1fr_32px]"
-    : "grid-cols-[34px_1fr_1fr_1fr]";
+    ? "grid-cols-[32px_1fr_1fr_1fr_30px]"
+    : "grid-cols-[32px_1fr_1fr_1fr]";
 
   return (
     <div
-      className={`grid ${rowGridClass} items-center gap-3 py-3 ${
+      className={`grid ${rowGridClass} items-center gap-2 py-2.5 ${
         !isLast ? "border-b border-zinc-800/16" : ""
       }`}
     >
-      <span className="flex h-9 items-center justify-center text-sm font-semibold tabular-nums text-zinc-200">
+      <span className="flex h-8 items-center justify-center text-sm font-semibold tabular-nums text-zinc-200">
         {setNumber}
       </span>
 
@@ -102,7 +102,7 @@ export default function SetRow({
           aria-pressed={isDone}
           disabled={isReadOnly}
           onClick={isReadOnly ? undefined : onToggleDone}
-          className={`flex h-9 items-center justify-center ${
+          className={`flex h-8 items-center justify-center ${
             isReadOnly ? "cursor-not-allowed opacity-50" : ""
           }`}
         >

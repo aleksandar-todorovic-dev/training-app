@@ -10,27 +10,27 @@ import GuideTopicBlock from "./GuideTopicBlock";
 export default function GuideGroupCard({ group }) {
   return (
     <div className="flex flex-col">
-      <header className="flex flex-col gap-4 border-b border-zinc-800 pb-6">
+      <header className="flex flex-col gap-3 border-b border-zinc-800/80 pb-5">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-300/80">
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-cyan-300/78">
             Guide section
           </p>
 
-          <h2 className="mt-3 text-4xl font-semibold leading-tight tracking-tight text-zinc-50">
+          <h2 className="mt-2 text-3xl font-semibold leading-tight tracking-tight text-zinc-50">
             {group.title}
           </h2>
 
-          <p className="mt-3 max-w-sm text-base leading-7 text-zinc-400">
+          <p className="mt-2 max-w-sm text-sm leading-6 text-zinc-400">
             {group.intro}
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
-          <span className="rounded-full border border-zinc-800 bg-zinc-900/70 px-3 py-1 text-xs font-medium text-zinc-400">
+        <div className="flex flex-wrap gap-1.5">
+          <span className="rounded-full border border-zinc-800 bg-zinc-900/64 px-2.5 py-0.5 text-xs font-medium text-zinc-400">
             {group.topics.length} topics
           </span>
 
-          <span className="rounded-full border border-amber-300/25 bg-amber-300/10 px-3 py-1 text-xs font-medium text-amber-200">
+          <span className="rounded-full border border-amber-300/22 bg-amber-300/8 px-2.5 py-0.5 text-xs font-medium text-amber-200">
             Coach notes
           </span>
         </div>

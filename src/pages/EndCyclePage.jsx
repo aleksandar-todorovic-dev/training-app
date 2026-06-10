@@ -28,24 +28,24 @@ function CycleMetricTile({ icon, label, value, helper }) {
   const MetricIcon = icon;
 
   return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-950/70 p-3.5">
-      <div className="flex items-start justify-between gap-3">
+    <div className="rounded-xl border border-zinc-800/80 bg-zinc-950/62 p-3">
+      <div className="flex items-start justify-between gap-2.5">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
             {label}
           </p>
 
-          <p className="mt-2 text-2xl font-semibold tracking-tight text-zinc-50">
+          <p className="mt-1.5 text-xl font-semibold tracking-tight text-zinc-50">
             {value}
           </p>
 
           {helper ? (
-            <p className="mt-1.5 text-xs leading-5 text-zinc-500">{helper}</p>
+            <p className="mt-1 text-xs leading-5 text-zinc-500">{helper}</p>
           ) : null}
         </div>
 
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-cyan-300/20 bg-cyan-300/10 text-cyan-200">
-          <MetricIcon className="h-4 w-4" aria-hidden="true" />
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-cyan-300/16 bg-cyan-300/8 text-cyan-200">
+          <MetricIcon className="h-3.5 w-3.5" aria-hidden="true" />
         </div>
       </div>
     </div>
@@ -218,60 +218,60 @@ export default function EndCyclePage() {
 
   return (
     <AppShell>
-      <div className="flex flex-col gap-7">
+      <div className="flex flex-col gap-5">
         <Link
           to={`/plan/${planId}/cycle`}
-          className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
+          className="inline-flex w-fit items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
         >
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
           Back to Cycle
         </Link>
 
-        <header className="rounded-3xl border border-cyan-300/20 bg-[radial-gradient(circle_at_top_right,rgba(103,232,249,0.13),transparent_42%),linear-gradient(180deg,rgba(24,24,27,0.9),rgba(9,9,11,0.98))] p-5 shadow-[0_0_34px_rgba(8,145,178,0.08)]">
-          <div className="flex items-start justify-between gap-5">
+        <header className="rounded-2xl border border-cyan-300/14 bg-[radial-gradient(circle_at_top_right,rgba(103,232,249,0.08),transparent_40%),linear-gradient(180deg,rgba(24,24,27,0.84),rgba(9,9,11,0.98))] p-4 shadow-[0_0_24px_rgba(8,145,178,0.05)]">
+          <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300/80">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-cyan-300/78">
                 Cycle complete
               </p>
 
-              <p className="mt-3 text-sm font-medium text-zinc-500">
+              <p className="mt-2 text-xs font-medium text-zinc-500">
                 {plan.name} — Cycle {currentCycleNumber}
               </p>
 
-              <h1 className="mt-3 text-4xl font-semibold leading-tight tracking-tight text-zinc-50">
+              <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight text-zinc-50">
                 Cycle {currentCycleNumber} complete
               </h1>
             </div>
 
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-200 shadow-[0_0_26px_rgba(103,232,249,0.12)]">
-              <CheckCircle2 className="h-6 w-6" aria-hidden="true" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-300/20 bg-cyan-300/8 text-cyan-200">
+              <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
             </div>
           </div>
 
-          <p className="mt-4 border-l border-cyan-300/35 pl-4 text-sm leading-6 text-zinc-300">
+          <p className="mt-3 border-l border-cyan-300/28 pl-3 text-sm leading-5 text-zinc-300">
             You closed all training days. Your next cycle starts with context
             from your logged work.
           </p>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            <span className="rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-xs font-semibold text-cyan-100">
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            <span className="rounded-full border border-cyan-300/20 bg-cyan-300/8 px-2.5 py-0.5 text-xs font-semibold text-cyan-100">
               {cycleSummary.finishedTrainingDaysCount}/
               {cycleSummary.totalTrainingDaysCount} training days closed
             </span>
 
-            <span className="rounded-full border border-zinc-800 bg-zinc-950/60 px-3 py-1 text-xs font-semibold text-zinc-400">
+            <span className="rounded-full border border-zinc-800 bg-zinc-950/55 px-2.5 py-0.5 text-xs font-semibold text-zinc-400">
               Cycle {nextCycleNumber} ready
             </span>
           </div>
         </header>
 
-        <section className="flex flex-col gap-4">
+        <section className="flex flex-col gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
               Recap
             </p>
 
-            <h2 className="mt-1 text-2xl font-semibold tracking-tight text-zinc-50">
+            <h2 className="mt-1 text-xl font-semibold tracking-tight text-zinc-50">
               What happened this cycle
             </h2>
           </div>
@@ -313,14 +313,14 @@ export default function EndCyclePage() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-zinc-800 bg-zinc-950/70 p-5">
-          <div className="space-y-5">
+        <section className="rounded-2xl border border-zinc-800/80 bg-zinc-950/62 p-4">
+          <div className="space-y-4">
             <div>
               <h2 className="text-lg font-semibold tracking-tight text-zinc-50">
                 What this means
               </h2>
 
-              <div className="mt-2 space-y-2 text-sm leading-6 text-zinc-400">
+              <div className="mt-2 space-y-2 text-sm leading-5 text-zinc-400">
                 {isEmptyClosedCycle ? (
                   <p>
                     This cycle is closed, but no workout values were logged.
@@ -346,9 +346,9 @@ export default function EndCyclePage() {
             </div>
 
             {hasCoreBlocks ? (
-              <div className="border-t border-zinc-800 pt-5">
-                <div className="flex gap-3">
-                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-violet-400/35 bg-violet-500/15 text-violet-200">
+              <div className="border-t border-zinc-800/80 pt-4">
+                <div className="flex gap-2.5">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-violet-400/26 bg-violet-500/10 text-violet-200">
                     <ShieldCheck className="h-4 w-4" aria-hidden="true" />
                   </div>
 
@@ -357,7 +357,7 @@ export default function EndCyclePage() {
                       Core stays separate
                     </h2>
 
-                    <p className="mt-1.5 text-sm leading-6 text-zinc-400">
+                    <p className="mt-1 text-sm leading-5 text-zinc-400">
                       Core is support work. Missed or partial core blocks do not
                       erase the main cycle.
                     </p>
@@ -366,9 +366,9 @@ export default function EndCyclePage() {
               </div>
             ) : null}
 
-            <div className="border-t border-zinc-800 pt-5">
-              <div className="flex gap-3">
-                <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-200">
+            <div className="border-t border-zinc-800/80 pt-4">
+              <div className="flex gap-2.5">
+                <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-cyan-300/20 bg-cyan-300/8 text-cyan-200">
                   <RotateCcw className="h-4 w-4" aria-hidden="true" />
                 </div>
 
@@ -377,12 +377,12 @@ export default function EndCyclePage() {
                     Next cycle uses this context
                   </h2>
 
-                  <p className="mt-1.5 text-sm leading-6 text-zinc-400">
+                  <p className="mt-1 text-sm leading-5 text-zinc-400">
                     Logged set values can help guide the next pass through the
                     plan.
                   </p>
 
-                  <p className="mt-2 text-sm leading-6 text-zinc-500">
+                  <p className="mt-1.5 text-sm leading-5 text-zinc-500">
                     Nothing new is created until you choose to move on.
                   </p>
                 </div>
@@ -395,14 +395,14 @@ export default function EndCyclePage() {
           <button
             type="button"
             onClick={handleStartNewCycle}
-            className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-cyan-300 px-5 text-sm font-semibold text-zinc-950 transition hover:bg-cyan-200"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-cyan-300 px-5 text-sm font-semibold text-zinc-950 transition hover:bg-cyan-200"
           >
             Start Cycle {nextCycleNumber}
           </button>
 
           <Link
             to={`/plan/${planId}/cycle`}
-            className="inline-flex min-h-11 items-center justify-center rounded-2xl border border-zinc-800 bg-zinc-950/60 px-5 text-sm font-semibold text-zinc-300 transition hover:border-zinc-700 hover:bg-zinc-900"
+            className="inline-flex min-h-10 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950/55 px-5 text-sm font-semibold text-zinc-300 transition hover:border-zinc-700 hover:bg-zinc-900"
           >
             Review days
           </Link>

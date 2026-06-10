@@ -84,14 +84,14 @@ function getClosedStatusLabels({
   if (completedExerciseCount === totalExerciseCount && totalExerciseCount > 0) {
     return {
       statusLabel: "Closed",
-      statusDetail: `${completedExerciseCount}/${totalExerciseCount} done`,
+      statusDetail: `${completedExerciseCount}/${totalExerciseCount} logged`,
     };
   }
 
   if (completedExerciseCount > 0) {
     return {
       statusLabel: "Closed partial",
-      statusDetail: `${completedExerciseCount}/${totalExerciseCount} done`,
+      statusDetail: `${completedExerciseCount}/${totalExerciseCount} logged`,
     };
   }
 
@@ -184,7 +184,7 @@ function getDayRuntimeSummary({
     : 0;
 
   const doneSetCount = getDoneSetCount(dayLog);
-  const progressLabel = `${completedExerciseCount}/${totalExerciseCount} done`;
+  const progressLabel = `${completedExerciseCount}/${totalExerciseCount} logged`;
   const dayModeLabel = getDayModeLabel(dayMode);
 
   if (dayMode === "finished") {
@@ -418,12 +418,12 @@ export default function CyclePage() {
   if (!currentCycle) {
     return (
       <AppShell mode="training">
-        <div className="flex flex-col gap-6 py-0">
+        <div className="flex flex-col gap-5 py-0">
           <Link
             to={`/plan/${planId}`}
-            className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-[#5EC7D5]/85 transition-colors hover:text-[#8FDCE5]"
+            className="inline-flex w-fit items-center gap-1.5 text-xs font-medium text-[#8B949B] transition-colors hover:text-[#D3D8DB]"
           >
-            <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
             Back to plan
           </Link>
 
@@ -456,12 +456,12 @@ export default function CyclePage() {
 
   return (
     <AppShell mode="training">
-      <div className="flex flex-col gap-5 py-0">
+      <div className="flex flex-col gap-4 py-0">
         <Link
           to={`/plan/${planId}`}
-          className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-[#5EC7D5]/85 transition-colors hover:text-[#8FDCE5]"
+          className="inline-flex w-fit items-center gap-1.5 text-xs font-medium text-[#8B949B] transition-colors hover:text-[#D3D8DB]"
         >
-          <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
           Back to plan
         </Link>
 
@@ -474,7 +474,7 @@ export default function CyclePage() {
 
         <section
           aria-label="Cycle rhythm"
-          className="mt-1 scroll-px-1 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:[scrollbar-width:thin] sm:[scrollbar-color:rgba(36,81,90,0.75)_transparent] sm:[&::-webkit-scrollbar]:block sm:[&::-webkit-scrollbar]:h-1.5 sm:[&::-webkit-scrollbar-track]:bg-transparent sm:[&::-webkit-scrollbar-thumb]:rounded-full sm:[&::-webkit-scrollbar-thumb]:bg-[#24515A]/75"
+          className="scroll-px-1 overflow-x-auto pb-1.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:[scrollbar-width:thin] sm:[scrollbar-color:rgba(36,81,90,0.6)_transparent] sm:[&::-webkit-scrollbar]:block sm:[&::-webkit-scrollbar]:h-1.5 sm:[&::-webkit-scrollbar-track]:bg-transparent sm:[&::-webkit-scrollbar-thumb]:rounded-full sm:[&::-webkit-scrollbar-thumb]:bg-[#24515A]/60"
         >
           <div className="flex min-w-max items-center gap-2 px-1">
             {rhythmSlots.map((slot) => {
@@ -482,7 +482,7 @@ export default function CyclePage() {
                 return (
                   <div
                     key={slot.id}
-                    className="flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border border-white/8 bg-white/5 text-zinc-500"
+                  className="flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border border-white/8 bg-white/[0.028] text-zinc-500"
                   >
                     <span className="text-xs font-medium">Rest</span>
                     <Moon className="h-4 w-4" aria-hidden="true" />
@@ -503,15 +503,15 @@ export default function CyclePage() {
                   ref={isCurrent ? currentRhythmItemRef : null}
                   to={`/plan/${planId}/day/${slot.day.id}`}
                   className={[
-                    "flex h-16 w-16 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl border text-center transition-colors",
+                    "flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border text-center transition-colors",
                     isCurrent
-                      ? "border-[#3FA8B6]/70 bg-[#10292E] text-[#DDF8FB]"
+                      ? "border-[#3FA8B6]/54 bg-[#10292E]/82 text-[#DDF8FB]"
                       : "",
                     isFinished
-                      ? "border-[#24515A] bg-[#0D2227] text-[#9CE2EA]"
+                      ? "border-[#24515A]/64 bg-[#0D2227]/70 text-[#9CE2EA]"
                       : "",
                     !isCurrent && !isFinished
-                      ? "border-white/8 bg-white/5 text-zinc-500 hover:border-[#3FA8B6]/30"
+                      ? "border-white/8 bg-white/[0.028] text-zinc-500 hover:border-[#3FA8B6]/24"
                       : "",
                   ].join(" ")}
                 >
@@ -521,13 +521,13 @@ export default function CyclePage() {
 
                   {isFinished ? (
                     <CheckCircle2
-                      className="h-4 w-4 text-[#8FDCE5]"
+                      className="h-3.5 w-3.5 text-[#8FDCE5]/86"
                       aria-hidden="true"
                     />
                   ) : isCurrent ? (
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#5EC7D5]" />
+                    <span className="h-2 w-2 rounded-full bg-[#5EC7D5]" />
                   ) : (
-                    <span className="h-2.5 w-2.5 rounded-full bg-white/14" />
+                    <span className="h-2 w-2 rounded-full bg-white/14" />
                   )}
                 </Link>
               );
@@ -536,25 +536,25 @@ export default function CyclePage() {
         </section>
 
         {currentDay ? (
-          <section className="relative overflow-hidden rounded-3xl border border-[#3FA8B6]/18 bg-[#10292E] p-5 shadow-[0_18px_46px_rgba(0,0,0,0.36)]">
+          <section className="relative overflow-hidden rounded-2xl border border-[#3FA8B6]/14 bg-[#10292E]/82 p-4 shadow-[0_12px_30px_rgba(0,0,0,0.24)]">
             <div
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_18%,rgba(95,199,213,0.13),transparent_36%),radial-gradient(circle_at_12%_100%,rgba(63,168,182,0.10),transparent_42%)]"
+              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_18%,rgba(95,199,213,0.08),transparent_34%),radial-gradient(circle_at_12%_100%,rgba(63,168,182,0.06),transparent_40%)]"
               aria-hidden="true"
             />
-            <div className="relative flex flex-col gap-4">
-              <div className="flex flex-col gap-3">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8FDCE5]/90">
+            <div className="relative flex flex-col gap-3.5">
+              <div className="flex flex-col gap-2.5">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-[#8FDCE5]/82">
                   {isCycleComplete ? "Current cycle" : "Current day"}
                 </p>
 
                 <div className="flex flex-col gap-2">
-                  <h2 className="text-3xl font-semibold leading-tight tracking-tight text-[#F4F7F8] sm:text-4xl">
+                  <h2 className="text-2xl font-semibold leading-tight tracking-tight text-[#F4F7F8]">
                     {isCycleComplete
                       ? "Cycle complete"
                       : `${currentDay.label} ${currentDay.name}`}
                   </h2>
 
-                  <p className="max-w-sm text-base leading-6 text-[#C7D0D4]">
+                  <p className="max-w-sm text-sm leading-5 text-[#C7D0D4]">
                     {isCycleComplete
                       ? `All ${totalTrainingDays} training days are closed. Review your cycle before starting the next one.`
                       : (currentDayDetails?.goal ??
@@ -563,7 +563,7 @@ export default function CyclePage() {
                 </div>
               </div>
 
-              <div className="border-t border-white/10 pt-4">
+              <div className="border-t border-white/10 pt-3.5">
                 {isCycleComplete ? (
                   <div className="flex items-center gap-2 text-sm font-medium text-[#C7D0D4]">
                     <CheckCircle2
@@ -577,7 +577,7 @@ export default function CyclePage() {
                   </div>
                 ) : (
                   <div className="flex flex-col gap-2">
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-medium text-[#C7D0D4]">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm font-medium text-[#C7D0D4]">
                       <span className="inline-flex items-center gap-1.5">
                         <Dumbbell
                           className="h-4 w-4 text-[#5EC7D5]"
@@ -620,7 +620,7 @@ export default function CyclePage() {
                     ? `/plan/${planId}/end-cycle`
                     : `/plan/${planId}/day/${currentDay.id}`
                 }
-                className="inline-flex min-h-13 items-center justify-center rounded-2xl bg-[#5EC7D5] px-5 text-base font-semibold text-[#031014] shadow-[0_10px_24px_rgba(63,168,182,0.17)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#10292E]"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#5EC7D5] px-5 text-sm font-semibold text-[#031014] shadow-[0_8px_18px_rgba(63,168,182,0.13)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#10292E]"
               >
                 {heroCtaLabel}
                 <ChevronRight className="ml-2 h-5 w-5" aria-hidden="true" />
@@ -630,8 +630,8 @@ export default function CyclePage() {
         ) : null}
 
         {upcomingDays.length > 0 ? (
-          <section className="mt-1 flex flex-col gap-2.5">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#A9B0B5]">
+          <section className="flex flex-col gap-2">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#A9B0B5]">
               Up next
             </p>
 
@@ -657,9 +657,9 @@ export default function CyclePage() {
         ) : null}
 
         {completedDays.length > 0 ? (
-          <section className="mt-1 flex flex-col gap-2.5">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-[#A9B0B5]">
-              Completed
+          <section className="flex flex-col gap-2">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#A9B0B5]">
+              Closed days
             </p>
 
             <div className="flex flex-col gap-2">
@@ -683,12 +683,12 @@ export default function CyclePage() {
           </section>
         ) : null}
 
-        <section className="mt-1 flex items-center gap-4 rounded-3xl border border-white/8 bg-[#171C1F] p-4">
-          <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-full border border-[#3FA8B6]/20 bg-[#10292E] text-[#8FDCE5]">
-            <Sparkles className="h-6 w-6" aria-hidden="true" />
+        <section className="flex items-center gap-3 rounded-2xl border border-white/8 bg-[#171C1F]/78 p-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#3FA8B6]/14 bg-[#10292E]/68 text-[#8FDCE5]/82">
+            <Sparkles className="h-5 w-5" aria-hidden="true" />
           </div>
 
-          <p className="text-base font-medium leading-6 text-[#F4F7F8]">
+          <p className="text-sm font-medium leading-5 text-[#D3D8DB]">
             Rest days keep the cycle moving.
           </p>
         </section>
