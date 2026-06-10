@@ -7,8 +7,9 @@ import { AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react";
  * This component presents finish-day guidance and warning details only.
  * The actual runtime state change is delegated upward through `onConfirmFinish`.
  *
- * Warning note:
- * Missing-value warnings are informational. They do not block finishing the day.
+ * Heads-up note:
+ * Missing-value and empty-day messages are informational. They do not block
+ * finishing the day because partial and empty closed days are valid.
  */
 export default function FinishDaySheet({
   dayDetails,
@@ -22,39 +23,20 @@ export default function FinishDaySheet({
 
   const warningSummary = missingValueWarningSummary ?? {};
   const hasWarnings = Boolean(warningSummary.hasWarnings);
-  const isNoCompletedSetsWarning = Boolean(
-    warningSummary.hasNoCompletedSetsWarning,
-  );
-  const isBaselineWarning = warningSummary.warningType === "baseline";
+  const hasNoLoggedValues = Boolean(warningSummary.hasNoCompletedSetsWarning);
+  const hasMissingLoggedFields = hasWarnings && !hasNoLoggedValues;
 
-  const warningTitle = isNoCompletedSetsWarning
-    ? "No completed sets yet"
-    : isBaselineWarning
-      ? "Baseline warning"
-      : "Carry-over warning";
+  const statusTitle = hasNoLoggedValues
+    ? "No set values logged yet"
+    : hasMissingLoggedFields
+      ? "Carry-over heads-up"
+      : "Ready to close";
 
-  const warningText = isNoCompletedSetsWarning
-    ? isBaselineWarning
-      ? "No sets are marked as completed. You can still finish this day, but it will not create a useful baseline for future cycles."
-      : "No sets are marked as completed. You can still finish this as skipped or minimal, but this cycle will not add new carry-over data for this day."
-    : isBaselineWarning
-      ? "Some completed sets are missing values. Reps, time, and RIR help create a useful baseline for future cycles."
-      : "Some completed sets are missing values. Empty fields may fall back to the latest valid value from a previous cycle when possible.";
-
-  const warningDetails = [
-    warningSummary.missingMainImportantCount > 0
-      ? `Main missing reps or RIR fields: ${warningSummary.missingMainImportantCount}`
-      : null,
-    warningSummary.missingCoreImportantCount > 0
-      ? `Core missing reps/time or RIR fields: ${warningSummary.missingCoreImportantCount}`
-      : null,
-    warningSummary.missingMainLoadCount > 0
-      ? `Main weight fields missing: ${warningSummary.missingMainLoadCount}`
-      : null,
-    warningSummary.missingCoreLoadCount > 0
-      ? `Core load fields missing: ${warningSummary.missingCoreLoadCount}`
-      : null,
-  ].filter(Boolean);
+  const statusText = hasNoLoggedValues
+    ? "You can still close this day. Earlier valid references may still be used."
+    : hasMissingLoggedFields
+      ? "Some logged sets have empty fields. The next cycle will use the latest valid values when it can."
+      : "Your logged work is saved for this day.";
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-zinc-950/85 px-4 pb-4 pt-10 backdrop-blur-sm">
@@ -102,37 +84,47 @@ export default function FinishDaySheet({
               </p>
             </section>
 
-            {hasWarnings ? (
-              <section className="border-t border-amber-300/20 pt-4">
-                <div className="flex gap-3">
-                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-amber-300/25 bg-amber-300/10 text-amber-200">
+            <section
+              className={`border-t pt-4 ${
+                hasWarnings ? "border-amber-300/20" : "border-cyan-300/20"
+              }`}
+            >
+              <div className="flex gap-3">
+                <div
+                  className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border ${
+                    hasWarnings
+                      ? "border-amber-300/25 bg-amber-300/10 text-amber-200"
+                      : "border-cyan-300/25 bg-cyan-300/10 text-cyan-200"
+                  }`}
+                >
+                  {hasWarnings ? (
                     <AlertTriangle className="h-4 w-4" aria-hidden="true" />
-                  </div>
+                  ) : (
+                    <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </div>
 
-                  <div className="min-w-0">
-                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300/80">
-                      {warningTitle}
-                    </p>
+                <div className="min-w-0">
+                  <p
+                    className={`text-xs font-semibold uppercase tracking-[0.18em] ${
+                      hasWarnings ? "text-amber-300/80" : "text-cyan-300/80"
+                    }`}
+                  >
+                    {statusTitle}
+                  </p>
 
-                    <p className="mt-1.5 text-sm leading-relaxed text-zinc-300">
-                      {warningText}
-                    </p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-zinc-300">
+                    {statusText}
+                  </p>
 
-                    {!isNoCompletedSetsWarning && warningDetails.length ? (
-                      <ul className="mt-2 flex flex-col gap-1 text-sm leading-relaxed text-zinc-500">
-                        {warningDetails.map((detail) => (
-                          <li key={detail}>• {detail}</li>
-                        ))}
-                      </ul>
-                    ) : null}
-
+                  {hasWarnings ? (
                     <p className="mt-2 text-sm font-semibold text-amber-100">
                       You can still finish the day.
                     </p>
-                  </div>
+                  ) : null}
                 </div>
-              </section>
-            ) : null}
+              </div>
+            </section>
 
             {hasCoreBlock ? (
               <section className="border-t border-violet-500/25 pt-4">
@@ -143,12 +135,11 @@ export default function FinishDaySheet({
 
                   <div className="min-w-0">
                     <h3 className="text-sm font-semibold text-zinc-100">
-                      Core is separate
+                      Core is tracked separately
                     </h3>
 
                     <p className="mt-1.5 text-sm leading-relaxed text-zinc-400">
-                      Core work is tracked separately from the main exercise
-                      count.
+                      Main work and core work stay separate in your recap.
                     </p>
                   </div>
                 </div>
