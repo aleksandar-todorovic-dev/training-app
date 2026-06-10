@@ -4,7 +4,7 @@ import { AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react";
  * Confirmation sheet for closing the active training day.
  *
  * Runtime note:
- * This component presents finish-day guidance and warning details only.
+ * This component presents finish-day guidance and heads-up details only.
  * The actual runtime state change is delegated upward through `onConfirmFinish`.
  *
  * Heads-up note:
@@ -24,19 +24,34 @@ export default function FinishDaySheet({
   const warningSummary = missingValueWarningSummary ?? {};
   const hasWarnings = Boolean(warningSummary.hasWarnings);
   const hasNoLoggedValues = Boolean(warningSummary.hasNoCompletedSetsWarning);
-  const hasMissingLoggedFields = hasWarnings && !hasNoLoggedValues;
+  const isBaselineWarning = warningSummary.warningType === "baseline";
 
-  const statusTitle = hasNoLoggedValues
+  const warningTitle = hasNoLoggedValues
     ? "No set values logged yet"
-    : hasMissingLoggedFields
-      ? "Carry-over heads-up"
-      : "Ready to close";
+    : isBaselineWarning
+      ? "Baseline heads-up"
+      : "Carry-over heads-up";
 
-  const statusText = hasNoLoggedValues
+  const warningText = hasNoLoggedValues
     ? "You can still close this day. Earlier valid references may still be used."
-    : hasMissingLoggedFields
-      ? "Some logged sets have empty fields. The next cycle will use the latest valid values when it can."
-      : "Your logged work is saved for this day.";
+    : isBaselineWarning
+      ? "Some logged sets have empty fields. Reps, time, and RIR help create a useful baseline for future cycles."
+      : "Some logged sets have empty fields. The next cycle will use the latest valid values when it can.";
+
+  const warningDetails = [
+    warningSummary.missingMainImportantCount > 0
+      ? `Main missing reps or RIR fields: ${warningSummary.missingMainImportantCount}`
+      : null,
+    warningSummary.missingCoreImportantCount > 0
+      ? `Core missing reps/time or RIR fields: ${warningSummary.missingCoreImportantCount}`
+      : null,
+    warningSummary.missingMainLoadCount > 0
+      ? `Main weight fields missing: ${warningSummary.missingMainLoadCount}`
+      : null,
+    warningSummary.missingCoreLoadCount > 0
+      ? `Core load fields missing: ${warningSummary.missingCoreLoadCount}`
+      : null,
+  ].filter(Boolean);
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-zinc-950/85 px-4 pb-4 pt-10 backdrop-blur-sm">
@@ -84,47 +99,55 @@ export default function FinishDaySheet({
               </p>
             </section>
 
-            <section
-              className={`border-t pt-4 ${
-                hasWarnings ? "border-amber-300/20" : "border-cyan-300/20"
-              }`}
-            >
-              <div className="flex gap-3">
-                <div
-                  className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border ${
-                    hasWarnings
-                      ? "border-amber-300/25 bg-amber-300/10 text-amber-200"
-                      : "border-cyan-300/25 bg-cyan-300/10 text-cyan-200"
-                  }`}
-                >
-                  {hasWarnings ? (
+            {hasWarnings ? (
+              <section className="border-t border-amber-300/20 pt-4">
+                <div className="flex gap-3">
+                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-amber-300/25 bg-amber-300/10 text-amber-200">
                     <AlertTriangle className="h-4 w-4" aria-hidden="true" />
-                  ) : (
-                    <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-                  )}
-                </div>
+                  </div>
 
-                <div className="min-w-0">
-                  <p
-                    className={`text-xs font-semibold uppercase tracking-[0.18em] ${
-                      hasWarnings ? "text-amber-300/80" : "text-cyan-300/80"
-                    }`}
-                  >
-                    {statusTitle}
-                  </p>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-amber-300/80">
+                      {warningTitle}
+                    </p>
 
-                  <p className="mt-1.5 text-sm leading-relaxed text-zinc-300">
-                    {statusText}
-                  </p>
+                    <p className="mt-1.5 text-sm leading-relaxed text-zinc-300">
+                      {warningText}
+                    </p>
 
-                  {hasWarnings ? (
+                    {!hasNoLoggedValues && warningDetails.length ? (
+                      <ul className="mt-2 flex flex-col gap-1 text-sm leading-relaxed text-zinc-500">
+                        {warningDetails.map((detail) => (
+                          <li key={detail}>• {detail}</li>
+                        ))}
+                      </ul>
+                    ) : null}
+
                     <p className="mt-2 text-sm font-semibold text-amber-100">
                       You can still finish the day.
                     </p>
-                  ) : null}
+                  </div>
                 </div>
-              </div>
-            </section>
+              </section>
+            ) : (
+              <section className="border-t border-cyan-300/20 pt-4">
+                <div className="flex gap-3">
+                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-200">
+                    <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                  </div>
+
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-cyan-300/80">
+                      Ready to close
+                    </p>
+
+                    <p className="mt-1.5 text-sm leading-relaxed text-zinc-300">
+                      Your logged work is saved for this day.
+                    </p>
+                  </div>
+                </div>
+              </section>
+            )}
 
             {hasCoreBlock ? (
               <section className="border-t border-violet-500/25 pt-4">
