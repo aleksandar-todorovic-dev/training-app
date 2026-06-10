@@ -26,7 +26,7 @@ export default function ExerciseListCard({
       to={`/plan/${planId}/day/${dayId}/exercise/${exercise.id}`}
       className={[
         "group flex items-center gap-2.5 rounded-xl px-2 py-2 transition-colors hover:bg-white/3",
-        isNext ? "bg-[#10292E]/22" : "",
+        isNext ? "bg-[#10292E]/34" : "",
       ].join(" ")}
     >
       <div
@@ -35,7 +35,7 @@ export default function ExerciseListCard({
           isNext
             ? "border-[#3FA8B6]/34 bg-[#10292E]/54 text-[#8FDCE5]"
             : isComplete
-              ? "border-[#3FA8B6]/22 bg-[#10292E]/34 text-[#8FDCE5]/88"
+              ? "border-white/8 bg-white/[0.026] text-[#8FDCE5]/78"
               : isPartial
                 ? "border-[#C9B57A]/28 bg-[#1D1C16]/50 text-[#D8C891]"
                 : "border-white/10 bg-[#070A0B]/28 text-[#A9B0B5]",

@@ -86,12 +86,12 @@ function getCoreSetSummary(exercise, tracksLoad) {
 
 function SummaryMetric({ label, value }) {
   return (
-    <div className="min-w-0 text-center">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+    <div className="min-w-0 rounded-xl border border-white/7 bg-white/[0.018] px-2.5 py-2 text-center">
+      <p className="text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]">
         {label}
       </p>
 
-      <p className="mt-1.5 text-base font-semibold leading-none tracking-tight text-zinc-100">
+      <p className="mt-1 text-sm font-semibold leading-none tracking-tight text-[#F4F7F8]">
         {value}
       </p>
     </div>
@@ -113,25 +113,21 @@ function CoreExerciseSection({
   const tempo = cleanSummaryValue(exercise.details?.tempo);
   const rest = cleanSummaryValue(exercise.details?.rest);
 
-  const setGridClass = showDoneControls
-    ? "grid-cols-[32px_1.25fr_1fr_0.85fr_30px]"
-    : "grid-cols-[32px_1.25fr_1fr_0.85fr]";
-
   return (
-    <section className="border-t border-zinc-800/30 pt-5 first:border-t-0 first:pt-0">
+    <section className="rounded-2xl border border-white/8 bg-white/[0.02] px-3 py-3">
       <div className="space-y-3">
         <div className="flex items-start gap-2.5">
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#A78BFA]/28 bg-[#4C1D95]/20 text-sm font-semibold tabular-nums text-[#DDD6FE]">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#A78BFA]/24 bg-[#4C1D95]/18 text-sm font-semibold tabular-nums text-[#DDD6FE]">
             {exerciseNumber}
           </div>
 
           <div className="min-w-0 flex-1 space-y-1">
-            <h2 className="text-base font-semibold tracking-tight text-zinc-100">
+            <h2 className="text-base font-semibold tracking-tight text-[#F4F7F8]">
               {exercise.name}
             </h2>
 
             {exercise.subtitle ? (
-              <p className="text-sm leading-5 text-zinc-400">
+              <p className="text-sm leading-5 text-[#A9B0B5]">
                 {exercise.subtitle}
               </p>
             ) : null}
@@ -139,12 +135,12 @@ function CoreExerciseSection({
         </div>
 
         {exercise.cue ? (
-          <div className="border-l border-[#A78BFA]/30 pl-3">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#C4B5FD]">
+          <div className="rounded-xl border border-[#A78BFA]/12 bg-[#4C1D95]/10 px-3 py-2.5">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#C4B5FD]">
               Cue
             </p>
 
-            <p className="mt-1.5 text-sm leading-5 text-zinc-300">
+            <p className="mt-1 text-sm leading-5 text-[#D3D8DB]">
               {exercise.cue}
             </p>
           </div>
@@ -157,33 +153,7 @@ function CoreExerciseSection({
         </div>
 
         <div className="space-y-2 pt-0.5">
-          <div
-            className={`grid ${setGridClass} items-center gap-2 border-b border-zinc-800/35 pb-2`}
-          >
-            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
-              Set
-            </p>
-
-            <p className="text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
-              {tracksLoad ? "Kg" : "Target"}
-            </p>
-
-            <p className="text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
-              {valueLabel}
-            </p>
-
-            <p className="text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
-              RIR
-            </p>
-
-            {showDoneControls ? (
-              <p className="text-center text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500">
-                Done
-              </p>
-            ) : null}
-          </div>
-
-          <div>
+          <div className="flex flex-col gap-2">
             {rows.map((row, index) => (
               <CoreSetRow
                 key={`${exercise.id}-set-${row.setNumber}`}
@@ -215,19 +185,23 @@ function CoreExerciseSection({
         </div>
 
         {exercise.details?.extraCues?.length > 0 ? (
-          <div className="space-y-1.5 pt-0.5">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-zinc-500">
+          <details className="group rounded-xl border border-white/7 bg-white/[0.014] px-3 py-2.5">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-[#D3D8DB] [&::-webkit-details-marker]:hidden">
               Extra cues
-            </p>
+              <ChevronDown
+                className="h-4 w-4 text-[#8B949B] transition-transform group-open:rotate-180"
+                aria-hidden="true"
+              />
+            </summary>
 
-            <ul className="space-y-1">
+            <ul className="mt-2 space-y-1">
               {exercise.details.extraCues.map((item) => (
-                <li key={item} className="text-sm leading-5 text-zinc-400">
+                <li key={item} className="text-sm leading-5 text-[#A9B0B5]">
                   - {item}
                 </li>
               ))}
             </ul>
-          </div>
+          </details>
         ) : null}
       </div>
     </section>
@@ -271,35 +245,35 @@ export default function CoreWorkflowCard({
   const coreStatusLabel =
     dayMode === "upcoming" ? "Preview" : isSavedLog ? "Saved log" : "Active";
   return (
-    <div className="space-y-5">
-      <section className="rounded-3xl border border-[#7C3AED]/28 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,0.18),transparent_36%),linear-gradient(180deg,rgba(30,27,75,0.24),rgba(2,6,23,0.06))] px-4 py-4 shadow-[0_12px_34px_rgba(0,0,0,0.18)]">
+    <div className="space-y-4">
+      <section className="rounded-2xl border border-[#A78BFA]/16 bg-[#151821]/78 px-4 py-4 shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
         <div className="space-y-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2.5">
-              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#A78BFA]/32 bg-[#4C1D95]/30 text-[#DDD6FE]">
+              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#A78BFA]/24 bg-[#4C1D95]/18 text-[#DDD6FE]">
                 <ShieldCheck className="h-5 w-5" aria-hidden="true" />
               </div>
 
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#DDD6FE]">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#C4B5FD]">
                 Core work
               </p>
             </div>
 
-            <span className="shrink-0 rounded-full border border-[#A78BFA]/30 bg-[#4C1D95]/26 px-2.5 py-0.5 text-xs font-semibold text-[#DDD6FE]">
+            <span className="shrink-0 rounded-full border border-[#A78BFA]/22 bg-[#4C1D95]/14 px-2.5 py-0.5 text-xs font-semibold text-[#DDD6FE]">
               {coreStatusLabel}
             </span>
           </div>
 
-          <p className="text-sm leading-5 text-zinc-400">
+          <p className="text-sm leading-5 text-[#A9B0B5]">
             {coreBlock.details?.purpose ?? "Flexible core block"}
           </p>
 
           {isSavedLog ? (
-            <div className="rounded-2xl border border-[#A78BFA]/18 bg-[#4C1D95]/14 px-3 py-2.5">
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#DDD6FE]">
+            <div className="rounded-xl border border-[#A78BFA]/14 bg-[#4C1D95]/10 px-3 py-2.5">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#DDD6FE]">
                 Closed day log
               </p>
-              <p className="mt-1 text-sm leading-5 text-zinc-400">
+              <p className="mt-1 text-sm leading-5 text-[#A9B0B5]">
                 Review or adjust the values you saved.
               </p>
             </div>
@@ -324,8 +298,8 @@ export default function CoreWorkflowCard({
         </div>
       </section>
 
-      <section className="rounded-3xl border border-[#7C3AED]/18 bg-[radial-gradient(circle_at_top_left,rgba(124,58,237,0.1),transparent_34%),linear-gradient(180deg,rgba(30,27,75,0.16),rgba(2,6,23,0.04))] px-4 py-4">
-        <div className="space-y-6">
+      <section className="rounded-2xl border border-white/8 bg-[#12181B]/72 px-3.5 py-3.5">
+        <div className="space-y-3.5">
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
@@ -334,17 +308,17 @@ export default function CoreWorkflowCard({
                   aria-hidden="true"
                 />
 
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]">
                   {isReadOnly ? "Preview sets" : "Log core sets"}
                 </p>
               </div>
 
-              <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-zinc-100">
+              <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-[#F4F7F8]">
                 {isReadOnly ? "Set preview" : "Core work"}
               </h2>
             </div>
 
-            <span className="shrink-0 rounded-full border border-[#A78BFA]/24 bg-[#4C1D95]/22 px-2.5 py-0.5 text-xs font-semibold text-zinc-300">
+            <span className="shrink-0 rounded-full border border-white/10 bg-white/[0.026] px-2.5 py-0.5 text-xs font-semibold text-[#A9B0B5]">
               {exercises.length} exercises
             </span>
           </div>
@@ -387,7 +361,7 @@ export default function CoreWorkflowCard({
       </section>
 
       {hasCoreNotes ? (
-        <section className="space-y-3">
+        <section className="rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3">
           <button
             type="button"
             className="flex w-full items-start justify-between gap-4 text-left"
@@ -395,11 +369,11 @@ export default function CoreWorkflowCard({
             aria-expanded={isCoachNotesOpen}
           >
             <div>
-              <h2 className="text-lg font-semibold tracking-tight text-zinc-100">
+              <h2 className="text-base font-semibold tracking-tight text-[#E7ECEE]">
                 Core notes
               </h2>
 
-              <p className="mt-1 text-sm leading-5 text-zinc-400">
+              <p className="mt-1 text-sm leading-5 text-[#A9B0B5]">
                 Progression and reminders for this block.
               </p>
             </div>
@@ -418,22 +392,22 @@ export default function CoreWorkflowCard({
           </button>
 
           {isCoachNotesOpen ? (
-            <div className="space-y-4 rounded-2xl border border-zinc-800/40 bg-white/[0.012] px-4 py-4">
+            <div className="mt-3 space-y-4 rounded-xl border border-white/7 bg-[#071012]/30 px-3 py-3">
               {coreBlock.details?.progression ? (
                 <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-zinc-100">
+                  <h3 className="text-sm font-semibold text-[#F4F7F8]">
                     Progression
                   </h3>
 
-                  <p className="text-sm leading-5 text-zinc-400">
+                  <p className="text-sm leading-5 text-[#A9B0B5]">
                     {coreBlock.details.progression}
                   </p>
                 </div>
               ) : null}
 
               {coreBlock.details?.notes?.length > 0 ? (
-                <div className="space-y-2 border-t border-zinc-800/40 pt-4">
-                  <h3 className="text-sm font-semibold text-zinc-100">
+                <div className="space-y-2 border-t border-white/7 pt-4">
+                  <h3 className="text-sm font-semibold text-[#F4F7F8]">
                     Key reminders
                   </h3>
 
@@ -441,7 +415,7 @@ export default function CoreWorkflowCard({
                     {coreBlock.details.notes.map((note) => (
                       <li
                         key={note}
-                        className="text-sm leading-5 text-zinc-400"
+                        className="text-sm leading-5 text-[#A9B0B5]"
                       >
                         - {note}
                       </li>
@@ -451,7 +425,7 @@ export default function CoreWorkflowCard({
               ) : null}
 
               {coreBlock.note ? (
-                <p className="border-t border-zinc-800/40 pt-4 text-sm leading-5 text-zinc-400">
+                <p className="border-t border-white/7 pt-4 text-sm leading-5 text-[#A9B0B5]">
                   {coreBlock.note}
                 </p>
               ) : null}
@@ -464,7 +438,7 @@ export default function CoreWorkflowCard({
         <button
           type="button"
           onClick={onCloseCoreBlock}
-          className="flex w-full items-center justify-center gap-2 rounded-2xl border border-[#A78BFA]/34 bg-linear-to-r from-[#5B21B6] via-[#6D28D9] to-[#7C3AED] px-5 py-3 text-sm font-semibold text-white shadow-[0_12px_34px_rgba(109,40,217,0.22)] transition hover:brightness-110"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#A78BFA]/32 bg-[#6D28D9] px-5 py-3 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(109,40,217,0.14)] transition hover:bg-[#7C3AED]"
         >
           {finishButtonLabel}
           <ChevronRight className="h-5 w-5" aria-hidden="true" />

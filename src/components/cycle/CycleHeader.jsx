@@ -9,9 +9,9 @@ export default function CycleHeader({
   const safeProgressPercent = Math.min(Math.max(progressPercent, 0), 100);
 
   return (
-    <header className="flex flex-col gap-3.5">
+    <header className="flex flex-col gap-3 rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3">
       <div className="flex flex-col gap-1">
-        <h1 className="text-[2rem] font-semibold leading-none tracking-tight text-[#F4F7F8]">
+        <h1 className="text-[1.65rem] font-semibold leading-none tracking-tight text-[#F4F7F8]">
           {planName}
         </h1>
 
@@ -24,7 +24,7 @@ export default function CycleHeader({
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-2.5">
             <CheckCircle2
-              className="h-4 w-4 shrink-0 text-[#5EC7D5]/78"
+              className="h-4 w-4 shrink-0 text-[#8FDCE5]/72"
               aria-hidden="true"
             />
 
@@ -35,7 +35,7 @@ export default function CycleHeader({
 
           <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
             <div
-              className="h-full rounded-full bg-[#3FA8B6] transition-all"
+              className="h-full rounded-full bg-[#5EC7D5] transition-all"
               style={{ width: `${safeProgressPercent}%` }}
             />
           </div>

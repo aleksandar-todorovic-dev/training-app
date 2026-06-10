@@ -482,7 +482,7 @@ export default function CyclePage() {
                 return (
                   <div
                     key={slot.id}
-                  className="flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border border-white/8 bg-white/[0.028] text-zinc-500"
+                  className="flex h-12 w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-full border border-white/7 bg-white/[0.018] text-zinc-500"
                   >
                     <span className="text-xs font-medium">Rest</span>
                     <Moon className="h-4 w-4" aria-hidden="true" />
@@ -503,15 +503,15 @@ export default function CyclePage() {
                   ref={isCurrent ? currentRhythmItemRef : null}
                   to={`/plan/${planId}/day/${slot.day.id}`}
                   className={[
-                    "flex h-14 w-14 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border text-center transition-colors",
+                    "flex h-12 w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-full border text-center transition-colors",
                     isCurrent
-                      ? "border-[#3FA8B6]/54 bg-[#10292E]/82 text-[#DDF8FB]"
+                      ? "border-[#3FA8B6]/54 bg-[#10292E]/72 text-[#DDF8FB]"
                       : "",
                     isFinished
-                      ? "border-[#24515A]/64 bg-[#0D2227]/70 text-[#9CE2EA]"
+                      ? "border-white/8 bg-white/[0.026] text-[#A9B0B5]"
                       : "",
                     !isCurrent && !isFinished
-                      ? "border-white/8 bg-white/[0.028] text-zinc-500 hover:border-[#3FA8B6]/24"
+                      ? "border-white/7 bg-white/[0.018] text-zinc-500 hover:border-[#3FA8B6]/22"
                       : "",
                   ].join(" ")}
                 >
@@ -521,7 +521,7 @@ export default function CyclePage() {
 
                   {isFinished ? (
                     <CheckCircle2
-                      className="h-3.5 w-3.5 text-[#8FDCE5]/86"
+                      className="h-3.5 w-3.5 text-[#8B949B]"
                       aria-hidden="true"
                     />
                   ) : isCurrent ? (
@@ -536,7 +536,7 @@ export default function CyclePage() {
         </section>
 
         {currentDay ? (
-          <section className="relative overflow-hidden rounded-2xl border border-[#3FA8B6]/14 bg-[#10292E]/82 p-4 shadow-[0_12px_30px_rgba(0,0,0,0.24)]">
+          <section className="relative overflow-hidden rounded-2xl border border-[#3FA8B6]/14 bg-[#10292E]/58 p-4 shadow-[0_12px_30px_rgba(0,0,0,0.2)]">
             <div
               className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_18%,rgba(95,199,213,0.08),transparent_34%),radial-gradient(circle_at_12%_100%,rgba(63,168,182,0.06),transparent_40%)]"
               aria-hidden="true"
@@ -683,12 +683,12 @@ export default function CyclePage() {
           </section>
         ) : null}
 
-        <section className="flex items-center gap-3 rounded-2xl border border-white/8 bg-[#171C1F]/78 p-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#3FA8B6]/14 bg-[#10292E]/68 text-[#8FDCE5]/82">
+        <section className="flex items-center gap-3 rounded-xl border border-white/7 bg-white/[0.018] px-3 py-2.5">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/8 bg-white/[0.026] text-[#8FDCE5]/68">
             <Sparkles className="h-5 w-5" aria-hidden="true" />
           </div>
 
-          <p className="text-sm font-medium leading-5 text-[#D3D8DB]">
+          <p className="text-sm font-medium leading-5 text-[#A9B0B5]">
             Rest days keep the cycle moving.
           </p>
         </section>

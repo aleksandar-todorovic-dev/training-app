@@ -9,38 +9,38 @@ export default function WarmupStepsCard({ steps }) {
     <div className="flex flex-col gap-3">
       <div className="flex items-end justify-between gap-3">
         <div>
-          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]">
             Flow
           </p>
 
-          <h3 className="mt-0.5 text-base font-semibold tracking-tight text-zinc-100">
+          <h3 className="mt-0.5 text-base font-semibold tracking-tight text-[#F4F7F8]">
             Three quick steps
           </h3>
         </div>
 
-        <p className="text-xs font-medium text-zinc-500">3-8 min</p>
+        <p className="text-xs font-medium text-[#747D84]">Guidance only</p>
       </div>
 
-      <div className="flex flex-col">
+      <div className="flex flex-col gap-2.5">
         {steps.map((step, index) => (
           <div
             key={step.title}
-            className="grid grid-cols-[1.75rem_1fr] gap-3 border-b border-zinc-800/60 py-2.5 first:pt-0 last:border-b-0 last:pb-0"
+            className="grid grid-cols-[1.75rem_1fr] gap-3 rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3"
           >
-            <div className="flex h-7 w-7 items-center justify-center rounded-full border border-amber-300/24 bg-amber-300/7 text-xs font-semibold text-amber-200">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full border border-amber-300/24 bg-amber-300/8 text-xs font-semibold text-amber-200">
               {index + 1}
             </div>
 
             <div className="min-w-0">
-              <h4 className="text-sm font-semibold text-zinc-100">
+              <h4 className="text-sm font-semibold text-[#F4F7F8]">
                 {step.title}
               </h4>
 
-              <ul className="mt-1.5 space-y-1">
+              <ul className="mt-2 space-y-1.5">
                 {step.items.map((item) => (
                   <li
                     key={item}
-                    className="text-sm leading-5 text-zinc-400"
+                    className="rounded-xl border border-white/7 bg-[#071012]/28 px-2.5 py-1.5 text-sm leading-5 text-zinc-400"
                   >
                     {item}
                   </li>

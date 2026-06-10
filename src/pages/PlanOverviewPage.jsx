@@ -333,17 +333,17 @@ export default function PlanOverviewPage() {
           </Link>
 
           <div className="flex flex-col gap-3">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#8FDCE5]/72">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]/72">
               {meta.eyebrow}
             </p>
 
             <div className="flex flex-col gap-2.5">
-              <h1 className="text-4xl font-semibold leading-none tracking-tight text-[#F4F7F8]">
+              <h1 className="text-3xl font-semibold leading-none tracking-tight text-[#F4F7F8]">
                 {meta.title}
               </h1>
 
               <div className="flex flex-col gap-1.5">
-                <p className="max-w-sm text-lg font-semibold leading-7 text-[#E7ECEE]">
+                <p className="max-w-sm text-base font-semibold leading-6 text-[#E7ECEE]">
                   {meta.lead}
                 </p>
                 <p className="max-w-sm text-sm leading-6 text-[#A9B0B5]">
@@ -354,7 +354,7 @@ export default function PlanOverviewPage() {
           </div>
         </header>
 
-        <section className="overflow-hidden rounded-2xl border border-[#3FA8B6]/14 bg-[#10292E]/78 shadow-[0_12px_30px_rgba(0,0,0,0.24)]">
+        <section className="overflow-hidden rounded-2xl border border-[#3FA8B6]/14 bg-[#10292E]/58 shadow-[0_12px_30px_rgba(0,0,0,0.2)]">
           <div className="relative flex flex-col gap-4 overflow-hidden p-4">
             <div
               className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_18%,rgba(95,199,213,0.08),transparent_34%),radial-gradient(circle_at_12%_100%,rgba(63,168,182,0.06),transparent_40%)]"
@@ -388,30 +388,26 @@ export default function PlanOverviewPage() {
           </div>
         </section>
 
-        <section className="grid grid-cols-2 gap-2">
+        <section className="overflow-hidden rounded-2xl border border-white/8 bg-[#12181B]/72">
           {meta.facts.map(({ label, value, icon }) => (
             <div
               key={label}
-              className="rounded-xl border border-white/8 bg-[#111517]/70 px-3 py-2.5"
+              className="flex items-center gap-3 border-b border-white/7 px-3 py-2.5 last:border-b-0"
             >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#747D84]">
-                    {label}
-                  </p>
-
-                  <p className="mt-1.5 text-base font-semibold leading-tight text-[#F4F7F8]">
-                    {value}
-                  </p>
-                </div>
-
-                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[#3FA8B6]/12 bg-[#10292E]/42 text-[#8FDCE5]/72">
-                  {createElement(icon, {
-                    className: "h-3 w-3",
-                    "aria-hidden": "true",
-                  })}
-                </div>
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/8 bg-white/[0.026] text-[#8FDCE5]/62">
+                {createElement(icon, {
+                  className: "h-3 w-3",
+                  "aria-hidden": "true",
+                })}
               </div>
+
+              <p className="min-w-0 flex-1 text-sm font-medium text-[#A9B0B5]">
+                {label}
+              </p>
+
+              <p className="shrink-0 text-sm font-semibold text-[#F4F7F8]">
+                {value}
+              </p>
             </div>
           ))}
         </section>
@@ -427,59 +423,63 @@ export default function PlanOverviewPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-2">
-            {rhythmItems.map((item) => {
-              const isRest = item.label === "Rest";
-              const rhythmLabel = isRest
-                ? item.name
-                : (RHYTHM_DAY_LABELS[item.id] ?? item.name);
+          <div className="overflow-x-auto rounded-2xl border border-white/8 bg-[#12181B]/72 p-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex min-w-max items-center gap-2">
+              {rhythmItems.map((item) => {
+                const isRest = item.label === "Rest";
+                const rhythmLabel = isRest
+                  ? item.name
+                  : (RHYTHM_DAY_LABELS[item.id] ?? item.name);
 
-              return (
-                <div
-                  key={item.id}
-                  className={[
-                    "flex min-h-16 flex-col justify-between rounded-xl border p-2 text-center",
-                    isRest
-                      ? "border-white/8 bg-white/[0.026] text-zinc-500"
-                      : "border-white/8 bg-[#151A1D]/82 text-[#DDF8FB]",
-                  ].join(" ")}
-                >
-                  <p
-                    className={[
-                      "text-xs font-semibold",
-                      isRest ? "text-zinc-500" : "text-[#D3D8DB]",
-                    ].join(" ")}
-                  >
-                    {item.label}
-                  </p>
-
-                  <p
-                    className={[
-                      "text-xs font-medium leading-tight",
-                      isRest ? "text-zinc-500" : "text-[#F4F7F8]",
-                    ].join(" ")}
-                  >
-                    {rhythmLabel}
-                  </p>
-
+                return (
                   <div
+                    key={item.id}
                     className={[
-                      "mx-auto flex h-5 w-5 items-center justify-center",
-                      isRest ? "text-zinc-500" : "text-[#8FDCE5]/82",
+                      "flex h-14 w-24 shrink-0 flex-col justify-between rounded-xl border px-2 py-2 text-left",
+                      isRest
+                        ? "border-white/7 bg-white/[0.018] text-zinc-500"
+                        : "border-white/8 bg-white/[0.028] text-[#DDF8FB]",
                     ].join(" ")}
                   >
-                    {isRest ? (
-                      <Moon className="h-3.5 w-3.5" aria-hidden="true" />
-                    ) : (
-                      <span
-                        className="h-1.5 w-1.5 rounded-full bg-[#8FDCE5]/64"
-                        aria-hidden="true"
-                      />
-                    )}
+                    <p
+                      className={[
+                        "text-xs font-semibold",
+                        isRest ? "text-zinc-500" : "text-[#D3D8DB]",
+                      ].join(" ")}
+                    >
+                      {item.label}
+                    </p>
+
+                    <div className="flex items-end justify-between gap-2">
+                      <p
+                        className={[
+                          "line-clamp-1 text-xs font-medium leading-tight",
+                          isRest ? "text-zinc-500" : "text-[#F4F7F8]",
+                        ].join(" ")}
+                      >
+                        {rhythmLabel}
+                      </p>
+
+                      <div
+                        className={[
+                          "flex h-4 w-4 items-center justify-center",
+                          isRest ? "text-zinc-500" : "text-[#8FDCE5]/82",
+                        ].join(" ")}
+                      >
+                        {isRest ? (
+                          <Moon className="h-3.5 w-3.5" aria-hidden="true" />
+                        ) : (
+                          <span
+                            className="h-1.5 w-1.5 rounded-full bg-[#8FDCE5]/64"
+                            aria-hidden="true"
+                          />
+                        )}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         </section>
 
@@ -519,14 +519,14 @@ export default function PlanOverviewPage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-white/8 bg-[#151A1D]/82 p-4">
+        <section className="rounded-2xl border border-white/8 bg-white/[0.02] p-3">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#3FA8B6]/14 bg-[#10292E]/58 text-[#8FDCE5]/82">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-white/8 bg-white/[0.026] text-[#8FDCE5]/70">
               <BookOpen className="h-5 w-5" aria-hidden="true" />
             </div>
 
             <div className="min-w-0 flex-1">
-              <h2 className="text-lg font-semibold tracking-tight text-[#F4F7F8]">
+              <h2 className="text-base font-semibold tracking-tight text-[#F4F7F8]">
                 Coach guide
               </h2>
               <p className="text-sm leading-5 text-[#A9B0B5]">

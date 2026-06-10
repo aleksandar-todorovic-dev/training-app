@@ -1,18 +1,19 @@
-function CheckBox({ isDone = false }) {
+function DoneControl({ isDone = false }) {
   return (
     <span
-      className={`flex h-6 w-6 items-center justify-center rounded-md border text-xs transition ${
+      className={`inline-flex min-h-9 items-center justify-center rounded-full border px-3 text-xs font-semibold transition ${
         isDone
-          ? "border-[#C4B5FD] bg-[#7C3AED] text-white shadow-[0_0_10px_rgba(124,58,237,0.22)]"
-          : "border-zinc-700/70 bg-zinc-950/20"
+          ? "border-[#A78BFA]/70 bg-[#7C3AED] text-white shadow-[0_8px_18px_rgba(124,58,237,0.14)]"
+          : "border-white/10 bg-white/[0.026] text-[#8B949B]"
       }`}
     >
-      {isDone ? "✓" : null}
+      {isDone ? "Done" : "Mark"}
     </span>
   );
 }
 
-function InlineMetric({
+function MetricField({
+  label,
   name,
   value,
   onChange,
@@ -24,10 +25,13 @@ function InlineMetric({
 
   if (isReadOnly || isTarget) {
     return (
-      <div className="mx-auto flex w-[82%] min-w-0 items-center justify-center border-b border-zinc-800/30 pb-1">
+      <div className="min-w-0 rounded-xl border border-white/7 bg-white/[0.018] px-2.5 py-2">
+        <span className="block text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]">
+          {label}
+        </span>
         <span
-          className={`whitespace-nowrap text-sm font-semibold tabular-nums ${
-            isTarget ? "text-zinc-300" : "text-zinc-100"
+          className={`mt-1 block whitespace-nowrap text-sm font-semibold tabular-nums ${
+            isTarget ? "text-[#D3D8DB]" : "text-[#F4F7F8]"
           }`}
         >
           {displayValue}
@@ -37,15 +41,20 @@ function InlineMetric({
   }
 
   return (
-    <input
-      name={name}
-      value={inputValue}
-      onChange={(event) => onChange?.(event.target.value)}
-      inputMode="decimal"
-      autoComplete="off"
-      placeholder="—"
-      className="mx-auto w-[82%] min-w-0 border-b border-zinc-800/30 bg-transparent pb-1 text-center text-sm font-semibold tabular-nums text-zinc-100 outline-none transition placeholder:text-zinc-600 focus:w-full focus:border-[#A78BFA]/80"
-    />
+    <label className="min-w-0 rounded-xl border border-white/8 bg-[#0B1113]/72 px-2.5 py-2 transition-colors focus-within:border-[#A78BFA]/56 focus-within:bg-[#0D1118]">
+      <span className="block text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]">
+        {label}
+      </span>
+      <input
+        name={name}
+        value={inputValue}
+        onChange={(event) => onChange?.(event.target.value)}
+        inputMode="decimal"
+        autoComplete="off"
+        placeholder="—"
+        className="mt-1 w-full min-w-0 bg-transparent text-sm font-semibold tabular-nums text-[#F4F7F8] outline-none placeholder:text-[#59636B]"
+      />
+    </label>
   );
 }
 
@@ -74,57 +83,73 @@ export default function CoreSetRow({
 }) {
   const loggedField = valueLabel === "Time" ? "time" : "reps";
 
-  // Preview rows hide the DONE affordance entirely instead of showing a disabled checkbox.
-  const rowGridClass = showDoneControl
-    ? "grid-cols-[32px_1.25fr_1fr_0.85fr_30px]"
-    : "grid-cols-[32px_1.25fr_1fr_0.85fr]";
-
   return (
     <div
-      className={`grid ${rowGridClass} items-center gap-2 py-2.5 ${
-        !isLast ? "border-b border-zinc-800/16" : ""
-      }`}
+      className={[
+        "rounded-2xl border px-3 py-3 transition-colors",
+        isDone
+          ? "border-[#A78BFA]/26 bg-[#4C1D95]/18"
+          : "border-white/8 bg-white/[0.02]",
+        !isLast ? "" : "",
+      ].join(" ")}
     >
-      <span className="flex h-8 items-center justify-center text-sm font-semibold tabular-nums text-zinc-200">
-        {setNumber}
-      </span>
+      <div className="mb-2.5 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <span
+            className={[
+              "flex h-7 w-7 items-center justify-center rounded-full border text-xs font-semibold tabular-nums",
+              isDone
+                ? "border-[#A78BFA]/32 bg-[#4C1D95]/42 text-[#DDD6FE]"
+                : "border-white/10 bg-[#071012]/54 text-[#D3D8DB]",
+            ].join(" ")}
+          >
+            {setNumber}
+          </span>
+          <p className="text-sm font-semibold text-[#E7ECEE]">
+            Set {setNumber}
+          </p>
+        </div>
 
-      <InlineMetric
-        name={`core-set-${setNumber}-load`}
-        value={tracksLoad ? load : target}
-        isReadOnly={isReadOnly}
-        isTarget={!tracksLoad}
-        onChange={(value) => onSetFieldChange?.("load", value)}
-      />
+        {showDoneControl ? (
+          <button
+            type="button"
+            aria-label={`Mark core set ${setNumber} ${isDone ? "not done" : "done"}`}
+            aria-pressed={isDone}
+            disabled={isReadOnly}
+            onClick={isReadOnly ? undefined : onToggleDone}
+            className={isReadOnly ? "cursor-not-allowed opacity-50" : ""}
+          >
+            <DoneControl isDone={isDone} />
+          </button>
+        ) : null}
+      </div>
 
-      <InlineMetric
-        name={`core-set-${setNumber}-${loggedField}`}
-        value={logged}
-        isReadOnly={isReadOnly}
-        onChange={(value) => onSetFieldChange?.(loggedField, value)}
-      />
+      <div className="grid grid-cols-3 gap-2">
+        <MetricField
+          label={tracksLoad ? "Kg" : "Target"}
+          name={`core-set-${setNumber}-load`}
+          value={tracksLoad ? load : target}
+          isReadOnly={isReadOnly}
+          isTarget={!tracksLoad}
+          onChange={(value) => onSetFieldChange?.("load", value)}
+        />
 
-      <InlineMetric
-        name={`core-set-${setNumber}-rir`}
-        value={effort}
-        isReadOnly={isReadOnly}
-        onChange={(value) => onSetFieldChange?.("rir", value)}
-      />
+        <MetricField
+          label={valueLabel}
+          name={`core-set-${setNumber}-${loggedField}`}
+          value={logged}
+          isReadOnly={isReadOnly}
+          onChange={(value) => onSetFieldChange?.(loggedField, value)}
+        />
 
-      {showDoneControl ? (
-        <button
-          type="button"
-          aria-label={`Mark core set ${setNumber} ${isDone ? "not done" : "done"}`}
-          aria-pressed={isDone}
-          disabled={isReadOnly}
-          onClick={isReadOnly ? undefined : onToggleDone}
-          className={`flex h-8 items-center justify-center ${
-            isReadOnly ? "cursor-not-allowed opacity-50" : ""
-          }`}
-        >
-          <CheckBox isDone={isDone} />
-        </button>
-      ) : null}
+        <MetricField
+          label="RIR"
+          name={`core-set-${setNumber}-rir`}
+          value={effort}
+          isReadOnly={isReadOnly}
+          onChange={(value) => onSetFieldChange?.("rir", value)}
+        />
+      </div>
     </div>
   );
 }

@@ -395,7 +395,7 @@ export default function DayPage() {
           </div>
         </header>
 
-        <section className="flex items-center gap-3 rounded-xl bg-white/[0.016] px-3 py-2.5">
+        <section className="flex items-center gap-3 rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-2.5">
           <div
             className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full p-1"
             style={{
@@ -404,7 +404,7 @@ export default function DayPage() {
               }deg, rgba(255, 255, 255, 0.12) 0deg)`,
             }}
           >
-            <div className="h-full w-full rounded-full bg-[#070A0B]" />
+            <div className="h-full w-full rounded-full bg-[#0B1518]" />
           </div>
 
           <div className="min-w-0 flex-1">
@@ -446,7 +446,7 @@ export default function DayPage() {
         </section>
 
         {dayMode === "active" ? (
-          <section className="rounded-2xl bg-linear-to-b from-[#1D1C16]/22 via-[#10292E]/18 to-[#10292E]/12 p-3.5">
+          <section className="rounded-2xl border border-amber-300/12 bg-[linear-gradient(180deg,rgba(29,28,22,0.22),rgba(16,41,46,0.12))] p-3.5 shadow-[0_10px_26px_rgba(0,0,0,0.14)]">
             {nextExercise ? (
               <div className="flex flex-col gap-3">
                 <div className="flex flex-col gap-2">
@@ -496,7 +496,7 @@ export default function DayPage() {
                 <button
                   type="button"
                   onClick={() => setIsWarmupOpen(true)}
-                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#070A0B]/28 px-4 text-sm font-semibold text-[#D3D8DB] transition-colors hover:border-white/18 hover:text-[#F4F7F8]"
+                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-amber-300/16 bg-amber-300/[0.035] px-4 text-sm font-semibold text-[#D3D8DB] transition-colors hover:border-amber-300/24 hover:text-[#F4F7F8]"
                 >
                   <Flame
                     className="h-4 w-4 text-[#C9B57A]"
@@ -572,7 +572,7 @@ export default function DayPage() {
             </p>
           </div>
 
-          <div className="flex flex-col gap-0">
+          <div className="flex flex-col overflow-hidden rounded-2xl border border-white/8 bg-white/[0.018] px-1 py-1">
             {exercises.map((exercise, index) => (
               <ExerciseListCard
                 key={exercise.id}

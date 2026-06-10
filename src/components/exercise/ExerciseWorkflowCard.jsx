@@ -128,19 +128,18 @@ export default function ExerciseWorkflowCard({
   // Preview mode is read-only plan review, not disabled logging.
   // Active and finished days keep DONE controls because saved logs remain editable.
   const showDoneControls = !isReadOnly;
-  const setGridClass = showDoneControls
-    ? "grid-cols-[32px_1fr_1fr_1fr_30px]"
-    : "grid-cols-[32px_1fr_1fr_1fr]";
   const focusLabel = isReadOnly ? "Exercise focus" : "Today's focus";
   const isClosedLog = dayMode === "finished";
   const finishButtonLabel = isClosedLog ? "Save changes" : "Finish exercise";
+  const completedSetCount = sets.filter((set) => set.isDone).length;
+  const setProgressLabel = `${completedSetCount}/${sets.length} sets checked`;
 
   return (
     <>
       <div className="space-y-5">
         {isReadOnly ? (
-          <section className="rounded-xl bg-cyan-400/5 p-3">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-cyan-200">
+          <section className="rounded-xl border border-[#3FA8B6]/12 bg-[#10292E]/22 p-3">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]">
               Preview mode
             </p>
             <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
@@ -151,8 +150,8 @@ export default function ExerciseWorkflowCard({
         ) : null}
 
         {isClosedLog ? (
-          <section className="rounded-xl border border-cyan-400/12 bg-cyan-400/5 p-3">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-cyan-200">
+          <section className="rounded-xl border border-[#3FA8B6]/12 bg-[#10292E]/22 p-3">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]">
               Closed day log
             </p>
             <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
@@ -161,23 +160,26 @@ export default function ExerciseWorkflowCard({
           </section>
         ) : null}
 
-        <section className="space-y-1.5">
+        <section className="rounded-2xl border border-white/8 bg-white/[0.02] px-3 py-3">
           <div className="flex items-center gap-2">
-            <Crosshair aria-hidden="true" className="h-4 w-4 text-cyan-300" />
+            <Crosshair
+              aria-hidden="true"
+              className="h-4 w-4 text-[#8FDCE5]"
+            />
 
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-cyan-200">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]">
               {focusLabel}
             </p>
           </div>
 
-          <p className="text-sm leading-6 text-zinc-100">
+          <p className="mt-1.5 text-sm leading-5 text-[#D3D8DB]">
             {exercise.cue ??
               "Keep the movement controlled and log the work you actually perform."}
           </p>
         </section>
 
         {advancedTechnique ? (
-          <section className="space-y-2.5">
+          <section className="rounded-2xl border border-amber-300/14 bg-amber-300/[0.035] px-3 py-3">
             <button
               type="button"
               aria-expanded={isMethodOpen}
@@ -186,9 +188,12 @@ export default function ExerciseWorkflowCard({
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <Zap aria-hidden="true" className="h-4 w-4 text-cyan-300" />
+                  <Zap
+                    aria-hidden="true"
+                    className="h-4 w-4 text-amber-200"
+                  />
 
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-cyan-200">
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-amber-200">
                     Prescribed method
                   </p>
                 </div>
@@ -200,7 +205,7 @@ export default function ExerciseWorkflowCard({
                 </p>
               </div>
 
-              <span className="shrink-0 pt-0.5 text-sm font-semibold text-cyan-200">
+              <span className="shrink-0 pt-0.5 text-sm font-semibold text-amber-100">
                 {isMethodOpen ? "Hide" : "View"}
               </span>
             </button>
@@ -220,7 +225,7 @@ export default function ExerciseWorkflowCard({
                   <button
                     type="button"
                     onClick={() => setIsAdvancedHelpOpen(true)}
-                    className="rounded-full border border-cyan-400/22 px-3 py-1 text-xs font-semibold text-cyan-200 transition hover:bg-cyan-400/10"
+                    className="rounded-full border border-amber-300/22 px-3 py-1 text-xs font-semibold text-amber-100 transition hover:bg-amber-300/10"
                   >
                     Method help
                   </button>
@@ -230,16 +235,16 @@ export default function ExerciseWorkflowCard({
           </section>
         ) : null}
 
-        <section className="-mx-2 space-y-3 rounded-3xl bg-linear-to-b from-cyan-950/14 via-zinc-950/8 to-transparent px-3.5 pt-4 pb-3">
+        <section className="space-y-3 rounded-2xl border border-[#3FA8B6]/12 bg-[#10292E]/38 px-3.5 py-3.5 shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
           <div>
             <div className="mb-2.5 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <ListChecks
                   aria-hidden="true"
-                  className="h-4 w-4 text-cyan-300/80"
+                  className="h-4 w-4 text-[#8FDCE5]/80"
                 />
 
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]">
                   Working targets
                 </p>
               </div>
@@ -247,13 +252,13 @@ export default function ExerciseWorkflowCard({
               <button
                 type="button"
                 onClick={() => setIsHelpOpen(true)}
-                className="rounded-full border border-zinc-800 px-2.5 py-1 text-xs font-semibold text-cyan-200 transition hover:border-cyan-400/34 hover:bg-cyan-400/10"
+                className="rounded-full border border-white/10 bg-white/[0.026] px-2.5 py-1 text-xs font-semibold text-[#8FDCE5] transition hover:border-[#3FA8B6]/28 hover:bg-[#10292E]/50"
               >
                 Help
               </button>
             </div>
 
-            <div className="grid grid-cols-[1.35fr_1fr_1.1fr_0.75fr] gap-2 py-1">
+            <div className="grid grid-cols-4 gap-2 rounded-xl border border-white/7 bg-[#071012]/34 px-2 py-2">
               <TargetItem label="Sets" value={cleanedPrescriptionDisplay} />
               <TargetItem label="Tempo" value={cleanedTempo} />
               <TargetItem label="Rest" value={cleanedRest} />
@@ -264,33 +269,35 @@ export default function ExerciseWorkflowCard({
           <div className="space-y-2.5">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]">
                   {logEyebrow}
                 </p>
-                <h2 className="mt-1 text-xl font-semibold tracking-tight text-zinc-100">
+                <h2 className="mt-1 text-xl font-semibold tracking-tight text-[#F4F7F8]">
                   {logTitle}
                 </h2>
               </div>
 
-              <p className="shrink-0 rounded-full border border-zinc-800 bg-zinc-900/62 px-2.5 py-0.5 text-xs font-semibold text-zinc-400">
-                {sets.length} {sets.length === 1 ? "set" : "sets"}
+              <p className="shrink-0 rounded-full border border-white/10 bg-white/[0.026] px-2.5 py-0.5 text-xs font-semibold text-[#A9B0B5]">
+                {showDoneControls ? setProgressLabel : `${sets.length} sets`}
               </p>
             </div>
 
-            <div
-              className={`grid ${setGridClass} items-center gap-2 border-b border-zinc-800/70 pb-2 text-[10px] font-semibold uppercase tracking-[0.12em] text-zinc-500`}
-            >
-              <span className="text-center">Set</span>
-              <span className="text-center">Kg</span>
-              <span className="text-center">Reps</span>
-              <span className="text-center">RIR</span>
+            {!isReadOnly ? (
+              <div className="rounded-xl border border-white/7 bg-white/[0.018] px-3 py-2.5">
+                <p className="text-xs font-semibold text-[#D3D8DB]">
+                  {hasPreviousValues
+                    ? "Previous values available"
+                    : "No previous values yet"}
+                </p>
+                <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
+                  {hasPreviousValues
+                    ? "Use your last logged work as a guide while you fill today's sets."
+                    : "Log today to build the next-cycle reference."}
+                </p>
+              </div>
+            ) : null}
 
-              {showDoneControls ? (
-                <span className="text-center">Done</span>
-              ) : null}
-            </div>
-
-            <div>
+            <div className="flex flex-col gap-2">
               {/* Set rows may be runtime logs or read-only preview rows; updates are delegated upward. */}
               {sets.map((set, index) => (
                 <SetRow
@@ -312,35 +319,26 @@ export default function ExerciseWorkflowCard({
             </div>
 
             {!isReadOnly ? (
-              <div className="pt-1">
-                <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">
-                  {hasPreviousValues
-                    ? "Previous values available"
-                    : "No previous values yet"}
+              <div className="space-y-2 pt-1">
+                <p className="text-center text-xs font-medium text-[#747D84]">
+                  {setProgressLabel}
                 </p>
-                <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
-                  {hasPreviousValues
-                    ? "Use your last logged work as a guide."
-                    : "Log today to build your next-cycle reference."}
-                </p>
-              </div>
-            ) : null}
 
-            {!isReadOnly ? (
-              <button
-                type="button"
-                onClick={onCloseExercise}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-300 px-5 py-3 text-sm font-semibold text-zinc-950 shadow-[0_10px_28px_rgba(34,211,238,0.16)] transition hover:bg-cyan-200"
-              >
-                {finishButtonLabel}
-                <ChevronRight className="h-5 w-5" aria-hidden="true" />
-              </button>
+                <button
+                  type="button"
+                  onClick={onCloseExercise}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5EC7D5] px-5 py-3 text-sm font-semibold text-[#031014] shadow-[0_10px_24px_rgba(63,168,182,0.14)] transition hover:bg-[#6DD6E2]"
+                >
+                  {finishButtonLabel}
+                  <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                </button>
+              </div>
             ) : null}
           </div>
         </section>
 
         {hasCoachNotes ? (
-          <section className="space-y-3 pt-1">
+          <section className="rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3">
             <button
               type="button"
               aria-expanded={isCoachNotesOpen}
@@ -348,7 +346,7 @@ export default function ExerciseWorkflowCard({
               className="flex w-full items-start justify-between gap-4 text-left"
             >
               <div>
-                <h2 className="text-lg font-semibold tracking-tight text-zinc-100">
+                <h2 className="text-base font-semibold tracking-tight text-[#E7ECEE]">
                   Coach notes
                 </h2>
                 <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
@@ -356,7 +354,7 @@ export default function ExerciseWorkflowCard({
                 </p>
               </div>
 
-              <span className="pt-1 text-sm font-semibold text-cyan-200">
+              <span className="pt-1 text-sm font-semibold text-[#8FDCE5]">
                 {isCoachNotesOpen ? "Hide" : "View"}
               </span>
             </button>

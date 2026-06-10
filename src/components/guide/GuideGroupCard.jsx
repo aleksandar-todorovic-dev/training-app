@@ -10,13 +10,13 @@ import GuideTopicBlock from "./GuideTopicBlock";
 export default function GuideGroupCard({ group }) {
   return (
     <div className="flex flex-col">
-      <header className="flex flex-col gap-3 border-b border-zinc-800/80 pb-5">
+      <header className="flex flex-col gap-3 rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3">
         <div>
-          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-cyan-300/78">
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]/78">
             Guide section
           </p>
 
-          <h2 className="mt-2 text-3xl font-semibold leading-tight tracking-tight text-zinc-50">
+          <h2 className="mt-2 text-2xl font-semibold leading-tight tracking-tight text-zinc-50">
             {group.title}
           </h2>
 
@@ -36,7 +36,7 @@ export default function GuideGroupCard({ group }) {
         </div>
       </header>
 
-      <div className="flex flex-col">
+      <div className="mt-3 flex flex-col gap-3">
         {group.topics.map((topic, index) => (
           <GuideTopicBlock
             key={topic.id}

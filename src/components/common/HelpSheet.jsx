@@ -1,7 +1,15 @@
 import { useEffect } from "react";
 
 import SecondaryButton from "./SecondaryButton";
-import { UI_TEXT_MUTED, UI_TITLE } from "../../styles/ui";
+import {
+  UI_SHEET_BODY,
+  UI_SHEET_FOOTER,
+  UI_SHEET_HEADER,
+  UI_SHEET_OVERLAY,
+  UI_SHEET_PANEL,
+  UI_TEXT_MUTED,
+  UI_TITLE,
+} from "../../styles/ui";
 
 /**
  * Shared bottom-sheet help pattern used for local guidance content.
@@ -40,13 +48,13 @@ export default function HelpSheet({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-zinc-950/80 px-4 pb-4 pt-10">
-      <div className="flex max-h-[84vh] w-full max-w-md flex-col rounded-2xl border border-zinc-800/80 bg-zinc-950 shadow-2xl">
-        <div className="flex flex-col gap-3 border-b border-zinc-800/80 p-3.5">
+    <div className={UI_SHEET_OVERLAY}>
+      <div className={UI_SHEET_PANEL}>
+        <div className={UI_SHEET_HEADER}>
           <div className="flex items-start justify-between gap-4">
             <div className="flex flex-col gap-2">
-              <p className="text-xs font-medium text-zinc-500">
-                Exercise guidance
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]">
+                Quick coaching
               </p>
 
               <h2 id="help-sheet-title" className={UI_TITLE}>
@@ -58,52 +66,57 @@ export default function HelpSheet({
           </div>
         </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-3.5 [scrollbar-width:thin] [scrollbar-color:rgba(63,63,70,0.8)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-700/80">
-          <div className="space-y-4">
+        <div className={UI_SHEET_BODY}>
+          <div className="space-y-2.5">
             {sections.map((section, index) => (
               <section
                 key={section.id}
-                className={
-                  index === 0
-                    ? "space-y-2"
-                    : "space-y-2 border-t border-zinc-800/80 pt-4"
-                }
+                className="rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3"
               >
-                <h3 className="text-sm font-semibold text-zinc-100">
-                  {section.title}
-                </h3>
-
-                {section.paragraphs?.length ? (
-                  <div className="space-y-2">
-                    {section.paragraphs.map((paragraph) => (
-                      <p
-                        key={paragraph}
-                        className={`text-sm leading-5 ${UI_TEXT_MUTED}`}
-                      >
-                        {paragraph}
-                      </p>
-                    ))}
+                <div className="flex items-start gap-2.5">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#3FA8B6]/20 bg-[#10292E]/42 text-xs font-semibold text-[#8FDCE5]">
+                    {index + 1}
                   </div>
-                ) : null}
 
-                {section.bullets?.length ? (
-                  <ul className="space-y-1 pt-0.5">
-                    {section.bullets.map((bullet) => (
-                      <li
-                        key={bullet}
-                        className={`text-sm leading-5 ${UI_TEXT_MUTED}`}
-                      >
-                        - {bullet}
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-sm font-semibold text-[#F4F7F8]">
+                      {section.title}
+                    </h3>
+
+                    {section.paragraphs?.length ? (
+                      <div className="mt-2 space-y-2">
+                        {section.paragraphs.map((paragraph) => (
+                          <p
+                            key={paragraph}
+                            className={`text-sm leading-5 ${UI_TEXT_MUTED}`}
+                          >
+                            {paragraph}
+                          </p>
+                        ))}
+                      </div>
+                    ) : null}
+
+                    {section.bullets?.length ? (
+                      <ul className="mt-2 space-y-1.5">
+                        {section.bullets.map((bullet) => (
+                          <li
+                            key={bullet}
+                            className={`flex gap-2 text-sm leading-5 ${UI_TEXT_MUTED}`}
+                          >
+                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8FDCE5]/65" />
+                            <span>{bullet}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                </div>
               </section>
             ))}
           </div>
         </div>
 
-        <div className="border-t border-zinc-800/80 p-3.5">
+        <div className={UI_SHEET_FOOTER}>
           <SecondaryButton onClick={onClose} className="w-full">
             Close help
           </SecondaryButton>

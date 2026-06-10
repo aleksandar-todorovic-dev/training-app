@@ -144,7 +144,7 @@ export default function GuidePage() {
                 </p>
               </div>
 
-              <div className="flex flex-col divide-y divide-zinc-800/80 border-y border-zinc-800/80">
+              <div className="flex flex-col gap-2.5">
                 {guide.groups.map((group, index) => {
                   const SectionIcon = GUIDE_SECTION_ICONS[index] ?? BookOpen;
 
@@ -153,10 +153,10 @@ export default function GuidePage() {
                       key={group.id}
                       type="button"
                       onClick={() => handleOpenGroup(group.id)}
-                    className="group py-4 text-left transition"
+                      className="group rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3 text-left transition hover:border-[#3FA8B6]/18 hover:bg-white/[0.03]"
                   >
                       <div className="grid grid-cols-[2rem_1fr] gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-xl border border-cyan-300/20 bg-cyan-300/8 text-sm font-semibold text-cyan-200">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[#3FA8B6]/18 bg-[#10292E]/36 text-sm font-semibold text-[#8FDCE5]">
                           {index + 1}
                         </div>
 
@@ -166,7 +166,7 @@ export default function GuidePage() {
                               <div className="flex items-center gap-2">
                                 <SectionIcon
                                   aria-hidden="true"
-                                  className="h-4 w-4 shrink-0 text-cyan-300/70"
+                                  className="h-4 w-4 shrink-0 text-[#8FDCE5]/64"
                                 />
 
                                 <h3 className="text-base font-semibold tracking-tight text-zinc-100 transition group-hover:text-cyan-100">

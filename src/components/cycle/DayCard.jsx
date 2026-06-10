@@ -19,24 +19,16 @@ export default function DayCard({
       className={[
         "group relative overflow-hidden rounded-xl border transition-colors",
         isFinished
-          ? "border-[#24515A]/50 bg-[#0D2227]/70 hover:border-[#3FA8B6]/45"
-          : "border-white/8 bg-[#171C1F]/82 hover:border-[#3FA8B6]/32",
+          ? "border-white/7 bg-white/[0.018] hover:border-white/12"
+          : "border-white/8 bg-[#171C1F]/72 hover:border-[#3FA8B6]/26",
       ].join(" ")}
     >
-      <div
-        className={[
-          "pointer-events-none absolute inset-y-0 left-0 w-1",
-          isFinished ? "bg-[#3FA8B6]/38" : "bg-[#2A5962]/72",
-        ].join(" ")}
-        aria-hidden="true"
-      />
-
       <div className="flex items-center gap-2.5 px-3 py-2.5">
         <div
           className={[
             "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-sm font-semibold",
             isFinished
-              ? "border border-[#3FA8B6]/24 bg-[#123039]/70 text-[#8FDCE5]/86"
+              ? "border border-white/8 bg-white/[0.026] text-[#A9B0B5]"
               : "border border-white/10 bg-white/4 text-[#E8ECEE]",
           ].join(" ")}
         >
@@ -48,7 +40,12 @@ export default function DayCard({
         </div>
 
         <div className="min-w-0 flex-1">
-          <h3 className="line-clamp-1 text-[1rem] font-semibold leading-snug text-[#F4F7F8]">
+          <h3
+            className={[
+              "line-clamp-1 text-[1rem] font-semibold leading-snug",
+              isFinished ? "text-[#D3D8DB]" : "text-[#F4F7F8]",
+            ].join(" ")}
+          >
             {title}
           </h3>
 

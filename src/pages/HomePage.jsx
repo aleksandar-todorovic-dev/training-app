@@ -94,15 +94,15 @@ export default function HomePage() {
 
   return (
     <AppShell mode="training">
-      <div className="relative isolate flex flex-col gap-6 py-1">
+      <div className="relative isolate flex flex-col gap-5 py-1">
         <div
-          className="pointer-events-none absolute -top-16 left-1/2 -z-10 h-56 w-56 -translate-x-1/2 rounded-full bg-[#3FA8B6]/7 blur-3xl"
+          className="pointer-events-none absolute -top-16 left-1/2 -z-10 h-56 w-56 -translate-x-1/2 rounded-full bg-[#3FA8B6]/8 blur-3xl"
           aria-hidden="true"
         />
 
-        <header className="flex flex-col gap-5">
+        <header className="flex flex-col gap-4">
           <div className="inline-flex w-fit items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#3FA8B6]/16 bg-[#10292E]/60 text-[#8FDCE5]/90">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#3FA8B6]/14 bg-[#10292E]/46 text-[#8FDCE5]/90">
               <Repeat2 className="h-5 w-5" aria-hidden="true" />
             </div>
 
@@ -117,7 +117,7 @@ export default function HomePage() {
           </div>
 
           <div className="flex flex-col gap-3">
-            <h1 className="max-w-sm text-[2.25rem] font-semibold leading-[1.03] tracking-tight text-[#F4F7F8]">
+            <h1 className="max-w-sm text-[2.18rem] font-semibold leading-[1.03] tracking-tight text-[#F4F7F8]">
               Your training cycle, organized
               <span className="text-[#5EC7D5]">.</span>
             </h1>
@@ -140,13 +140,13 @@ export default function HomePage() {
                   aria-controls={isActive ? "home-value-chip-panel" : undefined}
                   onClick={() => handleValueChipClick(id)}
                   className={[
-                    "inline-flex min-h-10 items-center gap-2 rounded-xl border px-2.5 py-2 text-left text-xs font-medium transition-colors",
+                    "inline-flex min-h-9 items-center gap-2 rounded-xl border px-2.5 py-1.5 text-left text-xs font-medium transition-colors",
                     isActive
-                      ? "border-[#3FA8B6]/28 bg-[#10292E]/64 text-[#F4F7F8]"
-                      : "border-white/8 bg-white/[0.026] text-[#D3D8DB] hover:border-[#3FA8B6]/20 hover:bg-white/4",
+                      ? "border-[#3FA8B6]/26 bg-[#10292E]/48 text-[#F4F7F8]"
+                      : "border-white/8 bg-white/[0.018] text-[#D3D8DB] hover:border-[#3FA8B6]/18 hover:bg-white/[0.035]",
                   ].join(" ")}
                 >
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg border border-[#3FA8B6]/12 bg-[#10292E]/45 text-[#8FDCE5]/78">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-[#8FDCE5]/78">
                     {createElement(icon, {
                       className: "h-3 w-3",
                       "aria-hidden": "true",
@@ -161,11 +161,11 @@ export default function HomePage() {
           {activeValueChip ? (
             <div
               id="home-value-chip-panel"
-              className="rounded-2xl border border-[#3FA8B6]/14 bg-[linear-gradient(180deg,rgba(16,41,46,0.52),rgba(255,255,255,0.022))] px-3.5 py-3"
+              className="rounded-2xl border border-[#3FA8B6]/12 bg-[#10292E]/32 px-3.5 py-3"
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#8FDCE5]/72">
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]/72">
                     Why it matters
                   </p>
 
@@ -192,7 +192,7 @@ export default function HomePage() {
 
         <section className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
-            <h2 className="text-xl font-semibold tracking-tight text-[#F4F7F8]">
+            <h2 className="text-base font-semibold tracking-tight text-[#D3D8DB]">
               Choose your plan
             </h2>
             <p className="text-sm leading-6 text-[#A9B0B5]">

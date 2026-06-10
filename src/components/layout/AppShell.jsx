@@ -26,7 +26,7 @@ export default function AppShell({ children, mode = "training" }) {
     PAGE_MODE_CLASS_NAMES[mode] ?? PAGE_MODE_CLASS_NAMES.training;
 
   return (
-    <main className={pageClassName}>
+    <main className={`${pageClassName} relative isolate overflow-x-hidden`}>
       <div className={UI_CONTAINER}>{children}</div>
     </main>
   );

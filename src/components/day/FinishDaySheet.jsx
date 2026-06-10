@@ -1,4 +1,11 @@
 import { AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react";
+import {
+  UI_SHEET_BODY,
+  UI_SHEET_FOOTER,
+  UI_SHEET_HEADER,
+  UI_SHEET_OVERLAY,
+  UI_SHEET_PANEL,
+} from "../../styles/ui";
 
 /**
  * Confirmation sheet for closing the active training day.
@@ -54,12 +61,12 @@ export default function FinishDaySheet({
   ].filter(Boolean);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-zinc-950/85 px-4 pb-4 pt-10 backdrop-blur-sm">
-      <div className="flex max-h-[84vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-zinc-800/80 bg-zinc-950 shadow-2xl shadow-black/45">
-        <header className="shrink-0 border-b border-zinc-800/80 px-4 py-3">
+    <div className={UI_SHEET_OVERLAY}>
+      <div className={UI_SHEET_PANEL}>
+        <header className={UI_SHEET_HEADER}>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-cyan-300/78">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]">
                 Finish day
               </p>
 
@@ -72,42 +79,48 @@ export default function FinishDaySheet({
               </p>
             </div>
 
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-cyan-300/20 bg-cyan-300/8 text-cyan-200">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#3FA8B6]/18 bg-[#10292E]/42 text-[#8FDCE5]">
               <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
             </div>
           </div>
 
-          <p className="mt-2 border-l border-cyan-300/28 pl-3 text-sm leading-5 text-zinc-400">
+          <p className="mt-2 rounded-xl border border-[#3FA8B6]/12 bg-[#10292E]/24 px-3 py-2 text-sm leading-5 text-zinc-400">
             {progressText}. Closing this day moves the cycle forward.
           </p>
         </header>
 
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 pb-4 pt-3">
+        <div className={UI_SHEET_BODY}>
           <div className="flex flex-col gap-3">
-            <section>
-              <h3 className="text-sm font-semibold text-zinc-100">
+            <section className="rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3">
+              <h3 className="text-sm font-semibold text-[#F4F7F8]">
                 Before you finish
               </h3>
 
-              <p className="mt-1 text-sm leading-5 text-zinc-400">
-                Checked sets count as performed. Unchecked sets are simply not
-                performed, not missing data.
-              </p>
-
-              <p className="mt-1.5 text-sm leading-5 text-zinc-500">
-                Partial days are valid. The app keeps the cycle order stable.
-              </p>
+              <ul className="mt-2 space-y-1.5 text-sm leading-5 text-zinc-400">
+                <li className="flex gap-2">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8FDCE5]/65" />
+                  <span>Checked sets count as performed.</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8FDCE5]/65" />
+                  <span>Unchecked sets stay unperformed, not missing.</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8FDCE5]/65" />
+                  <span>Partial days are valid and the cycle order stays stable.</span>
+                </li>
+              </ul>
             </section>
 
             {hasWarnings ? (
-              <section className="border-t border-amber-300/18 pt-3">
+              <section className="rounded-2xl border border-amber-300/16 bg-amber-300/[0.035] px-3 py-3">
                 <div className="flex gap-2.5">
                   <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-amber-300/22 bg-amber-300/8 text-amber-200">
                     <AlertTriangle className="h-4 w-4" aria-hidden="true" />
                   </div>
 
                   <div className="min-w-0">
-                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-amber-300/78">
+                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-amber-200">
                       {warningTitle}
                     </p>
 
@@ -118,7 +131,7 @@ export default function FinishDaySheet({
                     {!hasNoLoggedValues && warningDetails.length ? (
                       <ul className="mt-1.5 flex flex-col gap-1 text-sm leading-5 text-zinc-500">
                         {warningDetails.map((detail) => (
-                          <li key={detail}>• {detail}</li>
+                          <li key={detail}>{detail}</li>
                         ))}
                       </ul>
                     ) : null}
@@ -130,14 +143,14 @@ export default function FinishDaySheet({
                 </div>
               </section>
             ) : (
-              <section className="border-t border-cyan-300/18 pt-3">
+              <section className="rounded-2xl border border-[#3FA8B6]/14 bg-[#10292E]/22 px-3 py-3">
                 <div className="flex gap-2.5">
-                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-cyan-300/20 bg-cyan-300/8 text-cyan-200">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[#3FA8B6]/18 bg-[#10292E]/42 text-[#8FDCE5]">
                     <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                   </div>
 
                   <div className="min-w-0">
-                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-cyan-300/78">
+                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]">
                       Ready to close
                     </p>
 
@@ -150,14 +163,14 @@ export default function FinishDaySheet({
             )}
 
             {hasCoreBlock ? (
-              <section className="border-t border-violet-500/18 pt-3">
+              <section className="rounded-2xl border border-white/8 bg-white/[0.014] px-3 py-3">
                 <div className="flex gap-2.5">
-                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-violet-400/26 bg-violet-500/10 text-violet-200">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-violet-400/20 bg-violet-500/8 text-violet-200">
                     <ShieldCheck className="h-4 w-4" aria-hidden="true" />
                   </div>
 
                   <div className="min-w-0">
-                    <h3 className="text-sm font-semibold text-zinc-100">
+                    <h3 className="text-sm font-semibold text-[#F4F7F8]">
                       Core is tracked separately
                     </h3>
 
@@ -171,11 +184,11 @@ export default function FinishDaySheet({
           </div>
         </div>
 
-        <footer className="shrink-0 border-t border-zinc-800/80 bg-zinc-950/95 px-4 py-3">
+        <footer className={UI_SHEET_FOOTER}>
           <button
             type="button"
             onClick={onConfirmFinish}
-            className="inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-cyan-300 px-4 text-sm font-semibold text-zinc-950 transition hover:bg-cyan-200"
+            className="inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] transition hover:bg-[#6DD6E2]"
           >
             Finish and move on
           </button>
@@ -183,7 +196,7 @@ export default function FinishDaySheet({
           <button
             type="button"
             onClick={onClose}
-            className="mt-2 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-zinc-800 bg-zinc-900/55 px-4 text-sm font-semibold text-zinc-300 transition hover:border-zinc-700 hover:bg-zinc-900"
+            className="mt-2 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-white/10 bg-white/[0.026] px-4 text-sm font-semibold text-zinc-300 transition hover:border-white/16 hover:bg-white/[0.045]"
           >
             Keep logging
           </button>
