@@ -51,6 +51,7 @@ function CycleMetricTile({ icon, label, value, helper }) {
     </div>
   );
 }
+
 /**
  * Page-level review for a completed cycle.
  *
@@ -90,9 +91,18 @@ export default function EndCyclePage() {
 
   const hasPartialDays = cycleSummary.partialDaysCount > 0;
   const hasCoreBlocks = cycleSummary.totalCoreBlocksCount > 0;
-  const completedAllMainExercises =
-    cycleSummary.completedMainExercisesCount ===
-    cycleSummary.totalMainExercisesCount;
+  const hasLoggedMainWork = cycleSummary.loggedMainExercisesCount > 0;
+  const hasLoggedCoreWork = cycleSummary.loggedCoreBlocksCount > 0;
+  const hasAnyLoggedWork = hasLoggedMainWork || hasLoggedCoreWork;
+  const isEmptyClosedCycle = !hasAnyLoggedWork;
+
+  // Partial logged work is supportive context, not failure. Cycle completion
+  // still comes from closed training days, not perfect workout logging.
+  const hasPartialLoggedWork =
+    hasAnyLoggedWork &&
+    (cycleSummary.loggedMainExercisesCount <
+      cycleSummary.totalMainExercisesCount ||
+      cycleSummary.loggedCoreBlocksCount < cycleSummary.totalCoreBlocksCount);
 
   // Start the next cycle while preserving previous cycle logs in app state.
   function handleStartNewCycle() {
@@ -239,14 +249,14 @@ export default function EndCyclePage() {
           </div>
 
           <p className="mt-4 border-l border-cyan-300/35 pl-4 text-sm leading-6 text-zinc-300">
-            You closed all training days. Your next cycle starts with better
-            context from what you logged.
+            You closed all training days. Your next cycle starts with context
+            from your logged work.
           </p>
 
           <div className="mt-4 flex flex-wrap gap-2">
             <span className="rounded-full border border-cyan-300/25 bg-cyan-300/10 px-3 py-1 text-xs font-semibold text-cyan-100">
               {cycleSummary.finishedTrainingDaysCount}/
-              {cycleSummary.totalTrainingDaysCount} days closed
+              {cycleSummary.totalTrainingDaysCount} training days closed
             </span>
 
             <span className="rounded-full border border-zinc-800 bg-zinc-950/60 px-3 py-1 text-xs font-semibold text-zinc-400">
@@ -269,30 +279,36 @@ export default function EndCyclePage() {
           <div className="grid grid-cols-2 gap-3">
             <CycleMetricTile
               icon={CheckCircle2}
-              label="Training days"
+              label="Days closed"
               value={`${cycleSummary.finishedTrainingDaysCount}/${cycleSummary.totalTrainingDaysCount}`}
-              helper="Closed days"
+              helper="Training days"
             />
 
             <CycleMetricTile
               icon={Dumbbell}
-              label="Main work"
-              value={`${cycleSummary.completedMainExercisesCount}/${cycleSummary.totalMainExercisesCount}`}
-              helper="Completed exercises"
+              label="Main work logged"
+              value={`${cycleSummary.loggedMainExercisesCount}/${cycleSummary.totalMainExercisesCount}`}
+              helper="Exercises"
             />
 
             <CycleMetricTile
               icon={Layers3}
               label="Partial days"
               value={cycleSummary.partialDaysCount}
-              helper={hasPartialDays ? "Still valid" : "Full days only"}
+              helper={
+                isEmptyClosedCycle
+                  ? "No workout values"
+                  : hasPartialDays
+                    ? "Logged work varies"
+                    : "No partial days"
+              }
             />
 
             <CycleMetricTile
               icon={ShieldCheck}
-              label="Core blocks"
-              value={`${cycleSummary.completedCoreBlocksCount}/${cycleSummary.totalCoreBlocksCount}`}
-              helper={hasCoreBlocks ? "Separate support" : "No core blocks"}
+              label="Core work logged"
+              value={`${cycleSummary.loggedCoreBlocksCount}/${cycleSummary.totalCoreBlocksCount}`}
+              helper={hasCoreBlocks ? "Core blocks" : "No core blocks"}
             />
           </div>
         </section>
@@ -305,29 +321,27 @@ export default function EndCyclePage() {
               </h2>
 
               <div className="mt-2 space-y-2 text-sm leading-6 text-zinc-400">
-                {completedAllMainExercises ? (
+                {isEmptyClosedCycle ? (
                   <p>
-                    Your main work is fully logged, so the next cycle has useful
-                    reference points.
+                    This cycle is closed, but no workout values were logged.
+                    Earlier valid references may still be used.
+                  </p>
+                ) : hasPartialLoggedWork ? (
+                  <p>
+                    Partial days are valid. Your next cycle uses the logged work
+                    it can trust.
                   </p>
                 ) : (
                   <p>
-                    This recap shows what actually happened, not a fake perfect
-                    version of the plan.
+                    Your logged work gives the next cycle useful reference
+                    points.
                   </p>
                 )}
 
-                {hasPartialDays ? (
-                  <p>
-                    Partial days still count. They keep the cycle moving without
-                    pretending every workout was perfect.
-                  </p>
-                ) : (
-                  <p>
-                    No partial days were recorded, so this cycle gives you a
-                    clean starting point for the next run.
-                  </p>
-                )}
+                <p>
+                  This recap shows what you logged, not an idealized version of
+                  the plan.
+                </p>
               </div>
             </div>
 
@@ -364,8 +378,8 @@ export default function EndCyclePage() {
                   </h2>
 
                   <p className="mt-1.5 text-sm leading-6 text-zinc-400">
-                    Your completed set values can help guide the next pass
-                    through the plan.
+                    Logged set values can help guide the next pass through the
+                    plan.
                   </p>
 
                   <p className="mt-2 text-sm leading-6 text-zinc-500">

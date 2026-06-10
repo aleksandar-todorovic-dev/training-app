@@ -1,5 +1,31 @@
-import { getCoreBlockStatus } from "./coreStatusHelpers";
 import { getDayStatus } from "./dayStatusHelpers";
+
+const MAIN_LOG_FIELDS = ["weight", "reps", "rir"];
+const CORE_LOG_FIELDS = ["load", "reps", "time", "rir"];
+
+function hasLoggedFieldValue(set, fields) {
+  return fields.some(
+    (field) => typeof set?.[field] === "string" && set[field].trim() !== "",
+  );
+}
+
+function hasLoggedMainExerciseValues(exerciseLog) {
+  return (
+    exerciseLog?.sets?.some(
+      (set) => set.isDone && hasLoggedFieldValue(set, MAIN_LOG_FIELDS),
+    ) ?? false
+  );
+}
+
+function hasLoggedCoreBlockValues(coreBlockLog) {
+  const coreExerciseLogs = Object.values(coreBlockLog?.coreExerciseLogs ?? {});
+
+  return coreExerciseLogs.some((coreExerciseLog) =>
+    coreExerciseLog?.sets?.some(
+      (set) => set.isDone && hasLoggedFieldValue(set, CORE_LOG_FIELDS),
+    ),
+  );
+}
 
 /**
  * Builds a minimal runtime-derived summary for a training cycle.
@@ -7,15 +33,18 @@ import { getDayStatus } from "./dayStatusHelpers";
  * Runtime note:
  * This is intentionally not an analytics layer. It only summarizes values
  * already derived from day, exercise, and core runtime logs.
+ *
+ * Closed days represent cycle lifecycle progress.
+ * Logged work represents saved/performed values that can inform future cycles.
  */
 export function getCycleSummary({ cycle, dayDetailsList = [] }) {
   const totalTrainingDaysCount = dayDetailsList.length;
 
   let finishedTrainingDaysCount = 0;
-  let completedMainExercisesCount = 0;
+  let loggedMainExercisesCount = 0;
   let totalMainExercisesCount = 0;
   let partialDaysCount = 0;
-  let completedCoreBlocksCount = 0;
+  let loggedCoreBlocksCount = 0;
   let totalCoreBlocksCount = 0;
 
   dayDetailsList.forEach((dayDetails) => {
@@ -29,16 +58,15 @@ export function getCycleSummary({ cycle, dayDetailsList = [] }) {
 
     totalMainExercisesCount += requiredExerciseIds.length;
 
-    const completedExerciseCount = requiredExerciseIds.filter((exerciseId) => {
+    // Recap wording uses "logged" because this counts useful saved work,
+    // not full exercise completion or perfect plan adherence.
+    const loggedExerciseCount = requiredExerciseIds.filter((exerciseId) => {
       const exerciseLog = dayLog?.mainExerciseLogs?.[exerciseId];
 
-      return exerciseLog
-        ? exerciseLog.sets?.length > 0 &&
-            exerciseLog.sets.every((set) => set.isDone)
-        : false;
+      return hasLoggedMainExerciseValues(exerciseLog);
     }).length;
 
-    completedMainExercisesCount += completedExerciseCount;
+    loggedMainExercisesCount += loggedExerciseCount;
 
     const dayStatus = getDayStatus(dayLog, requiredExerciseIds);
 
@@ -49,8 +77,10 @@ export function getCycleSummary({ cycle, dayDetailsList = [] }) {
     if (dayDetails.coreBlockId) {
       totalCoreBlocksCount += 1;
 
-      if (getCoreBlockStatus(dayLog?.coreBlockLog) === "complete") {
-        completedCoreBlocksCount += 1;
+      // Core recap tracks whether useful core values were logged, not whether
+      // the support block reached a complete status.
+      if (hasLoggedCoreBlockValues(dayLog?.coreBlockLog)) {
+        loggedCoreBlocksCount += 1;
       }
     }
   });
@@ -58,10 +88,10 @@ export function getCycleSummary({ cycle, dayDetailsList = [] }) {
   return {
     finishedTrainingDaysCount,
     totalTrainingDaysCount,
-    completedMainExercisesCount,
+    loggedMainExercisesCount,
     totalMainExercisesCount,
     partialDaysCount,
-    completedCoreBlocksCount,
+    loggedCoreBlocksCount,
     totalCoreBlocksCount,
   };
 }
