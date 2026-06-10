@@ -34,7 +34,7 @@ const PLAN_OVERVIEW_META = {
     title: "Bulk Pro",
     lead: "Build muscle through repeatable volume.",
     description:
-      "A structured 6-day cycle built for progression, productive workload, and clear next steps.",
+      "A progression-focused bulk built for repeatable volume, productive workload, and clear next steps.",
     chips: [
       { label: "Growth", icon: ArrowUpRight },
       { label: "Progression", icon: TrendingUp },
@@ -43,7 +43,7 @@ const PLAN_OVERVIEW_META = {
     ],
     facts: [
       { label: "Training days", value: "6 days", icon: CalendarCheck },
-      { label: "Rhythm", value: "2 on / 1 off", icon: Repeat2 },
+      { label: "Rhythm", value: "2 on, 1 rest", icon: Repeat2 },
       { label: "Previous values", value: "Saved", icon: History },
       { label: "Partial days", value: "Allowed", icon: CalendarClock },
     ],
@@ -75,7 +75,7 @@ const PLAN_OVERVIEW_META = {
   "cut-pro": {
     eyebrow: "Plan overview",
     title: "Cut Pro",
-    lead: "Preserve strength while fatigue is higher.",
+    lead: "Preserve strength while managing fatigue.",
     description:
       "A recovery-aware cut built to preserve strength, control fatigue, and keep momentum through real-life scheduling.",
     chips: [
@@ -439,7 +439,8 @@ export default function PlanOverviewPage() {
               Cycle rhythm
             </h2>
             <p className="text-sm leading-6 text-[#A9B0B5]">
-              Your 9-day training rhythm keeps the plan moving in a fixed order.
+              Your 9-day rhythm keeps the order stable while your schedule stays
+              flexible.
             </p>
           </div>
 
