@@ -57,10 +57,16 @@ export default function SetRow({
   onToggleDone,
   onSetFieldChange,
   isReadOnly = false,
+  showDoneControl = true,
 }) {
+  // Preview rows hide the DONE affordance entirely instead of showing a disabled checkbox.
+  const rowGridClass = showDoneControl
+    ? "grid-cols-[34px_1fr_1fr_1fr_32px]"
+    : "grid-cols-[34px_1fr_1fr_1fr]";
+
   return (
     <div
-      className={`grid grid-cols-[34px_1fr_1fr_1fr_32px] items-center gap-3 py-3 ${
+      className={`grid ${rowGridClass} items-center gap-3 py-3 ${
         !isLast ? "border-b border-zinc-800/16" : ""
       }`}
     >
@@ -89,18 +95,20 @@ export default function SetRow({
         onChange={(value) => onSetFieldChange?.("rir", value)}
       />
 
-      <button
-        type="button"
-        aria-label={`Mark set ${setNumber} ${isDone ? "not done" : "done"}`}
-        aria-pressed={isDone}
-        disabled={isReadOnly}
-        onClick={isReadOnly ? undefined : onToggleDone}
-        className={`flex h-9 items-center justify-center ${
-          isReadOnly ? "cursor-not-allowed opacity-50" : ""
-        }`}
-      >
-        <CheckBox isDone={isDone} />
-      </button>
+      {showDoneControl ? (
+        <button
+          type="button"
+          aria-label={`Mark set ${setNumber} ${isDone ? "not done" : "done"}`}
+          aria-pressed={isDone}
+          disabled={isReadOnly}
+          onClick={isReadOnly ? undefined : onToggleDone}
+          className={`flex h-9 items-center justify-center ${
+            isReadOnly ? "cursor-not-allowed opacity-50" : ""
+          }`}
+        >
+          <CheckBox isDone={isDone} />
+        </button>
+      ) : null}
     </div>
   );
 }

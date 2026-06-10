@@ -84,6 +84,7 @@ export default function ExerciseWorkflowCard({
   sets = [],
   isReadOnly = false,
   hasPreviousValues = false,
+  dayMode = "inactive",
   onToggleSetDone,
   onUpdateSetField,
   onCloseExercise,
@@ -124,6 +125,16 @@ export default function ExerciseWorkflowCard({
   const logEyebrow = isReadOnly ? "Preview sets" : "Log your sets";
   const logTitle = isReadOnly ? "Set preview" : "Today's work";
 
+  // Preview mode is read-only plan review, not disabled logging.
+  // Active and finished days keep DONE controls because saved logs remain editable.
+  const showDoneControls = !isReadOnly;
+  const setGridClass = showDoneControls
+    ? "grid-cols-[34px_1fr_1fr_1fr_32px]"
+    : "grid-cols-[34px_1fr_1fr_1fr]";
+  const focusLabel = isReadOnly ? "Exercise focus" : "Today's focus";
+  const isClosedLog = dayMode === "finished";
+  const finishButtonLabel = isClosedLog ? "Save changes" : "Finish exercise";
+
   return (
     <>
       <div className="space-y-6">
@@ -139,14 +150,26 @@ export default function ExerciseWorkflowCard({
           </section>
         ) : null}
 
+        {isClosedLog ? (
+          <section className="rounded-2xl border border-cyan-400/15 bg-cyan-400/5 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-cyan-200">
+              Closed day log
+            </p>
+            <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
+              Review or adjust the values you saved.
+            </p>
+          </section>
+        ) : null}
+
         <section className="space-y-2">
           <div className="flex items-center gap-2">
             <Crosshair aria-hidden="true" className="h-4 w-4 text-cyan-300" />
 
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200">
-              Today&apos;s focus
+              {focusLabel}
             </p>
           </div>
+
           <p className="text-base leading-7 text-zinc-100">
             {exercise.cue ??
               "Keep the movement controlled and log the work you actually perform."}
@@ -169,6 +192,7 @@ export default function ExerciseWorkflowCard({
                     Prescribed method
                   </p>
                 </div>
+
                 <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
                   {isMethodOpen
                     ? "Review the exact method before logging."
@@ -253,12 +277,17 @@ export default function ExerciseWorkflowCard({
               </p>
             </div>
 
-            <div className="grid grid-cols-[34px_1fr_1fr_1fr_32px] items-center gap-2 border-b border-zinc-800/80 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500">
+            <div
+              className={`grid ${setGridClass} items-center gap-2 border-b border-zinc-800/80 pb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-zinc-500`}
+            >
               <span className="text-center">Set</span>
               <span className="text-center">Kg</span>
               <span className="text-center">Reps</span>
               <span className="text-center">RIR</span>
-              <span className="text-center">Done</span>
+
+              {showDoneControls ? (
+                <span className="text-center">Done</span>
+              ) : null}
             </div>
 
             <div>
@@ -267,6 +296,7 @@ export default function ExerciseWorkflowCard({
                 <SetRow
                   key={`${exercise.id}-set-${set.setNumber}`}
                   isReadOnly={isReadOnly}
+                  showDoneControl={showDoneControls}
                   setNumber={set.setNumber}
                   weight={set.weight}
                   reps={set.reps}
@@ -302,7 +332,7 @@ export default function ExerciseWorkflowCard({
                 onClick={onCloseExercise}
                 className="flex w-full items-center justify-center gap-3 rounded-2xl bg-cyan-300 px-5 py-4 text-base font-semibold tracking-wide text-zinc-950 shadow-[0_18px_50px_rgba(34,211,238,0.22)] transition hover:bg-cyan-200"
               >
-                Finish exercise
+                {finishButtonLabel}
                 <ChevronRight className="h-5 w-5" aria-hidden="true" />
               </button>
             ) : null}

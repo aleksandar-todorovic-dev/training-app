@@ -103,6 +103,7 @@ function CoreExerciseSection({
   exerciseNumber,
   rows,
   isReadOnly,
+  showDoneControls,
   valueLabel,
   tracksLoad,
   onToggleCoreSetDone,
@@ -111,6 +112,10 @@ function CoreExerciseSection({
   const setSummary = getCoreSetSummary(exercise, tracksLoad);
   const tempo = cleanSummaryValue(exercise.details?.tempo);
   const rest = cleanSummaryValue(exercise.details?.rest);
+
+  const setGridClass = showDoneControls
+    ? "grid-cols-[34px_1.25fr_1fr_0.85fr_32px]"
+    : "grid-cols-[34px_1.25fr_1fr_0.85fr]";
 
   return (
     <section className="border-t border-zinc-800/35 pt-6 first:border-t-0 first:pt-0">
@@ -152,7 +157,9 @@ function CoreExerciseSection({
         </div>
 
         <div className="space-y-2 pt-1">
-          <div className="grid grid-cols-[34px_1.25fr_1fr_0.85fr_32px] items-center gap-3 border-b border-zinc-800/35 pb-2">
+          <div
+            className={`grid ${setGridClass} items-center gap-3 border-b border-zinc-800/35 pb-2`}
+          >
             <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
               Set
             </p>
@@ -169,9 +176,11 @@ function CoreExerciseSection({
               RIR
             </p>
 
-            <p className="text-center text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
-              Done
-            </p>
+            {showDoneControls ? (
+              <p className="text-center text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                Done
+              </p>
+            ) : null}
           </div>
 
           <div>
@@ -188,6 +197,7 @@ function CoreExerciseSection({
                 tracksLoad={tracksLoad}
                 isLast={index === rows.length - 1}
                 isDone={row.isDone}
+                showDoneControl={showDoneControls}
                 onToggleDone={() =>
                   onToggleCoreSetDone?.(exercise.id, row.setNumber)
                 }
@@ -253,13 +263,13 @@ export default function CoreWorkflowCard({
     Boolean(coreBlock.note) ||
     coreBlock.details?.notes?.length > 0;
 
-  const coreStatusLabel =
-    dayMode === "upcoming"
-      ? "Preview"
-      : dayMode === "finished"
-        ? "Finished"
-        : "Active";
+  // Preview is read-only plan review. Finished days are saved logs and remain editable for MVP.
+  const showDoneControls = !isReadOnly;
+  const isSavedLog = dayMode === "finished";
+  const finishButtonLabel = isSavedLog ? "Save changes" : "Finish core block";
 
+  const coreStatusLabel =
+    dayMode === "upcoming" ? "Preview" : isSavedLog ? "Saved log" : "Active";
   return (
     <div className="space-y-6">
       <section className="rounded-4xl border border-[#7C3AED]/42 bg-[radial-gradient(circle_at_top_right,rgba(124,58,237,0.30),transparent_38%),linear-gradient(180deg,rgba(30,27,75,0.34),rgba(2,6,23,0.08))] px-5 py-5 shadow-[0_18px_60px_rgba(0,0,0,0.24)]">
@@ -283,6 +293,17 @@ export default function CoreWorkflowCard({
           <p className="text-sm leading-6 text-zinc-400">
             {coreBlock.details?.purpose ?? "Flexible core block"}
           </p>
+
+          {isSavedLog ? (
+            <div className="rounded-2xl border border-[#A78BFA]/22 bg-[#4C1D95]/18 px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#DDD6FE]">
+                Closed day log
+              </p>
+              <p className="mt-1 text-sm leading-6 text-zinc-400">
+                Review or adjust the values you saved.
+              </p>
+            </div>
+          ) : null}
 
           <div className="grid grid-cols-3 gap-3">
             <SummaryMetric
@@ -354,6 +375,7 @@ export default function CoreWorkflowCard({
                 exerciseNumber={exerciseIndex + 1}
                 rows={rows}
                 isReadOnly={isReadOnly}
+                showDoneControls={showDoneControls}
                 valueLabel={valueLabel}
                 tracksLoad={tracksLoad}
                 onToggleCoreSetDone={onToggleCoreSetDone}
@@ -444,7 +466,7 @@ export default function CoreWorkflowCard({
           onClick={onCloseCoreBlock}
           className="flex w-full items-center justify-center gap-3 rounded-3xl border border-[#A78BFA]/45 bg-linear-to-r from-[#5B21B6] via-[#6D28D9] to-[#7C3AED] px-5 py-4 text-base font-semibold text-white shadow-[0_20px_70px_rgba(109,40,217,0.34)] transition hover:brightness-110"
         >
-          Finish core block
+          {finishButtonLabel}
           <ChevronRight className="h-5 w-5" aria-hidden="true" />
         </button>
       ) : null}

@@ -232,6 +232,7 @@ export default function ExercisePage() {
           sets={displaySets}
           isReadOnly={isUpcomingPreview}
           hasPreviousValues={hasPreviousValues}
+          dayMode={dayMode}
           onToggleSetDone={handleToggleSetDone}
           onUpdateSetField={handleUpdateSetField}
           onCloseExercise={handleCloseExercise}
