@@ -29,6 +29,7 @@ export default function CorePage() {
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
   const coreBlock = getCoreBlockById(coreId);
+  const isCoreBlockForDay = Boolean(dayDetails?.coreBlockId === coreId);
 
   const coreExercises = useMemo(
     () => getCoreExercisesByIds(coreBlock?.exerciseIds ?? []),
@@ -58,11 +59,21 @@ export default function CorePage() {
     : "inactive";
 
   const isUpcomingPreview = dayMode === "upcoming";
+  const isActiveCoreRoute = dayMode === "active" && isCoreBlockForDay;
+  const needsDayEntryFirst = isActiveCoreRoute && !dayLog;
 
-  // Lazily create the core block log only when the core workflow is active.
-  // Upcoming preview routes stay static/read-only and must not create progress.
+  // Lazily create the core block log only when the core workflow is available
+  // for logging/review. Upcoming preview routes stay static/read-only and must
+  // not create progress. Active deep links without a day log are guarded below.
   useEffect(() => {
-    if (!plan || !dayDetails || !coreBlock || isUpcomingPreview) {
+    if (
+      !plan ||
+      !dayDetails ||
+      !coreBlock ||
+      isUpcomingPreview ||
+      !dayLog ||
+      coreBlockLog
+    ) {
       return;
     }
 
@@ -84,6 +95,8 @@ export default function CorePage() {
     coreBlock,
     coreExercises,
     isUpcomingPreview,
+    dayLog,
+    coreBlockLog,
   ]);
 
   // Handler guards are a safety boundary: upcoming previews may render the
@@ -148,7 +161,7 @@ export default function CorePage() {
     navigate(`/plan/${planId}/day/${dayId}`);
   }
 
-  if (!plan || !dayDetails || !coreBlock) {
+  if (!plan || !dayDetails || !coreBlock || !isCoreBlockForDay) {
     return (
       <AppShell>
         <div className="space-y-6">
@@ -163,6 +176,30 @@ export default function CorePage() {
           <SectionCard>
             <p className={UI_TEXT_MUTED}>
               Core block data could not be found for this route.
+            </p>
+          </SectionCard>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (needsDayEntryFirst) {
+    return (
+      <AppShell>
+        <div className="space-y-5">
+          <Link
+            to={`/plan/${planId}/day/${dayId}`}
+            className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
+          >
+            <span aria-hidden="true">←</span>
+            Back to Day
+          </Link>
+
+          <SectionCard>
+            <p className={UI_TEXT_MUTED}>
+              {currentCycle
+                ? "Open the day first to prepare today's core log."
+                : "Start a cycle before logging this core block."}
             </p>
           </SectionCard>
         </div>

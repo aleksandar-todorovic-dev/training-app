@@ -50,6 +50,9 @@ export default function ExercisePage() {
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
   const exercise = getExerciseById(planId, exerciseId);
+  const isExerciseInDay = Boolean(
+    dayDetails?.exerciseIds?.includes(exerciseId),
+  );
 
   // Read the current runtime cycle/day/exercise state for this route.
   const planProgress = state.progressByPlan[planId];
@@ -76,6 +79,8 @@ export default function ExercisePage() {
 
   // Upcoming mode is preview-only: no input edits, done toggles, or close action.
   const isUpcomingPreview = dayMode === "upcoming";
+  const isActiveExerciseRoute = dayMode === "active" && isExerciseInDay;
+  const needsDayEntryFirst = isActiveExerciseRoute && !dayLog;
 
   // Adapt runtime set rows to the display shape expected by ExerciseWorkflowCard.
   const runtimeSets =
@@ -168,7 +173,7 @@ export default function ExercisePage() {
     navigate(`/plan/${planId}/day/${dayId}`);
   }
 
-  if (!plan || !dayDetails || !exercise) {
+  if (!plan || !dayDetails || !exercise || !isExerciseInDay) {
     return (
       <AppShell>
         <div className="space-y-6">
@@ -183,6 +188,30 @@ export default function ExercisePage() {
           <SectionCard>
             <p className={UI_TEXT_MUTED}>
               Exercise data could not be found for this route.
+            </p>
+          </SectionCard>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (needsDayEntryFirst) {
+    return (
+      <AppShell>
+        <div className="space-y-5">
+          <Link
+            to={`/plan/${planId}/day/${dayId}`}
+            className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
+          >
+            <span aria-hidden="true">←</span>
+            Back to Day
+          </Link>
+
+          <SectionCard>
+            <p className={UI_TEXT_MUTED}>
+              {currentCycle
+                ? "Open the day first to prepare today's exercise log."
+                : "Start a cycle before logging this exercise."}
             </p>
           </SectionCard>
         </div>
@@ -205,7 +234,7 @@ export default function ExercisePage() {
 
             <p className="flex min-w-0 items-center justify-end gap-2 text-right text-xs font-medium text-zinc-500">
               <span className="min-w-0 truncate">
-                {plan.name} · Cycle {currentCycleNumber ?? 1} ·
+                {plan.name} · Cycle {currentCycleNumber ?? 1} ·{" "}
                 {dayDetails.label}
               </span>
 
