@@ -222,7 +222,7 @@ export default function EndCyclePage() {
           Back to Cycle
         </Link>
 
-        <header className="rounded-2xl border border-[#3FA8B6]/14 bg-[#10292E]/38 p-4 shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
+        <header className="rounded-2xl border border-[#3FA8B6]/14 bg-[radial-gradient(circle_at_top_right,rgba(94,199,213,0.06),transparent_42%),linear-gradient(180deg,rgba(16,41,46,0.34),rgba(17,21,24,0.92))] p-4 shadow-[0_14px_34px_rgba(0,0,0,0.22)]">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-cyan-300/78">
@@ -308,7 +308,7 @@ export default function EndCyclePage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-zinc-800/80 bg-zinc-950/62 p-4">
+        <section className="rounded-2xl border border-white/8 bg-white/[0.018] p-4">
           <div className="space-y-4">
             <div>
               <h2 className="text-lg font-semibold tracking-tight text-zinc-50">
@@ -341,7 +341,7 @@ export default function EndCyclePage() {
             </div>
 
             {hasCoreBlocks ? (
-              <div className="border-t border-zinc-800/80 pt-4">
+              <div className="border-t border-white/8 pt-4">
                 <div className="flex gap-2.5">
                   <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-violet-400/26 bg-violet-500/10 text-violet-200">
                     <ShieldCheck className="h-4 w-4" aria-hidden="true" />
@@ -361,7 +361,7 @@ export default function EndCyclePage() {
               </div>
             ) : null}
 
-            <div className="border-t border-zinc-800/80 pt-4">
+            <div className="border-t border-white/8 pt-4">
               <div className="flex gap-2.5">
                 <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-cyan-300/20 bg-cyan-300/8 text-cyan-200">
                   <RotateCcw className="h-4 w-4" aria-hidden="true" />

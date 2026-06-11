@@ -86,7 +86,7 @@ function getCoreSetSummary(exercise, tracksLoad) {
 
 function SummaryMetric({ label, value }) {
   return (
-    <div className="min-w-0 rounded-xl border border-white/7 bg-white/[0.018] px-2.5 py-2 text-center">
+    <div className="min-w-0 px-2 py-1.5 text-center">
       <p className="text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]">
         {label}
       </p>
@@ -114,7 +114,7 @@ function CoreExerciseSection({
   const rest = cleanSummaryValue(exercise.details?.rest);
 
   return (
-    <section className="rounded-2xl border border-white/8 bg-white/[0.02] px-3 py-3">
+    <section className="border-t border-white/8 pt-4 first:border-t-0 first:pt-0">
       <div className="space-y-3">
         <div className="flex items-start gap-2.5">
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#A78BFA]/24 bg-[#4C1D95]/18 text-sm font-semibold tabular-nums text-[#DDD6FE]">
@@ -135,7 +135,7 @@ function CoreExerciseSection({
         </div>
 
         {exercise.cue ? (
-          <div className="rounded-xl border border-[#A78BFA]/12 bg-[#4C1D95]/10 px-3 py-2.5">
+          <div className="border-l border-[#A78BFA]/24 pl-3">
             <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#C4B5FD]">
               Cue
             </p>
@@ -146,14 +146,14 @@ function CoreExerciseSection({
           </div>
         ) : null}
 
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-3 divide-x divide-white/7 overflow-hidden rounded-lg bg-white/[0.018]">
           <SummaryMetric label="Sets" value={setSummary} />
           <SummaryMetric label="Tempo" value={tempo} />
           <SummaryMetric label="Rest" value={rest} />
         </div>
 
         <div className="space-y-2 pt-0.5">
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1.5">
             {rows.map((row, index) => (
               <CoreSetRow
                 key={`${exercise.id}-set-${row.setNumber}`}
@@ -185,7 +185,7 @@ function CoreExerciseSection({
         </div>
 
         {exercise.details?.extraCues?.length > 0 ? (
-          <details className="group rounded-xl border border-white/7 bg-white/[0.014] px-3 py-2.5">
+          <details className="group rounded-lg bg-white/[0.014] px-2.5 py-2">
             <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-[#D3D8DB] [&::-webkit-details-marker]:hidden">
               Extra cues
               <ChevronDown
@@ -246,8 +246,8 @@ export default function CoreWorkflowCard({
     dayMode === "upcoming" ? "Preview" : isSavedLog ? "Saved log" : "Active";
   return (
     <div className="space-y-4">
-      <section className="rounded-2xl border border-[#A78BFA]/16 bg-[#151821]/78 px-4 py-4 shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
-        <div className="space-y-4">
+      <section className="rounded-2xl border border-[#A78BFA]/14 bg-[#121519]/88 px-4 py-3.5 shadow-[0_12px_30px_rgba(0,0,0,0.22)]">
+        <div className="space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div className="flex min-w-0 items-center gap-2.5">
               <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#A78BFA]/24 bg-[#4C1D95]/18 text-[#DDD6FE]">
@@ -279,7 +279,7 @@ export default function CoreWorkflowCard({
             </div>
           ) : null}
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 divide-x divide-white/7 overflow-hidden rounded-lg bg-white/[0.018]">
             <SummaryMetric
               label="Exercises"
               value={coreBlock.mainInfo?.exercises ?? exercises.length}
@@ -298,8 +298,8 @@ export default function CoreWorkflowCard({
         </div>
       </section>
 
-      <section className="rounded-2xl border border-white/8 bg-[#12181B]/72 px-3.5 py-3.5">
-        <div className="space-y-3.5">
+      <section className="rounded-2xl border border-white/10 bg-[#111518]/92 px-3.5 py-3.5 shadow-[0_14px_34px_rgba(0,0,0,0.2)]">
+        <div className="space-y-4">
           <div className="flex items-start justify-between gap-3">
             <div>
               <div className="flex items-center gap-2">
@@ -313,7 +313,7 @@ export default function CoreWorkflowCard({
                 </p>
               </div>
 
-              <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-[#F4F7F8]">
+              <h2 className="mt-1.5 text-lg font-semibold tracking-tight text-[#F4F7F8]">
                 {isReadOnly ? "Set preview" : "Core work"}
               </h2>
             </div>

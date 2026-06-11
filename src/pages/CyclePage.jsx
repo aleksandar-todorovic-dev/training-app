@@ -474,15 +474,15 @@ export default function CyclePage() {
 
         <section
           aria-label="Cycle rhythm"
-          className="scroll-px-1 overflow-x-auto pb-1.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:[scrollbar-width:thin] sm:[scrollbar-color:rgba(36,81,90,0.6)_transparent] sm:[&::-webkit-scrollbar]:block sm:[&::-webkit-scrollbar]:h-1.5 sm:[&::-webkit-scrollbar-track]:bg-transparent sm:[&::-webkit-scrollbar-thumb]:rounded-full sm:[&::-webkit-scrollbar-thumb]:bg-[#24515A]/60"
+          className="max-w-full overflow-x-auto rounded-2xl border border-white/8 bg-white/[0.014] px-2 py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:[scrollbar-width:thin] sm:[scrollbar-color:rgba(63,168,182,0.42)_transparent] sm:[&::-webkit-scrollbar]:block sm:[&::-webkit-scrollbar]:h-1.5 sm:[&::-webkit-scrollbar-track]:bg-transparent sm:[&::-webkit-scrollbar-thumb]:rounded-full sm:[&::-webkit-scrollbar-thumb]:bg-[#3FA8B6]/40"
         >
-          <div className="flex min-w-max items-center gap-2 px-1">
+          <div className="flex min-w-max items-center gap-2">
             {rhythmSlots.map((slot) => {
               if (slot.type === "rest") {
                 return (
                   <div
                     key={slot.id}
-                  className="flex h-12 w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-full border border-white/7 bg-white/[0.018] text-zinc-500"
+                    className="flex h-12 w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-full border border-white/7 bg-white/[0.018] text-zinc-500"
                   >
                     <span className="text-xs font-medium">Rest</span>
                     <Moon className="h-4 w-4" aria-hidden="true" />

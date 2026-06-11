@@ -359,7 +359,7 @@ export default function DayPage() {
     <AppShell mode="training">
       <div className="relative isolate flex flex-col gap-4">
         <div
-          className="pointer-events-none absolute -top-20 left-1/2 -z-10 h-56 w-56 -translate-x-1/2 rounded-full bg-[#3FA8B6]/7 blur-3xl"
+          className="pointer-events-none absolute -top-20 left-1/2 -z-10 h-56 w-56 -translate-x-1/2 rounded-full bg-[#3FA8B6]/4 blur-3xl"
           aria-hidden="true"
         />
 
@@ -446,7 +446,7 @@ export default function DayPage() {
         </section>
 
         {dayMode === "active" ? (
-          <section className="rounded-2xl border border-amber-300/12 bg-[linear-gradient(180deg,rgba(29,28,22,0.22),rgba(16,41,46,0.12))] p-3.5 shadow-[0_10px_26px_rgba(0,0,0,0.14)]">
+          <section className="rounded-2xl border border-amber-300/14 bg-[linear-gradient(180deg,rgba(29,28,22,0.28),rgba(17,21,24,0.86))] p-3.5 shadow-[0_14px_32px_rgba(0,0,0,0.22)]">
             {nextExercise ? (
               <div className="flex flex-col gap-3">
                 <div className="flex flex-col gap-2">

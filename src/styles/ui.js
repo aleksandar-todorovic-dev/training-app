@@ -16,7 +16,7 @@
 /* -------------------------------------------------------------------------- */
 
 export const UI_PAGE_TRAINING =
-  "min-h-screen bg-[#071012] bg-[radial-gradient(circle_at_top,rgba(63,168,182,0.11),transparent_34%),linear-gradient(180deg,#0B1518_0%,#081013_46%,#070A0C_100%)] text-zinc-100 font-sans antialiased";
+  "min-h-screen bg-[#070A0C] bg-[radial-gradient(circle_at_top,rgba(63,168,182,0.06),transparent_30%),linear-gradient(180deg,#0A1114_0%,#080D10_48%,#060708_100%)] text-zinc-100 font-sans antialiased";
 
 export const UI_PAGE_PRODUCT =
   "min-h-screen bg-zinc-50 text-zinc-950 font-sans";
@@ -69,7 +69,7 @@ export const UI_TEXT_MUTED = UI_TEXT_MUTED_TRAINING;
 /* -------------------------------------------------------------------------- */
 
 export const UI_CARD_TRAINING =
-  "rounded-2xl border border-white/8 bg-[#12181B]/78 p-3.5 shadow-[0_10px_28px_rgba(0,0,0,0.18)]";
+  "rounded-2xl border border-white/8 bg-[#111518]/82 p-3.5 shadow-[0_10px_28px_rgba(0,0,0,0.2)]";
 
 export const UI_CARD_PRODUCT =
   "rounded-2xl border border-zinc-200 bg-white p-3.5 shadow-sm";
@@ -78,10 +78,10 @@ export const UI_CARD_PRODUCT_SOFT =
   "rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3.5 shadow-sm";
 
 export const UI_CARD_TRAINING_SOFT =
-  "rounded-2xl border border-[#3FA8B6]/12 bg-[#10292E]/22 p-3.5 shadow-sm";
+  "rounded-2xl border border-white/8 bg-white/[0.024] p-3.5 shadow-sm";
 
 export const UI_SURFACE_BASE =
-  "rounded-2xl border border-white/8 bg-[#12181B]/76 shadow-[0_10px_28px_rgba(0,0,0,0.16)]";
+  "rounded-2xl border border-white/8 bg-[#111518]/82 shadow-[0_10px_28px_rgba(0,0,0,0.2)]";
 
 export const UI_SURFACE_SOFT =
   "rounded-2xl border border-white/7 bg-white/[0.026]";
@@ -90,7 +90,7 @@ export const UI_SURFACE_FLAT =
   "rounded-xl border border-white/7 bg-white/[0.018]";
 
 export const UI_SURFACE_ACTIVE =
-  "rounded-2xl border border-[#3FA8B6]/16 bg-[#10292E]/58 shadow-[0_12px_30px_rgba(0,0,0,0.2)]";
+  "rounded-2xl border border-[#3FA8B6]/14 bg-[#121B1E]/88 shadow-[0_12px_30px_rgba(0,0,0,0.24)]";
 
 export const UI_ACCENT_CYAN_TEXT = "text-[#8FDCE5]";
 export const UI_ACCENT_AMBER_TEXT = "text-[#D8C891]";
@@ -100,7 +100,7 @@ export const UI_SHEET_OVERLAY =
   "fixed inset-0 z-50 flex items-end justify-center bg-[#020607]/82 px-4 pb-4 pt-10 backdrop-blur-sm";
 
 export const UI_SHEET_PANEL =
-  "flex max-h-[84vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#10171A] shadow-2xl shadow-black/45";
+  "flex max-h-[84vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#101417] shadow-2xl shadow-black/45";
 
 export const UI_SHEET_HEADER =
   "shrink-0 border-b border-white/8 bg-white/[0.018] px-4 py-3.5";
@@ -109,7 +109,7 @@ export const UI_SHEET_BODY =
   "min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3.5 [scrollbar-width:thin] [scrollbar-color:rgba(63,63,70,0.8)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-700/80";
 
 export const UI_SHEET_FOOTER =
-  "shrink-0 border-t border-white/8 bg-[#10171A]/96 px-4 py-3";
+  "shrink-0 border-t border-white/8 bg-[#101417]/96 px-4 py-3";
 
 /**
  * Backward-compatible card default.

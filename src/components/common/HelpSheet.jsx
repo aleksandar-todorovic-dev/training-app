@@ -67,28 +67,30 @@ export default function HelpSheet({
         </div>
 
         <div className={UI_SHEET_BODY}>
-          <div className="space-y-2.5">
+          <div className="overflow-hidden rounded-2xl border border-white/8 bg-white/[0.016]">
             {sections.map((section, index) => (
               <section
                 key={section.id}
-                className="rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3"
+                className={`px-3 py-3 ${
+                  index > 0 ? "border-t border-white/7" : ""
+                }`}
               >
-                <div className="flex items-start gap-2.5">
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[#3FA8B6]/20 bg-[#10292E]/42 text-xs font-semibold text-[#8FDCE5]">
-                    {index + 1}
-                  </div>
+                <div className="flex items-start gap-3">
+                  <p className="w-20 shrink-0 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[#8FDCE5]/78">
+                    {section.title}
+                  </p>
 
                   <div className="min-w-0 flex-1">
-                    <h3 className="text-sm font-semibold text-[#F4F7F8]">
-                      {section.title}
-                    </h3>
-
                     {section.paragraphs?.length ? (
-                      <div className="mt-2 space-y-2">
-                        {section.paragraphs.map((paragraph) => (
+                      <div className="space-y-1.5">
+                        {section.paragraphs.map((paragraph, paragraphIndex) => (
                           <p
                             key={paragraph}
-                            className={`text-sm leading-5 ${UI_TEXT_MUTED}`}
+                            className={
+                              paragraphIndex === 0
+                                ? "text-sm font-medium leading-5 text-[#E7ECEE]"
+                                : `text-sm leading-5 ${UI_TEXT_MUTED}`
+                            }
                           >
                             {paragraph}
                           </p>
@@ -97,13 +99,13 @@ export default function HelpSheet({
                     ) : null}
 
                     {section.bullets?.length ? (
-                      <ul className="mt-2 space-y-1.5">
+                      <ul className="mt-2 space-y-1">
                         {section.bullets.map((bullet) => (
                           <li
                             key={bullet}
                             className={`flex gap-2 text-sm leading-5 ${UI_TEXT_MUTED}`}
                           >
-                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8FDCE5]/65" />
+                            <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C9B57A]/75" />
                             <span>{bullet}</span>
                           </li>
                         ))}

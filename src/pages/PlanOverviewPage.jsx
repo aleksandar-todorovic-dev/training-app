@@ -114,12 +114,12 @@ const PLAN_OVERVIEW_META = {
 // Screen-specific rhythm labels.
 // The base day data stays unchanged; this only improves Plan Overview display.
 const RHYTHM_DAY_LABELS = {
-  d1: "Chest & Triceps",
-  d2: "Back & Biceps",
-  d3: "Quads Heavy",
-  d4: "Shoulders & Arms",
-  d5: "Chest Pump & Rows",
-  d6: "Posterior Chain",
+  d1: "Chest",
+  d2: "Back",
+  d3: "Quads",
+  d4: "Shoulders",
+  d5: "Upper",
+  d6: "Posterior",
 };
 
 function StatusRing({ value, total }) {
@@ -319,7 +319,7 @@ export default function PlanOverviewPage() {
     <AppShell mode="training">
       <div className="relative isolate flex flex-col gap-5 py-0">
         <div
-          className="pointer-events-none absolute -top-14 left-1/2 -z-10 h-52 w-52 -translate-x-1/2 rounded-full bg-[#3FA8B6]/7 blur-3xl"
+          className="pointer-events-none absolute -top-14 left-1/2 -z-10 h-52 w-52 -translate-x-1/2 rounded-full bg-[#3FA8B6]/5 blur-3xl"
           aria-hidden="true"
         />
 
@@ -375,6 +375,10 @@ export default function PlanOverviewPage() {
               <p className="mt-1.5 text-sm leading-5 text-[#C7D0D4]">
                 {primaryCta.body}
               </p>
+
+              <p className="mt-3 inline-flex rounded-full border border-white/10 bg-white/[0.035] px-2.5 py-1 text-xs font-semibold text-[#D3D8DB]">
+                {closedTrainingDays}/{totalTrainingDays} days closed
+              </p>
             </div>
 
             <Link
@@ -423,24 +427,22 @@ export default function PlanOverviewPage() {
             </p>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-white/8 bg-[#12181B]/72 p-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <div className="flex min-w-max items-center gap-2">
-              {rhythmItems.map((item) => {
-                const isRest = item.label === "Rest";
-                const rhythmLabel = isRest
-                  ? item.name
-                  : (RHYTHM_DAY_LABELS[item.id] ?? item.name);
+          <div className="grid grid-cols-3 gap-1.5 rounded-2xl border border-white/8 bg-[#12181B]/82 p-2">
+            {rhythmItems.map((item) => {
+              const isRest = item.label === "Rest";
+              const rhythmLabel = isRest
+                ? "Recovery"
+                : (RHYTHM_DAY_LABELS[item.id] ?? item.name);
 
-                return (
-                  <div
-                    key={item.id}
-                    className={[
-                      "flex h-14 w-24 shrink-0 flex-col justify-between rounded-xl border px-2 py-2 text-left",
-                      isRest
-                        ? "border-white/7 bg-white/[0.018] text-zinc-500"
-                        : "border-white/8 bg-white/[0.028] text-[#DDF8FB]",
-                    ].join(" ")}
-                  >
+              return (
+                <div
+                  key={item.id}
+                  className={[
+                    "min-h-12 rounded-xl px-2 py-2",
+                    isRest ? "bg-white/[0.016]" : "bg-white/[0.032]",
+                  ].join(" ")}
+                >
+                  <div className="flex items-center justify-between gap-2">
                     <p
                       className={[
                         "text-xs font-semibold",
@@ -450,36 +452,30 @@ export default function PlanOverviewPage() {
                       {item.label}
                     </p>
 
-                    <div className="flex items-end justify-between gap-2">
-                      <p
-                        className={[
-                          "line-clamp-1 text-xs font-medium leading-tight",
-                          isRest ? "text-zinc-500" : "text-[#F4F7F8]",
-                        ].join(" ")}
-                      >
-                        {rhythmLabel}
-                      </p>
-
-                      <div
-                        className={[
-                          "flex h-4 w-4 items-center justify-center",
-                          isRest ? "text-zinc-500" : "text-[#8FDCE5]/82",
-                        ].join(" ")}
-                      >
-                        {isRest ? (
-                          <Moon className="h-3.5 w-3.5" aria-hidden="true" />
-                        ) : (
-                          <span
-                            className="h-1.5 w-1.5 rounded-full bg-[#8FDCE5]/64"
-                            aria-hidden="true"
-                          />
-                        )}
-                      </div>
-                    </div>
+                    {isRest ? (
+                      <Moon
+                        className="h-3.5 w-3.5 shrink-0 text-zinc-500"
+                        aria-hidden="true"
+                      />
+                    ) : (
+                      <span
+                        className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#8FDCE5]/64"
+                        aria-hidden="true"
+                      />
+                    )}
                   </div>
-                );
-              })}
-            </div>
+
+                  <p
+                    className={[
+                      "mt-1 truncate text-xs font-medium leading-tight",
+                      isRest ? "text-zinc-500" : "text-[#F4F7F8]",
+                    ].join(" ")}
+                  >
+                    {rhythmLabel}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </section>
 

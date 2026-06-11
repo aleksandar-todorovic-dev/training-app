@@ -91,7 +91,7 @@ export default function FinishDaySheet({
 
         <div className={UI_SHEET_BODY}>
           <div className="flex flex-col gap-3">
-            <section className="rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3">
+            <section className="rounded-xl bg-white/[0.014] px-3 py-3">
               <h3 className="text-sm font-semibold text-[#F4F7F8]">
                 Before you finish
               </h3>
@@ -107,7 +107,9 @@ export default function FinishDaySheet({
                 </li>
                 <li className="flex gap-2">
                   <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8FDCE5]/65" />
-                  <span>Partial days are valid and the cycle order stays stable.</span>
+                  <span>
+                    Partial days are valid and the cycle order stays stable.
+                  </span>
                 </li>
               </ul>
             </section>

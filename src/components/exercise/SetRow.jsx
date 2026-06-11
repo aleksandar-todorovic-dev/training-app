@@ -1,13 +1,13 @@
 function DoneControl({ isDone = false }) {
   return (
     <span
-      className={`inline-flex min-h-9 items-center justify-center rounded-full border px-3 text-xs font-semibold transition ${
+      className={`inline-flex min-h-8 w-full items-center justify-center rounded-full border px-2 text-xs font-semibold transition ${
         isDone
-          ? "border-[#5EC7D5] bg-[#5EC7D5] text-[#031014] shadow-[0_8px_18px_rgba(63,168,182,0.12)]"
-          : "border-white/10 bg-white/[0.026] text-[#8B949B]"
+          ? "border-[#5EC7D5] bg-[#5EC7D5] text-[#031014]"
+          : "border-white/10 bg-white/[0.028] text-[#D3D8DB]"
       }`}
     >
-      {isDone ? "Done" : "Mark"}
+      {isDone ? "Done" : "Done?"}
     </span>
   );
 }
@@ -18,11 +18,11 @@ function MetricField({ label, name, value, onChange, isReadOnly = false }) {
 
   if (isReadOnly) {
     return (
-      <div className="min-w-0 rounded-xl border border-white/7 bg-white/[0.018] px-2.5 py-2">
-        <span className="block text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]">
+      <div className="min-w-0 px-1.5 py-1.5 text-center">
+        <span className="block text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
           {label}
         </span>
-        <span className="mt-1 block whitespace-nowrap text-sm font-semibold tabular-nums text-[#F4F7F8]">
+        <span className="mt-0.5 block whitespace-nowrap text-sm font-semibold tabular-nums text-[#F4F7F8]">
           {displayValue}
         </span>
       </div>
@@ -30,8 +30,8 @@ function MetricField({ label, name, value, onChange, isReadOnly = false }) {
   }
 
   return (
-    <label className="min-w-0 rounded-xl border border-white/8 bg-[#0B1113]/72 px-2.5 py-2 transition-colors focus-within:border-[#5EC7D5]/56 focus-within:bg-[#0D171A]">
-      <span className="block text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]">
+    <label className="min-w-0 px-1.5 py-1.5 text-center">
+      <span className="block text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
         {label}
       </span>
       <input
@@ -41,7 +41,7 @@ function MetricField({ label, name, value, onChange, isReadOnly = false }) {
         inputMode="decimal"
         autoComplete="off"
         placeholder="—"
-        className="mt-1 w-full min-w-0 bg-transparent text-sm font-semibold tabular-nums text-[#F4F7F8] outline-none placeholder:text-[#59636B]"
+        className="mt-0.5 w-full min-w-0 bg-transparent text-center text-sm font-semibold tabular-nums text-[#F4F7F8] outline-none placeholder:text-[#59636B] focus:text-[#8FDCE5]"
       />
     </label>
   );
@@ -67,48 +67,30 @@ export default function SetRow({
   isReadOnly = false,
   showDoneControl = true,
 }) {
+  const rowGridClass = showDoneControl
+    ? "grid-cols-[3.15rem_1fr_4.1rem]"
+    : "grid-cols-[3.15rem_1fr]";
+
   return (
     <div
       className={[
-        "rounded-2xl border px-3 py-3 transition-colors",
+        `grid ${rowGridClass} items-center gap-2 rounded-xl border px-2.5 py-2 transition-colors`,
         isDone
-          ? "border-[#5EC7D5]/28 bg-[#10292E]/48"
-          : "border-white/8 bg-white/[0.02]",
+          ? "border-[#5EC7D5]/28 bg-[#10292E]/30"
+          : "border-white/8 bg-[#0B0F11]/64",
         !isLast ? "" : "",
       ].join(" ")}
     >
-      <div className="mb-2.5 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span
-            className={[
-              "flex h-7 w-7 items-center justify-center rounded-full border text-xs font-semibold tabular-nums",
-              isDone
-                ? "border-[#5EC7D5]/32 bg-[#10292E]/70 text-[#8FDCE5]"
-                : "border-white/10 bg-[#071012]/54 text-[#D3D8DB]",
-            ].join(" ")}
-          >
-            {setNumber}
-          </span>
-          <p className="text-sm font-semibold text-[#E7ECEE]">
-            Set {setNumber}
-          </p>
-        </div>
-
-        {showDoneControl ? (
-          <button
-            type="button"
-            aria-label={`Mark set ${setNumber} ${isDone ? "not done" : "done"}`}
-            aria-pressed={isDone}
-            disabled={isReadOnly}
-            onClick={isReadOnly ? undefined : onToggleDone}
-            className={isReadOnly ? "cursor-not-allowed opacity-50" : ""}
-          >
-            <DoneControl isDone={isDone} />
-          </button>
-        ) : null}
+      <div className="min-w-0">
+        <p className="text-[0.6rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
+          Set
+        </p>
+        <p className="mt-0.5 text-sm font-semibold tabular-nums text-[#F4F7F8]">
+          {setNumber}
+        </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid min-w-0 grid-cols-3 divide-x divide-white/7 overflow-hidden rounded-lg bg-white/[0.024]">
         <MetricField
           label="Kg"
           name={`set-${setNumber}-weight`}
@@ -133,6 +115,19 @@ export default function SetRow({
           onChange={(value) => onSetFieldChange?.("rir", value)}
         />
       </div>
+
+      {showDoneControl ? (
+        <button
+          type="button"
+          aria-label={`Mark set ${setNumber} ${isDone ? "not done" : "done"}`}
+          aria-pressed={isDone}
+          disabled={isReadOnly}
+          onClick={isReadOnly ? undefined : onToggleDone}
+          className={isReadOnly ? "cursor-not-allowed opacity-50" : ""}
+        >
+          <DoneControl isDone={isDone} />
+        </button>
+      ) : null}
     </div>
   );
 }

@@ -96,7 +96,7 @@ export default function HomePage() {
     <AppShell mode="training">
       <div className="relative isolate flex flex-col gap-5 py-1">
         <div
-          className="pointer-events-none absolute -top-16 left-1/2 -z-10 h-56 w-56 -translate-x-1/2 rounded-full bg-[#3FA8B6]/8 blur-3xl"
+          className="pointer-events-none absolute -top-16 left-1/2 -z-10 h-56 w-56 -translate-x-1/2 rounded-full bg-[#3FA8B6]/5 blur-3xl"
           aria-hidden="true"
         />
 
@@ -117,7 +117,7 @@ export default function HomePage() {
           </div>
 
           <div className="flex flex-col gap-3">
-            <h1 className="max-w-sm text-[2.18rem] font-semibold leading-[1.03] tracking-tight text-[#F4F7F8]">
+            <h1 className="max-w-sm text-[2.32rem] font-semibold leading-[1.03] tracking-tight text-[#F4F7F8]">
               Your training cycle, organized
               <span className="text-[#5EC7D5]">.</span>
             </h1>

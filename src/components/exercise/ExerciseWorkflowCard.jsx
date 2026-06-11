@@ -122,7 +122,6 @@ export default function ExerciseWorkflowCard({
   const methodSummary = getMethodSummary(advancedTechniqueType);
   const hasCoachNotes = Boolean(progression) || extraCues.length > 0;
 
-  const logEyebrow = isReadOnly ? "Preview sets" : "Log your sets";
   const logTitle = isReadOnly ? "Set preview" : "Today's work";
 
   // Preview mode is read-only plan review, not disabled logging.
@@ -160,7 +159,7 @@ export default function ExerciseWorkflowCard({
           </section>
         ) : null}
 
-        <section className="rounded-2xl border border-white/8 bg-white/[0.02] px-3 py-3">
+        <section className="rounded-xl border border-white/8 bg-white/[0.018] px-3 py-2.5">
           <div className="flex items-center gap-2">
             <Crosshair
               aria-hidden="true"
@@ -235,17 +234,17 @@ export default function ExerciseWorkflowCard({
           </section>
         ) : null}
 
-        <section className="space-y-3 rounded-2xl border border-[#3FA8B6]/12 bg-[#10292E]/38 px-3.5 py-3.5 shadow-[0_12px_30px_rgba(0,0,0,0.18)]">
+        <section className="space-y-3 rounded-2xl border border-white/10 bg-[#111518]/92 px-3.5 py-3.5 shadow-[0_14px_34px_rgba(0,0,0,0.24)]">
           <div>
             <div className="mb-2.5 flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <ListChecks
                   aria-hidden="true"
-                  className="h-4 w-4 text-[#8FDCE5]/80"
+                  className="h-4 w-4 text-[#8FDCE5]/72"
                 />
 
                 <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]">
-                  Working targets
+                  Targets
                 </p>
               </div>
 
@@ -258,7 +257,7 @@ export default function ExerciseWorkflowCard({
               </button>
             </div>
 
-            <div className="grid grid-cols-4 gap-2 rounded-xl border border-white/7 bg-[#071012]/34 px-2 py-2">
+            <div className="grid grid-cols-4 divide-x divide-white/7 overflow-hidden rounded-xl bg-white/[0.024] px-1 py-1.5">
               <TargetItem label="Sets" value={cleanedPrescriptionDisplay} />
               <TargetItem label="Tempo" value={cleanedTempo} />
               <TargetItem label="Rest" value={cleanedRest} />
@@ -267,12 +266,9 @@ export default function ExerciseWorkflowCard({
           </div>
 
           <div className="space-y-2.5">
-            <div className="flex items-end justify-between gap-4">
+            <div className="flex items-end justify-between gap-4 border-t border-white/7 pt-3">
               <div>
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]">
-                  {logEyebrow}
-                </p>
-                <h2 className="mt-1 text-xl font-semibold tracking-tight text-[#F4F7F8]">
+                <h2 className="text-lg font-semibold tracking-tight text-[#F4F7F8]">
                   {logTitle}
                 </h2>
               </div>
@@ -283,21 +279,23 @@ export default function ExerciseWorkflowCard({
             </div>
 
             {!isReadOnly ? (
-              <div className="rounded-xl border border-white/7 bg-white/[0.018] px-3 py-2.5">
-                <p className="text-xs font-semibold text-[#D3D8DB]">
-                  {hasPreviousValues
-                    ? "Previous values available"
-                    : "No previous values yet"}
-                </p>
-                <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
-                  {hasPreviousValues
-                    ? "Use your last logged work as a guide while you fill today's sets."
-                    : "Log today to build the next-cycle reference."}
-                </p>
+              <div className="flex items-start justify-between gap-3 rounded-lg bg-white/[0.018] px-2.5 py-2">
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-[#D3D8DB]">
+                    {hasPreviousValues
+                      ? "Previous values available"
+                      : "No previous values yet"}
+                  </p>
+                  <p className={`mt-0.5 text-xs leading-5 ${UI_TEXT_MUTED}`}>
+                    {hasPreviousValues
+                      ? "Use your last logged work as a guide."
+                      : "Log today to build the next-cycle reference."}
+                  </p>
+                </div>
               </div>
             ) : null}
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-1.5">
               {/* Set rows may be runtime logs or read-only preview rows; updates are delegated upward. */}
               {sets.map((set, index) => (
                 <SetRow

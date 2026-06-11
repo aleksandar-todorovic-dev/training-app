@@ -41,7 +41,7 @@ export default function WarmupSheet({ dayDetails, warmup, onClose }) {
             </p>
           </div>
 
-          <p className="mt-2 rounded-xl border border-amber-300/14 bg-amber-300/[0.035] px-3 py-2 text-sm leading-5 text-zinc-300">
+          <p className="mt-2 border-l border-amber-300/28 pl-3 text-sm leading-5 text-zinc-300">
             {warmup.goal}
           </p>
         </div>
@@ -49,7 +49,7 @@ export default function WarmupSheet({ dayDetails, warmup, onClose }) {
         <div className={UI_SHEET_BODY}>
           <WarmupStepsCard steps={warmup.steps} />
 
-          <div className="mt-3 rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3">
+          <div className="mt-3 border-t border-white/8 pt-3">
             <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-amber-200">
               Coach reminder
             </p>
