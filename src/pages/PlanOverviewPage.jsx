@@ -162,26 +162,26 @@ function StatusRing({ value, total }) {
 
       <text
         x="50"
-        y="48"
+        y="45"
         textAnchor="middle"
         dominantBaseline="central"
         fill="#F4F7F8"
-        fontSize="15"
-        fontWeight="700"
-        letterSpacing="-0.04em"
+        fontSize="17"
+        fontWeight="800"
+        letterSpacing="-0.05em"
       >
         {clampedValue}/{safeTotal}
       </text>
 
       <text
         x="50"
-        y="64"
+        y="62"
         textAnchor="middle"
         dominantBaseline="central"
-        fill="rgba(199,208,212,0.68)"
+        fill="rgba(199,208,212,0.76)"
         fontSize="7"
-        fontWeight="700"
-        letterSpacing="0.14em"
+        fontWeight="800"
+        letterSpacing="0.1em"
       >
         DAYS
       </text>

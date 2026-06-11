@@ -7,7 +7,7 @@ function DoneControl({ isDone = false }) {
           : "border-white/10 bg-white/[0.028] text-[#D3D8DB]"
       }`}
     >
-      {isDone ? "Done" : "Done?"}
+      Done
     </span>
   );
 }
@@ -18,7 +18,7 @@ function MetricField({ label, name, value, onChange, isReadOnly = false }) {
 
   if (isReadOnly) {
     return (
-      <div className="min-w-0 px-1.5 py-1.5 text-center">
+      <div className="min-w-0 px-1 py-1.5 text-center">
         <span className="block text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
           {label}
         </span>
@@ -30,7 +30,7 @@ function MetricField({ label, name, value, onChange, isReadOnly = false }) {
   }
 
   return (
-    <label className="min-w-0 px-1.5 py-1.5 text-center">
+    <label className="min-w-0 px-1 py-1.5 text-center">
       <span className="block text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
         {label}
       </span>
@@ -68,13 +68,13 @@ export default function SetRow({
   showDoneControl = true,
 }) {
   const rowGridClass = showDoneControl
-    ? "grid-cols-[3.15rem_1fr_4.1rem]"
-    : "grid-cols-[3.15rem_1fr]";
+    ? "grid-cols-[1.5rem_minmax(0,1fr)_3.75rem]"
+    : "grid-cols-[1.5rem_minmax(0,1fr)]";
 
   return (
     <div
       className={[
-        `grid ${rowGridClass} items-center gap-2 rounded-xl border px-2.5 py-2 transition-colors`,
+        `grid ${rowGridClass} items-center gap-0.5 rounded-xl border px-2.5 py-2 transition-colors`,
         isDone
           ? "border-[#5EC7D5]/28 bg-[#10292E]/30"
           : "border-white/8 bg-[#0B0F11]/64",
@@ -90,7 +90,7 @@ export default function SetRow({
         </p>
       </div>
 
-      <div className="grid min-w-0 grid-cols-3 divide-x divide-white/7 overflow-hidden rounded-lg bg-white/[0.024]">
+      <div className="mr-1 grid min-w-0 grid-cols-3 divide-x divide-white/7 overflow-hidden rounded-lg bg-white/[0.024]">
         <MetricField
           label="Kg"
           name={`set-${setNumber}-weight`}

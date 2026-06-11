@@ -75,8 +75,8 @@ export default function HelpSheet({
                   index > 0 ? "border-t border-white/7" : ""
                 }`}
               >
-                <div className="flex items-start gap-3">
-                  <p className="w-20 shrink-0 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[#8FDCE5]/78">
+                <div className="flex flex-col gap-1.5 min-[390px]:flex-row min-[390px]:items-start min-[390px]:gap-2.5">
+                  <p className="w-auto shrink-0 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[#8FDCE5]/78 min-[390px]:w-[4.5rem]">
                     {section.title}
                   </p>
 

@@ -474,64 +474,76 @@ export default function CyclePage() {
 
         <section
           aria-label="Cycle rhythm"
-          className="max-w-full overflow-x-auto rounded-2xl border border-white/8 bg-white/[0.014] px-2 py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:[scrollbar-width:thin] sm:[scrollbar-color:rgba(63,168,182,0.42)_transparent] sm:[&::-webkit-scrollbar]:block sm:[&::-webkit-scrollbar]:h-1.5 sm:[&::-webkit-scrollbar-track]:bg-transparent sm:[&::-webkit-scrollbar-thumb]:rounded-full sm:[&::-webkit-scrollbar-thumb]:bg-[#3FA8B6]/40"
+          className="relative max-w-full overflow-hidden rounded-2xl border border-white/8 bg-white/[0.014]"
         >
-          <div className="flex min-w-max items-center gap-2">
-            {rhythmSlots.map((slot) => {
-              if (slot.type === "rest") {
-                return (
-                  <div
-                    key={slot.id}
-                    className="flex h-12 w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-full border border-white/7 bg-white/[0.018] text-zinc-500"
-                  >
-                    <span className="text-xs font-medium">Rest</span>
-                    <Moon className="h-4 w-4" aria-hidden="true" />
-                  </div>
+          <div
+            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-5 bg-gradient-to-r from-[#080D0E] to-transparent"
+            aria-hidden="true"
+          />
+
+          <div
+            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-5 bg-gradient-to-l from-[#080D0E] to-transparent"
+            aria-hidden="true"
+          />
+
+          <div className="overflow-x-auto px-3 py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:[scrollbar-width:thin] sm:[scrollbar-color:rgba(63,168,182,0.42)_transparent] sm:[&::-webkit-scrollbar]:block sm:[&::-webkit-scrollbar]:h-1.5 sm:[&::-webkit-scrollbar-track]:bg-transparent sm:[&::-webkit-scrollbar-thumb]:rounded-full sm:[&::-webkit-scrollbar-thumb]:bg-[#3FA8B6]/40">
+            <div className="flex min-w-max items-center gap-2">
+              {rhythmSlots.map((slot) => {
+                if (slot.type === "rest") {
+                  return (
+                    <div
+                      key={slot.id}
+                      className="flex h-12 w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-full border border-white/7 bg-white/[0.018] text-zinc-500"
+                    >
+                      <span className="text-xs font-medium">Rest</span>
+                      <Moon className="h-4 w-4" aria-hidden="true" />
+                    </div>
+                  );
+                }
+
+                const summary = daySummaries.find(
+                  ({ day }) => day.id === slot.day.id,
                 );
-              }
 
-              const summary = daySummaries.find(
-                ({ day }) => day.id === slot.day.id,
-              );
+                const isFinished = summary?.dayMode === "finished";
+                const isCurrent = summary?.dayMode === "active";
 
-              const isFinished = summary?.dayMode === "finished";
-              const isCurrent = summary?.dayMode === "active";
+                return (
+                  <Link
+                    key={slot.day.id}
+                    ref={isCurrent ? currentRhythmItemRef : null}
+                    to={`/plan/${planId}/day/${slot.day.id}`}
+                    className={[
+                      "flex h-12 w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-full border text-center transition-colors",
+                      isCurrent
+                        ? "border-[#3FA8B6]/54 bg-[#10292E]/72 text-[#DDF8FB]"
+                        : "",
+                      isFinished
+                        ? "border-white/8 bg-white/[0.026] text-[#A9B0B5]"
+                        : "",
+                      !isCurrent && !isFinished
+                        ? "border-white/7 bg-white/[0.018] text-zinc-500 hover:border-[#3FA8B6]/22"
+                        : "",
+                    ].join(" ")}
+                  >
+                    <span className="text-sm font-semibold">
+                      {slot.day.label}
+                    </span>
 
-              return (
-                <Link
-                  key={slot.day.id}
-                  ref={isCurrent ? currentRhythmItemRef : null}
-                  to={`/plan/${planId}/day/${slot.day.id}`}
-                  className={[
-                    "flex h-12 w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-full border text-center transition-colors",
-                    isCurrent
-                      ? "border-[#3FA8B6]/54 bg-[#10292E]/72 text-[#DDF8FB]"
-                      : "",
-                    isFinished
-                      ? "border-white/8 bg-white/[0.026] text-[#A9B0B5]"
-                      : "",
-                    !isCurrent && !isFinished
-                      ? "border-white/7 bg-white/[0.018] text-zinc-500 hover:border-[#3FA8B6]/22"
-                      : "",
-                  ].join(" ")}
-                >
-                  <span className="text-sm font-semibold">
-                    {slot.day.label}
-                  </span>
-
-                  {isFinished ? (
-                    <CheckCircle2
-                      className="h-3.5 w-3.5 text-[#8B949B]"
-                      aria-hidden="true"
-                    />
-                  ) : isCurrent ? (
-                    <span className="h-2 w-2 rounded-full bg-[#5EC7D5]" />
-                  ) : (
-                    <span className="h-2 w-2 rounded-full bg-white/14" />
-                  )}
-                </Link>
-              );
-            })}
+                    {isFinished ? (
+                      <CheckCircle2
+                        className="h-3.5 w-3.5 text-[#8B949B]"
+                        aria-hidden="true"
+                      />
+                    ) : isCurrent ? (
+                      <span className="h-2 w-2 rounded-full bg-[#5EC7D5]" />
+                    ) : (
+                      <span className="h-2 w-2 rounded-full bg-white/14" />
+                    )}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </section>
 
