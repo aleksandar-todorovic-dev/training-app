@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
+import { motion, useReducedMotion } from "motion/react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -23,6 +24,48 @@ import { getExercisesForDay } from "../data/exercises";
 import { UI_STACK_LG } from "../styles/ui";
 import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
 import { getDayMode, getDayModeLabel } from "../utils/runtime/dayModeHelpers";
+
+const MotionDiv = motion.div;
+const MotionSection = motion.section;
+const MotionSpan = motion.span;
+
+const cycleRevealContainerVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.045,
+      delayChildren: 0.02,
+    },
+  },
+};
+
+const cycleRevealItemVariants = {
+  hidden: {
+    opacity: 0,
+    y: 5,
+  },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.2,
+      ease: [0.2, 0, 0, 1],
+    },
+  },
+};
+
+const cycleRhythmRevealVariants = {
+  hidden: {
+    opacity: 0,
+  },
+  visible: {
+    opacity: 1,
+    transition: {
+      duration: 0.2,
+      ease: [0.2, 0, 0, 1],
+    },
+  },
+};
 
 // Screen-specific display hints for Cycle cards.
 // These do not affect day completion or core runtime state.
@@ -312,6 +355,7 @@ function buildRhythmSlots(days) {
 export default function CyclePage() {
   const { planId } = useParams();
   const currentRhythmItemRef = useRef(null);
+  const shouldReduceMotion = useReducedMotion();
 
   const { state } = useAppState();
   const plan = getPlanById(planId);
@@ -456,25 +500,35 @@ export default function CyclePage() {
 
   return (
     <AppShell mode="training">
-      <div className="flex flex-col gap-4 py-0">
-        <Link
-          to={`/plan/${planId}`}
-          className="inline-flex w-fit items-center gap-1.5 text-xs font-medium text-[#8B949B] transition-colors hover:text-[#D3D8DB]"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-          Back to plan
-        </Link>
+      <MotionDiv
+        className="flex flex-col gap-4 py-0"
+        variants={cycleRevealContainerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <MotionDiv variants={cycleRevealItemVariants}>
+          <Link
+            to={`/plan/${planId}`}
+            className="inline-flex w-fit items-center gap-1.5 text-xs font-medium text-[#8B949B] transition-colors hover:text-[#D3D8DB]"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+            Back to plan
+          </Link>
+        </MotionDiv>
 
-        <CycleHeader
-          planName={plan.name}
-          cycleLabel={`Cycle ${currentCycleNumber}`}
-          statusSummary={`${completedDayCount} of ${totalTrainingDays} training days closed`}
-          progressPercent={progressPercent}
-        />
+        <MotionDiv variants={cycleRevealItemVariants}>
+          <CycleHeader
+            planName={plan.name}
+            cycleLabel={`Cycle ${currentCycleNumber}`}
+            statusSummary={`${completedDayCount} of ${totalTrainingDays} training days closed`}
+            progressPercent={progressPercent}
+          />
+        </MotionDiv>
 
-        <section
+        <MotionSection
           aria-label="Cycle rhythm"
           className="relative max-w-full overflow-hidden rounded-2xl border border-white/8 bg-white/[0.014]"
+          variants={cycleRhythmRevealVariants}
         >
           <div
             className="pointer-events-none absolute inset-y-0 left-0 z-10 w-5 bg-gradient-to-r from-[#080D0E] to-transparent"
@@ -536,7 +590,22 @@ export default function CyclePage() {
                         aria-hidden="true"
                       />
                     ) : isCurrent ? (
-                      <span className="h-2 w-2 rounded-full bg-[#5EC7D5]" />
+                      <MotionSpan
+                        className="h-2 w-2 rounded-full bg-[#5EC7D5]"
+                        animate={
+                          shouldReduceMotion
+                            ? undefined
+                            : {
+                                opacity: [0.82, 1, 0.82],
+                                scale: [1, 1.18, 1],
+                              }
+                        }
+                        transition={{
+                          duration: 2.4,
+                          ease: "easeInOut",
+                          repeat: Infinity,
+                        }}
+                      />
                     ) : (
                       <span className="h-2 w-2 rounded-full bg-white/14" />
                     )}
@@ -545,10 +614,13 @@ export default function CyclePage() {
               })}
             </div>
           </div>
-        </section>
+        </MotionSection>
 
         {currentDay ? (
-          <section className="relative overflow-hidden rounded-2xl border border-[#3FA8B6]/14 bg-[#10292E]/58 p-4 shadow-[0_12px_30px_rgba(0,0,0,0.2)]">
+          <MotionSection
+            className="relative overflow-hidden rounded-2xl border border-[#3FA8B6]/14 bg-[#10292E]/58 p-4 shadow-[0_12px_30px_rgba(0,0,0,0.2)]"
+            variants={cycleRevealItemVariants}
+          >
             <div
               className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_18%,rgba(95,199,213,0.08),transparent_34%),radial-gradient(circle_at_12%_100%,rgba(63,168,182,0.06),transparent_40%)]"
               aria-hidden="true"
@@ -638,11 +710,14 @@ export default function CyclePage() {
                 <ChevronRight className="ml-2 h-5 w-5" aria-hidden="true" />
               </Link>
             </div>
-          </section>
+          </MotionSection>
         ) : null}
 
         {upcomingDays.length > 0 ? (
-          <section className="flex flex-col gap-2">
+          <MotionSection
+            className="flex flex-col gap-2"
+            variants={cycleRevealItemVariants}
+          >
             <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#A9B0B5]">
               Up next
             </p>
@@ -665,11 +740,14 @@ export default function CyclePage() {
                 />
               ))}
             </div>
-          </section>
+          </MotionSection>
         ) : null}
 
         {completedDays.length > 0 ? (
-          <section className="flex flex-col gap-2">
+          <MotionSection
+            className="flex flex-col gap-2"
+            variants={cycleRevealItemVariants}
+          >
             <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#A9B0B5]">
               Closed days
             </p>
@@ -692,10 +770,13 @@ export default function CyclePage() {
                 />
               ))}
             </div>
-          </section>
+          </MotionSection>
         ) : null}
 
-        <section className="flex items-center gap-3 rounded-xl border border-white/7 bg-white/[0.018] px-3 py-2.5">
+        <MotionSection
+          className="flex items-center gap-3 rounded-xl border border-white/7 bg-white/[0.018] px-3 py-2.5"
+          variants={cycleRevealItemVariants}
+        >
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/8 bg-white/[0.026] text-[#8FDCE5]/68">
             <Sparkles className="h-5 w-5" aria-hidden="true" />
           </div>
@@ -703,8 +784,8 @@ export default function CyclePage() {
           <p className="text-sm font-medium leading-5 text-[#A9B0B5]">
             Rest days keep the cycle moving.
           </p>
-        </section>
-      </div>
+        </MotionSection>
+      </MotionDiv>
     </AppShell>
   );
 }

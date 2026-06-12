@@ -1,9 +1,15 @@
+import { motion } from "motion/react";
+
+import { softPressTap } from "../../styles/motion";
+
+const MotionButton = motion.button;
+
 function DoneControl({ isDone = false }) {
   return (
     <span
-      className={`inline-flex min-h-8 w-full items-center justify-center rounded-full border px-2 text-xs font-semibold transition ${
+      className={`inline-flex min-h-8 w-full items-center justify-center rounded-full border px-2 text-xs font-semibold transition duration-150 ease-out motion-reduce:transition-none ${
         isDone
-          ? "border-[#A78BFA]/70 bg-[#6D28D9] text-white"
+          ? "border-[#C4B5FD]/78 bg-[#6D28D9] text-white"
           : "border-white/10 bg-white/[0.028] text-[#D3D8DB]"
       }`}
     >
@@ -92,9 +98,9 @@ export default function CoreSetRow({
   return (
     <div
       className={[
-        `grid ${rowGridClass} items-center gap-0.5 rounded-xl border px-2.5 py-2 transition-colors`,
+        `grid ${rowGridClass} items-center gap-0.5 rounded-xl border px-2.5 py-2 transition-colors duration-200 ease-out motion-reduce:transition-none`,
         isDone
-          ? "border-[#A78BFA]/26 bg-[#4C1D95]/14"
+          ? "border-[#A78BFA]/40 bg-[#4C1D95]/22"
           : "border-white/8 bg-[#0B0F11]/64",
         !isLast ? "" : "",
       ].join(" ")}
@@ -136,16 +142,17 @@ export default function CoreSetRow({
       </div>
 
       {showDoneControl ? (
-        <button
+        <MotionButton
           type="button"
           aria-label={`Mark core set ${setNumber} ${isDone ? "not done" : "done"}`}
           aria-pressed={isDone}
           disabled={isReadOnly}
           onClick={isReadOnly ? undefined : onToggleDone}
           className={isReadOnly ? "cursor-not-allowed opacity-50" : ""}
+          whileTap={isReadOnly ? undefined : softPressTap}
         >
           <DoneControl isDone={isDone} />
-        </button>
+        </MotionButton>
       ) : null}
     </div>
   );

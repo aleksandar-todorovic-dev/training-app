@@ -97,10 +97,10 @@ export const UI_ACCENT_AMBER_TEXT = "text-[#D8C891]";
 export const UI_ACCENT_PURPLE_TEXT = "text-[#C4B5FD]";
 
 export const UI_SHEET_OVERLAY =
-  "fixed inset-0 z-50 flex items-end justify-center bg-[#020607]/82 px-4 pb-4 pt-10 backdrop-blur-sm";
+  "fixed inset-x-0 bottom-0 top-0 z-50 flex h-dvh items-end justify-center overflow-hidden bg-[#020607]/82 px-4 pb-4 pt-10 backdrop-blur-sm";
 
 export const UI_SHEET_PANEL =
-  "flex max-h-[84vh] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#101417] shadow-2xl shadow-black/45";
+  "flex max-h-[min(84dvh,calc(100dvh-4.5rem))] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#101417] shadow-2xl shadow-black/45";
 
 export const UI_SHEET_HEADER =
   "shrink-0 border-b border-white/8 bg-white/[0.018] px-4 py-3.5";
@@ -141,8 +141,17 @@ export const UI_PILL_TRAINING_ACCENT =
 
 export const UI_ACTION_ROW = "flex flex-col gap-3";
 
+export const UI_PRESSABLE =
+  "transition duration-150 ease-out active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100";
+
+export const UI_PRESSABLE_SOFT =
+  "transition duration-150 ease-out active:scale-[0.992] motion-reduce:transition-none motion-reduce:active:scale-100";
+
+export const UI_CARD_INTERACTIVE =
+  "transition duration-150 ease-out active:scale-[0.992] motion-reduce:transition-none motion-reduce:active:scale-100";
+
 export const UI_BUTTON_BASE =
-  "inline-flex min-h-10 items-center justify-center rounded-xl px-4 text-sm font-semibold transition-colors";
+  `inline-flex min-h-10 items-center justify-center rounded-xl px-4 text-sm font-semibold ${UI_PRESSABLE}`.trim();
 
 export const UI_BUTTON_PRIMARY_TRAINING =
   `${UI_BUTTON_BASE} bg-[#5EC7D5] text-[#031014] shadow-[0_8px_18px_rgba(63,168,182,0.12)] hover:bg-[#6DD6E2]`.trim();

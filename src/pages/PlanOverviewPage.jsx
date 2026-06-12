@@ -1,5 +1,6 @@
 import { createElement } from "react";
 import { Link, useParams } from "react-router-dom";
+import { motion } from "motion/react";
 import {
   ArrowUpRight,
   BookOpen,
@@ -25,6 +26,14 @@ import AppShell from "../components/layout/AppShell";
 
 import { getPlanById } from "../data/plans";
 import { getDaysByPlanId } from "../data/days";
+import {
+  revealPanelVariants,
+  staggerContainerVariants,
+  staggerItemVariants,
+} from "../styles/motion";
+
+const MotionDiv = motion.div;
+const MotionSection = motion.section;
 
 // Screen-specific presentation metadata for the Phase 5 Plan Overview UI.
 // This does not replace the static plan source data from src/data/plans.
@@ -354,7 +363,12 @@ export default function PlanOverviewPage() {
           </div>
         </header>
 
-        <section className="overflow-hidden rounded-2xl border border-[#3FA8B6]/14 bg-[#10292E]/58 shadow-[0_12px_30px_rgba(0,0,0,0.2)]">
+        <MotionSection
+          className="overflow-hidden rounded-2xl border border-[#3FA8B6]/14 bg-[#10292E]/58 shadow-[0_12px_30px_rgba(0,0,0,0.2)]"
+          variants={revealPanelVariants}
+          initial="hidden"
+          animate="visible"
+        >
           <div className="relative flex flex-col gap-4 overflow-hidden p-4">
             <div
               className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_18%,rgba(95,199,213,0.08),transparent_34%),radial-gradient(circle_at_12%_100%,rgba(63,168,182,0.06),transparent_40%)]"
@@ -384,19 +398,25 @@ export default function PlanOverviewPage() {
             <Link
               to={primaryCta.to}
               onClick={handlePrimaryCtaClick}
-              className="relative inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] shadow-[0_8px_18px_rgba(63,168,182,0.13)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#10292E]"
+              className="relative inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] shadow-[0_8px_18px_rgba(63,168,182,0.13)] transition duration-150 ease-out hover:bg-[#6DD6E2] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#10292E] motion-reduce:transition-none motion-reduce:active:scale-100"
             >
               {primaryCta.label}
               <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
-        </section>
+        </MotionSection>
 
-        <section className="overflow-hidden rounded-2xl border border-white/8 bg-[#12181B]/72">
+        <MotionSection
+          className="overflow-hidden rounded-2xl border border-white/8 bg-[#12181B]/72"
+          variants={staggerContainerVariants}
+          initial="hidden"
+          animate="visible"
+        >
           {meta.facts.map(({ label, value, icon }) => (
-            <div
+            <MotionDiv
               key={label}
               className="flex items-center gap-3 border-b border-white/7 px-3 py-2.5 last:border-b-0"
+              variants={staggerItemVariants}
             >
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/8 bg-white/[0.026] text-[#8FDCE5]/62">
                 {createElement(icon, {
@@ -412,9 +432,9 @@ export default function PlanOverviewPage() {
               <p className="shrink-0 text-sm font-semibold text-[#F4F7F8]">
                 {value}
               </p>
-            </div>
+            </MotionDiv>
           ))}
-        </section>
+        </MotionSection>
 
         <section className="flex flex-col gap-3">
           <div>

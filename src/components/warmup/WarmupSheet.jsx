@@ -1,3 +1,5 @@
+import { motion } from "motion/react";
+
 import SecondaryButton from "../common/SecondaryButton";
 import WarmupStepsCard from "./WarmupStepsCard";
 import {
@@ -7,6 +9,12 @@ import {
   UI_SHEET_OVERLAY,
   UI_SHEET_PANEL,
 } from "../../styles/ui";
+import {
+  sheetOverlayVariants,
+  sheetPanelVariants,
+} from "../../styles/motion";
+
+const MotionDiv = motion.div;
 
 /**
  * Displays the warm-up guidance sheet for the selected day.
@@ -19,8 +27,20 @@ export default function WarmupSheet({ dayDetails, warmup, onClose }) {
   if (!warmup) return null;
 
   return (
-    <div className={UI_SHEET_OVERLAY}>
-      <div className={UI_SHEET_PANEL}>
+    <MotionDiv
+      className={UI_SHEET_OVERLAY}
+      variants={sheetOverlayVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+    >
+      <MotionDiv
+        className={UI_SHEET_PANEL}
+        variants={sheetPanelVariants}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="warmup-sheet-title"
+      >
         <div className={UI_SHEET_HEADER}>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0 flex-1">
@@ -28,7 +48,10 @@ export default function WarmupSheet({ dayDetails, warmup, onClose }) {
                 Warm-up prep
               </p>
 
-              <h2 className="mt-1.5 text-lg font-semibold leading-tight tracking-tight text-zinc-50">
+              <h2
+                id="warmup-sheet-title"
+                className="mt-1.5 text-lg font-semibold leading-tight tracking-tight text-zinc-50"
+              >
                 {dayDetails.label} warm-up
               </h2>
               <p className="mt-0.5 text-xs leading-5 text-zinc-500">
@@ -65,7 +88,7 @@ export default function WarmupSheet({ dayDetails, warmup, onClose }) {
             Done warming up
           </SecondaryButton>
         </div>
-      </div>
-    </div>
+      </MotionDiv>
+    </MotionDiv>
   );
 }

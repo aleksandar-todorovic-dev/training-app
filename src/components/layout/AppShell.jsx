@@ -1,8 +1,14 @@
+import { MotionConfig, motion } from "motion/react";
+import { useLocation } from "react-router-dom";
+
 import {
   UI_CONTAINER,
   UI_PAGE_PRODUCT,
   UI_PAGE_TRAINING,
 } from "../../styles/ui";
+import { pageContentVariants } from "../../styles/motion";
+
+const MotionDiv = motion.div;
 
 const PAGE_MODE_CLASS_NAMES = {
   product: UI_PAGE_PRODUCT,
@@ -22,14 +28,26 @@ const PAGE_MODE_CLASS_NAMES = {
  * behavior until they are intentionally migrated during Phase 5 polish.
  */
 export default function AppShell({ children, mode = "training" }) {
+  const location = useLocation();
+
   const pageClassName =
     PAGE_MODE_CLASS_NAMES[mode] ?? PAGE_MODE_CLASS_NAMES.training;
 
   return (
-    <main
-      className={`${pageClassName} relative isolate w-full max-w-full overflow-x-hidden overscroll-x-none`}
-    >
-      <div className={`${UI_CONTAINER} w-full max-w-full`}>{children}</div>
-    </main>
+    <MotionConfig reducedMotion="user">
+      <main
+        className={`${pageClassName} relative isolate w-full max-w-full overflow-x-hidden overscroll-x-none`}
+      >
+        <MotionDiv
+          key={location.pathname}
+          className={`${UI_CONTAINER} w-full max-w-full`}
+          variants={pageContentVariants}
+          initial="hidden"
+          animate="visible"
+        >
+          {children}
+        </MotionDiv>
+      </main>
+    </MotionConfig>
   );
 }

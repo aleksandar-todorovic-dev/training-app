@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowLeft,
   BookOpen,
@@ -14,6 +15,11 @@ import GuideGroupCard from "../components/guide/GuideGroupCard";
 
 import { getPlanById } from "../data/plans";
 import { getGuideByPlanId } from "../data/guides";
+import { pressableTap, revealPanelVariants } from "../styles/motion";
+
+const MotionButton = motion.button;
+const MotionDiv = motion.div;
+const MotionSection = motion.section;
 
 const GUIDE_SECTION_ICONS = [BookOpen, CheckSquare, GitBranch, Moon];
 
@@ -89,9 +95,16 @@ export default function GuidePage() {
 
   return (
     <AppShell>
-      <div className="flex flex-col gap-5">
+      <AnimatePresence initial={false} mode="wait">
         {!activeGroup ? (
-          <>
+          <MotionDiv
+            key="guide-sections"
+            className="flex flex-col gap-5"
+            variants={revealPanelVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
             <Link
               to={`/plan/${planId}`}
               className="inline-flex w-fit items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
@@ -149,12 +162,13 @@ export default function GuidePage() {
                   const SectionIcon = GUIDE_SECTION_ICONS[index] ?? BookOpen;
 
                   return (
-                    <button
+                    <MotionButton
                       key={group.id}
                       type="button"
                       onClick={() => handleOpenGroup(group.id)}
+                      whileTap={pressableTap}
                       className="group rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3 text-left transition hover:border-[#3FA8B6]/18 hover:bg-white/[0.03]"
-                  >
+                    >
                       <div className="grid grid-cols-[2rem_1fr] gap-3">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[#3FA8B6]/18 bg-[#10292E]/36 text-sm font-semibold text-[#8FDCE5]">
                           {index + 1}
@@ -190,14 +204,21 @@ export default function GuidePage() {
                           </p>
                         </div>
                       </div>
-                    </button>
+                    </MotionButton>
                   );
                 })}
               </div>
             </section>
-          </>
+          </MotionDiv>
         ) : (
-          <section className="flex flex-col gap-5">
+          <MotionSection
+            key={activeGroup.id}
+            className="flex flex-col gap-5"
+            variants={revealPanelVariants}
+            initial="hidden"
+            animate="visible"
+            exit="exit"
+          >
             <button
               type="button"
               onClick={handleBackToSections}
@@ -219,9 +240,9 @@ export default function GuidePage() {
                 Guide sections
               </button>
             </div>
-          </section>
+          </MotionSection>
         )}
-      </div>
+      </AnimatePresence>
     </AppShell>
   );
 }

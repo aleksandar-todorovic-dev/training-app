@@ -1,4 +1,5 @@
 import { AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react";
+import { motion } from "motion/react";
 import {
   UI_SHEET_BODY,
   UI_SHEET_FOOTER,
@@ -6,6 +7,12 @@ import {
   UI_SHEET_OVERLAY,
   UI_SHEET_PANEL,
 } from "../../styles/ui";
+import {
+  sheetOverlayVariants,
+  sheetPanelVariants,
+} from "../../styles/motion";
+
+const MotionDiv = motion.div;
 
 /**
  * Confirmation sheet for closing the active training day.
@@ -61,8 +68,20 @@ export default function FinishDaySheet({
   ].filter(Boolean);
 
   return (
-    <div className={UI_SHEET_OVERLAY}>
-      <div className={UI_SHEET_PANEL}>
+    <MotionDiv
+      className={UI_SHEET_OVERLAY}
+      variants={sheetOverlayVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+    >
+      <MotionDiv
+        className={UI_SHEET_PANEL}
+        variants={sheetPanelVariants}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="finish-day-sheet-title"
+      >
         <header className={UI_SHEET_HEADER}>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
@@ -70,7 +89,10 @@ export default function FinishDaySheet({
                 Finish day
               </p>
 
-              <h2 className="mt-1.5 text-lg font-semibold leading-tight tracking-tight text-zinc-50">
+              <h2
+                id="finish-day-sheet-title"
+                className="mt-1.5 text-lg font-semibold leading-tight tracking-tight text-zinc-50"
+              >
                 Close training day?
               </h2>
 
@@ -190,7 +212,7 @@ export default function FinishDaySheet({
           <button
             type="button"
             onClick={onConfirmFinish}
-            className="inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] transition hover:bg-[#6DD6E2]"
+            className="inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] transition duration-150 ease-out hover:bg-[#6DD6E2] active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100"
           >
             Finish and move on
           </button>
@@ -198,12 +220,12 @@ export default function FinishDaySheet({
           <button
             type="button"
             onClick={onClose}
-            className="mt-2 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-white/10 bg-white/[0.026] px-4 text-sm font-semibold text-zinc-300 transition hover:border-white/16 hover:bg-white/[0.045]"
+            className="mt-2 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-white/10 bg-white/[0.026] px-4 text-sm font-semibold text-zinc-300 transition duration-150 ease-out hover:border-white/16 hover:bg-white/[0.045] active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100"
           >
             Keep logging
           </button>
         </footer>
-      </div>
-    </div>
+      </MotionDiv>
+    </MotionDiv>
   );
 }

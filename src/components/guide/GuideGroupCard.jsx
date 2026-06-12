@@ -1,4 +1,9 @@
+import { motion } from "motion/react";
+
 import GuideTopicBlock from "./GuideTopicBlock";
+import { staggerContainerVariants } from "../../styles/motion";
+
+const MotionDiv = motion.div;
 
 /**
  * Displays one guide section group with its related guide topics.
@@ -36,7 +41,12 @@ export default function GuideGroupCard({ group }) {
         </div>
       </header>
 
-      <div className="mt-3 flex flex-col gap-3">
+      <MotionDiv
+        className="mt-3 flex flex-col gap-3"
+        variants={staggerContainerVariants}
+        initial="hidden"
+        animate="visible"
+      >
         {group.topics.map((topic, index) => (
           <GuideTopicBlock
             key={topic.id}
@@ -46,7 +56,7 @@ export default function GuideGroupCard({ group }) {
             isLast={index === group.topics.length - 1}
           />
         ))}
-      </div>
+      </MotionDiv>
     </div>
   );
 }

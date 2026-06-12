@@ -1,17 +1,21 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useMemo } from "react";
+import { motion } from "motion/react";
 
 import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
 import AppShell from "../components/layout/AppShell";
 import SectionCard from "../components/layout/SectionCard";
 import { UI_TEXT_MUTED } from "../styles/ui";
+import { revealPanelVariants } from "../styles/motion";
 import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getCoreBlockById, getCoreExercisesByIds } from "../data/core";
 import CoreWorkflowCard from "../components/core/CoreWorkflowCard";
 import { sanitizeCoreSetInputValue } from "../utils/runtime/coreInputHelpers";
 import { getDayMode } from "../utils/runtime/dayModeHelpers";
+
+const MotionDiv = motion.div;
 
 /**
  * Page-level orchestrator for one core block workflow.
@@ -207,6 +211,19 @@ export default function CorePage() {
     );
   }
 
+  const coreWorkflowCard = (
+    <CoreWorkflowCard
+      coreBlock={coreBlock}
+      exercises={coreExercises}
+      coreBlockLog={coreBlockLog}
+      dayMode={dayMode}
+      isReadOnly={isUpcomingPreview}
+      onToggleCoreSetDone={handleToggleCoreSetDone}
+      onUpdateCoreSetField={handleUpdateCoreSetField}
+      onCloseCoreBlock={handleCloseCoreBlock}
+    />
+  );
+
   return (
     <AppShell>
       <div className="space-y-5">
@@ -243,7 +260,12 @@ export default function CorePage() {
         </header>
 
         {isUpcomingPreview ? (
-          <div className="rounded-2xl border border-[#8B5CF6]/22 bg-[#4C1D95]/10 px-4 py-4">
+          <MotionDiv
+            className="rounded-2xl border border-[#8B5CF6]/22 bg-[#4C1D95]/10 px-4 py-4"
+            variants={revealPanelVariants}
+            initial="hidden"
+            animate="visible"
+          >
             <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#C4B5FD]">
               Preview mode
             </p>
@@ -252,19 +274,20 @@ export default function CorePage() {
               Review the core structure now. Logging unlocks when this day
               becomes current.
             </p>
-          </div>
+          </MotionDiv>
         ) : null}
 
-        <CoreWorkflowCard
-          coreBlock={coreBlock}
-          exercises={coreExercises}
-          coreBlockLog={coreBlockLog}
-          dayMode={dayMode}
-          isReadOnly={isUpcomingPreview}
-          onToggleCoreSetDone={handleToggleCoreSetDone}
-          onUpdateCoreSetField={handleUpdateCoreSetField}
-          onCloseCoreBlock={handleCloseCoreBlock}
-        />
+        {dayMode === "active" ? (
+          <MotionDiv
+            variants={revealPanelVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            {coreWorkflowCard}
+          </MotionDiv>
+        ) : (
+          coreWorkflowCard
+        )}
       </div>
     </AppShell>
   );

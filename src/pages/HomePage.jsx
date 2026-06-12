@@ -1,4 +1,5 @@
 import { createElement, useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import {
   CalendarClock,
   Dumbbell,
@@ -13,6 +14,10 @@ import { plans } from "../data/plans";
 import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
 import { clearStoredAppState } from "../storage/appStateStorage";
+import { pressableTap, revealPanelVariants } from "../styles/motion";
+
+const MotionButton = motion.button;
+const MotionDiv = motion.div;
 
 const HOME_VALUE_CHIPS = [
   {
@@ -133,14 +138,15 @@ export default function HomePage() {
               const isActive = activeValueChipId === id;
 
               return (
-                <button
+                <MotionButton
                   key={id}
                   type="button"
                   aria-expanded={isActive}
                   aria-controls={isActive ? "home-value-chip-panel" : undefined}
                   onClick={() => handleValueChipClick(id)}
+                  whileTap={pressableTap}
                   className={[
-                    "inline-flex min-h-9 items-center gap-2 rounded-xl border px-2.5 py-1.5 text-left text-xs font-medium transition-colors",
+                    "inline-flex min-h-9 items-center gap-2 rounded-xl border px-2.5 py-1.5 text-left text-xs font-medium transition duration-150 ease-out motion-reduce:transition-none",
                     isActive
                       ? "border-[#3FA8B6]/26 bg-[#10292E]/48 text-[#F4F7F8]"
                       : "border-white/8 bg-white/[0.018] text-[#D3D8DB] hover:border-[#3FA8B6]/18 hover:bg-white/[0.035]",
@@ -153,41 +159,48 @@ export default function HomePage() {
                     })}
                   </span>
                   <span className="leading-tight">{label}</span>
-                </button>
+                </MotionButton>
               );
             })}
           </div>
 
-          {activeValueChip ? (
-            <div
-              id="home-value-chip-panel"
-              className="rounded-2xl border border-[#3FA8B6]/12 bg-[#10292E]/32 px-3.5 py-3"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]/72">
-                    Why it matters
-                  </p>
+          <AnimatePresence initial={false} mode="wait">
+            {activeValueChip ? (
+              <MotionDiv
+                key={activeValueChip.id}
+                id="home-value-chip-panel"
+                className="rounded-2xl border border-[#3FA8B6]/12 bg-[#10292E]/32 px-3.5 py-3"
+                variants={revealPanelVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]/72">
+                      Why it matters
+                    </p>
 
-                  <h2 className="mt-1.5 text-base font-semibold tracking-tight text-[#F4F7F8]">
-                    {activeValueChip.title}
-                  </h2>
+                    <h2 className="mt-1.5 text-base font-semibold tracking-tight text-[#F4F7F8]">
+                      {activeValueChip.title}
+                    </h2>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setActiveValueChipId(null)}
+                    className="shrink-0 rounded-full border border-white/8 px-2.5 py-1 text-xs font-medium text-[#A9B0B5] transition duration-150 ease-out hover:text-[#F4F7F8] active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100"
+                  >
+                    Close
+                  </button>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setActiveValueChipId(null)}
-                  className="shrink-0 rounded-full border border-white/8 px-2.5 py-1 text-xs font-medium text-[#A9B0B5] transition hover:text-[#F4F7F8]"
-                >
-                  Close
-                </button>
-              </div>
-
-              <p className="mt-2 text-sm leading-5 text-[#A9B0B5]">
-                {activeValueChip.description}
-              </p>
-            </div>
-          ) : null}
+                <p className="mt-2 text-sm leading-5 text-[#A9B0B5]">
+                  {activeValueChip.description}
+                </p>
+              </MotionDiv>
+            ) : null}
+          </AnimatePresence>
         </header>
 
         <section className="flex flex-col gap-3">

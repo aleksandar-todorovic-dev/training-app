@@ -1,3 +1,9 @@
+import { motion } from "motion/react";
+
+import { staggerItemVariants } from "../../styles/motion";
+
+const MotionArticle = motion.article;
+
 /**
  * Displays one guide topic with optional paragraph and bullet content.
  *
@@ -23,7 +29,7 @@ export default function GuideTopicBlock({
     .join(" ");
 
   return (
-    <article className={articleClassName}>
+    <MotionArticle className={articleClassName} variants={staggerItemVariants}>
       <div className="flex items-start gap-3">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#3FA8B6]/18 bg-[#10292E]/36 text-sm font-semibold text-[#8FDCE5]">
           {index + 1}
@@ -74,6 +80,6 @@ export default function GuideTopicBlock({
           </div>
         ) : null}
       </div>
-    </article>
+    </MotionArticle>
   );
 }

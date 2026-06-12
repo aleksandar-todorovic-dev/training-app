@@ -5,8 +5,12 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
 import CoreSetRow from "./CoreSetRow";
+import { revealPanelVariants } from "../../styles/motion";
+
+const MotionDiv = motion.div;
 
 function cleanSummaryValue(value) {
   if (!value || typeof value !== "string") {
@@ -269,14 +273,19 @@ export default function CoreWorkflowCard({
           </p>
 
           {isSavedLog ? (
-            <div className="rounded-xl border border-[#A78BFA]/14 bg-[#4C1D95]/10 px-3 py-2.5">
+            <MotionDiv
+              className="rounded-xl border border-[#A78BFA]/14 bg-[#4C1D95]/10 px-3 py-2.5"
+              variants={revealPanelVariants}
+              initial="hidden"
+              animate="visible"
+            >
               <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#DDD6FE]">
                 Closed day log
               </p>
               <p className="mt-1 text-sm leading-5 text-[#A9B0B5]">
                 Review or adjust the values you saved.
               </p>
-            </div>
+            </MotionDiv>
           ) : null}
 
           <div className="grid grid-cols-3 divide-x divide-white/7 overflow-hidden rounded-lg bg-white/[0.018]">
@@ -391,46 +400,54 @@ export default function CoreWorkflowCard({
             </span>
           </button>
 
-          {isCoachNotesOpen ? (
-            <div className="mt-3 space-y-4 rounded-xl border border-white/7 bg-[#071012]/30 px-3 py-3">
-              {coreBlock.details?.progression ? (
-                <div className="space-y-2">
-                  <h3 className="text-sm font-semibold text-[#F4F7F8]">
-                    Progression
-                  </h3>
+          <AnimatePresence initial={false}>
+            {isCoachNotesOpen ? (
+              <MotionDiv
+                className="mt-3 space-y-4 rounded-xl border border-white/7 bg-[#071012]/30 px-3 py-3"
+                variants={revealPanelVariants}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+              >
+                {coreBlock.details?.progression ? (
+                  <div className="space-y-2">
+                    <h3 className="text-sm font-semibold text-[#F4F7F8]">
+                      Progression
+                    </h3>
 
-                  <p className="text-sm leading-5 text-[#A9B0B5]">
-                    {coreBlock.details.progression}
+                    <p className="text-sm leading-5 text-[#A9B0B5]">
+                      {coreBlock.details.progression}
+                    </p>
+                  </div>
+                ) : null}
+
+                {coreBlock.details?.notes?.length > 0 ? (
+                  <div className="space-y-2 border-t border-white/7 pt-4">
+                    <h3 className="text-sm font-semibold text-[#F4F7F8]">
+                      Key reminders
+                    </h3>
+
+                    <ul className="space-y-1">
+                      {coreBlock.details.notes.map((note) => (
+                        <li
+                          key={note}
+                          className="text-sm leading-5 text-[#A9B0B5]"
+                        >
+                          - {note}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+
+                {coreBlock.note ? (
+                  <p className="border-t border-white/7 pt-4 text-sm leading-5 text-[#A9B0B5]">
+                    {coreBlock.note}
                   </p>
-                </div>
-              ) : null}
-
-              {coreBlock.details?.notes?.length > 0 ? (
-                <div className="space-y-2 border-t border-white/7 pt-4">
-                  <h3 className="text-sm font-semibold text-[#F4F7F8]">
-                    Key reminders
-                  </h3>
-
-                  <ul className="space-y-1">
-                    {coreBlock.details.notes.map((note) => (
-                      <li
-                        key={note}
-                        className="text-sm leading-5 text-[#A9B0B5]"
-                      >
-                        - {note}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ) : null}
-
-              {coreBlock.note ? (
-                <p className="border-t border-white/7 pt-4 text-sm leading-5 text-[#A9B0B5]">
-                  {coreBlock.note}
-                </p>
-              ) : null}
-            </div>
-          ) : null}
+                ) : null}
+              </MotionDiv>
+            ) : null}
+          </AnimatePresence>
         </section>
       ) : null}
 
@@ -438,7 +455,7 @@ export default function CoreWorkflowCard({
         <button
           type="button"
           onClick={onCloseCoreBlock}
-          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#A78BFA]/32 bg-[#6D28D9] px-5 py-3 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(109,40,217,0.14)] transition hover:bg-[#7C3AED]"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#A78BFA]/32 bg-[#6D28D9] px-5 py-3 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(109,40,217,0.14)] transition duration-150 ease-out hover:bg-[#7C3AED] active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100"
         >
           {finishButtonLabel}
           <ChevronRight className="h-5 w-5" aria-hidden="true" />

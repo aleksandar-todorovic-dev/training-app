@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { motion } from "motion/react";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -16,6 +17,12 @@ import { useAppState } from "../state/useAppState";
 import { getDayDetails } from "../data/dayDetails";
 import { getPlanById } from "../data/plans";
 import { getCycleSummary } from "../utils/runtime/cycleSummaryHelpers";
+import {
+  staggerContainerVariants,
+  staggerItemVariants,
+} from "../styles/motion";
+
+const MotionDiv = motion.div;
 
 /**
  * Compact metric tile for the completed cycle recap.
@@ -28,7 +35,10 @@ function CycleMetricTile({ icon, label, value, helper }) {
   const MetricIcon = icon;
 
   return (
-    <div className="flex items-center gap-3 border-b border-white/7 px-3 py-2.5 last:border-b-0">
+    <MotionDiv
+      className="flex items-center gap-3 border-b border-white/7 px-3 py-2.5 last:border-b-0"
+      variants={staggerItemVariants}
+    >
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/8 bg-white/[0.026] text-[#8FDCE5]/70">
         <MetricIcon className="h-3.5 w-3.5" aria-hidden="true" />
       </div>
@@ -43,7 +53,7 @@ function CycleMetricTile({ icon, label, value, helper }) {
       <p className="shrink-0 text-base font-semibold tracking-tight text-zinc-50">
         {value}
       </p>
-    </div>
+    </MotionDiv>
   );
 }
 
@@ -271,7 +281,12 @@ export default function EndCyclePage() {
             </h2>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-white/8 bg-white/[0.018]">
+          <MotionDiv
+            className="overflow-hidden rounded-2xl border border-white/8 bg-white/[0.018]"
+            variants={staggerContainerVariants}
+            initial="hidden"
+            animate="visible"
+          >
             <CycleMetricTile
               icon={CheckCircle2}
               label="Days closed"
@@ -305,7 +320,7 @@ export default function EndCyclePage() {
               value={`${cycleSummary.loggedCoreBlocksCount}/${cycleSummary.totalCoreBlocksCount}`}
               helper={hasCoreBlocks ? "Core blocks" : "No core blocks"}
             />
-          </div>
+          </MotionDiv>
         </section>
 
         <section className="rounded-2xl border border-white/8 bg-white/[0.018] p-4">
@@ -390,7 +405,7 @@ export default function EndCyclePage() {
           <button
             type="button"
             onClick={handleStartNewCycle}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-cyan-300 px-5 text-sm font-semibold text-zinc-950 transition hover:bg-cyan-200"
+            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-cyan-300 px-5 text-sm font-semibold text-zinc-950 transition duration-150 ease-out hover:bg-cyan-200 active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100"
           >
             Start Cycle {nextCycleNumber}
           </button>

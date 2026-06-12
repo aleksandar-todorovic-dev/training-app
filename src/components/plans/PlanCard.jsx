@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
 
 import SectionCard from "../layout/SectionCard";
+import { UI_CARD_INTERACTIVE } from "../../styles/ui";
 
 // Home-specific presentation metadata for plan cards.
 // Static plan source data still comes from src/data/plans.
@@ -41,7 +42,7 @@ export default function PlanCard({ plan }) {
   return (
     <SectionCard
       variant="training"
-      className="group relative overflow-hidden border-white/8 bg-[#12181B]/78 p-0 shadow-[0_10px_24px_rgba(0,0,0,0.14)] transition-colors hover:border-[#3FA8B6]/22"
+      className={`group relative overflow-hidden border-white/8 bg-[#12181B]/78 p-0 shadow-[0_10px_24px_rgba(0,0,0,0.14)] hover:border-[#3FA8B6]/22 ${UI_CARD_INTERACTIVE}`}
     >
       <div
         className={`pointer-events-none absolute bottom-0 left-0 top-0 w-0.5 ${meta.accentClassName}`}
@@ -86,7 +87,7 @@ export default function PlanCard({ plan }) {
 
         <Link
           to={`/plan/${plan.id}`}
-          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] shadow-[0_6px_14px_rgba(63,168,182,0.1)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151A1D]"
+          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] shadow-[0_6px_14px_rgba(63,168,182,0.1)] transition duration-150 ease-out hover:bg-[#6DD6E2] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151A1D] motion-reduce:transition-none motion-reduce:active:scale-100"
         >
           View plan
           <ChevronRight className="h-4 w-4" aria-hidden="true" />

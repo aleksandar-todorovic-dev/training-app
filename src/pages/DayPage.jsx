@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowLeft,
   CheckCircle2,
@@ -27,6 +28,9 @@ import { getExercisesForDay } from "../data/exercises";
 import { getCoreBlockById, getCoreExercisesByIds } from "../data/core";
 import { getMissingValueWarningSummary } from "../utils/runtime/missingValueWarningHelpers";
 import { getWarmupById } from "../data/warmups";
+import { revealPanelVariants } from "../styles/motion";
+
+const MotionSection = motion.section;
 
 // DayPage display helpers.
 // They derive labels and next-action data from existing static content and
@@ -446,7 +450,12 @@ export default function DayPage() {
         </section>
 
         {dayMode === "active" ? (
-          <section className="rounded-2xl border border-amber-300/14 bg-[linear-gradient(180deg,rgba(29,28,22,0.28),rgba(17,21,24,0.86))] p-3.5 shadow-[0_14px_32px_rgba(0,0,0,0.22)]">
+          <MotionSection
+            className="rounded-2xl border border-amber-300/14 bg-[linear-gradient(180deg,rgba(29,28,22,0.28),rgba(17,21,24,0.86))] p-3.5 shadow-[0_14px_32px_rgba(0,0,0,0.22)]"
+            variants={revealPanelVariants}
+            initial="hidden"
+            animate="visible"
+          >
             {nextExercise ? (
               <div className="flex flex-col gap-3">
                 <div className="flex flex-col gap-2">
@@ -487,7 +496,7 @@ export default function DayPage() {
 
                 <Link
                   to={`/plan/${planId}/day/${dayId}/exercise/${nextExercise.id}`}
-                  className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#5EC7D5] px-5 text-sm font-semibold text-[#031014] shadow-[0_6px_16px_rgba(63,168,182,0.12)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#071012]"
+                  className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#5EC7D5] px-5 text-sm font-semibold text-[#031014] shadow-[0_6px_16px_rgba(63,168,182,0.12)] transition duration-150 ease-out hover:bg-[#6DD6E2] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#071012] motion-reduce:transition-none motion-reduce:active:scale-100"
                 >
                   {nextExerciseCtaLabel}
                   <ChevronRight className="ml-2 h-5 w-5" aria-hidden="true" />
@@ -496,7 +505,7 @@ export default function DayPage() {
                 <button
                   type="button"
                   onClick={() => setIsWarmupOpen(true)}
-                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-amber-300/16 bg-amber-300/[0.035] px-4 text-sm font-semibold text-[#D3D8DB] transition-colors hover:border-amber-300/24 hover:text-[#F4F7F8]"
+                  className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-amber-300/16 bg-amber-300/[0.035] px-4 text-sm font-semibold text-[#D3D8DB] transition duration-150 ease-out hover:border-amber-300/24 hover:text-[#F4F7F8] active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100"
                 >
                   <Flame
                     className="h-4 w-4 text-[#C9B57A]"
@@ -525,34 +534,44 @@ export default function DayPage() {
                 <button
                   type="button"
                   onClick={() => setIsFinishDayOpen(true)}
-                  className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#5EC7D5] px-5 text-sm font-semibold text-[#031014] shadow-[0_6px_16px_rgba(63,168,182,0.12)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#071012]"
+                  className="inline-flex min-h-11 items-center justify-center rounded-xl bg-[#5EC7D5] px-5 text-sm font-semibold text-[#031014] shadow-[0_6px_16px_rgba(63,168,182,0.12)] transition duration-150 ease-out hover:bg-[#6DD6E2] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#071012] motion-reduce:transition-none motion-reduce:active:scale-100"
                 >
                   Finish day
                   <CheckCircle2 className="ml-2 h-5 w-5" aria-hidden="true" />
                 </button>
               </div>
             )}
-          </section>
+          </MotionSection>
         ) : null}
 
         {dayMode === "finished" ? (
-          <section className="rounded-xl bg-[#10292E]/18 px-3 py-2.5">
+          <MotionSection
+            className="rounded-xl bg-[#10292E]/18 px-3 py-2.5"
+            variants={revealPanelVariants}
+            initial="hidden"
+            animate="visible"
+          >
             <p className="text-sm font-semibold text-[#B9EEF4]">Finished day</p>
             <p className="mt-1 text-sm leading-relaxed text-[#A9B0B5]">
               This day has already been finished. Changes will update this saved
               log.
             </p>
-          </section>
+          </MotionSection>
         ) : null}
 
         {dayMode === "upcoming" ? (
-          <section className="rounded-xl bg-white/[0.016] px-3 py-2.5">
+          <MotionSection
+            className="rounded-xl bg-white/[0.016] px-3 py-2.5"
+            variants={revealPanelVariants}
+            initial="hidden"
+            animate="visible"
+          >
             <p className="text-sm font-semibold text-[#F4F7F8]">Upcoming day</p>
             <p className="mt-1 text-sm leading-relaxed text-[#A9B0B5]">
               You can preview the structure now. Logging opens when this day
               becomes current.
             </p>
-          </section>
+          </MotionSection>
         ) : null}
 
         <SessionInfoCard
@@ -603,7 +622,7 @@ export default function DayPage() {
           <button
             type="button"
             onClick={() => setIsFinishDayOpen(true)}
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-[#3FA8B6]/18 bg-[#10292E]/22 px-5 text-sm font-semibold text-[#8FDCE5]/90 transition-colors hover:border-[#3FA8B6]/30 hover:bg-[#10292E]/36 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#071012]"
+            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-[#3FA8B6]/18 bg-[#10292E]/22 px-5 text-sm font-semibold text-[#8FDCE5]/90 transition duration-150 ease-out hover:border-[#3FA8B6]/30 hover:bg-[#10292E]/36 active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#071012] motion-reduce:transition-none motion-reduce:active:scale-100"
           >
             <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
             Finish day
@@ -611,24 +630,28 @@ export default function DayPage() {
         ) : null}
       </div>
 
-      {isWarmupOpen ? (
-        <WarmupSheet
-          dayDetails={dayDetails}
-          warmup={warmup}
-          onClose={() => setIsWarmupOpen(false)}
-        />
-      ) : null}
+      <AnimatePresence>
+        {isWarmupOpen ? (
+          <WarmupSheet
+            key="warmup-sheet"
+            dayDetails={dayDetails}
+            warmup={warmup}
+            onClose={() => setIsWarmupOpen(false)}
+          />
+        ) : null}
 
-      {isFinishDayOpen ? (
-        <FinishDaySheet
-          dayDetails={dayDetails}
-          progressText={progressText}
-          hasCoreBlock={Boolean(coreBlock)}
-          missingValueWarningSummary={missingValueWarningSummary}
-          onClose={() => setIsFinishDayOpen(false)}
-          onConfirmFinish={handleConfirmFinishDay}
-        />
-      ) : null}
+        {isFinishDayOpen ? (
+          <FinishDaySheet
+            key="finish-day-sheet"
+            dayDetails={dayDetails}
+            progressText={progressText}
+            hasCoreBlock={Boolean(coreBlock)}
+            missingValueWarningSummary={missingValueWarningSummary}
+            onClose={() => setIsFinishDayOpen(false)}
+            onConfirmFinish={handleConfirmFinishDay}
+          />
+        ) : null}
+      </AnimatePresence>
     </AppShell>
   );
 }
