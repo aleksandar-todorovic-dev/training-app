@@ -2,6 +2,10 @@ import { motion } from "motion/react";
 
 import GuideTopicBlock from "./GuideTopicBlock";
 import { staggerContainerVariants } from "../../styles/motion";
+import {
+  UI_TEXT_BODY_RELAXED,
+  UI_TEXT_EYEBROW_ACCENT,
+} from "../../styles/ui";
 
 const MotionDiv = motion.div;
 
@@ -17,7 +21,7 @@ export default function GuideGroupCard({ group }) {
     <div className="flex flex-col">
       <header className="flex flex-col gap-3 rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3">
         <div>
-          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]/78">
+          <p className={UI_TEXT_EYEBROW_ACCENT}>
             Guide section
           </p>
 
@@ -25,7 +29,7 @@ export default function GuideGroupCard({ group }) {
             {group.title}
           </h2>
 
-          <p className="mt-2 max-w-sm text-sm leading-6 text-zinc-400">
+          <p className={`mt-2 max-w-sm ${UI_TEXT_BODY_RELAXED}`}>
             {group.intro}
           </p>
         </div>

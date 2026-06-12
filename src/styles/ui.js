@@ -56,6 +56,32 @@ export const UI_TEXT_META_TRAINING = "text-xs font-medium text-[#747D84]";
 export const UI_TEXT_LABEL_TRAINING =
   "text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]";
 
+export const UI_TEXT_EYEBROW =
+  "text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#747D84]";
+
+export const UI_TEXT_EYEBROW_ACCENT =
+  "text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#8FDCE5]/82";
+
+export const UI_TEXT_SECTION_TITLE =
+  "text-lg font-semibold tracking-tight text-[#F4F7F8]";
+
+export const UI_TEXT_CARD_TITLE =
+  "text-base font-semibold tracking-tight text-[#E7ECEE]";
+
+export const UI_TEXT_BODY = UI_TEXT_BODY_TRAINING;
+
+export const UI_TEXT_BODY_STRONG = "text-sm leading-5 text-[#D3D8DB]";
+
+export const UI_TEXT_BODY_RELAXED = "text-sm leading-6 text-[#A9B0B5]";
+
+export const UI_TEXT_META = UI_TEXT_META_TRAINING;
+
+export const UI_TEXT_STAT_LABEL =
+  "text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]";
+
+export const UI_TEXT_STAT_VALUE =
+  "text-sm font-semibold tracking-tight text-[#F4F7F8]";
+
 export const UI_TEXT_MUTED_PRODUCT = "text-sm leading-5 text-zinc-600";
 
 /**

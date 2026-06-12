@@ -8,6 +8,9 @@ import {
   UI_SHEET_HEADER,
   UI_SHEET_OVERLAY,
   UI_SHEET_PANEL,
+  UI_TEXT_BODY,
+  UI_TEXT_BODY_STRONG,
+  UI_TEXT_META,
 } from "../../styles/ui";
 import {
   sheetOverlayVariants,
@@ -54,9 +57,7 @@ export default function WarmupSheet({ dayDetails, warmup, onClose }) {
               >
                 {dayDetails.label} warm-up
               </h2>
-              <p className="mt-0.5 text-xs leading-5 text-zinc-500">
-                {dayDetails.name}
-              </p>
+              <p className={`mt-0.5 ${UI_TEXT_META}`}>{dayDetails.name}</p>
             </div>
 
             <p className="shrink-0 rounded-full border border-amber-300/18 bg-amber-300/8 px-2 py-0.5 text-xs font-semibold text-amber-100">
@@ -64,7 +65,9 @@ export default function WarmupSheet({ dayDetails, warmup, onClose }) {
             </p>
           </div>
 
-          <p className="mt-2 border-l border-amber-300/28 pl-3 text-sm leading-5 text-zinc-300">
+          <p
+            className={`mt-2 border-l border-amber-300/28 pl-3 ${UI_TEXT_BODY_STRONG}`}
+          >
             {warmup.goal}
           </p>
         </div>
@@ -76,7 +79,7 @@ export default function WarmupSheet({ dayDetails, warmup, onClose }) {
             <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-amber-200">
               Coach reminder
             </p>
-            <p className="mt-1.5 text-sm leading-5 text-zinc-400">
+            <p className={`mt-1.5 ${UI_TEXT_BODY}`}>
               Warm up to feel ready, not tired. Keep ramp sets clean and save
               the real effort for working sets.
             </p>

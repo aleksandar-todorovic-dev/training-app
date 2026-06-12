@@ -8,7 +8,17 @@ import {
   exerciseHelp,
   advancedTechniqueHelpByType,
 } from "../../data/contextualHelp";
-import { UI_TEXT_MUTED } from "../../styles/ui";
+import {
+  UI_TEXT_BODY,
+  UI_TEXT_BODY_STRONG,
+  UI_TEXT_CARD_TITLE,
+  UI_TEXT_EYEBROW,
+  UI_TEXT_EYEBROW_ACCENT,
+  UI_TEXT_META,
+  UI_TEXT_SECTION_TITLE,
+  UI_TEXT_STAT_LABEL,
+  UI_TEXT_STAT_VALUE,
+} from "../../styles/ui";
 import { revealPanelVariants } from "../../styles/motion";
 
 const MotionDiv = motion.div;
@@ -58,8 +68,8 @@ function DetailBlock({ title, children, hasDivider = false }) {
         hasDivider ? "border-t border-zinc-800/70 pt-4" : ""
       }`}
     >
-      <h3 className="text-sm font-semibold text-zinc-100">{title}</h3>
-      <div className={`text-sm leading-5 ${UI_TEXT_MUTED}`}>{children}</div>
+      <h3 className="text-sm font-semibold text-[#F4F7F8]">{title}</h3>
+      <div className={UI_TEXT_BODY}>{children}</div>
     </div>
   );
 }
@@ -67,10 +77,9 @@ function DetailBlock({ title, children, hasDivider = false }) {
 function TargetItem({ label, value }) {
   return (
     <div className="min-w-0 text-center">
-      <p className="text-[9px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
-        {label}
-      </p>
-      <p className="mt-1 whitespace-nowrap text-sm font-semibold tracking-tight tabular-nums text-zinc-100">
+      <p className={UI_TEXT_STAT_LABEL}>{label}</p>
+
+      <p className={`mt-1 whitespace-nowrap tabular-nums ${UI_TEXT_STAT_VALUE}`}>
         {value}
       </p>
     </div>
@@ -148,10 +157,10 @@ export default function ExerciseWorkflowCard({
             initial="hidden"
             animate="visible"
           >
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]">
+            <p className={UI_TEXT_EYEBROW_ACCENT}>
               Preview mode
             </p>
-            <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
+            <p className={`mt-1 ${UI_TEXT_BODY}`}>
               Review the targets now. Logging unlocks when this day becomes
               current.
             </p>
@@ -165,10 +174,10 @@ export default function ExerciseWorkflowCard({
             initial="hidden"
             animate="visible"
           >
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]">
+            <p className={UI_TEXT_EYEBROW_ACCENT}>
               Closed day log
             </p>
-            <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
+            <p className={`mt-1 ${UI_TEXT_BODY}`}>
               Review or adjust the values you saved.
             </p>
           </MotionSection>
@@ -181,12 +190,12 @@ export default function ExerciseWorkflowCard({
               className="h-4 w-4 text-[#8FDCE5]"
             />
 
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]">
+            <p className={UI_TEXT_EYEBROW_ACCENT}>
               {focusLabel}
             </p>
           </div>
 
-          <p className="mt-1.5 text-sm leading-5 text-[#D3D8DB]">
+          <p className={`mt-1.5 ${UI_TEXT_BODY_STRONG}`}>
             {exercise.cue ??
               "Keep the movement controlled and log the work you actually perform."}
           </p>
@@ -207,12 +216,12 @@ export default function ExerciseWorkflowCard({
                     className="h-4 w-4 text-amber-200"
                   />
 
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-amber-200">
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-amber-200">
                     Prescribed method
                   </p>
                 </div>
 
-                <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
+                <p className={`mt-1 ${UI_TEXT_BODY}`}>
                   {isMethodOpen
                     ? "Review the exact method before logging."
                     : methodSummary}
@@ -237,7 +246,7 @@ export default function ExerciseWorkflowCard({
                     <h3 className="text-sm font-semibold text-zinc-100">
                       Method
                     </h3>
-                    <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
+                    <p className={`mt-1 ${UI_TEXT_BODY}`}>
                       {advancedTechnique}
                     </p>
                   </div>
@@ -266,7 +275,7 @@ export default function ExerciseWorkflowCard({
                   className="h-4 w-4 text-[#8FDCE5]/72"
                 />
 
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]">
+                <p className={UI_TEXT_EYEBROW}>
                   Targets
                 </p>
               </div>
@@ -291,9 +300,7 @@ export default function ExerciseWorkflowCard({
           <div className="space-y-2.5">
             <div className="flex items-end justify-between gap-4 border-t border-white/7 pt-3">
               <div>
-                <h2 className="text-lg font-semibold tracking-tight text-[#F4F7F8]">
-                  {logTitle}
-                </h2>
+                <h2 className={UI_TEXT_SECTION_TITLE}>{logTitle}</h2>
               </div>
 
               <p className="shrink-0 rounded-full border border-white/10 bg-white/[0.026] px-2.5 py-0.5 text-xs font-semibold text-[#A9B0B5]">
@@ -314,7 +321,7 @@ export default function ExerciseWorkflowCard({
                       ? "Previous values available"
                       : "No previous values yet"}
                   </p>
-                  <p className={`mt-0.5 text-xs leading-5 ${UI_TEXT_MUTED}`}>
+                  <p className={`mt-0.5 ${UI_TEXT_META}`}>
                     {hasPreviousValues
                       ? "Use your last logged work as a guide."
                       : "Log today to build the next-cycle reference."}
@@ -346,7 +353,7 @@ export default function ExerciseWorkflowCard({
 
             {!isReadOnly ? (
               <div className="space-y-2 pt-1">
-                <p className="text-center text-xs font-medium text-[#747D84]">
+                <p className={`text-center ${UI_TEXT_META}`}>
                   {setProgressLabel}
                 </p>
 
@@ -372,10 +379,10 @@ export default function ExerciseWorkflowCard({
               className="flex w-full items-start justify-between gap-4 text-left"
             >
               <div>
-                <h2 className="text-base font-semibold tracking-tight text-[#E7ECEE]">
+                <h2 className={UI_TEXT_CARD_TITLE}>
                   Coach notes
                 </h2>
-                <p className={`mt-1 text-sm leading-5 ${UI_TEXT_MUTED}`}>
+                <p className={`mt-1 ${UI_TEXT_BODY}`}>
                   Progression and extra cues for this exercise.
                 </p>
               </div>

@@ -21,6 +21,14 @@ import {
   staggerContainerVariants,
   staggerItemVariants,
 } from "../styles/motion";
+import {
+  UI_TEXT_BODY,
+  UI_TEXT_CARD_TITLE,
+  UI_TEXT_EYEBROW,
+  UI_TEXT_EYEBROW_ACCENT,
+  UI_TEXT_META,
+  UI_TEXT_SECTION_TITLE,
+} from "../styles/ui";
 
 const MotionDiv = motion.div;
 
@@ -44,13 +52,13 @@ function CycleMetricTile({ icon, label, value, helper }) {
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-zinc-400">{label}</p>
+        <p className={`font-medium ${UI_TEXT_BODY}`}>{label}</p>
         {helper ? (
-          <p className="mt-0.5 text-xs leading-5 text-zinc-500">{helper}</p>
+          <p className={`mt-0.5 ${UI_TEXT_META}`}>{helper}</p>
         ) : null}
       </div>
 
-      <p className="shrink-0 text-base font-semibold tracking-tight text-zinc-50">
+      <p className="shrink-0 text-base font-semibold tracking-tight text-[#F4F7F8]">
         {value}
       </p>
     </MotionDiv>
@@ -235,11 +243,11 @@ export default function EndCyclePage() {
         <header className="rounded-2xl border border-[#3FA8B6]/14 bg-[radial-gradient(circle_at_top_right,rgba(94,199,213,0.06),transparent_42%),linear-gradient(180deg,rgba(16,41,46,0.34),rgba(17,21,24,0.92))] p-4 shadow-[0_14px_34px_rgba(0,0,0,0.22)]">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-cyan-300/78">
+              <p className={UI_TEXT_EYEBROW_ACCENT}>
                 Cycle complete
               </p>
 
-              <p className="mt-2 text-xs font-medium text-zinc-500">
+              <p className={`mt-2 ${UI_TEXT_META}`}>
                 {plan.name} — Cycle {currentCycleNumber}
               </p>
 
@@ -272,11 +280,11 @@ export default function EndCyclePage() {
 
         <section className="flex flex-col gap-3">
           <div>
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+            <p className={UI_TEXT_EYEBROW}>
               Recap
             </p>
 
-            <h2 className="mt-1 text-xl font-semibold tracking-tight text-zinc-50">
+            <h2 className={`mt-1 ${UI_TEXT_SECTION_TITLE}`}>
               What happened this cycle
             </h2>
           </div>
@@ -326,11 +334,11 @@ export default function EndCyclePage() {
         <section className="rounded-2xl border border-white/8 bg-white/[0.018] p-4">
           <div className="space-y-4">
             <div>
-              <h2 className="text-lg font-semibold tracking-tight text-zinc-50">
+              <h2 className={UI_TEXT_SECTION_TITLE}>
                 What this means
               </h2>
 
-              <div className="mt-2 space-y-2 text-sm leading-5 text-zinc-400">
+              <div className={`mt-2 space-y-2 ${UI_TEXT_BODY}`}>
                 {isEmptyClosedCycle ? (
                   <p>
                     This cycle is closed, but no workout values were logged.
@@ -363,11 +371,11 @@ export default function EndCyclePage() {
                   </div>
 
                   <div className="min-w-0">
-                    <h2 className="text-base font-semibold tracking-tight text-zinc-50">
+                    <h2 className={UI_TEXT_CARD_TITLE}>
                       Core stays separate
                     </h2>
 
-                    <p className="mt-1 text-sm leading-5 text-zinc-400">
+                    <p className={`mt-1 ${UI_TEXT_BODY}`}>
                       Core is support work. Missed or partial core blocks do not
                       erase the main cycle.
                     </p>
@@ -383,11 +391,11 @@ export default function EndCyclePage() {
                 </div>
 
                 <div className="min-w-0">
-                  <h2 className="text-base font-semibold tracking-tight text-zinc-50">
+                  <h2 className={UI_TEXT_CARD_TITLE}>
                     Next cycle uses this context
                   </h2>
 
-                  <p className="mt-1 text-sm leading-5 text-zinc-400">
+                  <p className={`mt-1 ${UI_TEXT_BODY}`}>
                     Logged set values can help guide the next pass through the
                     plan.
                   </p>

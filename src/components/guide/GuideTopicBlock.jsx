@@ -1,6 +1,12 @@
 import { motion } from "motion/react";
 
 import { staggerItemVariants } from "../../styles/motion";
+import {
+  UI_TEXT_BODY_RELAXED,
+  UI_TEXT_BODY_STRONG,
+  UI_TEXT_CARD_TITLE,
+  UI_TEXT_EYEBROW,
+} from "../../styles/ui";
 
 const MotionArticle = motion.article;
 
@@ -35,14 +41,16 @@ export default function GuideTopicBlock({
           {index + 1}
         </div>
 
-        <h3 className="min-w-0 flex-1 text-base font-semibold leading-snug tracking-tight text-zinc-50">
+        <h3 className={`min-w-0 flex-1 leading-snug ${UI_TEXT_CARD_TITLE}`}>
           {topic.title}
         </h3>
       </div>
 
       <div className="mt-4">
         {leadParagraph ? (
-          <p className="rounded-xl border border-amber-300/14 bg-amber-300/[0.035] px-3 py-2 text-sm font-medium leading-5 text-zinc-200">
+          <p
+            className={`rounded-xl border border-amber-300/14 bg-amber-300/[0.035] px-3 py-2 font-medium ${UI_TEXT_BODY_STRONG}`}
+          >
             {leadParagraph}
           </p>
         ) : null}
@@ -52,7 +60,7 @@ export default function GuideTopicBlock({
             {bodyParagraphs.map((paragraph, paragraphIndex) => (
               <p
                 key={`${topic.id}-paragraph-${paragraphIndex}`}
-                className="text-sm leading-6 text-zinc-400"
+                className={UI_TEXT_BODY_RELAXED}
               >
                 {paragraph}
               </p>
@@ -62,7 +70,7 @@ export default function GuideTopicBlock({
 
         {hasBullets ? (
           <div className="mt-5">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-zinc-600">
+            <p className={UI_TEXT_EYEBROW}>
               Practical rules
             </p>
 
@@ -70,7 +78,7 @@ export default function GuideTopicBlock({
               {topic.bullets.map((bullet, bulletIndex) => (
                 <li
                   key={`${topic.id}-bullet-${bulletIndex}`}
-                  className="flex gap-2.5 border-b border-white/7 py-2 text-sm leading-5 text-zinc-300 last:border-b-0"
+                  className={`flex gap-2.5 border-b border-white/7 py-2 last:border-b-0 ${UI_TEXT_BODY_STRONG}`}
                 >
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C9B57A]/72" />
                   <span>{bullet}</span>

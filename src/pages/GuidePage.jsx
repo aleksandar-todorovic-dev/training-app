@@ -16,6 +16,15 @@ import GuideGroupCard from "../components/guide/GuideGroupCard";
 import { getPlanById } from "../data/plans";
 import { getGuideByPlanId } from "../data/guides";
 import { pressableTap, revealPanelVariants } from "../styles/motion";
+import {
+  UI_TEXT_BODY,
+  UI_TEXT_BODY_RELAXED,
+  UI_TEXT_CARD_TITLE,
+  UI_TEXT_EYEBROW,
+  UI_TEXT_EYEBROW_ACCENT,
+  UI_TEXT_META,
+  UI_TEXT_SECTION_TITLE,
+} from "../styles/ui";
 
 const MotionButton = motion.button;
 const MotionDiv = motion.div;
@@ -76,7 +85,7 @@ export default function GuidePage() {
           </Link>
 
           <header className="flex flex-col gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-300/80">
+            <p className={UI_TEXT_EYEBROW_ACCENT}>
               Coach Library
             </p>
 
@@ -84,7 +93,7 @@ export default function GuidePage() {
               Guide not found
             </h1>
 
-            <p className="text-base leading-7 text-zinc-400">
+            <p className={UI_TEXT_BODY_RELAXED}>
               The selected guide could not be loaded.
             </p>
           </header>
@@ -115,7 +124,7 @@ export default function GuidePage() {
 
             <header className="flex flex-col gap-4">
               <div className="flex flex-col gap-2.5">
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-cyan-300/78">
+                <p className={UI_TEXT_EYEBROW_ACCENT}>
                   Coach Library
                 </p>
 
@@ -123,7 +132,7 @@ export default function GuidePage() {
                   {guide.title}
                 </h1>
 
-                <p className="max-w-sm text-sm leading-6 text-zinc-400">
+                <p className={`max-w-sm ${UI_TEXT_BODY_RELAXED}`}>
                   {guide.intro}
                 </p>
               </div>
@@ -133,7 +142,7 @@ export default function GuidePage() {
                   Learn the system, then train with less guessing.
                 </p>
 
-                <p className="mt-1 text-sm leading-5 text-zinc-500">
+                <p className={`mt-1 ${UI_TEXT_META}`}>
                   Use this library to understand the cycle, progression,
                   logging, recovery, and plan decisions.
                 </p>
@@ -143,16 +152,16 @@ export default function GuidePage() {
             <section className="flex flex-col gap-3">
               <div className="flex items-end justify-between gap-4">
                 <div>
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-zinc-500">
+                  <p className={UI_TEXT_EYEBROW}>
                     Sections
                   </p>
 
-                  <h2 className="mt-1 text-lg font-semibold tracking-tight text-zinc-100">
+                  <h2 className={`mt-1 ${UI_TEXT_SECTION_TITLE}`}>
                     Choose what you need now
                   </h2>
                 </div>
 
-                <p className="text-xs font-medium text-zinc-500">
+                <p className={UI_TEXT_META}>
                   {guide.groups.length} areas
                 </p>
               </div>
@@ -183,12 +192,14 @@ export default function GuidePage() {
                                   className="h-4 w-4 shrink-0 text-[#8FDCE5]/64"
                                 />
 
-                                <h3 className="text-base font-semibold tracking-tight text-zinc-100 transition group-hover:text-cyan-100">
+                                <h3
+                                  className={`${UI_TEXT_CARD_TITLE} transition group-hover:text-cyan-100`}
+                                >
                                   {group.title}
                                 </h3>
                               </div>
 
-                              <p className="mt-1.5 text-sm leading-5 text-zinc-400">
+                              <p className={`mt-1.5 ${UI_TEXT_BODY}`}>
                                 {group.intro}
                               </p>
                             </div>
@@ -199,7 +210,7 @@ export default function GuidePage() {
                             />
                           </div>
 
-                          <p className="mt-2 text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-zinc-600">
+                          <p className={`mt-2 ${UI_TEXT_EYEBROW}`}>
                             {group.topics.length} topics
                           </p>
                         </div>

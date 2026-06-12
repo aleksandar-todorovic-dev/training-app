@@ -15,6 +15,13 @@ import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
 import { clearStoredAppState } from "../storage/appStateStorage";
 import { pressableTap, revealPanelVariants } from "../styles/motion";
+import {
+  UI_TEXT_BODY,
+  UI_TEXT_BODY_RELAXED,
+  UI_TEXT_CARD_TITLE,
+  UI_TEXT_EYEBROW_ACCENT,
+  UI_TEXT_META,
+} from "../styles/ui";
 
 const MotionButton = motion.button;
 const MotionDiv = motion.div;
@@ -115,7 +122,7 @@ export default function HomePage() {
               <p className="text-base font-semibold tracking-tight text-[#F4F7F8]">
                 Cycle Coach
               </p>
-              <p className="text-xs font-medium text-[#A9B0B5]">
+              <p className={UI_TEXT_META}>
                 Structured training companion
               </p>
             </div>
@@ -127,7 +134,7 @@ export default function HomePage() {
               <span className="text-[#5EC7D5]">.</span>
             </h1>
 
-            <p className="max-w-sm text-sm leading-6 text-[#A9B0B5]">
+            <p className={`max-w-sm ${UI_TEXT_BODY_RELAXED}`}>
               Follow Bulk or Cut cycles with guided workouts, previous values,
               and flexible progress when real life changes the schedule.
             </p>
@@ -177,11 +184,11 @@ export default function HomePage() {
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]/72">
+                    <p className={UI_TEXT_EYEBROW_ACCENT}>
                       Why it matters
                     </p>
 
-                    <h2 className="mt-1.5 text-base font-semibold tracking-tight text-[#F4F7F8]">
+                    <h2 className={`mt-1.5 ${UI_TEXT_CARD_TITLE}`}>
                       {activeValueChip.title}
                     </h2>
                   </div>
@@ -195,7 +202,7 @@ export default function HomePage() {
                   </button>
                 </div>
 
-                <p className="mt-2 text-sm leading-5 text-[#A9B0B5]">
+                <p className={`mt-2 ${UI_TEXT_BODY}`}>
                   {activeValueChip.description}
                 </p>
               </MotionDiv>
@@ -205,10 +212,10 @@ export default function HomePage() {
 
         <section className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
-            <h2 className="text-base font-semibold tracking-tight text-[#D3D8DB]">
+            <h2 className={UI_TEXT_CARD_TITLE}>
               Choose your plan
             </h2>
-            <p className="text-sm leading-6 text-[#A9B0B5]">
+            <p className={UI_TEXT_BODY_RELAXED}>
               Pick the phase that matches your current goal.
             </p>
           </div>

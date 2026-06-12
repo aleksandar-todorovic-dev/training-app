@@ -29,6 +29,12 @@ import { getCoreBlockById, getCoreExercisesByIds } from "../data/core";
 import { getMissingValueWarningSummary } from "../utils/runtime/missingValueWarningHelpers";
 import { getWarmupById } from "../data/warmups";
 import { revealPanelVariants } from "../styles/motion";
+import {
+  UI_TEXT_BODY,
+  UI_TEXT_CARD_TITLE,
+  UI_TEXT_EYEBROW,
+  UI_TEXT_META,
+} from "../styles/ui";
 
 const MotionSection = motion.section;
 
@@ -383,7 +389,7 @@ export default function DayPage() {
         </Link>
 
         <header className="flex flex-col gap-2">
-          <p className="text-xs font-medium text-[#8B949B]">
+          <p className={UI_TEXT_META}>
             {plan.name}
             {currentCycleNumber ? ` · Cycle ${currentCycleNumber}` : ""}
           </p>
@@ -393,7 +399,7 @@ export default function DayPage() {
               {dayDetails.label} — {dayDetails.name}
             </h1>
 
-            <p className="text-sm leading-5 text-[#A9B0B5]">
+            <p className={UI_TEXT_BODY}>
               {dayDetails.goal}
             </p>
           </div>
@@ -551,8 +557,8 @@ export default function DayPage() {
             initial="hidden"
             animate="visible"
           >
-            <p className="text-sm font-semibold text-[#B9EEF4]">Finished day</p>
-            <p className="mt-1 text-sm leading-relaxed text-[#A9B0B5]">
+            <p className={UI_TEXT_CARD_TITLE}>Finished day</p>
+            <p className={`mt-1 ${UI_TEXT_BODY}`}>
               This day has already been finished. Changes will update this saved
               log.
             </p>
@@ -566,8 +572,8 @@ export default function DayPage() {
             initial="hidden"
             animate="visible"
           >
-            <p className="text-sm font-semibold text-[#F4F7F8]">Upcoming day</p>
-            <p className="mt-1 text-sm leading-relaxed text-[#A9B0B5]">
+            <p className={UI_TEXT_CARD_TITLE}>Upcoming day</p>
+            <p className={`mt-1 ${UI_TEXT_BODY}`}>
               You can preview the structure now. Logging opens when this day
               becomes current.
             </p>
@@ -582,11 +588,11 @@ export default function DayPage() {
 
         <section className="flex flex-col gap-2">
           <div>
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#747D84]">
+            <p className={UI_TEXT_EYEBROW}>
               Workout flow
             </p>
 
-            <p className="mt-0.5 text-xs font-medium text-[#59636B]">
+            <p className={`mt-0.5 ${UI_TEXT_META}`}>
               {exercises.length} main exercises{coreBlock ? " & core" : ""}
             </p>
           </div>

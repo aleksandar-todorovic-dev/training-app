@@ -9,6 +9,15 @@ import { AnimatePresence, motion } from "motion/react";
 
 import CoreSetRow from "./CoreSetRow";
 import { revealPanelVariants } from "../../styles/motion";
+import {
+  UI_TEXT_BODY,
+  UI_TEXT_BODY_STRONG,
+  UI_TEXT_CARD_TITLE,
+  UI_TEXT_EYEBROW,
+  UI_TEXT_SECTION_TITLE,
+  UI_TEXT_STAT_LABEL,
+  UI_TEXT_STAT_VALUE,
+} from "../../styles/ui";
 
 const MotionDiv = motion.div;
 
@@ -91,11 +100,11 @@ function getCoreSetSummary(exercise, tracksLoad) {
 function SummaryMetric({ label, value }) {
   return (
     <div className="min-w-0 px-2 py-1.5 text-center">
-      <p className="text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]">
+      <p className={UI_TEXT_STAT_LABEL}>
         {label}
       </p>
 
-      <p className="mt-1 text-sm font-semibold leading-none tracking-tight text-[#F4F7F8]">
+      <p className={`mt-1 leading-none ${UI_TEXT_STAT_VALUE}`}>
         {value}
       </p>
     </div>
@@ -131,7 +140,7 @@ function CoreExerciseSection({
             </h2>
 
             {exercise.subtitle ? (
-              <p className="text-sm leading-5 text-[#A9B0B5]">
+              <p className={UI_TEXT_BODY}>
                 {exercise.subtitle}
               </p>
             ) : null}
@@ -140,11 +149,11 @@ function CoreExerciseSection({
 
         {exercise.cue ? (
           <div className="border-l border-[#A78BFA]/24 pl-3">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#C4B5FD]">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#C4B5FD]">
               Cue
             </p>
 
-            <p className="mt-1 text-sm leading-5 text-[#D3D8DB]">
+            <p className={`mt-1 ${UI_TEXT_BODY_STRONG}`}>
               {exercise.cue}
             </p>
           </div>
@@ -200,7 +209,7 @@ function CoreExerciseSection({
 
             <ul className="mt-2 space-y-1">
               {exercise.details.extraCues.map((item) => (
-                <li key={item} className="text-sm leading-5 text-[#A9B0B5]">
+                <li key={item} className={UI_TEXT_BODY}>
                   - {item}
                 </li>
               ))}
@@ -258,7 +267,7 @@ export default function CoreWorkflowCard({
                 <ShieldCheck className="h-5 w-5" aria-hidden="true" />
               </div>
 
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#C4B5FD]">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#C4B5FD]">
                 Core work
               </p>
             </div>
@@ -268,7 +277,7 @@ export default function CoreWorkflowCard({
             </span>
           </div>
 
-          <p className="text-sm leading-5 text-[#A9B0B5]">
+          <p className={UI_TEXT_BODY}>
             {coreBlock.details?.purpose ?? "Flexible core block"}
           </p>
 
@@ -279,10 +288,10 @@ export default function CoreWorkflowCard({
               initial="hidden"
               animate="visible"
             >
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#DDD6FE]">
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#DDD6FE]">
                 Closed day log
               </p>
-              <p className="mt-1 text-sm leading-5 text-[#A9B0B5]">
+              <p className={`mt-1 ${UI_TEXT_BODY}`}>
                 Review or adjust the values you saved.
               </p>
             </MotionDiv>
@@ -317,12 +326,12 @@ export default function CoreWorkflowCard({
                   aria-hidden="true"
                 />
 
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]">
+                <p className={UI_TEXT_EYEBROW}>
                   {isReadOnly ? "Preview sets" : "Log core sets"}
                 </p>
               </div>
 
-              <h2 className="mt-1.5 text-lg font-semibold tracking-tight text-[#F4F7F8]">
+              <h2 className={`mt-1.5 ${UI_TEXT_SECTION_TITLE}`}>
                 {isReadOnly ? "Set preview" : "Core work"}
               </h2>
             </div>
@@ -378,11 +387,11 @@ export default function CoreWorkflowCard({
             aria-expanded={isCoachNotesOpen}
           >
             <div>
-              <h2 className="text-base font-semibold tracking-tight text-[#E7ECEE]">
+              <h2 className={UI_TEXT_CARD_TITLE}>
                 Core notes
               </h2>
 
-              <p className="mt-1 text-sm leading-5 text-[#A9B0B5]">
+              <p className={`mt-1 ${UI_TEXT_BODY}`}>
                 Progression and reminders for this block.
               </p>
             </div>
@@ -415,7 +424,7 @@ export default function CoreWorkflowCard({
                       Progression
                     </h3>
 
-                    <p className="text-sm leading-5 text-[#A9B0B5]">
+                    <p className={UI_TEXT_BODY}>
                       {coreBlock.details.progression}
                     </p>
                   </div>
@@ -431,7 +440,7 @@ export default function CoreWorkflowCard({
                       {coreBlock.details.notes.map((note) => (
                         <li
                           key={note}
-                          className="text-sm leading-5 text-[#A9B0B5]"
+                          className={UI_TEXT_BODY}
                         >
                           - {note}
                         </li>
@@ -441,7 +450,7 @@ export default function CoreWorkflowCard({
                 ) : null}
 
                 {coreBlock.note ? (
-                  <p className="border-t border-white/7 pt-4 text-sm leading-5 text-[#A9B0B5]">
+                  <p className={`border-t border-white/7 pt-4 ${UI_TEXT_BODY}`}>
                     {coreBlock.note}
                   </p>
                 ) : null}

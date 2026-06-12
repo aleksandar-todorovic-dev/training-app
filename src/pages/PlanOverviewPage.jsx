@@ -31,6 +31,15 @@ import {
   staggerContainerVariants,
   staggerItemVariants,
 } from "../styles/motion";
+import {
+  UI_TEXT_BODY,
+  UI_TEXT_BODY_RELAXED,
+  UI_TEXT_BODY_STRONG,
+  UI_TEXT_CARD_TITLE,
+  UI_TEXT_EYEBROW_ACCENT,
+  UI_TEXT_SECTION_TITLE,
+  UI_TEXT_STAT_VALUE,
+} from "../styles/ui";
 
 const MotionDiv = motion.div;
 const MotionSection = motion.section;
@@ -275,7 +284,7 @@ export default function PlanOverviewPage() {
             <h1 className="text-2xl font-semibold tracking-tight text-[#F4F7F8]">
               Plan not found
             </h1>
-            <p className="mt-2 text-sm leading-6 text-[#A9B0B5]">
+            <p className={`mt-2 ${UI_TEXT_BODY_RELAXED}`}>
               The selected plan could not be loaded. Return to Home and choose a
               valid plan.
             </p>
@@ -342,7 +351,7 @@ export default function PlanOverviewPage() {
           </Link>
 
           <div className="flex flex-col gap-3">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]/72">
+            <p className={UI_TEXT_EYEBROW_ACCENT}>
               {meta.eyebrow}
             </p>
 
@@ -355,7 +364,7 @@ export default function PlanOverviewPage() {
                 <p className="max-w-sm text-base font-semibold leading-6 text-[#E7ECEE]">
                   {meta.lead}
                 </p>
-                <p className="max-w-sm text-sm leading-6 text-[#A9B0B5]">
+                <p className={`max-w-sm ${UI_TEXT_BODY_RELAXED}`}>
                   {meta.description}
                 </p>
               </div>
@@ -378,7 +387,7 @@ export default function PlanOverviewPage() {
             <StatusRing value={closedTrainingDays} total={totalTrainingDays} />
 
             <div className="relative max-w-[70%]">
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#8FDCE5]/82">
+              <p className={UI_TEXT_EYEBROW_ACCENT}>
                 {primaryCta.eyebrow}
               </p>
 
@@ -386,7 +395,7 @@ export default function PlanOverviewPage() {
                 {primaryCta.title}
               </h2>
 
-              <p className="mt-1.5 text-sm leading-5 text-[#C7D0D4]">
+              <p className={`mt-1.5 ${UI_TEXT_BODY_STRONG}`}>
                 {primaryCta.body}
               </p>
 
@@ -425,11 +434,11 @@ export default function PlanOverviewPage() {
                 })}
               </div>
 
-              <p className="min-w-0 flex-1 text-sm font-medium text-[#A9B0B5]">
+              <p className={`min-w-0 flex-1 font-medium ${UI_TEXT_BODY}`}>
                 {label}
               </p>
 
-              <p className="shrink-0 text-sm font-semibold text-[#F4F7F8]">
+              <p className={`shrink-0 ${UI_TEXT_STAT_VALUE}`}>
                 {value}
               </p>
             </MotionDiv>
@@ -438,10 +447,10 @@ export default function PlanOverviewPage() {
 
         <section className="flex flex-col gap-3">
           <div>
-            <h2 className="text-lg font-semibold tracking-tight text-[#F4F7F8]">
+            <h2 className={UI_TEXT_SECTION_TITLE}>
               Cycle rhythm
             </h2>
-            <p className="text-sm leading-5 text-[#A9B0B5]">
+            <p className={UI_TEXT_BODY}>
               Your 9-day rhythm keeps the order stable while your schedule stays
               flexible.
             </p>
@@ -500,7 +509,7 @@ export default function PlanOverviewPage() {
         </section>
 
         <section className="flex flex-col gap-3">
-          <h2 className="text-lg font-semibold tracking-tight text-[#F4F7F8]">
+          <h2 className={UI_TEXT_SECTION_TITLE}>
             {meta.principlesTitle}
           </h2>
 
@@ -525,10 +534,10 @@ export default function PlanOverviewPage() {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-[#F4F7F8]">
+                  <p className={UI_TEXT_CARD_TITLE}>
                     {title}
                   </p>
-                  <p className="text-sm leading-5 text-[#A9B0B5]">{body}</p>
+                  <p className={UI_TEXT_BODY}>{body}</p>
                 </div>
               </div>
             ))}
@@ -542,10 +551,10 @@ export default function PlanOverviewPage() {
             </div>
 
             <div className="min-w-0 flex-1">
-              <h2 className="text-base font-semibold tracking-tight text-[#F4F7F8]">
+              <h2 className={UI_TEXT_CARD_TITLE}>
                 Coach guide
               </h2>
-              <p className="text-sm leading-5 text-[#A9B0B5]">
+              <p className={UI_TEXT_BODY}>
                 Learn how RIR, progression, recovery, and cycle structure work.
               </p>
             </div>

@@ -6,6 +6,11 @@ import {
   UI_SHEET_HEADER,
   UI_SHEET_OVERLAY,
   UI_SHEET_PANEL,
+  UI_TEXT_BODY,
+  UI_TEXT_BODY_STRONG,
+  UI_TEXT_CARD_TITLE,
+  UI_TEXT_EYEBROW_ACCENT,
+  UI_TEXT_META,
 } from "../../styles/ui";
 import {
   sheetOverlayVariants,
@@ -85,9 +90,7 @@ export default function FinishDaySheet({
         <header className={UI_SHEET_HEADER}>
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]">
-                Finish day
-              </p>
+              <p className={UI_TEXT_EYEBROW_ACCENT}>Finish day</p>
 
               <h2
                 id="finish-day-sheet-title"
@@ -96,7 +99,7 @@ export default function FinishDaySheet({
                 Close training day?
               </h2>
 
-              <p className="mt-0.5 text-xs leading-5 text-zinc-500">
+              <p className={`mt-0.5 ${UI_TEXT_META}`}>
                 {dayDetails.label} - {dayDetails.name}
               </p>
             </div>
@@ -106,7 +109,9 @@ export default function FinishDaySheet({
             </div>
           </div>
 
-          <p className="mt-2 rounded-xl border border-[#3FA8B6]/12 bg-[#10292E]/24 px-3 py-2 text-sm leading-5 text-zinc-400">
+          <p
+            className={`mt-2 rounded-xl border border-[#3FA8B6]/12 bg-[#10292E]/24 px-3 py-2 ${UI_TEXT_BODY}`}
+          >
             {progressText}. Closing this day moves the cycle forward.
           </p>
         </header>
@@ -114,11 +119,9 @@ export default function FinishDaySheet({
         <div className={UI_SHEET_BODY}>
           <div className="flex flex-col gap-3">
             <section className="rounded-xl bg-white/[0.014] px-3 py-3">
-              <h3 className="text-sm font-semibold text-[#F4F7F8]">
-                Before you finish
-              </h3>
+              <h3 className={UI_TEXT_CARD_TITLE}>Before you finish</h3>
 
-              <ul className="mt-2 space-y-1.5 text-sm leading-5 text-zinc-400">
+              <ul className={`mt-2 space-y-1.5 ${UI_TEXT_BODY}`}>
                 <li className="flex gap-2">
                   <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8FDCE5]/65" />
                   <span>Checked sets count as performed.</span>
@@ -148,12 +151,14 @@ export default function FinishDaySheet({
                       {warningTitle}
                     </p>
 
-                    <p className="mt-1 text-sm leading-5 text-zinc-300">
+                    <p className={`mt-1 ${UI_TEXT_BODY_STRONG}`}>
                       {warningText}
                     </p>
 
                     {!hasNoLoggedValues && warningDetails.length ? (
-                      <ul className="mt-1.5 flex flex-col gap-1 text-sm leading-5 text-zinc-500">
+                      <ul
+                        className={`mt-1.5 flex flex-col gap-1 ${UI_TEXT_META}`}
+                      >
                         {warningDetails.map((detail) => (
                           <li key={detail}>{detail}</li>
                         ))}
@@ -174,11 +179,11 @@ export default function FinishDaySheet({
                   </div>
 
                   <div className="min-w-0">
-                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]">
+                    <p className={UI_TEXT_EYEBROW_ACCENT}>
                       Ready to close
                     </p>
 
-                    <p className="mt-1 text-sm leading-5 text-zinc-300">
+                    <p className={`mt-1 ${UI_TEXT_BODY_STRONG}`}>
                       Your logged work is saved for this day.
                     </p>
                   </div>
@@ -194,11 +199,11 @@ export default function FinishDaySheet({
                   </div>
 
                   <div className="min-w-0">
-                    <h3 className="text-sm font-semibold text-[#F4F7F8]">
+                    <h3 className={UI_TEXT_CARD_TITLE}>
                       Core is tracked separately
                     </h3>
 
-                    <p className="mt-1 text-sm leading-5 text-zinc-400">
+                    <p className={`mt-1 ${UI_TEXT_BODY}`}>
                       Main work and core work stay separate in your recap.
                     </p>
                   </div>

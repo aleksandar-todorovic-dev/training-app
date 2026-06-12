@@ -2,7 +2,11 @@ import { Link } from "react-router-dom";
 import { ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
 
 import SectionCard from "../layout/SectionCard";
-import { UI_CARD_INTERACTIVE } from "../../styles/ui";
+import {
+  UI_CARD_INTERACTIVE,
+  UI_TEXT_BODY,
+  UI_TEXT_EYEBROW,
+} from "../../styles/ui";
 
 // Home-specific presentation metadata for plan cards.
 // Static plan source data still comes from src/data/plans.
@@ -52,7 +56,7 @@ export default function PlanCard({ plan }) {
       <div className="relative flex flex-col gap-3.5 px-4 py-4">
         <div className="flex items-start justify-between gap-3">
           <div className="flex min-w-0 flex-col gap-3">
-            <span className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8B949B]">
+            <span className={UI_TEXT_EYEBROW}>
               {meta.badge}
             </span>
 
@@ -61,7 +65,7 @@ export default function PlanCard({ plan }) {
                 {plan.name}
               </h2>
 
-              <p className="max-w-[18rem] text-sm leading-5 text-[#A9B0B5]">
+              <p className={`max-w-[18rem] ${UI_TEXT_BODY}`}>
                 {meta.promise}
               </p>
             </div>

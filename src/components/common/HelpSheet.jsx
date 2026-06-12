@@ -8,7 +8,9 @@ import {
   UI_SHEET_HEADER,
   UI_SHEET_OVERLAY,
   UI_SHEET_PANEL,
-  UI_TEXT_MUTED,
+  UI_TEXT_BODY,
+  UI_TEXT_BODY_STRONG,
+  UI_TEXT_EYEBROW_ACCENT,
   UI_TITLE,
 } from "../../styles/ui";
 import {
@@ -72,7 +74,7 @@ export default function HelpSheet({
             <div className={UI_SHEET_HEADER}>
               <div className="flex items-start justify-between gap-4">
                 <div className="flex flex-col gap-2">
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#8FDCE5]">
+                  <p className={UI_TEXT_EYEBROW_ACCENT}>
                     Quick coaching
                   </p>
 
@@ -80,7 +82,7 @@ export default function HelpSheet({
                     {title}
                   </h2>
 
-                  {intro ? <p className={UI_TEXT_MUTED}>{intro}</p> : null}
+                  {intro ? <p className={UI_TEXT_BODY}>{intro}</p> : null}
                 </div>
               </div>
             </div>
@@ -95,7 +97,9 @@ export default function HelpSheet({
                     }`}
                   >
                     <div className="flex flex-col gap-1.5 min-[390px]:flex-row min-[390px]:items-start min-[390px]:gap-2.5">
-                      <p className="w-auto shrink-0 text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-[#8FDCE5]/78 min-[390px]:w-[4.5rem]">
+                      <p
+                        className={`w-auto shrink-0 min-[390px]:w-[4.5rem] ${UI_TEXT_EYEBROW_ACCENT}`}
+                      >
                         {section.title}
                       </p>
 
@@ -108,8 +112,8 @@ export default function HelpSheet({
                                   key={paragraph}
                                   className={
                                     paragraphIndex === 0
-                                      ? "text-sm font-medium leading-5 text-[#E7ECEE]"
-                                      : `text-sm leading-5 ${UI_TEXT_MUTED}`
+                                      ? `font-medium ${UI_TEXT_BODY_STRONG}`
+                                      : UI_TEXT_BODY
                                   }
                                 >
                                   {paragraph}
@@ -124,7 +128,7 @@ export default function HelpSheet({
                             {section.bullets.map((bullet) => (
                               <li
                                 key={bullet}
-                                className={`flex gap-2 text-sm leading-5 ${UI_TEXT_MUTED}`}
+                                className={`flex gap-2 ${UI_TEXT_BODY}`}
                               >
                                 <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C9B57A]/75" />
                                 <span>{bullet}</span>
