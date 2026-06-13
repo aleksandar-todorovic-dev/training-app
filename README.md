@@ -609,30 +609,24 @@ Vite may report a chunk-size warning above 500 kB after production build. This i
 
 ## Screenshots
 
-Screenshots are recommended for the public portfolio version of this README.
+The screenshots below show the main MVP flow using the mobile-first app layout.
 
-Suggested screenshot set:
+<p>
+  <img src="docs/screenshots/home.png" alt="Home screen" width="220" />
+  <img src="docs/screenshots/plan-overview.png" alt="Plan overview screen" width="220" />
+  <img src="docs/screenshots/cycle-dashboard.png" alt="Cycle dashboard screen" width="220" />
+</p>
 
-```text
-docs/screenshots/home.png              -> Home / plan selection
-docs/screenshots/plan-overview.png     -> Plan Overview
-docs/screenshots/cycle-dashboard.png   -> Cycle Dashboard
-docs/screenshots/day-screen.png        -> Day screen
-docs/screenshots/exercise-logging.png  -> Exercise logging
-docs/screenshots/core-workflow.png     -> Core workflow
-docs/screenshots/guide.png             -> Guide / Coach Library
-docs/screenshots/end-cycle.png         -> End Cycle recap
-```
+<p>
+  <img src="docs/screenshots/day-screen.png" alt="Day screen" width="220" />
+  <img src="docs/screenshots/exercise-logging.png" alt="Exercise logging screen" width="220" />
+  <img src="docs/screenshots/core-workflow.png" alt="Core workflow screen" width="220" />
+</p>
 
-Recommended capture style:
-
-- mobile viewport first
-- real hosted build
-- dark UI visible
-- no personal/private data
-- show the actual workout flow rather than isolated components
-
-Once screenshots are added, this section can be replaced with an image grid.
+<p>
+  <img src="docs/screenshots/guide.png" alt="Guide / Coach Library screen" width="220" />
+  <img src="docs/screenshots/end-cycle.png" alt="End Cycle recap screen" width="220" />
+</p>
 
 ---
 
