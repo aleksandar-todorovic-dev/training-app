@@ -13,19 +13,29 @@ MVP implementation complete.
 Runtime model implemented.
 localStorage persistence implemented.
 Product/UI polish completed.
+Guide/content clarity pass completed.
+Final mobile visual QA passed.
 Final MVP completion audit passed with notes.
 Ready for private preview / launch-style testing.
 ```
 
 No critical MVP blockers are currently known.
 
-Accepted non-blocking notes:
+Current project phase:
 
-- the app is local-first only
-- desktop uses a centered mobile-first app shell, not a full desktop dashboard
-- phone landscape is usable but not visually comfortable
-- Vite may report a non-blocking chunk-size warning above 500 kB
-- live deployment smoke testing should be repeated after deploying the latest build
+```text
+Final packaging / private-preview preparation.
+```
+
+Current packaging focus:
+
+- simple app mark / logo decision
+- README and portfolio presentation polish
+- live deployment smoke testing
+- private preview checklist
+- final release notes / closeout commit
+
+Known non-blocking limitations are tracked in the `Known MVP limitations` section below.
 
 ---
 
@@ -151,6 +161,12 @@ https://training-app-mvp.web.app
 Hosting is used only for preview/deploy.
 
 No backend, account system, cloud database, or sync logic is part of the MVP.
+
+Current note:
+
+```text
+The live URL should be smoke-tested again after deploying the latest final-packaging build.
+```
 
 ---
 
@@ -983,6 +999,54 @@ latest hosted preview after deploy
 
 ---
 
+## Deployment smoke test
+
+Before sharing the latest hosted build for private preview, run a focused live smoke test.
+
+Minimum smoke test flow:
+
+```text
+Open latest hosted preview
+-> confirm Home loads correctly
+-> open both Bulk Pro and Cut Pro plan pages
+-> start or continue a cycle
+-> open Cycle Dashboard
+-> open the current Day screen
+-> open one Exercise screen
+-> log at least one set value
+-> mark at least one set as done
+-> refresh the page and confirm persistence
+-> return to the Day screen
+-> open Core when available
+-> confirm upcoming Day / Exercise / Core previews are read-only
+-> finish a partial day
+-> confirm currentDayId advances correctly
+-> open EndCyclePage guard state before cycle completion
+-> test Reset local progress
+-> test one invalid/deep route fallback
+```
+
+The smoke test is not a full retest of every feature.
+
+Goal:
+
+```text
+Confirm that the deployed build matches the already accepted local MVP behavior.
+```
+
+If a real blocker appears during smoke testing, fix it before private preview.
+
+If a new idea appears during smoke testing, classify it first:
+
+```text
+must-fix
+packaging polish
+private-preview feedback
+post-MVP
+```
+
+---
+
 ## Documentation map
 
 Active project documentation:
@@ -1011,15 +1075,30 @@ Older planning documents may exist in local archive, but they are no longer acti
 
 The implementation MVP is complete.
 
+Current focus is final packaging and private-preview preparation.
+
 Next practical steps:
 
-1. Deploy the latest build if needed.
-2. Perform a live deployment smoke test.
-3. Prepare README / portfolio presentation material.
-4. Run private preview / launch-style testing.
-5. Convert feedback into a post-MVP backlog.
+1. Finalize the simple app mark / logo direction.
+2. Keep this technical README aligned with the final MVP status.
+3. Prepare separate portfolio-facing presentation material.
+4. Deploy the latest build if needed.
+5. Perform a live deployment smoke test.
+6. Prepare a private preview checklist.
+7. Create final release notes / closeout commit.
+8. Run private preview / launch-style testing.
+9. Convert feedback into a post-MVP backlog.
 
 Do not expand MVP scope unless a real blocker is found.
+
+New ideas should be classified before implementation:
+
+```text
+must-fix
+packaging polish
+private-preview feedback
+post-MVP
+```
 
 ---
 
@@ -1044,8 +1123,13 @@ These remain future product considerations and should not be added during MVP cl
 - nutrition tracking
 - cardio tracking
 - full desktop layout redesign
-- PWA / fullscreen install experience
+- PWA / fullscreen install experience for a more app-like mobile flow
 - short-height landscape recommendation banner
+- targeted internal navigation/history polish if private preview shows real confusion
+- smoother collapse behavior for long coaching/support note sections
+- simple brand identity expansion beyond the MVP app mark
+- public landing / marketing page
+- full portfolio case-study writeup
 
 ---
 
