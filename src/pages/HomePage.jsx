@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import AppShell from "../components/layout/AppShell";
+import AppMark from "../components/brand/AppMark";
 import PlanCard from "../components/plans/PlanCard";
 import { plans } from "../data/plans";
 import { APP_ACTIONS } from "../state/appActions";
@@ -115,16 +116,14 @@ export default function HomePage() {
         <header className="flex flex-col gap-4">
           <div className="inline-flex w-fit items-center gap-2.5">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#3FA8B6]/14 bg-[#10292E]/46 text-[#8FDCE5]/90">
-              <Repeat2 className="h-5 w-5" aria-hidden="true" />
+              <AppMark className="h-10 w-10 shrink-0" />
             </div>
 
             <div className="flex flex-col">
               <p className="text-base font-semibold tracking-tight text-[#F4F7F8]">
                 Cycle Coach
               </p>
-              <p className={UI_TEXT_META}>
-                Structured training companion
-              </p>
+              <p className={UI_TEXT_META}>Structured training companion</p>
             </div>
           </div>
 
@@ -184,9 +183,7 @@ export default function HomePage() {
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className={UI_TEXT_EYEBROW_ACCENT}>
-                      Why it matters
-                    </p>
+                    <p className={UI_TEXT_EYEBROW_ACCENT}>Why it matters</p>
 
                     <h2 className={`mt-1.5 ${UI_TEXT_CARD_TITLE}`}>
                       {activeValueChip.title}
@@ -212,9 +209,7 @@ export default function HomePage() {
 
         <section className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
-            <h2 className={UI_TEXT_CARD_TITLE}>
-              Choose your plan
-            </h2>
+            <h2 className={UI_TEXT_CARD_TITLE}>Choose your plan</h2>
             <p className={UI_TEXT_BODY_RELAXED}>
               Pick the phase that matches your current goal.
             </p>
