@@ -1,112 +1,97 @@
 # Training App
 
-Structured, mobile-first training app MVP built with React, Vite, Tailwind CSS, React Router, Context + reducer state, and localStorage persistence.
+A mobile-first, local-first training app MVP for structured workout cycles, guided logging, previous-value continuity, and honest partial-day support.
 
-This project is not just a workout tracker. It is a local-first guided training companion built around structured training systems, cycle-based progression, prescribed set logging, previous-value carry-over, partial-day flexibility, and a polished mobile product experience.
+The app is built around predefined **Bulk Pro** and **Cut Pro** training systems. It guides the user through a stable training cycle, keeps the current workout step clear, stores progress locally, and helps useful logged values carry into the next cycle.
 
----
-
-## Current status
-
-```text
-MVP implementation complete.
-Runtime model implemented.
-localStorage persistence implemented.
-Product/UI polish completed.
-Guide/content clarity pass completed.
-Final mobile visual QA passed.
-Final MVP completion audit passed with notes.
-Ready for private preview / launch-style testing.
-```
-
-No critical MVP blockers are currently known.
-
-Current project phase:
-
-```text
-Final packaging / private-preview preparation.
-```
-
-Current packaging focus:
-
-- simple app mark / logo decision
-- README and portfolio presentation polish
-- live deployment smoke testing
-- private preview checklist
-- final release notes / closeout commit
-
-Known non-blocking limitations are tracked in the `Known MVP limitations` section below.
+This is not a generic workout notebook. It is a structured training companion focused on planned cycles, prescribed set logging, core support work, partial-day flexibility, educational training guidance, and a fast mobile workout flow.
 
 ---
 
-## Product direction
+## Live Preview
 
-The app is designed as a structured training companion.
+Firebase Hosting preview:
 
-Core product idea:
+```text
+https://training-app-mvp.web.app
+```
+
+Current release:
+
+```text
+v0.5.0 — MVP Private Preview
+```
+
+The hosted app is a local-first MVP. It does not use accounts, cloud sync, backend persistence, or payment logic.
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Core Features](#core-features)
+- [App Flow](#app-flow)
+- [Technical Architecture](#technical-architecture)
+- [Runtime State Model](#runtime-state-model)
+- [Persistence Model](#persistence-model)
+- [Static Data Structure](#static-data-structure)
+- [Important Runtime Rules](#important-runtime-rules)
+- [UI / UX Direction](#ui--ux-direction)
+- [Project Structure](#project-structure)
+- [Tech Stack](#tech-stack)
+- [Running Locally](#running-locally)
+- [Verification](#verification)
+- [Screenshots](#screenshots)
+- [Current Status](#current-status)
+- [MVP Scope](#mvp-scope)
+- [Known MVP Limitations](#known-mvp-limitations)
+- [Future Improvements](#future-improvements)
+- [What This Project Demonstrates](#what-this-project-demonstrates)
+- [License](#license)
+
+---
+
+## Overview
+
+Training App helps users follow a predefined training cycle without turning every workout into manual planning.
+
+The MVP supports:
+
+- choosing between two structured plans: **Bulk Pro** and **Cut Pro**
+- starting and continuing a training cycle
+- following the current training day
+- logging prescribed exercise sets
+- logging separate core blocks
+- finishing full or partial days honestly
+- preserving useful previous values for the next cycle
+- reviewing a completed cycle
+- restoring progress after refresh through localStorage
+
+The product direction is intentionally practical:
 
 ```text
 Follow a stable training cycle.
-Log the prescribed work honestly.
-Use previous values as the next baseline.
-Keep moving even when a day is partial or life changes the schedule.
+Log what actually happened.
+Use previous values as the next reference.
+Keep moving even when a day is partial.
 ```
+
+---
+
+## Core Features
+
+### Structured training plans
 
 The MVP includes two predefined training systems:
 
-- **Bulk Pro**
-- **Cut Pro**
+- **Bulk Pro** — progression-focused training with repeatable volume and productive workload
+- **Cut Pro** — recovery-aware training focused on strength retention and fatigue control
 
-Both plans use the same product flow:
+Both plans use the same app flow and runtime model.
 
-```text
-Home
--> Plan Overview
--> Cycle Dashboard
--> Day
--> Exercise/Core
--> Finish Day
--> End Cycle recap
--> Start next cycle
-```
+### 6-day cycle inside a 9-day rhythm
 
-The app guides the user through a structured cycle instead of behaving like a free-form workout notebook.
-
----
-
-## Core MVP value
-
-The MVP proves that a user can:
-
-- choose a predefined training plan
-- start and continue a structured cycle
-- follow the current training day
-- log prescribed main exercise sets
-- log core blocks separately
-- mark performed sets with explicit `isDone`
-- finish full or partial days honestly
-- carry useful previous values into the next cycle
-- restore progress after refresh
-- reset local progress safely
-- use the app on a mobile-first interface with desktop presented as a centered app shell
-
----
-
-## Cycle model
-
-The current MVP cycle model is:
-
-```text
-6 training days inside a 9-day rhythm
-```
-
-Training order:
-
-```text
-D1 -> D2 -> D3 -> D4 -> D5 -> D6
-```
-
-Rhythm:
+The current cycle model is:
 
 ```text
 D1 -> D2 -> Rest
@@ -114,63 +99,125 @@ D3 -> D4 -> Rest
 D5 -> D6 -> Rest
 ```
 
-Why this matters:
+The training order stays stable while rest days give the schedule room to breathe.
 
-- the training order stays stable
-- rest is part of the rhythm
-- the cycle does not restart because of one missed or partial day
-- muscle groups return through main, support, top-up, and bridge work
-- flexibility means the calendar can breathe without making the plan random
+### Guided workout flow
+
+The user moves through a clear app flow:
+
+```text
+Home
+-> Plan Overview
+-> Cycle Dashboard
+-> Day
+-> Exercise / Core
+-> Finish Day
+-> End Cycle recap
+-> Start next cycle
+```
+
+The app keeps the next relevant action visible instead of asking the user to rebuild the training structure manually.
+
+### Exercise logging
+
+Main exercises support:
+
+- prescribed set rows generated from explicit metadata
+- weight input
+- reps input
+- RIR input
+- performed-set checkbox
+- exercise close intent
+- active, finished, and preview states
+
+Input values alone do not complete a set.
+
+Only `isDone: true` marks a set as performed.
+
+### Core block logging
+
+Core work is integrated into selected training days and tracked separately from main exercise completion.
+
+Core logging supports:
+
+- reps-based core work
+- time-based core work
+- load tracking where relevant
+- RIR tracking
+- core block close intent
+- separate core carry-over behavior
+
+Core progress supports the training system but does not affect main day progress.
+
+### Partial-day support
+
+The app allows users to finish a day even when the day was partial.
+
+This is intentional.
+
+A finished day means the user intentionally moved the cycle forward. It does not mean every prescribed exercise or set was perfectly completed.
+
+### Previous-value carry-over
+
+Completed set values can become useful references for the next cycle.
+
+Carry-over is field-by-field and only uses values from performed sets.
+
+The app does not carry forward:
+
+- completion state
+- closed state
+- finished day state
+- completed cycle state
+
+### localStorage persistence
+
+Runtime progress is saved locally through a dedicated storage layer.
+
+The app restores:
+
+- selected plan
+- current cycle
+- current day pointer
+- day logs
+- exercise logs
+- core logs
+- set values
+- set done state
+- close/finish/completion timestamps
+- carry-over reference data
+
+Static source data is not copied into localStorage.
+
+### Educational training layer
+
+The MVP includes a static educational layer that supports the workout flow without turning the app into a long manual.
+
+This content covers:
+
+- plan logic and cycle structure
+- RIR and effort management
+- progression rules
+- recovery and fatigue control
+- warm-up guidance
+- advanced technique explanations
+- contextual exercise help
+
+Education is split by context:
+
+- **Home** explains the product value quickly.
+- **Guide** explains the larger training system.
+- **Exercise help** explains working rules such as tempo, rest, RIR, and progression.
+- **Advanced technique help** explains methods such as dropsets, rest-pause, cluster work, mechanical sets, and stretch-focused work.
+- **Warm-up sheets** provide short day-specific preparation guidance.
+
+This content is guidance-only. It does not affect runtime completion, set status, cycle progress, or localStorage state.
 
 ---
 
-## Tech stack
+## App Flow
 
-- React
-- Vite
-- Tailwind CSS
-- React Router
-- Context + reducer runtime state
-- localStorage persistence
-- GitHub Actions basic CI
-- Firebase Hosting for preview/deploy
-
-MVP backend boundary:
-
-```text
-No auth
-No Firestore
-No Cloud Functions
-No cloud sync
-No payments / unlock logic
-No AI coaching
-```
-
-The MVP is intentionally local-first.
-
----
-
-## Live preview
-
-Firebase Hosting is configured for live MVP preview and device testing:
-
-```text
-https://training-app-mvp.web.app
-```
-
-Hosting is used only for preview/deploy.
-
-No backend, account system, cloud database, or sync logic is part of the MVP.
-
-Current note:
-
-```text
-The live URL should be smoke-tested again after deploying the latest final-packaging build.
-```
-
----
-
-## Route map
+### Main routes
 
 ```text
 /                        -> HomePage
@@ -184,171 +231,89 @@ The live URL should be smoke-tested again after deploying the latest final-packa
 *                        -> fallback route
 ```
 
-Route decisions:
+### Screen roles
 
-- Warm-up is not a standalone route.
-- Warm-up opens from `DayPage` as `WarmupSheet`.
-- Finish Day is not a standalone route.
-- Finish Day confirmation opens from `DayPage` as `FinishDaySheet`.
-- End Cycle remains a dedicated route-driven page.
-- Invalid/deep routes fail safely through fallback handling.
+| Screen | Role |
+| --- | --- |
+| Home | Product entry, plan choice, value explanation |
+| Plan Overview | Plan context, rhythm explanation, start/continue/review cycle |
+| Cycle Dashboard | Current cycle overview and next training day |
+| Day | Workout command center for the selected day |
+| Exercise | Main exercise logging and execution guidance |
+| Core | Flexible core support workflow |
+| Warm-up Sheet | Short pre-workout guidance |
+| Guide | Deeper plan and training-system education |
+| Finish Day Sheet | Close the current day with partial-day support |
+| End Cycle | Runtime-derived cycle recap and next-cycle transition |
 
----
-
-## Main screen flows
-
-The MVP has 10 conceptual screens / flows:
-
-1. Home
-2. Plan Overview
-3. Cycle Dashboard
-4. Day screen
-5. Exercise screen
-6. Core screen
-7. Warm-up sheet
-8. Guide / Coach Library
-9. Finish Day confirmation sheet
-10. End Cycle / Start New Cycle
-
-Screen 7 and Screen 9 are sheet flows opened from the Day screen, not standalone routes.
+Warm-up and Finish Day are sheet flows opened from the Day screen, not standalone routes.
 
 ---
 
-## Completed phases
+## Technical Architecture
 
-### Phase 1 — Foundation
+The app is built with:
 
-Completed:
-
-- Vite + React project setup
-- Tailwind CSS configuration
-- base folder structure
-- shared layout shell
-- shared button/card primitives
-- full MVP route skeleton
-- placeholder navigation
-- first Git/GitHub checkpoint
-- basic GitHub Actions CI
-- Firebase Hosting setup for live MVP preview
-
----
-
-### Phase 2 — Static content and screen structure
-
-Completed and merged to `main`.
-
-Completed:
-
-- static plan data for Bulk Pro and Cut Pro
-- static day data for D1-D6
-- day detail data for both plans
-- exercise data for both plans
-- core block and core exercise data
-- warm-up content
-- guide content
-- contextual help content
-- all 10 MVP screen flows
-- advanced technique contextual help
-- static training content truth pass
-- pre-runtime cleanup pass
-
-Important Phase 2 decisions:
-
-- static source data and runtime progress stay separate
-- prescribed set rows come from explicit metadata
-- `prescription` is user-facing display copy
-- `setCount` is runtime scaffold metadata
-- `+ Add set` is removed from the active Exercise screen MVP flow
-- advanced techniques are guidance-only for MVP
-- optional bonus work stays in cue/help content and does not affect required completion
-- core is separate from the main exercise completion count
-- warm-up and guide content do not affect completion
-
----
-
-### Phase 3 — Runtime workout flow logic
-
-Completed.
-
-Phase 3 turned the app from a static prototype into an in-memory workout tool.
-
-Implemented:
-
+- React
+- Vite
+- Tailwind CSS
+- React Router
 - Context + reducer runtime state
-- `AppStateProvider`
-- `useAppState`
-- `progressByPlan` separation for Bulk Pro and Cut Pro
-- lazy cycle/day/exercise/core log creation
-- prescribed main exercise set rows from `setCount`
-- prescribed core set rows from `setCount`, `logType`, and `tracksLoad`
-- weight / reps / RIR input support for main exercises
-- load / reps / time / RIR support for core
-- explicit set done logic through `isDone`
-- exercise and core close intent
-- Day screen progress/status calculation
-- active / finished / upcoming day modes
-- read-only upcoming Day / Exercise / Core previews
-- finished day review/edit behavior
-- Finish Day runtime behavior
-- partial-day support
-- cycle completion guard
-- runtime-derived EndCyclePage recap
-- explicit Start New Cycle behavior
-- previous-value carry-over for main exercises
-- previous-value carry-over for core
-- missing-value warnings without hard blocking Finish Day
-- full Bulk + Cut in-memory sanity test
+- localStorage persistence
+- Motion for UI transitions
+- Lucide icons
+- Firebase Hosting
+- GitHub Actions CI
 
-Confirmed runtime rule:
+The architecture separates static training content from runtime user progress.
 
 ```text
-Input values alone do not complete a set.
-Only isDone marks a set as performed.
+Static source data = what the app prescribes
+Runtime state      = what the user selected, logged, finished, or carried forward
 ```
 
----
-
-### Pre-Phase-4 stabilization
-
-Completed.
-
-This pass stabilized the in-memory runtime behavior before persistence was added.
-
-Completed:
-
-- active / finished / upcoming day modes
-- PlanOverview CTA behavior fix
-- cycle completion guard
-- close action copy and navigation cleanup
-- finished-day UI signal
-- upcoming Exercise/Core read-only previews
-- Finish Day missing-value warnings
-- EndCyclePage runtime-derived recap
-- full Bulk + Cut in-memory sanity test
-- runtime readability / component responsibility pass
-- comment pass for complex runtime-heavy files
+This separation keeps the training system stable while allowing user progress to change independently.
 
 ---
 
-### Phase 4 — Local persistence
+## Runtime State Model
 
-Completed.
+Global app state is managed with Context + reducer.
 
-Phase 4 made the existing runtime state survive refresh.
+High-level state shape:
 
-Implemented:
+```js
+{
+  selectedPlanId: null,
+  progressByPlan: {}
+}
+```
 
-- dedicated storage layer
-- versioned localStorage wrapper
-- shallow storage validation
-- safe fallback for missing, invalid, outdated, or broken storage
-- AppStateProvider hydration from localStorage
-- provider-level persistence after reducer state updates
-- `RESET_APP_STATE`
-- local progress reset UI on Home
-- full Phase 4 refresh acceptance test pass
+Progress is separated per plan so Bulk Pro and Cut Pro do not share cycle state.
 
-Storage file:
+Runtime state includes:
+
+- selected plan
+- active cycle
+- cycle history
+- current day pointer
+- day logs
+- main exercise logs
+- core block logs
+- set input values
+- set done state
+- exercise/core close intent
+- day finish intent
+- cycle completion
+- previous-value carry-over references
+
+The reducer owns state transitions. Persistence stays outside the reducer.
+
+---
+
+## Persistence Model
+
+The app uses one dedicated localStorage layer:
 
 ```text
 src/storage/appStateStorage.js
@@ -357,10 +322,10 @@ src/storage/appStateStorage.js
 Storage key:
 
 ```js
-"training-app:v1:app-state";
+"training-app:v1:app-state"
 ```
 
-Stored wrapper format:
+Stored wrapper:
 
 ```js
 {
@@ -373,508 +338,22 @@ Stored wrapper format:
 }
 ```
 
-Storage API:
+The storage layer handles:
 
-```js
-loadStoredAppState();
-saveStoredAppState(state);
-clearStoredAppState();
-```
+- loading saved state
+- saving runtime state
+- clearing saved progress
+- falling back safely when storage is missing, invalid, outdated, or broken
 
-Static source data is not stored in localStorage.
-
----
-
-### Phase 5 — Product UI polish and stability
-
-Completed.
-
-Goal:
-
-```text
-Turn the functional local-first MVP into a clearer, more premium, more usable training product while preserving confirmed runtime behavior.
-```
-
-Completed:
-
-- Home product value polish
-- interactive Home value chips
-- Plan Overview cycle/rhythm explanation polish
-- Cycle Dashboard hierarchy and rhythm polish
-- Day screen product/workout command-center polish
-- Exercise screen execution/logging polish
-- Core screen flexible support-work polish
-- Warm-up sheet polish
-- Guide / Coach Library polish
-- Finish Day sheet polish
-- End Cycle / recap polish
-- dark premium product theme alignment
-- CTA/copy cleanup
-- 320px density check
-- landscape known-limitation check
-- desktop scrollbar affordance for rhythm strip
-- dark sheet scrollbar polish
-- exercise horizontal overflow fix
-- final Home / Guide / copy polish pass
-- final technical pre-MVP fix pass
-- independent Codex reviews
-- final lint and build checks
-
-Final checks:
-
-```text
-npm run lint — passed
-npm run build — passed
-```
-
-Build note:
-
-- Vite may report a chunk-size warning above 500 kB.
-- This is not a build failure and is not treated as an MVP blocker.
+The reducer does not access localStorage directly.
 
 ---
 
-## Runtime action set
+## Static Data Structure
 
-Current reducer actions:
+Training content is stored as static source data.
 
-```js
-SELECT_PLAN;
-START_PLAN_CYCLE;
-ENSURE_DAY_LOG;
-ENSURE_CORE_BLOCK_LOG;
-TOGGLE_EXERCISE_SET_DONE;
-TOGGLE_CORE_SET_DONE;
-UPDATE_EXERCISE_SET_FIELD;
-UPDATE_CORE_SET_FIELD;
-MARK_EXERCISE_CLOSED;
-MARK_CORE_EXERCISE_CLOSED;
-MARK_CORE_BLOCK_CLOSED;
-FINISH_DAY;
-RESET_APP_STATE;
-```
-
----
-
-## Current runtime loop
-
-The app supports the main persisted runtime path:
-
-```text
-Start cycle
--> create cycle shell
--> open current day
--> ensure runtime day log
--> derive DayPage progress/status
--> open exercise
--> render prescribed runtime set rows
--> edit weight/reps/RIR values
--> toggle set done
--> close exercise intent
--> finish day
--> advance currentDayId
--> complete cycle after all D1-D6 are finished
--> review runtime cycle recap
--> start next cycle explicitly
--> carry previous checked values into the next cycle
--> persist runtime state locally
--> restore progress after refresh
-```
-
-Core runtime flow is also implemented:
-
-```text
-Open core block
--> ensure coreBlockLog
--> render core exercises and prescribed core set rows
--> edit load/reps/time/RIR where applicable
--> toggle core set done
--> derive core exercise/core block status
--> close core block intent
--> carry previous core values into the next cycle
--> persist core progress locally
-```
-
----
-
-## Runtime model
-
-### Static data vs runtime data
-
-Static source data owns:
-
-- plan content
-- day structure
-- exercise guidance
-- core definitions
-- warm-up content
-- guide content
-- contextual help content
-
-Runtime user data owns:
-
-- selected plan
-- current cycle
-- current day pointer
-- day logs
-- exercise logs
-- core logs
-- set values
-- set done state
-- `closedAt`
-- `finishedAt`
-- `completedAt`
-- carry-over values
-
-These layers must stay separate.
-
-Static source data is not stored in localStorage.
-
----
-
-### Prescription vs runtime metadata
-
-Runtime logic does not parse user-facing prescription strings.
-
-Confirmed rule:
-
-```text
-prescription = user-facing display
-setCount     = runtime scaffold metadata
-```
-
-Example:
-
-```js
-{
-  id: "smith-bench-press",
-  prescription: "4 x 5-7",
-  setCount: 4
-}
-```
-
-Core uses additional metadata:
-
-```js
-{
-  logType: "reps" | "time",
-  tracksLoad: true | false
-}
-```
-
----
-
-### Set completion
-
-Main set row shape:
-
-```js
-{
-  setIndex: 1,
-  weight: "",
-  reps: "",
-  rir: "",
-  isDone: false
-}
-```
-
-Core set row shape:
-
-```js
-{
-  setIndex: 1,
-  load: "",
-  reps: "",
-  time: "",
-  rir: "",
-  isDone: false
-}
-```
-
-Rules:
-
-- values are strings for controlled inputs
-- empty strings are allowed while editing
-- input values alone do not complete a set
-- only `isDone: true` marks a set as performed
-
----
-
-### Close intent vs completion
-
-Close actions record user intent.
-
-They do not fake completion.
-
-Meaning:
-
-```text
-Set checkbox = what was actually performed
-Exercise closedAt = user intentionally closed that exercise workflow
-Core block closedAt = user intentionally closed that core workflow
-Day finishedAt = user intentionally closed the training day
-Cycle completedAt = all six training days have finishedAt
-```
-
-Rules:
-
-- Close exercise does not check unfinished sets.
-- Close core block does not check unfinished core sets.
-- Finish day does not have to mean a perfect day.
-- Partial days are valid MVP behavior.
-- Core completion is separate from main exercise completion.
-
----
-
-### Day access model
-
-The app separates day access into four modes:
-
-```text
-active
-finished
-upcoming
-inactive
-```
-
-Runtime meaning:
-
-```text
-active   -> current training day, logging allowed
-finished -> day has finishedAt, existing log review/edit
-upcoming -> future day, preview-only
-inactive -> fallback state
-```
-
-Upcoming day rules:
-
-- preview is allowed
-- active logging is disabled
-- no current-cycle logs are created
-- inputs, checkbox toggles, close actions, and Finish Day actions are disabled/hidden
-
----
-
-### Carry-over behavior
-
-Carry-over is field-by-field.
-
-A value can carry over only when:
-
-```text
-previous set has isDone: true
-and the field is not an empty string
-```
-
-Main carry-over fields:
-
-```js
-["weight", "reps", "rir"];
-```
-
-Core carry-over fields:
-
-```js
-["load", "reps", "time", "rir"];
-```
-
-Not carried over:
-
-```text
-isDone
-closedAt
-finishedAt
-completedAt
-```
-
-Important product rule:
-
-```text
-Unchecked edited values are persisted as local log input,
-but they are not eligible for future carry-over.
-```
-
----
-
-## Finish Day warnings
-
-`FinishDaySheet` gives informational warnings before a user finishes a day.
-
-Confirmed rule:
-
-```text
-Warnings do not block Finish Day.
-Warnings do not change runtime state.
-```
-
-Warnings do not change:
-
-```text
-isDone
-closedAt
-finishedAt
-carry-over rules
-```
-
-Only checked sets are checked for missing values.
-
-```text
-Checked set + missing reps/RIR -> warning
-Unchecked set + empty fields -> no warning
-One checked set with valid values + several unchecked empty sets -> no warning
-```
-
-Reason:
-
-```text
-The app should not punish the user for unperformed work.
-It should only warn when performed work was logged incompletely.
-```
-
----
-
-## EndCyclePage recap
-
-EndCyclePage uses runtime state instead of placeholder statistics.
-
-If the current cycle is not complete:
-
-```text
-Cycle is not complete yet
-```
-
-and the normal `Start new cycle` CTA is not shown.
-
-When the cycle is complete, EndCyclePage shows:
-
-```text
-Cycle complete
-Training days: X/6
-Main exercises: X/Y
-Partial days: X
-Core blocks: X/3
-```
-
-The recap is intentionally minimal.
-
-It is not an analytics dashboard.
-
----
-
-## Local persistence behavior
-
-The app persists runtime user progress under one versioned localStorage key:
-
-```text
-training-app:v1:app-state
-```
-
-Stored runtime state includes:
-
-```text
-selectedPlanId
-progressByPlan
-current cycle data
-day logs
-exercise logs
-core logs
-set input values
-set done state
-closedAt
-finishedAt
-completedAt
-carry-over relevant previous-cycle data
-```
-
-Not stored:
-
-```text
-static plan data
-exercise source data
-core definitions
-warmups
-guides
-contextual help
-local UI sheet open/closed state
-```
-
-Broken or invalid storage behavior:
-
-```text
-invalid/missing/outdated/broken storage
--> fallback to appInitialState
--> app remains usable
-```
-
-Reset behavior:
-
-```text
-Home
--> Reset local progress
--> confirmation
--> clearStoredAppState()
--> dispatch RESET_APP_STATE
--> runtime state returns to appInitialState
-```
-
----
-
-## UI/product direction
-
-The confirmed MVP visual direction is a dark premium product theme.
-
-The app should feel:
-
-- serious
-- structured
-- modern
-- training-focused
-- product-like
-- calm, not flashy
-- premium through hierarchy, spacing, surfaces, and restraint
-- mobile-first and fast to use during training
-
-`AppShell` supports visual purpose modes:
-
-```jsx
-<AppShell mode="product">
-<AppShell mode="training">
-```
-
-Current meaning:
-
-```text
-product  = overview, choosing, explaining, reviewing
-training = executing, logging, finishing workout flow
-```
-
-Important rule:
-
-```text
-product/training modes are purpose modes, not a full light-vs-dark split.
-```
-
-Both modes stay aligned with the current dark premium product theme.
-
----
-
-## Project file structure
-
-Current high-level structure:
-
-```text
-src/
-  app/
-  pages/
-  components/
-  data/
-  state/
-  storage/
-  styles/
-  utils/
-```
-
-Important source-data layers:
+High-level structure:
 
 ```text
 src/data/
@@ -888,268 +367,391 @@ src/data/
   contextualHelp/
 ```
 
-Important runtime/state/storage layers:
+Static data owns:
+
+- plan names and descriptions
+- training day structure
+- exercise definitions
+- core block definitions
+- warm-up content
+- guide content
+- contextual help content
+
+Runtime state stores only user progress and user-entered values.
+
+---
+
+## Important Runtime Rules
+
+### `prescription` is display copy
+
+The app does not parse user-facing prescription strings.
 
 ```text
-src/state/
-  appInitialState.js
-  appActions.js
-  appReducer.js
-  AppStateContext.js
-  AppStateProvider.jsx
-  useAppState.js
+prescription = user-facing display text
+setCount     = runtime scaffold metadata
+```
 
-src/storage/
-  appStateStorage.js
+Example:
 
-src/utils/runtime/
-  exerciseLogHelpers.js
-  dayLogHelpers.js
-  coreLogHelpers.js
-  exerciseStatusHelpers.js
-  dayStatusHelpers.js
-  coreStatusHelpers.js
-  dayModeHelpers.js
-  cycleStatusHelpers.js
-  missingValueWarningHelpers.js
-  cycleSummaryHelpers.js
-  inputHelpers.js
-  coreInputHelpers.js
-  carryOverHelpers.js
-  coreCarryOverHelpers.js
+```js
+{
+  id: "smith-bench-press",
+  prescription: "4 x 5-7",
+  setCount: 4
+}
+```
+
+Core exercises also use metadata such as:
+
+```js
+{
+  logType: "reps" | "time",
+  tracksLoad: true | false
+}
+```
+
+### Set completion is explicit
+
+Input values do not complete a set.
+
+```text
+Set checkbox = what was actually performed
+Input values = details about what was performed
+```
+
+A set counts as performed only when:
+
+```js
+isDone === true
+```
+
+### Close intent does not fake completion
+
+Close actions record user intent. They do not automatically complete unfinished work.
+
+```text
+Exercise closedAt = user intentionally closed that exercise workflow
+Core block closedAt = user intentionally closed that core workflow
+Day finishedAt = user intentionally closed the training day
+Cycle completedAt = all six training days were closed
+```
+
+### Upcoming previews are read-only
+
+Upcoming Day, Exercise, and Core views allow previewing the structure but do not create or mutate current-cycle logs.
+
+### Carry-over is conservative
+
+A value can carry over only when:
+
+```text
+the previous set was marked as performed
+and the specific field is not empty
+```
+
+Unchecked edited values remain saved in the local log but are not eligible for future carry-over.
+
+---
+
+## UI / UX Direction
+
+The MVP uses a dark, mobile-first product interface.
+
+Design goals:
+
+- serious
+- structured
+- calm
+- training-focused
+- fast to use during workouts
+- product-like without being flashy
+
+The app uses reusable UI primitives for layout, cards, buttons, sheets, and screen structure.
+
+Important UI patterns:
+
+- centered mobile-first app shell
+- product screens for plan choice and explanation
+- training screens for execution and logging
+- bottom sheets for warm-up, help, and finish-day confirmation
+- compact row-based set logging
+- read-only preview states for upcoming work
+- quiet utility actions such as reset local progress
+
+Desktop is intentionally presented as a centered mobile-first app shell rather than a full dashboard layout.
+
+---
+
+## Project Structure
+
+```text
+src/
+  app/
+  components/
+  data/
+  pages/
+  state/
+  storage/
+  styles/
+  utils/
+```
+
+Key areas:
+
+```text
+src/app/                 Router and app-level layout helpers
+src/pages/               Route-level screens
+src/components/          Shared and feature-specific UI components
+src/data/                Static training content
+src/state/               Context + reducer runtime state
+src/storage/             localStorage persistence layer
+src/styles/              UI tokens and motion presets
+src/utils/runtime/       Runtime helper logic
 ```
 
 ---
 
-## Important MVP rules
+## Tech Stack
 
-### Required vs optional work
+### Runtime
 
-- required main exercises come from `dayDetails.exerciseIds`
-- optional bonus work stays in cue/help content
-- optional work does not affect required completion
-- advanced techniques are guidance-only for MVP
-- prescribed set rows are the source of truth for completion
+- React
+- React DOM
+- React Router
+- Tailwind CSS
+- Motion
+- Lucide React
 
-### Core
+### Tooling
 
-- core is integrated into D2, D4, and D5
-- core progress is tracked separately
-- core does not affect main day progress
-- core carry-over follows the same cycle system as the main workout
+- Vite
+- ESLint
+- GitHub Actions
+- Firebase Hosting
 
-### Warm-up and Guide
+### Package manager
 
-- warm-up is supporting guidance only
-- warm-up does not affect completion
-- guide/help content does not affect completion
-
-### Local-first MVP
-
-- no auth
-- no backend
-- no cloud sync
-- no payments
-- runtime state is persisted locally
-- localStorage is the only persistence layer in the MVP
-
-### Product polish safety
-
-- UI polish must preserve confirmed runtime behavior
-- polish should not change reducer rules, route decisions, storage shape, or completion logic unless explicitly planned
-- visual hierarchy should clarify the workout flow instead of adding noise
+This project uses npm and includes a committed `package-lock.json`.
 
 ---
 
-## Verification workflow
+## Running Locally
 
-Before committing implementation checkpoints:
+Recommended environment:
+
+```text
+Node.js 20+
+npm
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Start development server:
+
+```bash
+npm run dev
+```
+
+Run lint:
+
+```bash
+npm run lint
+```
+
+Create production build:
+
+```bash
+npm run build
+```
+
+Preview production build locally:
+
+```bash
+npm run preview
+```
+
+---
+
+## Verification
+
+Current release verification included:
 
 ```bash
 npm run lint
 npm run build
 git diff --check
+npm audit
 ```
 
-Expected result:
+Release status:
 
 ```text
-lint passes
-production build passes
-no trailing whitespace issues
-app boots correctly
-runtime state works
-localStorage persistence works
+lint passed
+production build passed
+git diff check passed
+npm audit found 0 vulnerabilities
+Firebase Hosting deploy verified
+live mobile smoke test passed
+deep route refresh checked
+localStorage persistence checked after refresh
 ```
 
-For release/private-preview checks, also verify:
+Build note:
 
-```text
-Home value chips and plan entry
-Start / Continue / Review cycle behavior
-active day logging
-upcoming preview read-only behavior
-partial day Finish Day flow
-EndCyclePage recap
-refresh persistence
-reset local progress
-invalid/deep route fallback
-latest hosted preview after deploy
-```
+Vite may report a chunk-size warning above 500 kB after production build. This is currently accepted as a non-blocking MVP limitation and can be revisited post-MVP with route-level code splitting if needed.
 
 ---
 
-## Deployment smoke test
+## Screenshots
 
-Before sharing the latest hosted build for private preview, run a focused live smoke test.
+Screenshots are recommended for the public portfolio version of this README.
 
-Minimum smoke test flow:
-
-```text
-Open latest hosted preview
--> confirm Home loads correctly
--> open both Bulk Pro and Cut Pro plan pages
--> start or continue a cycle
--> open Cycle Dashboard
--> open the current Day screen
--> open one Exercise screen
--> log at least one set value
--> mark at least one set as done
--> refresh the page and confirm persistence
--> return to the Day screen
--> open Core when available
--> confirm upcoming Day / Exercise / Core previews are read-only
--> finish a partial day
--> confirm currentDayId advances correctly
--> open EndCyclePage guard state before cycle completion
--> test Reset local progress
--> test one invalid/deep route fallback
-```
-
-The smoke test is not a full retest of every feature.
-
-Goal:
+Suggested screenshot set:
 
 ```text
-Confirm that the deployed build matches the already accepted local MVP behavior.
+docs/screenshots/home.png              -> Home / plan selection
+docs/screenshots/plan-overview.png     -> Plan Overview
+docs/screenshots/cycle-dashboard.png   -> Cycle Dashboard
+docs/screenshots/day-screen.png        -> Day screen
+docs/screenshots/exercise-logging.png  -> Exercise logging
+docs/screenshots/core-workflow.png     -> Core workflow
+docs/screenshots/guide.png             -> Guide / Coach Library
+docs/screenshots/end-cycle.png         -> End Cycle recap
 ```
 
-If a real blocker appears during smoke testing, fix it before private preview.
+Recommended capture style:
 
-If a new idea appears during smoke testing, classify it first:
+- mobile viewport first
+- real hosted build
+- dark UI visible
+- no personal/private data
+- show the actual workout flow rather than isolated components
 
-```text
-must-fix
-packaging polish
-private-preview feedback
-post-MVP
-```
+Once screenshots are added, this section can be replaced with an image grid.
 
 ---
 
-## Documentation map
-
-Active project documentation:
+## Current Status
 
 ```text
-training-app-mvp-roadmap.md
-training-app-architecture-notes.md
-training-app-ui-system.md
-training-app-product-positioning-and-cycle-logic.md
-training-app-build-log.md
+v0.5.0 — MVP Private Preview
 ```
 
-Use them as:
+The local-first MVP is implemented, deployed, tagged, and prepared for private preview / launch-style testing.
 
-- `training-app-mvp-roadmap.md` — current MVP status, scope, milestones, and next steps
-- `training-app-architecture-notes.md` — current technical/runtime source of truth
-- `training-app-ui-system.md` — current UI/product interaction source of truth
-- `training-app-product-positioning-and-cycle-logic.md` — current product/cycle logic source of truth
-- `training-app-build-log.md` — historical implementation log
+Completed:
 
-Older planning documents may exist in local archive, but they are no longer active project source-of-truth documents.
+- runtime workout flow
+- localStorage persistence
+- final product UI polish
+- security dependency update
+- branch cleanup
+- release tag
+- GitHub Release
+- live deploy smoke test
 
 ---
 
-## Current next steps
+## MVP Scope
 
-The implementation MVP is complete.
+This MVP includes:
 
-Current focus is final packaging and private-preview preparation.
+- predefined Bulk Pro and Cut Pro plans
+- 6-day cycle inside a 9-day rhythm
+- guided workout flow
+- main exercise logging
+- core block logging
+- previous-value carry-over
+- partial-day support
+- runtime-derived cycle recap
+- localStorage persistence
+- reset local progress
+- mobile-first UI
 
-Next practical steps:
+This MVP does not include:
 
-1. Finalize the simple app mark / logo direction.
-2. Keep this technical README aligned with the final MVP status.
-3. Prepare separate portfolio-facing presentation material.
-4. Deploy the latest build if needed.
-5. Perform a live deployment smoke test.
-6. Prepare a private preview checklist.
-7. Create final release notes / closeout commit.
-8. Run private preview / launch-style testing.
-9. Convert feedback into a post-MVP backlog.
-
-Do not expand MVP scope unless a real blocker is found.
-
-New ideas should be classified before implementation:
-
-```text
-must-fix
-packaging polish
-private-preview feedback
-post-MVP
-```
-
----
-
-## Post-MVP / deferred scope
-
-These remain future product considerations and should not be added during MVP closeout:
-
-- auth
+- authentication
+- Firestore
+- Cloud Functions
 - cloud sync
-- payments / unlock logic
-- custom plan builder
-- analytics
+- multi-device sync
+- payments
+- subscription or unlock logic
 - AI coaching
-- social/community features
-- advanced rest day / LISS flow
+- adaptive programming
+- custom plan builder
 - custom exercise substitutions
-- rest timer
-- full exercise library
-- deeper muscle-group / plan-synergy education
-- machine setup guidance
-- assisted-machine logging refinement
+- analytics dashboard
 - nutrition tracking
 - cardio tracking
-- full desktop layout redesign
-- PWA / fullscreen install experience for a more app-like mobile flow
-- short-height landscape recommendation banner
-- targeted internal navigation/history polish if private preview shows real confusion
-- smoother collapse behavior for long coaching/support note sections
-- simple brand identity expansion beyond the MVP app mark
-- public landing / marketing page
-- full portfolio case-study writeup
+- PWA install flow
+- full desktop dashboard layout
 
 ---
 
-## Final reminder
+## Known MVP Limitations
 
-The goal of this MVP was not to build everything.
+Accepted current limitations:
 
-The goal was to build:
+- Progress is local to the browser/device.
+- Clearing browser storage removes saved progress.
+- Desktop uses a centered mobile-first app shell, not a full desktop layout.
+- Phone landscape is usable but not optimized.
+- The app is not a PWA yet.
+- Vite may show a non-blocking chunk-size warning.
+- No automated test suite is included yet.
+- Private preview feedback may uncover UX issues that should become post-MVP backlog items.
 
-- a structured training app
-- with a clear cycle flow
-- fast set logging
-- previous-value carry-over
-- core integrated into training days
-- partial-day flexibility
-- local-first persistence
-- and enough guidance to keep the soul of the system alive
+---
 
-Current guiding rule:
+## Future Improvements
 
-```text
-Protect the finished MVP scope. Move new ideas into post-MVP unless they fix a real blocker.
-```
+Possible post-MVP directions:
+
+- PWA / standalone install experience
+- auth and cloud sync
+- custom plan builder
+- exercise substitutions
+- rest timer
+- deeper analytics
+- training history charts
+- machine setup guidance
+- rest/LISS module
+- improved desktop layout
+- expanded screenshots and portfolio case study
+- automated test coverage
+
+These are intentionally outside the current local-first MVP scope.
+
+---
+
+## What This Project Demonstrates
+
+This project was built as a complete MVP, not only as a UI prototype.
+
+It demonstrates:
+
+- React app architecture with route-based screens
+- Context + reducer state management
+- separation of static source data and runtime user progress
+- reducer-driven workout lifecycle transitions
+- local-first persistence with versioned localStorage
+- safe fallback behavior for invalid stored state
+- conservative previous-value carry-over logic
+- explicit completion modeling through performed-set checkboxes
+- route-safe active, finished, and upcoming workout states
+- reusable UI primitives and mobile-first interface design
+- scope control around a clearly defined MVP boundary
+
+---
+
+## License
+
+No open-source license has been selected yet.
+
+This repository is shared for review and portfolio purposes. The project may evolve beyond the MVP into a commercial product, so reuse, redistribution, or derivative work is not permitted without permission.
