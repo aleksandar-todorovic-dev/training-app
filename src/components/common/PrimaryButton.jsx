@@ -1,21 +1,35 @@
 import { Link } from "react-router-dom";
-import { UI_BUTTON_PRIMARY } from "../../styles/ui";
+
+import {
+  UI_BUTTON_PRIMARY_PRODUCT,
+  UI_BUTTON_PRIMARY_TRAINING,
+} from "../../styles/ui";
+
+const PRIMARY_BUTTON_VARIANTS = {
+  product: UI_BUTTON_PRIMARY_PRODUCT,
+  training: UI_BUTTON_PRIMARY_TRAINING,
+};
 
 /**
  * Shared primary CTA.
  *
- * UI note:
- * Pass `to` for route navigation, or omit it to render a native button for
- * local/runtime actions.
+ * Use `variant="product"` for light product screens and `variant="training"`
+ * for workout/execution screens.
+ *
+ * Pass `to` for route navigation, or omit it for local/runtime actions.
  */
 export default function PrimaryButton({
   to,
   children,
   className = "",
   type = "button",
+  variant = "training",
   ...props
 }) {
-  const combinedClassName = `${UI_BUTTON_PRIMARY} ${className}`.trim();
+  const variantClassName =
+    PRIMARY_BUTTON_VARIANTS[variant] ?? PRIMARY_BUTTON_VARIANTS.training;
+
+  const combinedClassName = `${variantClassName} ${className}`.trim();
 
   if (to) {
     return (

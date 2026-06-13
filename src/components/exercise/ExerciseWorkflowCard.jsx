@@ -1,14 +1,38 @@
 import { useState } from "react";
+import { AnimatePresence, motion } from "motion/react";
 
-import SectionCard from "../layout/SectionCard";
-import PrimaryButton from "../common/PrimaryButton";
+import { Crosshair, ListChecks, Zap, ChevronRight } from "lucide-react";
 import HelpSheet from "../common/HelpSheet";
 import SetRow from "./SetRow";
 import {
   exerciseHelp,
   advancedTechniqueHelpByType,
 } from "../../data/contextualHelp";
-import { UI_TEXT_MUTED } from "../../styles/ui";
+import {
+  UI_TEXT_BODY,
+  UI_TEXT_BODY_STRONG,
+  UI_TEXT_CARD_TITLE,
+  UI_TEXT_EYEBROW,
+  UI_TEXT_EYEBROW_ACCENT,
+  UI_TEXT_META,
+  UI_TEXT_SECTION_TITLE,
+  UI_TEXT_STAT_LABEL,
+  UI_TEXT_STAT_VALUE,
+} from "../../styles/ui";
+import { revealPanelVariants } from "../../styles/motion";
+
+const MotionDiv = motion.div;
+const MotionSection = motion.section;
+
+const METHOD_SUMMARY_BY_TYPE = {
+  mechanicalDropset: "Mechanical dropset · view exact sequence",
+  mechanicalSet: "Mechanical set · view exact sequence",
+  restPause: "Rest-pause · view exact method",
+  dropset: "Dropset · view exact method",
+  cluster: "Cluster set · view exact structure",
+  isoHold: "Iso hold · view exact timing",
+  isoStretch: "Iso stretch · view exact timing",
+};
 
 function cleanSummaryValue(value) {
   if (!value || typeof value !== "string") {
@@ -18,15 +42,46 @@ function cleanSummaryValue(value) {
   return value.replace(/^≈\s*/, "").trim();
 }
 
-function DetailBlock({ title, children }) {
+// Normalizes compact target values for metric cells without changing source data.
+function compactSummaryValue(value) {
+  return cleanSummaryValue(value)
+    .replace(/\s*x\s*/i, " x ")
+    .replace(/\s*-\s*/g, "-")
+    .replace(/(\d)\s*s\b/gi, "$1 s");
+}
+
+function getMethodSummary(advancedTechniqueType) {
+  return (
+    METHOD_SUMMARY_BY_TYPE[advancedTechniqueType] ??
+    "Advanced method · view exact sequence"
+  );
+}
+
+function DetailBlock({ title, children, hasDivider = false }) {
   if (!children) {
     return null;
   }
 
   return (
-    <div className="space-y-1.5">
-      <h3 className="text-sm font-semibold text-zinc-100">{title}</h3>
-      <div className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>{children}</div>
+    <div
+      className={`space-y-1.5 ${
+        hasDivider ? "border-t border-zinc-800/70 pt-4" : ""
+      }`}
+    >
+      <h3 className="text-sm font-semibold text-[#F4F7F8]">{title}</h3>
+      <div className={UI_TEXT_BODY}>{children}</div>
+    </div>
+  );
+}
+
+function TargetItem({ label, value }) {
+  return (
+    <div className="min-w-0 text-center">
+      <p className={UI_TEXT_STAT_LABEL}>{label}</p>
+
+      <p className={`mt-1 whitespace-nowrap tabular-nums ${UI_TEXT_STAT_VALUE}`}>
+        {value}
+      </p>
     </div>
   );
 }
@@ -42,12 +97,16 @@ export default function ExerciseWorkflowCard({
   exercise,
   sets = [],
   isReadOnly = false,
+  hasPreviousValues = false,
+  dayMode = "inactive",
   onToggleSetDone,
   onUpdateSetField,
   onCloseExercise,
 }) {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isAdvancedHelpOpen, setIsAdvancedHelpOpen] = useState(false);
+  const [isMethodOpen, setIsMethodOpen] = useState(false);
+  const [isCoachNotesOpen, setIsCoachNotesOpen] = useState(false);
 
   if (!exercise) {
     return null;
@@ -65,163 +124,307 @@ export default function ExerciseWorkflowCard({
     extraCues = [],
   } = exercise.details ?? {};
 
-  const cleanedPrescriptionDisplay = cleanSummaryValue(prescriptionDisplay);
-  const cleanedTempo = cleanSummaryValue(tempo);
-  const cleanedTargetRir = cleanSummaryValue(targetRir);
-  const cleanedRest = cleanSummaryValue(rest);
+  const cleanedPrescriptionDisplay = compactSummaryValue(prescriptionDisplay);
+  const cleanedTempo = compactSummaryValue(tempo);
+  const cleanedTargetRir = compactSummaryValue(targetRir);
+  const cleanedRest = compactSummaryValue(rest);
 
   const advancedTechniqueHelp = advancedTechniqueType
     ? advancedTechniqueHelpByType[advancedTechniqueType]
     : null;
 
+  const methodSummary = getMethodSummary(advancedTechniqueType);
+  const hasCoachNotes = Boolean(progression) || extraCues.length > 0;
+
+  const logTitle = isReadOnly ? "Set preview" : "Today's work";
+
+  // Preview mode is read-only plan review, not disabled logging.
+  // Active and finished days keep DONE controls because saved logs remain editable.
+  const showDoneControls = !isReadOnly;
+  const focusLabel = isReadOnly ? "Exercise focus" : "Today's focus";
+  const isClosedLog = dayMode === "finished";
+  const finishButtonLabel = isClosedLog ? "Save changes" : "Finish exercise";
+  const completedSetCount = sets.filter((set) => set.isDone).length;
+  const setProgressLabel = `${completedSetCount}/${sets.length} sets checked`;
+
   return (
     <>
-      <SectionCard>
-        <div className="space-y-4">
-          <div className="space-y-4">
-            {progression && (
-              <DetailBlock title="Progression">
-                <p>{progression}</p>
-              </DetailBlock>
-            )}
+      <div className="space-y-5">
+        {isReadOnly ? (
+          <MotionSection
+            className="rounded-xl border border-[#3FA8B6]/12 bg-[#10292E]/22 p-3"
+            variants={revealPanelVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <p className={UI_TEXT_EYEBROW_ACCENT}>
+              Preview mode
+            </p>
+            <p className={`mt-1 ${UI_TEXT_BODY}`}>
+              Review the targets now. Logging unlocks when this day becomes
+              current.
+            </p>
+          </MotionSection>
+        ) : null}
 
-            <DetailBlock title="Cue">
-              <p>{exercise.cue ?? "—"}</p>
-            </DetailBlock>
+        {isClosedLog ? (
+          <MotionSection
+            className="rounded-xl border border-[#3FA8B6]/12 bg-[#10292E]/22 p-3"
+            variants={revealPanelVariants}
+            initial="hidden"
+            animate="visible"
+          >
+            <p className={UI_TEXT_EYEBROW_ACCENT}>
+              Closed day log
+            </p>
+            <p className={`mt-1 ${UI_TEXT_BODY}`}>
+              Review or adjust the values you saved.
+            </p>
+          </MotionSection>
+        ) : null}
 
-            {advancedTechnique && (
-              <div className="space-y-1.5">
-                <div className="flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-semibold text-zinc-100">
-                    Advanced technique
-                  </h3>
+        <section className="rounded-xl border border-white/8 bg-white/[0.018] px-3 py-2.5">
+          <div className="flex items-center gap-2">
+            <Crosshair
+              aria-hidden="true"
+              className="h-4 w-4 text-[#8FDCE5]"
+            />
 
-                  {advancedTechniqueHelp && (
+            <p className={UI_TEXT_EYEBROW_ACCENT}>
+              {focusLabel}
+            </p>
+          </div>
+
+          <p className={`mt-1.5 ${UI_TEXT_BODY_STRONG}`}>
+            {exercise.cue ??
+              "Keep the movement controlled and log the work you actually perform."}
+          </p>
+        </section>
+
+        {advancedTechnique ? (
+          <section className="rounded-2xl border border-amber-300/14 bg-amber-300/[0.035] px-3 py-3">
+            <button
+              type="button"
+              aria-expanded={isMethodOpen}
+              onClick={() => setIsMethodOpen((current) => !current)}
+              className="flex w-full items-start justify-between gap-4 text-left"
+            >
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <Zap
+                    aria-hidden="true"
+                    className="h-4 w-4 text-amber-200"
+                  />
+
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-amber-200">
+                    Prescribed method
+                  </p>
+                </div>
+
+                <p className={`mt-1 ${UI_TEXT_BODY}`}>
+                  {isMethodOpen
+                    ? "Review the exact method before logging."
+                    : methodSummary}
+                </p>
+              </div>
+
+              <span className="shrink-0 pt-0.5 text-sm font-semibold text-amber-100">
+                {isMethodOpen ? "Hide" : "View"}
+              </span>
+            </button>
+
+            <AnimatePresence initial={false}>
+              {isMethodOpen ? (
+                <MotionDiv
+                  className="space-y-3"
+                  variants={revealPanelVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                >
+                  <div>
+                    <h3 className="text-sm font-semibold text-zinc-100">
+                      Method
+                    </h3>
+                    <p className={`mt-1 ${UI_TEXT_BODY}`}>
+                      {advancedTechnique}
+                    </p>
+                  </div>
+
+                  {advancedTechniqueHelp ? (
                     <button
                       type="button"
                       onClick={() => setIsAdvancedHelpOpen(true)}
-                      className="rounded-full border border-zinc-800 px-2.5 py-1 text-xs font-medium text-zinc-300 transition hover:border-zinc-700 hover:bg-zinc-900 hover:text-zinc-50"
+                      className="rounded-full border border-amber-300/22 px-3 py-1 text-xs font-semibold text-amber-100 transition hover:bg-amber-300/10"
                     >
-                      ? Help
+                      Method help
                     </button>
-                  )}
-                </div>
+                  ) : null}
+                </MotionDiv>
+              ) : null}
+            </AnimatePresence>
+          </section>
+        ) : null}
 
-                <p className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>
-                  {advancedTechnique}
+        <section className="space-y-3 rounded-2xl border border-white/10 bg-[#111518]/92 px-3.5 py-3.5 shadow-[0_14px_34px_rgba(0,0,0,0.24)]">
+          <div>
+            <div className="mb-2.5 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <ListChecks
+                  aria-hidden="true"
+                  className="h-4 w-4 text-[#8FDCE5]/72"
+                />
+
+                <p className={UI_TEXT_EYEBROW}>
+                  Targets
                 </p>
               </div>
-            )}
-
-            {extraCues.length > 0 && (
-              <div className="space-y-1.5">
-                <h3 className="text-sm font-semibold text-zinc-100">
-                  Extra cues
-                </h3>
-                <ul className="space-y-1">
-                  {extraCues.map((cue) => (
-                    <li
-                      key={cue}
-                      className={`text-sm leading-6 ${UI_TEXT_MUTED}`}
-                    >
-                      - {cue}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-3 border-t border-zinc-800/80 pt-3">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.12em] text-zinc-500">
-                {isReadOnly
-                  ? "Static target preview"
-                  : "Pre-filled from previous workout"}
-              </p>
-              <p className={`mt-1 text-sm leading-6 ${UI_TEXT_MUTED}`}>
-                {isReadOnly
-                  ? "Logging is disabled until this day becomes current."
-                  : "Update the numbers below based on today's performance."}
-              </p>
-            </div>
-
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">
-                Working rules
-              </p>
 
               <button
                 type="button"
                 onClick={() => setIsHelpOpen(true)}
-                className="rounded-full border border-zinc-800 px-2.5 py-1 text-xs font-medium text-zinc-300 transition hover:border-zinc-700 hover:bg-zinc-900 hover:text-zinc-50"
+                className="rounded-full border border-white/10 bg-white/[0.026] px-2.5 py-1 text-xs font-semibold text-[#8FDCE5] transition hover:border-[#3FA8B6]/28 hover:bg-[#10292E]/50"
               >
-                ? Help
+                Help
               </button>
             </div>
 
-            <div className="space-y-1.5">
-              <div className="grid grid-cols-[1.4fr_1fr_0.9fr_1.1fr] gap-3 text-center">
-                <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-                  Sets
-                </p>
-                <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-                  Tempo
-                </p>
-                <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-                  RIR
-                </p>
-                <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-                  Rest
-                </p>
-              </div>
-
-              <div className="grid grid-cols-[1.4fr_1fr_0.9fr_1.1fr] gap-3 text-center">
-                <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
-                  {cleanedPrescriptionDisplay}
-                </p>
-                <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
-                  {cleanedTempo}
-                </p>
-                <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
-                  {cleanedTargetRir}
-                </p>
-                <p className="text-base font-semibold leading-5 tracking-tight tabular-nums text-zinc-100">
-                  {cleanedRest}
-                </p>
-              </div>
+            <div className="grid grid-cols-4 divide-x divide-white/7 overflow-hidden rounded-xl bg-white/[0.024] px-1 py-1.5">
+              <TargetItem label="Sets" value={cleanedPrescriptionDisplay} />
+              <TargetItem label="Tempo" value={cleanedTempo} />
+              <TargetItem label="Rest" value={cleanedRest} />
+              <TargetItem label="RIR" value={cleanedTargetRir} />
             </div>
           </div>
 
-          <div className="space-y-0 border-t border-zinc-800/80 pt-2">
-            {/* Set rows may be runtime logs or read-only preview rows; updates are delegated upward. */}
-            {sets.map((set, index) => (
-              <SetRow
-                key={`${exercise.id}-set-${set.setNumber}`}
-                isReadOnly={isReadOnly}
-                setNumber={set.setNumber}
-                weight={set.weight}
-                reps={set.reps}
-                rir={set.rir}
-                isDone={set.isDone}
-                isLast={index === sets.length - 1}
-                onToggleDone={() => onToggleSetDone?.(set.setNumber)}
-                onSetFieldChange={(field, value) =>
-                  onUpdateSetField?.(set.setNumber, field, value)
-                }
-              />
-            ))}
-          </div>
+          <div className="space-y-2.5">
+            <div className="flex items-end justify-between gap-4 border-t border-white/7 pt-3">
+              <div>
+                <h2 className={UI_TEXT_SECTION_TITLE}>{logTitle}</h2>
+              </div>
 
-          {!isReadOnly ? (
-            <div className="flex flex-col gap-3 pt-1">
-              <PrimaryButton type="button" onClick={onCloseExercise}>
-                Close exercise
-              </PrimaryButton>
+              <p className="shrink-0 rounded-full border border-white/10 bg-white/[0.026] px-2.5 py-0.5 text-xs font-semibold text-[#A9B0B5]">
+                {showDoneControls ? setProgressLabel : `${sets.length} sets`}
+              </p>
             </div>
-          ) : null}
-        </div>
-      </SectionCard>
+
+            {!isReadOnly ? (
+              <MotionDiv
+                className="flex items-start justify-between gap-3 rounded-lg bg-white/[0.018] px-2.5 py-2"
+                variants={revealPanelVariants}
+                initial="hidden"
+                animate="visible"
+              >
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-[#D3D8DB]">
+                    {hasPreviousValues
+                      ? "Previous values available"
+                      : "No previous values yet"}
+                  </p>
+                  <p className={`mt-0.5 ${UI_TEXT_META}`}>
+                    {hasPreviousValues
+                      ? "Use your last logged work as a guide."
+                      : "Log today to build the next-cycle reference."}
+                  </p>
+                </div>
+              </MotionDiv>
+            ) : null}
+
+            <div className="flex flex-col gap-1.5">
+              {/* Set rows may be runtime logs or read-only preview rows; updates are delegated upward. */}
+              {sets.map((set, index) => (
+                <SetRow
+                  key={`${exercise.id}-set-${set.setNumber}`}
+                  isReadOnly={isReadOnly}
+                  showDoneControl={showDoneControls}
+                  setNumber={set.setNumber}
+                  weight={set.weight}
+                  reps={set.reps}
+                  rir={set.rir}
+                  isDone={set.isDone}
+                  isLast={index === sets.length - 1}
+                  onToggleDone={() => onToggleSetDone?.(set.setNumber)}
+                  onSetFieldChange={(field, value) =>
+                    onUpdateSetField?.(set.setNumber, field, value)
+                  }
+                />
+              ))}
+            </div>
+
+            {!isReadOnly ? (
+              <div className="space-y-2 pt-1">
+                <p className={`text-center ${UI_TEXT_META}`}>
+                  {setProgressLabel}
+                </p>
+
+                <button
+                  type="button"
+                  onClick={onCloseExercise}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5EC7D5] px-5 py-3 text-sm font-semibold text-[#031014] shadow-[0_10px_24px_rgba(63,168,182,0.14)] transition duration-150 ease-out hover:bg-[#6DD6E2] active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100"
+                >
+                  {finishButtonLabel}
+                  <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                </button>
+              </div>
+            ) : null}
+          </div>
+        </section>
+
+        {hasCoachNotes ? (
+          <section className="rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3">
+            <button
+              type="button"
+              aria-expanded={isCoachNotesOpen}
+              onClick={() => setIsCoachNotesOpen((current) => !current)}
+              className="flex w-full items-start justify-between gap-4 text-left"
+            >
+              <div>
+                <h2 className={UI_TEXT_CARD_TITLE}>
+                  Coach notes
+                </h2>
+                <p className={`mt-1 ${UI_TEXT_BODY}`}>
+                  Progression and extra cues for this exercise.
+                </p>
+              </div>
+
+              <span className="pt-1 text-sm font-semibold text-[#8FDCE5]">
+                {isCoachNotesOpen ? "Hide" : "View"}
+              </span>
+            </button>
+
+            <AnimatePresence initial={false}>
+              {isCoachNotesOpen ? (
+                <MotionDiv
+                  className="space-y-4"
+                  variants={revealPanelVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                >
+                  {progression ? (
+                    <DetailBlock title="Progression">
+                      <p>{progression}</p>
+                    </DetailBlock>
+                  ) : null}
+
+                  {extraCues.length > 0 ? (
+                    <DetailBlock
+                      title="Extra cues"
+                      hasDivider={Boolean(progression)}
+                    >
+                      <ul className="space-y-1">
+                        {extraCues.map((cue) => (
+                          <li key={cue}>- {cue}</li>
+                        ))}
+                      </ul>
+                    </DetailBlock>
+                  ) : null}
+                </MotionDiv>
+              ) : null}
+            </AnimatePresence>
+          </section>
+        ) : null}
+      </div>
 
       <HelpSheet
         isOpen={isHelpOpen}
@@ -231,7 +434,7 @@ export default function ExerciseWorkflowCard({
         onClose={() => setIsHelpOpen(false)}
       />
 
-      {advancedTechniqueHelp && (
+      {advancedTechniqueHelp ? (
         <HelpSheet
           isOpen={isAdvancedHelpOpen}
           title={advancedTechniqueHelp.title}
@@ -239,7 +442,7 @@ export default function ExerciseWorkflowCard({
           sections={advancedTechniqueHelp.sections}
           onClose={() => setIsAdvancedHelpOpen(false)}
         />
-      )}
+      ) : null}
     </>
   );
 }

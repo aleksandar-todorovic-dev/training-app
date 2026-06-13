@@ -1,45 +1,53 @@
-function CheckBox({ isDone = false }) {
+import { motion } from "motion/react";
+
+import { softPressTap } from "../../styles/motion";
+
+const MotionButton = motion.button;
+
+function DoneControl({ isDone = false }) {
   return (
     <span
-      className={`flex h-5 w-5 items-center justify-center rounded border transition ${
+      className={`inline-flex min-h-8 w-full items-center justify-center rounded-full border px-2 text-xs font-semibold transition duration-150 ease-out motion-reduce:transition-none ${
         isDone
-          ? "border-emerald-500 bg-emerald-500/20 text-emerald-300"
-          : "border-zinc-700 bg-zinc-950/40"
+          ? "border-[#8FDCE5] bg-[#5EC7D5] text-[#031014]"
+          : "border-white/10 bg-white/[0.028] text-[#D3D8DB]"
       }`}
     >
-      {isDone ? "✓" : null}
+      Done
     </span>
   );
 }
 
-function MetricCell({ label, name, value, onChange, isReadOnly = false }) {
+function MetricField({ label, name, value, onChange, isReadOnly = false }) {
+  const displayValue = value || "—";
+  const inputValue = value === "—" ? "" : value;
+
   if (isReadOnly) {
     return (
-      <div className="min-w-0 text-center">
-        <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
+      <div className="min-w-0 px-1 py-1.5 text-center">
+        <span className="block text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
           {label}
-        </p>
-        <p className="mt-1 text-base font-semibold tabular-nums text-zinc-100">
-          {value || "—"}
-        </p>
+        </span>
+        <span className="mt-0.5 block whitespace-nowrap text-sm font-semibold tabular-nums text-[#F4F7F8]">
+          {displayValue}
+        </span>
       </div>
     );
   }
 
   return (
-    <label className="min-w-0 text-center">
-      <span className="block text-[11px] uppercase tracking-[0.12em] text-zinc-500">
+    <label className="min-w-0 px-1 py-1.5 text-center">
+      <span className="block text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
         {label}
       </span>
-
       <input
         name={name}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
+        value={inputValue}
+        onChange={(event) => onChange?.(event.target.value)}
         inputMode="decimal"
         autoComplete="off"
         placeholder="—"
-        className="mt-1 w-full bg-transparent text-center text-base font-semibold tabular-nums text-zinc-100 outline-none placeholder:text-zinc-100"
+        className="mt-0.5 w-full min-w-0 bg-transparent text-center text-sm font-semibold tabular-nums text-[#F4F7F8] outline-none placeholder:text-[#59636B] focus:text-[#8FDCE5]"
       />
     </label>
   );
@@ -63,51 +71,70 @@ export default function SetRow({
   onToggleDone,
   onSetFieldChange,
   isReadOnly = false,
+  showDoneControl = true,
 }) {
+  const rowGridClass = showDoneControl
+    ? "grid-cols-[1.5rem_minmax(0,1fr)_3.75rem]"
+    : "grid-cols-[1.5rem_minmax(0,1fr)]";
+
   return (
     <div
-      className={`grid grid-cols-[40px_1fr_1fr_1fr_24px] items-center gap-2 py-3 ${
-        !isLast ? "border-b border-zinc-800/80" : ""
-      }`}
+      className={[
+        `grid ${rowGridClass} items-center gap-0.5 rounded-xl border px-2.5 py-2 transition-colors duration-200 ease-out motion-reduce:transition-none`,
+        isDone
+          ? "border-[#5EC7D5]/42 bg-[#10292E]/46"
+          : "border-white/8 bg-[#0B0F11]/64",
+        !isLast ? "" : "",
+      ].join(" ")}
     >
-      <span className="text-sm font-semibold tabular-nums text-zinc-100">
-        S{setNumber}
-      </span>
+      <div className="min-w-0">
+        <p className="text-[0.6rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
+          Set
+        </p>
+        <p className="mt-0.5 text-sm font-semibold tabular-nums text-[#F4F7F8]">
+          {setNumber}
+        </p>
+      </div>
 
-      <MetricCell
-        label="Kg"
-        name={`set-${setNumber}-weight`}
-        value={weight}
-        isReadOnly={isReadOnly}
-        onChange={(value) => onSetFieldChange?.("weight", value)}
-      />
-      <MetricCell
-        label="Reps"
-        name={`set-${setNumber}-reps`}
-        value={reps}
-        isReadOnly={isReadOnly}
-        onChange={(value) => onSetFieldChange?.("reps", value)}
-      />
-      <MetricCell
-        label="RIR"
-        name={`set-${setNumber}-rir`}
-        value={rir}
-        isReadOnly={isReadOnly}
-        onChange={(value) => onSetFieldChange?.("rir", value)}
-      />
+      <div className="mr-1 grid min-w-0 grid-cols-3 divide-x divide-white/7 overflow-hidden rounded-lg bg-white/[0.024]">
+        <MetricField
+          label="Kg"
+          name={`set-${setNumber}-weight`}
+          value={weight}
+          isReadOnly={isReadOnly}
+          onChange={(value) => onSetFieldChange?.("weight", value)}
+        />
 
-      <button
-        type="button"
-        aria-label={`Mark set ${setNumber} ${isDone ? "not done" : "done"}`}
-        aria-pressed={isDone}
-        disabled={isReadOnly}
-        onClick={isReadOnly ? undefined : onToggleDone}
-        className={`mt-4.5 flex items-center justify-center ${
-          isReadOnly ? "cursor-not-allowed opacity-50" : ""
-        }`}
-      >
-        <CheckBox isDone={isDone} />
-      </button>
+        <MetricField
+          label="Reps"
+          name={`set-${setNumber}-reps`}
+          value={reps}
+          isReadOnly={isReadOnly}
+          onChange={(value) => onSetFieldChange?.("reps", value)}
+        />
+
+        <MetricField
+          label="RIR"
+          name={`set-${setNumber}-rir`}
+          value={rir}
+          isReadOnly={isReadOnly}
+          onChange={(value) => onSetFieldChange?.("rir", value)}
+        />
+      </div>
+
+      {showDoneControl ? (
+        <MotionButton
+          type="button"
+          aria-label={`Mark set ${setNumber} ${isDone ? "not done" : "done"}`}
+          aria-pressed={isDone}
+          disabled={isReadOnly}
+          onClick={isReadOnly ? undefined : onToggleDone}
+          className={isReadOnly ? "cursor-not-allowed opacity-50" : ""}
+          whileTap={isReadOnly ? undefined : softPressTap}
+        >
+          <DoneControl isDone={isDone} />
+        </MotionButton>
+      ) : null}
     </div>
   );
 }

@@ -1,16 +1,34 @@
-import PrimaryButton from "../common/PrimaryButton";
-import SecondaryButton from "../common/SecondaryButton";
-import { UI_TEXT_MUTED, UI_TITLE } from "../../styles/ui";
+import { AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react";
+import { motion } from "motion/react";
+import {
+  UI_SHEET_BODY,
+  UI_SHEET_FOOTER,
+  UI_SHEET_HEADER,
+  UI_SHEET_OVERLAY,
+  UI_SHEET_PANEL,
+  UI_TEXT_BODY,
+  UI_TEXT_BODY_STRONG,
+  UI_TEXT_CARD_TITLE,
+  UI_TEXT_EYEBROW_ACCENT,
+  UI_TEXT_META,
+} from "../../styles/ui";
+import {
+  sheetOverlayVariants,
+  sheetPanelVariants,
+} from "../../styles/motion";
+
+const MotionDiv = motion.div;
 
 /**
  * Confirmation sheet for closing the active training day.
  *
  * Runtime note:
- * This component presents finish-day guidance and warning details only.
+ * This component presents finish-day guidance and heads-up details only.
  * The actual runtime state change is delegated upward through `onConfirmFinish`.
  *
- * Warning note:
- * Missing-value warnings are informational. They do not block finishing the day.
+ * Heads-up note:
+ * Missing-value and empty-day messages are informational. They do not block
+ * finishing the day because partial and empty closed days are valid.
  */
 export default function FinishDaySheet({
   dayDetails,
@@ -22,162 +40,197 @@ export default function FinishDaySheet({
 }) {
   if (!dayDetails) return null;
 
-  const hasWarnings = missingValueWarningSummary?.hasWarnings;
-  const isNoCompletedSetsWarning =
-    missingValueWarningSummary?.hasNoCompletedSetsWarning;
-  const isBaselineWarning =
-    missingValueWarningSummary?.warningType === "baseline";
+  const warningSummary = missingValueWarningSummary ?? {};
+  const hasWarnings = Boolean(warningSummary.hasWarnings);
+  const hasNoLoggedValues = Boolean(warningSummary.hasNoCompletedSetsWarning);
+  const isBaselineWarning = warningSummary.warningType === "baseline";
+
+  const warningTitle = hasNoLoggedValues
+    ? "No set values logged yet"
+    : isBaselineWarning
+      ? "Baseline heads-up"
+      : "Carry-over heads-up";
+
+  const warningText = hasNoLoggedValues
+    ? "You can still close this day. Earlier valid references may still be used."
+    : isBaselineWarning
+      ? "Some logged sets have empty fields. Reps, time, and RIR help create a useful baseline for future cycles."
+      : "Some logged sets have empty fields. The next cycle will use the latest valid values when it can.";
+
+  const warningDetails = [
+    warningSummary.missingMainImportantCount > 0
+      ? `Main missing reps or RIR fields: ${warningSummary.missingMainImportantCount}`
+      : null,
+    warningSummary.missingCoreImportantCount > 0
+      ? `Core missing reps/time or RIR fields: ${warningSummary.missingCoreImportantCount}`
+      : null,
+    warningSummary.missingMainLoadCount > 0
+      ? `Main weight fields missing: ${warningSummary.missingMainLoadCount}`
+      : null,
+    warningSummary.missingCoreLoadCount > 0
+      ? `Core load fields missing: ${warningSummary.missingCoreLoadCount}`
+      : null,
+  ].filter(Boolean);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-zinc-950/80 px-4 pb-4 pt-10">
-      <div className="flex max-h-[88vh] w-full max-w-md flex-col rounded-2xl border border-zinc-800 bg-zinc-950 shadow-2xl">
-        <div className="flex flex-col gap-4 border-b border-zinc-800 p-4">
-          <div className="flex flex-col gap-2">
-            <p className="text-sm font-medium text-zinc-500">
-              {dayDetails.label} — {dayDetails.name}
-            </p>
+    <MotionDiv
+      className={UI_SHEET_OVERLAY}
+      variants={sheetOverlayVariants}
+      initial="hidden"
+      animate="visible"
+      exit="exit"
+    >
+      <MotionDiv
+        className={UI_SHEET_PANEL}
+        variants={sheetPanelVariants}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="finish-day-sheet-title"
+      >
+        <header className={UI_SHEET_HEADER}>
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className={UI_TEXT_EYEBROW_ACCENT}>Finish day</p>
 
-            <h2 className={UI_TITLE}>Finish day?</h2>
+              <h2
+                id="finish-day-sheet-title"
+                className="mt-1.5 text-lg font-semibold leading-tight tracking-tight text-zinc-50"
+              >
+                Close training day?
+              </h2>
 
-            <p className={UI_TEXT_MUTED}>{progressText}</p>
+              <p className={`mt-0.5 ${UI_TEXT_META}`}>
+                {dayDetails.label} - {dayDetails.name}
+              </p>
+            </div>
+
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#3FA8B6]/18 bg-[#10292E]/42 text-[#8FDCE5]">
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+            </div>
           </div>
-        </div>
 
-        <div className="min-h-0 flex-1 overflow-y-auto p-4">
-          <div className="space-y-5">
-            <section className="space-y-2">
-              <h3 className="text-sm font-semibold text-zinc-100">
-                Before you finish
-              </h3>
+          <p
+            className={`mt-2 rounded-xl border border-[#3FA8B6]/12 bg-[#10292E]/24 px-3 py-2 ${UI_TEXT_BODY}`}
+          >
+            {progressText}. Closing this day moves the cycle forward.
+          </p>
+        </header>
 
-              <p className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>
-                Finishing this day closes it for the current cycle and moves the
-                plan forward.
-              </p>
+        <div className={UI_SHEET_BODY}>
+          <div className="flex flex-col gap-3">
+            <section className="rounded-xl bg-white/[0.014] px-3 py-3">
+              <h3 className={UI_TEXT_CARD_TITLE}>Before you finish</h3>
 
-              <p className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>
-                Completed set checkboxes decide what was actually performed.
-                Unchecked sets are treated as not performed, not as missing
-                data.
-              </p>
+              <ul className={`mt-2 space-y-1.5 ${UI_TEXT_BODY}`}>
+                <li className="flex gap-2">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8FDCE5]/65" />
+                  <span>Checked sets count as performed.</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8FDCE5]/65" />
+                  <span>Unchecked sets stay unperformed, not missing.</span>
+                </li>
+                <li className="flex gap-2">
+                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8FDCE5]/65" />
+                  <span>
+                    Partial days are valid and the cycle order stays stable.
+                  </span>
+                </li>
+              </ul>
             </section>
 
-            {/* Warnings explain carry-over/baseline consequences but do not block confirmation. */}
             {hasWarnings ? (
-              <section className="space-y-3 border-t border-amber-500/20 pt-5">
-                <h3 className="text-sm font-semibold text-amber-200">
-                  {isNoCompletedSetsWarning
-                    ? "No completed sets yet"
-                    : isBaselineWarning
-                      ? "Baseline warning"
-                      : "Carry-over warning"}
-                </h3>
+              <section className="rounded-2xl border border-amber-300/16 bg-amber-300/[0.035] px-3 py-3">
+                <div className="flex gap-2.5">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-amber-300/22 bg-amber-300/8 text-amber-200">
+                    <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+                  </div>
 
-                {isNoCompletedSetsWarning ? (
-                  <p className="text-sm leading-6 text-zinc-300">
-                    {isBaselineWarning
-                      ? "No sets are marked as completed for this day. You can still finish it, but this day will not create a useful baseline for future carry-over."
-                      : "No sets are marked as completed for this day. You can still finish it as skipped or minimal, but this cycle will not add new carry-over data for this day."}
-                  </p>
-                ) : (
-                  <>
-                    <p className="text-sm leading-6 text-zinc-300">
-                      {isBaselineWarning
-                        ? "Some completed sets are missing values. Reps/time and RIR help create a useful baseline for future cycles."
-                        : "Some completed sets are missing values. When possible, empty fields may fall back to the latest valid value from a previous cycle."}
+                  <div className="min-w-0">
+                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-amber-200">
+                      {warningTitle}
                     </p>
 
-                    {missingValueWarningSummary.missingMainImportantCount >
-                    0 ? (
-                      <p className="text-sm leading-6 text-zinc-400">
-                        Main exercise missing fields:{" "}
-                        {missingValueWarningSummary.missingMainImportantCount}{" "}
-                        reps or RIR field
-                        {missingValueWarningSummary.missingMainImportantCount ===
-                        1
-                          ? ""
-                          : "s"}
-                        .
-                      </p>
+                    <p className={`mt-1 ${UI_TEXT_BODY_STRONG}`}>
+                      {warningText}
+                    </p>
+
+                    {!hasNoLoggedValues && warningDetails.length ? (
+                      <ul
+                        className={`mt-1.5 flex flex-col gap-1 ${UI_TEXT_META}`}
+                      >
+                        {warningDetails.map((detail) => (
+                          <li key={detail}>{detail}</li>
+                        ))}
+                      </ul>
                     ) : null}
 
-                    {missingValueWarningSummary.missingCoreImportantCount >
-                    0 ? (
-                      <p className="text-sm leading-6 text-zinc-400">
-                        Core missing fields:{" "}
-                        {missingValueWarningSummary.missingCoreImportantCount}{" "}
-                        reps/time or RIR field
-                        {missingValueWarningSummary.missingCoreImportantCount ===
-                        1
-                          ? ""
-                          : "s"}
-                        .
-                      </p>
-                    ) : null}
-
-                    {missingValueWarningSummary.missingMainLoadCount > 0 ? (
-                      <p className="text-sm leading-6 text-zinc-400">
-                        Main weight fields missing:{" "}
-                        {missingValueWarningSummary.missingMainLoadCount}. This
-                        is only a warning because some work may be bodyweight or
-                        unloaded.
-                      </p>
-                    ) : null}
-
-                    {missingValueWarningSummary.missingCoreLoadCount > 0 ? (
-                      <p className="text-sm leading-6 text-zinc-400">
-                        Core load fields missing:{" "}
-                        {missingValueWarningSummary.missingCoreLoadCount}. This
-                        is only a warning because some core work may be
-                        unloaded.
-                      </p>
-                    ) : null}
-                  </>
-                )}
-
-                <p className="text-sm leading-6 text-zinc-400">
-                  You can still finish the day.
-                </p>
+                    <p className="mt-1.5 text-sm font-semibold text-amber-100">
+                      You can still finish the day.
+                    </p>
+                  </div>
+                </div>
               </section>
-            ) : null}
+            ) : (
+              <section className="rounded-2xl border border-[#3FA8B6]/14 bg-[#10292E]/22 px-3 py-3">
+                <div className="flex gap-2.5">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[#3FA8B6]/18 bg-[#10292E]/42 text-[#8FDCE5]">
+                    <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+                  </div>
 
-            <section className="space-y-2 border-t border-zinc-800 pt-5">
-              <h3 className="text-sm font-semibold text-zinc-100">
-                Partial days are okay
-              </h3>
+                  <div className="min-w-0">
+                    <p className={UI_TEXT_EYEBROW_ACCENT}>
+                      Ready to close
+                    </p>
 
-              <p className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>
-                A partial day will not break the cycle. The app keeps the order
-                stable and moves you to the next training day.
-              </p>
-            </section>
+                    <p className={`mt-1 ${UI_TEXT_BODY_STRONG}`}>
+                      Your logged work is saved for this day.
+                    </p>
+                  </div>
+                </div>
+              </section>
+            )}
 
             {hasCoreBlock ? (
-              <section className="space-y-2 border-t border-zinc-800 pt-5">
-                <h3 className="text-sm font-semibold text-zinc-100">
-                  Core is separate
-                </h3>
+              <section className="rounded-2xl border border-white/8 bg-white/[0.014] px-3 py-3">
+                <div className="flex gap-2.5">
+                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-violet-400/20 bg-violet-500/8 text-violet-200">
+                    <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+                  </div>
 
-                <p className={`text-sm leading-6 ${UI_TEXT_MUTED}`}>
-                  Core work is tracked separately from the main exercise count.
-                  Finishing the day does not force core to count like a regular
-                  exercise.
-                </p>
+                  <div className="min-w-0">
+                    <h3 className={UI_TEXT_CARD_TITLE}>
+                      Core is tracked separately
+                    </h3>
+
+                    <p className={`mt-1 ${UI_TEXT_BODY}`}>
+                      Main work and core work stay separate in your recap.
+                    </p>
+                  </div>
+                </div>
               </section>
             ) : null}
           </div>
         </div>
 
-        <div className="flex flex-col gap-3 border-t border-zinc-800 p-4">
-          <PrimaryButton type="button" onClick={onConfirmFinish}>
-            Confirm finish
-          </PrimaryButton>
+        <footer className={UI_SHEET_FOOTER}>
+          <button
+            type="button"
+            onClick={onConfirmFinish}
+            className="inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] transition duration-150 ease-out hover:bg-[#6DD6E2] active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100"
+          >
+            Finish and move on
+          </button>
 
-          <SecondaryButton onClick={onClose} className="w-full">
-            Keep training
-          </SecondaryButton>
-        </div>
-      </div>
-    </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="mt-2 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-white/10 bg-white/[0.026] px-4 text-sm font-semibold text-zinc-300 transition duration-150 ease-out hover:border-white/16 hover:bg-white/[0.045] active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100"
+          >
+            Keep logging
+          </button>
+        </footer>
+      </MotionDiv>
+    </MotionDiv>
   );
 }

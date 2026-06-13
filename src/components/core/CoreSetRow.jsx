@@ -1,3 +1,71 @@
+import { motion } from "motion/react";
+
+import { softPressTap } from "../../styles/motion";
+
+const MotionButton = motion.button;
+
+function DoneControl({ isDone = false }) {
+  return (
+    <span
+      className={`inline-flex min-h-8 w-full items-center justify-center rounded-full border px-2 text-xs font-semibold transition duration-150 ease-out motion-reduce:transition-none ${
+        isDone
+          ? "border-[#C4B5FD]/78 bg-[#6D28D9] text-white"
+          : "border-white/10 bg-white/[0.028] text-[#D3D8DB]"
+      }`}
+    >
+      Done
+    </span>
+  );
+}
+
+function MetricField({
+  label,
+  name,
+  value,
+  onChange,
+  isReadOnly = false,
+  isTarget = false,
+}) {
+  const displayValue = value || "—";
+  const inputValue = value === "—" ? "" : value;
+
+  if (isReadOnly || isTarget) {
+    return (
+      <div className="min-w-0 px-1 py-1.5 text-center">
+        <span className="block text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
+          {label}
+        </span>
+        <span
+          className={`mt-0.5 block whitespace-nowrap font-semibold tabular-nums ${
+            isTarget
+              ? "text-[0.8rem] tracking-[-0.02em] text-[#D3D8DB]"
+              : "text-sm text-[#F4F7F8]"
+          }`}
+        >
+          {displayValue}
+        </span>
+      </div>
+    );
+  }
+
+  return (
+    <label className="min-w-0 px-1 py-1.5 text-center">
+      <span className="block text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
+        {label}
+      </span>
+      <input
+        name={name}
+        value={inputValue}
+        onChange={(event) => onChange?.(event.target.value)}
+        inputMode="decimal"
+        autoComplete="off"
+        placeholder="—"
+        className="mt-0.5 w-full min-w-0 bg-transparent text-center text-sm font-semibold tabular-nums text-[#F4F7F8] outline-none placeholder:text-[#59636B] focus:text-[#C4B5FD]"
+      />
+    </label>
+  );
+}
+
 /**
  * Displays one prescribed core set row and forwards row actions upward.
  *
@@ -6,53 +74,6 @@
  * core set values and `isDone` state, then forwards input changes and
  * done-toggle intent to the parent workflow.
  */
-function CheckBox({ isDone = false }) {
-  return (
-    <span
-      className={`flex h-5 w-5 items-center justify-center rounded border transition ${
-        isDone
-          ? "border-emerald-500 bg-emerald-500/20 text-emerald-300"
-          : "border-zinc-700 bg-zinc-950/40"
-      }`}
-    >
-      {isDone ? "✓" : null}
-    </span>
-  );
-}
-
-function MetricCell({ label, name, value, onChange, isEditable = true }) {
-  if (!isEditable) {
-    return (
-      <div className="min-w-0 text-center">
-        <p className="text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-          {label}
-        </p>
-        <p className="mt-1 text-base font-semibold tabular-nums text-zinc-100">
-          {value || "—"}
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <label className="min-w-0 text-center">
-      <span className="block text-[11px] uppercase tracking-[0.12em] text-zinc-500">
-        {label}
-      </span>
-
-      <input
-        name={name}
-        value={value}
-        onChange={(event) => onChange?.(event.target.value)}
-        inputMode="decimal"
-        autoComplete="off"
-        placeholder="—"
-        className="mt-1 w-full bg-transparent text-center text-base font-semibold tabular-nums text-zinc-100 outline-none placeholder:text-zinc-100"
-      />
-    </label>
-  );
-}
-
 export default function CoreSetRow({
   setNumber,
   target,
@@ -60,64 +81,79 @@ export default function CoreSetRow({
   load = "—",
   logged = "—",
   valueLabel = "Reps",
-  effort = "1-2",
+  effort = "—",
   tracksLoad = false,
   isLast = false,
   isDone = false,
+  showDoneControl = true,
   onToggleDone,
   onSetFieldChange,
 }) {
+  const loggedField = valueLabel === "Time" ? "time" : "reps";
+
+  const rowGridClass = showDoneControl
+    ? "grid-cols-[1.5rem_minmax(0,1fr)_3.75rem]"
+    : "grid-cols-[1.5rem_minmax(0,1fr)]";
+
   return (
     <div
-      className={`grid grid-cols-[40px_1fr_1fr_1fr_24px] items-center gap-2 py-3 ${
-        !isLast ? "border-b border-zinc-800/80" : ""
-      }`}
+      className={[
+        `grid ${rowGridClass} items-center gap-0.5 rounded-xl border px-2.5 py-2 transition-colors duration-200 ease-out motion-reduce:transition-none`,
+        isDone
+          ? "border-[#A78BFA]/40 bg-[#4C1D95]/22"
+          : "border-white/8 bg-[#0B0F11]/64",
+        !isLast ? "" : "",
+      ].join(" ")}
     >
-      <span className="text-sm font-semibold tabular-nums text-zinc-100">
-        S{setNumber}
-      </span>
+      <div className="min-w-0">
+        <p className="text-[0.6rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
+          Set
+        </p>
+        <p className="mt-0.5 text-sm font-semibold tabular-nums text-[#F4F7F8]">
+          {setNumber}
+        </p>
+      </div>
 
-      {tracksLoad ? (
-        <MetricCell
-          label="Kg"
+      <div className="mr-1 grid min-w-0 grid-cols-3 divide-x divide-white/7 overflow-hidden rounded-lg bg-white/[0.024]">
+        <MetricField
+          label={tracksLoad ? "Kg" : "Target"}
           name={`core-set-${setNumber}-load`}
-          value={load}
-          isEditable={!isReadOnly}
+          value={tracksLoad ? load : target}
+          isReadOnly={isReadOnly}
+          isTarget={!tracksLoad}
           onChange={(value) => onSetFieldChange?.("load", value)}
         />
-      ) : (
-        <MetricCell label="Target" value={target} isEditable={false} />
-      )}
-      <MetricCell
-        label={valueLabel}
-        name={`core-set-${setNumber}-${valueLabel.toLowerCase()}`}
-        value={logged}
-        isEditable={!isReadOnly}
-        onChange={(value) =>
-          onSetFieldChange?.(valueLabel === "Time" ? "time" : "reps", value)
-        }
-      />
 
-      <MetricCell
-        label="RIR"
-        name={`core-set-${setNumber}-rir`}
-        value={effort}
-        isEditable={!isReadOnly}
-        onChange={(value) => onSetFieldChange?.("rir", value)}
-      />
+        <MetricField
+          label={valueLabel}
+          name={`core-set-${setNumber}-${loggedField}`}
+          value={logged}
+          isReadOnly={isReadOnly}
+          onChange={(value) => onSetFieldChange?.(loggedField, value)}
+        />
 
-      <button
-        type="button"
-        aria-label={`Mark core set ${setNumber} ${isDone ? "not done" : "done"}`}
-        aria-pressed={isDone}
-        disabled={isReadOnly}
-        onClick={isReadOnly ? undefined : onToggleDone}
-        className={`mt-4.5 flex items-center justify-center ${
-          isReadOnly ? "cursor-not-allowed opacity-50" : ""
-        }`}
-      >
-        <CheckBox isDone={isDone} />
-      </button>
+        <MetricField
+          label="RIR"
+          name={`core-set-${setNumber}-rir`}
+          value={effort}
+          isReadOnly={isReadOnly}
+          onChange={(value) => onSetFieldChange?.("rir", value)}
+        />
+      </div>
+
+      {showDoneControl ? (
+        <MotionButton
+          type="button"
+          aria-label={`Mark core set ${setNumber} ${isDone ? "not done" : "done"}`}
+          aria-pressed={isDone}
+          disabled={isReadOnly}
+          onClick={isReadOnly ? undefined : onToggleDone}
+          className={isReadOnly ? "cursor-not-allowed opacity-50" : ""}
+          whileTap={isReadOnly ? undefined : softPressTap}
+        >
+          <DoneControl isDone={isDone} />
+        </MotionButton>
+      ) : null}
     </div>
   );
 }

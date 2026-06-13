@@ -85,3 +85,47 @@ export function buildCarryOverSetValues({
     }),
   };
 }
+
+/**
+ * Checks whether an exercise has at least one useful previous logged value.
+ *
+ * Runtime note:
+ * This mirrors carry-over lookup rules without building or mutating row values.
+ * It reads previous cycles only and treats partial previous data as valid.
+ */
+export function hasCarryOverValuesForExercise({
+  cycles,
+  currentCycleNumber,
+  dayId,
+  exerciseId,
+  setCount,
+}) {
+  if (
+    !Number.isInteger(currentCycleNumber) ||
+    currentCycleNumber <= 1 ||
+    !Number.isInteger(setCount) ||
+    setCount <= 0
+  ) {
+    return false;
+  }
+
+  for (let setIndex = 1; setIndex <= setCount; setIndex += 1) {
+    const hasFieldValue = CARRY_OVER_FIELDS.some(
+      (field) =>
+        getLatestCarryOverFieldValue({
+          cycles,
+          currentCycleNumber,
+          dayId,
+          exerciseId,
+          setIndex,
+          field,
+        }) !== "",
+    );
+
+    if (hasFieldValue) {
+      return true;
+    }
+  }
+
+  return false;
+}

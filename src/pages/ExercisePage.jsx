@@ -1,15 +1,16 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
+
 import { useAppState } from "../state/useAppState";
 import { APP_ACTIONS } from "../state/appActions";
 import AppShell from "../components/layout/AppShell";
 import SectionCard from "../components/layout/SectionCard";
-import BackButton from "../components/common/BackButton";
-import { UI_STACK_LG, UI_STACK_MD, UI_TEXT_MUTED } from "../styles/ui";
+import { UI_TEXT_MUTED } from "../styles/ui";
 import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getExerciseById } from "../data/exercises";
 import ExerciseWorkflowCard from "../components/exercise/ExerciseWorkflowCard";
 import { sanitizeSetInputValue } from "../utils/runtime/setInputHelpers";
+import { hasCarryOverValuesForExercise } from "../utils/runtime/carryOverHelpers";
 import { getDayMode } from "../utils/runtime/dayModeHelpers";
 
 /**
@@ -49,6 +50,9 @@ export default function ExercisePage() {
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
   const exercise = getExerciseById(planId, exerciseId);
+  const isExerciseInDay = Boolean(
+    dayDetails?.exerciseIds?.includes(exerciseId),
+  );
 
   // Read the current runtime cycle/day/exercise state for this route.
   const planProgress = state.progressByPlan[planId];
@@ -73,7 +77,10 @@ export default function ExercisePage() {
       })
     : "inactive";
 
+  // Upcoming mode is preview-only: no input edits, done toggles, or close action.
   const isUpcomingPreview = dayMode === "upcoming";
+  const isActiveExerciseRoute = dayMode === "active" && isExerciseInDay;
+  const needsDayEntryFirst = isActiveExerciseRoute && !dayLog;
 
   // Adapt runtime set rows to the display shape expected by ExerciseWorkflowCard.
   const runtimeSets =
@@ -89,6 +96,19 @@ export default function ExercisePage() {
 
   // Upcoming days use static preview rows. Active/finished days use runtime rows.
   const displaySets = isUpcomingPreview ? previewSets : runtimeSets;
+
+  // Previous-values UI must reflect historical carry-over availability only.
+  // Today's editable rows are intentionally ignored so typing new values does not
+  // turn the message into "Previous values available".
+  const hasPreviousValues =
+    !isUpcomingPreview &&
+    hasCarryOverValuesForExercise({
+      cycles: planProgress?.cycles,
+      currentCycleNumber,
+      dayId: dayDetails?.id,
+      exerciseId,
+      setCount: exercise?.setCount,
+    });
 
   // Handler guards are a safety boundary: upcoming previews may render the
   // target structure, but they must not dispatch runtime updates.
@@ -153,15 +173,17 @@ export default function ExercisePage() {
     navigate(`/plan/${planId}/day/${dayId}`);
   }
 
-  if (!plan || !dayDetails || !exercise) {
+  if (!plan || !dayDetails || !exercise || !isExerciseInDay) {
     return (
       <AppShell>
-        <div className={UI_STACK_LG}>
-          <div className="flex justify-start">
-            <BackButton to={planId ? `/plan/${planId}/cycle` : "/"}>
-              Back
-            </BackButton>
-          </div>
+        <div className="space-y-6">
+          <Link
+            to={planId ? `/plan/${planId}/cycle` : "/"}
+            className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 transition hover:text-cyan-100"
+          >
+            <span aria-hidden="true">←</span>
+            Back
+          </Link>
 
           <SectionCard>
             <p className={UI_TEXT_MUTED}>
@@ -173,46 +195,73 @@ export default function ExercisePage() {
     );
   }
 
+  if (needsDayEntryFirst) {
+    return (
+      <AppShell>
+        <div className="space-y-5">
+          <Link
+            to={`/plan/${planId}/day/${dayId}`}
+            className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
+          >
+            <span aria-hidden="true">←</span>
+            Back to Day
+          </Link>
+
+          <SectionCard>
+            <p className={UI_TEXT_MUTED}>
+              {currentCycle
+                ? "Open the day first to prepare today's exercise log."
+                : "Start a cycle before logging this exercise."}
+            </p>
+          </SectionCard>
+        </div>
+      </AppShell>
+    );
+  }
+
   return (
     <AppShell>
-      <div className={UI_STACK_LG}>
-        <div className="flex justify-start">
-          <BackButton to={`/plan/${planId}/day/${dayId}`}>
-            Back to Day
-          </BackButton>
-        </div>
+      <div className="space-y-5">
+        <header className="space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <Link
+              to={`/plan/${planId}/day/${dayId}`}
+              className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
+            >
+              <span aria-hidden="true">←</span>
+              Back to Day
+            </Link>
 
-        <div className={UI_STACK_MD}>
-          <p className={UI_TEXT_MUTED}>
-            {dayDetails.label} — {dayDetails.name}
-          </p>
+            <p className="flex min-w-0 items-center justify-end gap-2 text-right text-xs font-medium text-zinc-500">
+              <span className="min-w-0 truncate">
+                {plan.name} · Cycle {currentCycleNumber ?? 1} ·{" "}
+                {dayDetails.label}
+              </span>
 
-          <div className={UI_STACK_MD}>
+              <span
+                aria-hidden="true"
+                className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300/80"
+              />
+            </p>
+          </div>
+
+          <div className="space-y-1.5">
             <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
               {exercise.name}
             </h1>
 
-            <p className={UI_TEXT_MUTED}>{exercise.subtitle}</p>
-          </div>
-        </div>
-
-        {isUpcomingPreview ? (
-          <div className="rounded-2xl border border-zinc-700 bg-zinc-900/60 p-4">
-            <p className="text-sm font-semibold text-zinc-100">
-              Upcoming exercise preview
-            </p>
-            <p className="mt-1 text-sm leading-relaxed text-zinc-400">
-              This exercise is part of an upcoming day. You can review the
-              target structure, but logging unlocks when this day becomes
-              current.
+            <p className="text-sm leading-5 text-zinc-400">
+              {exercise.subtitle}
             </p>
           </div>
-        ) : null}
+        </header>
 
         <ExerciseWorkflowCard
           exercise={exercise}
           sets={displaySets}
           isReadOnly={isUpcomingPreview}
+          hasPreviousValues={hasPreviousValues}
+          dayMode={dayMode}
           onToggleSetDone={handleToggleSetDone}
           onUpdateSetField={handleUpdateSetField}
           onCloseExercise={handleCloseExercise}
