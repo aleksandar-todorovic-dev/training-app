@@ -609,23 +609,20 @@ Vite may report a chunk-size warning above 500 kB after production build. This i
 
 ## Screenshots
 
-The screenshots below show the main MVP flow using the mobile-first app layout.
+The screenshots below show the main MVP flow using the mobile-first app layout. Each thumbnail links to the full screenshot.
 
 <p>
-  <img src="docs/screenshots/home.png" alt="Home screen" width="220" />
-  <img src="docs/screenshots/plan-overview.png" alt="Plan overview screen" width="220" />
-  <img src="docs/screenshots/cycle-dashboard.png" alt="Cycle dashboard screen" width="220" />
+  <a href="docs/screenshots/home.png"><img src="docs/screenshots/thumbs/home.png" alt="Home screen" width="180" /></a>
+  <a href="docs/screenshots/plan-overview.png"><img src="docs/screenshots/thumbs/plan-overview.png" alt="Plan overview screen" width="180" /></a>
+  <a href="docs/screenshots/cycle-dashboard.png"><img src="docs/screenshots/thumbs/cycle-dashboard.png" alt="Cycle dashboard screen" width="180" /></a>
+  <a href="docs/screenshots/day-screen.png"><img src="docs/screenshots/thumbs/day-screen.png" alt="Day screen" width="180" /></a>
 </p>
 
 <p>
-  <img src="docs/screenshots/day-screen.png" alt="Day screen" width="220" />
-  <img src="docs/screenshots/exercise-logging.png" alt="Exercise logging screen" width="220" />
-  <img src="docs/screenshots/core-workflow.png" alt="Core workflow screen" width="220" />
-</p>
-
-<p>
-  <img src="docs/screenshots/guide.png" alt="Guide / Coach Library screen" width="220" />
-  <img src="docs/screenshots/end-cycle.png" alt="End Cycle recap screen" width="220" />
+  <a href="docs/screenshots/exercise-logging.png"><img src="docs/screenshots/thumbs/exercise-logging.png" alt="Exercise logging screen" width="180" /></a>
+  <a href="docs/screenshots/core-workflow.png"><img src="docs/screenshots/thumbs/core-workflow.png" alt="Core workflow screen" width="180" /></a>
+  <a href="docs/screenshots/guide.png"><img src="docs/screenshots/thumbs/guide.png" alt="Guide / Coach Library screen" width="180" /></a>
+  <a href="docs/screenshots/end-cycle.png"><img src="docs/screenshots/thumbs/end-cycle.png" alt="End Cycle recap screen" width="180" /></a>
 </p>
 
 ---
