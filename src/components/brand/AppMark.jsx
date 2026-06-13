@@ -40,7 +40,7 @@ export default function AppMark({ className = "h-10 w-10", title }) {
           y2="58"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stopColor="#10292E" stopOpacity="0.88" />
+          <stop stopColor="#10292E" stopOpacity="0.86" />
           <stop offset="0.48" stopColor="#0B1518" stopOpacity="0.96" />
           <stop offset="1" stopColor="#070A0C" />
         </linearGradient>
@@ -66,19 +66,19 @@ export default function AppMark({ className = "h-10 w-10", title }) {
           y2="52"
           gradientUnits="userSpaceOnUse"
         >
-          <stop stopColor="#8FDCE5" stopOpacity="0.38" />
-          <stop offset="1" stopColor="#3FA8B6" stopOpacity="0.16" />
+          <stop stopColor="#8FDCE5" stopOpacity="0.33" />
+          <stop offset="1" stopColor="#3FA8B6" stopOpacity="0.14" />
         </linearGradient>
 
         <filter
           id={glowId}
-          x="-18%"
-          y="-18%"
-          width="136%"
-          height="136%"
+          x="-16%"
+          y="-16%"
+          width="132%"
+          height="132%"
           colorInterpolationFilters="sRGB"
         >
-          <feGaussianBlur stdDeviation="1.45" result="blur" />
+          <feGaussianBlur stdDeviation="1.15" result="blur" />
           <feMerge>
             <feMergeNode in="blur" />
             <feMergeNode in="SourceGraphic" />
@@ -94,7 +94,7 @@ export default function AppMark({ className = "h-10 w-10", title }) {
         rx="17"
         fill={`url(#${backgroundGradientId})`}
         stroke="#3FA8B6"
-        strokeOpacity="0.18"
+        strokeOpacity="0.17"
         strokeWidth="1"
       />
 
@@ -103,15 +103,15 @@ export default function AppMark({ className = "h-10 w-10", title }) {
         cy="32"
         r="21"
         stroke={`url(#${mutedGradientId})`}
-        strokeWidth="2.4"
+        strokeWidth="2.2"
         strokeLinecap="round"
-        strokeDasharray="12 9"
+        strokeDasharray="11.5 9.4"
       />
 
       <path
         d="M32 11A21 21 0 0 1 50.2 21.5"
         stroke={`url(#${markGradientId})`}
-        strokeWidth="2.6"
+        strokeWidth="2.4"
         strokeLinecap="round"
         filter={`url(#${glowId})`}
       />
@@ -119,15 +119,15 @@ export default function AppMark({ className = "h-10 w-10", title }) {
       <path
         d="M50.2 21.5A21 21 0 0 1 50.2 42.5"
         stroke="#5EC7D5"
-        strokeOpacity="0.42"
-        strokeWidth="2.4"
+        strokeOpacity="0.38"
+        strokeWidth="2.15"
         strokeLinecap="round"
       />
 
       <circle
         cx="32"
         cy="11"
-        r="3.2"
+        r="2.9"
         fill="#10292E"
         stroke="#8FDCE5"
         strokeOpacity="0.2"
@@ -136,17 +136,17 @@ export default function AppMark({ className = "h-10 w-10", title }) {
       <circle
         cx="50.2"
         cy="21.5"
-        r="3.8"
+        r="3.45"
         fill="#5EC7D5"
         stroke="#B8F4FA"
-        strokeOpacity="0.62"
+        strokeOpacity="0.6"
         filter={`url(#${glowId})`}
       />
 
       <circle
         cx="50.2"
         cy="42.5"
-        r="3.2"
+        r="2.9"
         fill="#10292E"
         stroke="#8FDCE5"
         strokeOpacity="0.18"
@@ -155,7 +155,7 @@ export default function AppMark({ className = "h-10 w-10", title }) {
       <circle
         cx="32"
         cy="53"
-        r="3.2"
+        r="2.9"
         fill="#10292E"
         stroke="#8FDCE5"
         strokeOpacity="0.18"
@@ -164,7 +164,7 @@ export default function AppMark({ className = "h-10 w-10", title }) {
       <circle
         cx="13.8"
         cy="42.5"
-        r="3.2"
+        r="2.9"
         fill="#10292E"
         stroke="#8FDCE5"
         strokeOpacity="0.18"
@@ -173,26 +173,26 @@ export default function AppMark({ className = "h-10 w-10", title }) {
       <circle
         cx="13.8"
         cy="21.5"
-        r="3.2"
+        r="2.9"
         fill="#10292E"
         stroke="#8FDCE5"
         strokeOpacity="0.18"
       />
 
       <path
-        d="M40.5 24.5H31.3C26.8 24.5 23.2 27.9 23.2 32C23.2 36.1 26.8 39.5 31.3 39.5H40.5"
+        d="M40.3 24.8H31.35C27 24.8 23.5 28 23.5 32C23.5 36 27 39.2 31.35 39.2H40.3"
         stroke={`url(#${markGradientId})`}
-        strokeWidth="4.6"
+        strokeWidth="4.2"
         strokeLinecap="round"
         strokeLinejoin="round"
         filter={`url(#${glowId})`}
       />
 
       <path
-        d="M39.5 24.5H31.3C26.8 24.5 23.2 27.9 23.2 32C23.2 36.1 26.8 39.5 31.3 39.5H39.5"
+        d="M39.4 24.8H31.35C27 24.8 23.5 28 23.5 32C23.5 36 27 39.2 31.35 39.2H39.4"
         stroke="#C8F7FB"
-        strokeOpacity="0.14"
-        strokeWidth="1.4"
+        strokeOpacity="0.12"
+        strokeWidth="1.2"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
