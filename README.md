@@ -1,6 +1,6 @@
 # Training App
 
-A mobile-first, local-first training app MVP for structured workout cycles, guided logging, previous-value continuity, and honest partial-day support.
+A mobile-first, local-first React MVP for structured workout cycles, guided logging, previous-value continuity, and honest partial-day support.
 
 The app is built around predefined **Bulk Pro** and **Cut Pro** training systems. It guides the user through a stable training cycle, keeps the current workout step clear, stores progress locally, and helps useful logged values carry into the next cycle.
 
@@ -723,7 +723,7 @@ These are intentionally outside the current local-first MVP scope.
 
 ## What This Project Demonstrates
 
-This project was built as a complete MVP, not only as a UI prototype.
+This project was built as a complete product-style MVP, not only as a UI prototype.
 
 It demonstrates:
 
