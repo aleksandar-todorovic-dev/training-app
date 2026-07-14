@@ -1,10 +1,19 @@
 # Training App
 
-A mobile-first, local-first React MVP for structured workout cycles, guided logging, previous-value continuity, and honest partial-day support.
+A mobile-first, local-first React MVP built as a **structured training system**, not a generic workout tracker.
 
-The app is built around predefined **Bulk Pro** and **Cut Pro** training systems. It guides the user through a stable training cycle, keeps the current workout step clear, stores progress locally, and helps useful logged values carry into the next cycle.
+Training App combines two predefined plans — **Bulk Pro** and **Cut Pro** — with guided workout execution, contextual training support, set-by-set logging, previous-value continuity, and cycle-based progress in one clear flow.
 
-This is not a generic workout notebook. It is a structured training companion focused on planned cycles, prescribed set logging, core support work, partial-day flexibility, educational training guidance, and a fast mobile workout flow.
+The product is built around two connected principles:
+
+```text
+Clarity during the workout.
+Continuity across the cycle.
+```
+
+Users can see what to do, how to perform it, what they logged previously, and what comes next. The cycle-based structure keeps the training order stable when real-life schedules change, without turning flexibility into random workout selection.
+
+The current release is intentionally local-first and MVP-scoped. It focuses on proving the product flow, training-state model, persistence logic, and mobile workout experience before adding accounts, cloud sync, payments, or broader customization.
 
 ---
 
@@ -53,11 +62,34 @@ The hosted app is a local-first MVP. It does not use accounts, cloud sync, backe
 
 ## Overview
 
-Training App helps users follow a predefined training cycle without turning every workout into manual planning.
+Training App helps users follow a predefined training plan without turning every workout into manual planning, scattered notes, or guesswork.
+
+The app brings the key information required to follow and execute the program into one workout flow:
+
+- the active plan and current cycle
+- the current training day
+- exercise order
+- prescribed sets and rep targets
+- RIR, tempo, rest, and progression guidance
+- contextual cues and training help
+- set-by-set logging
+- previous useful values
+- the next meaningful step
+
+The second core product value is continuity across the cycle.
+
+Bulk Pro and Cut Pro use a stable D1–D6 training order inside a 9-day rhythm. When a workout is moved, missed, or completed only partially, the user does not need to rebuild the week, randomly skip work, or force several sessions into a compressed calendar.
+
+The product principle is:
+
+```text
+The calendar can move.
+The training order stays clear.
+```
 
 The MVP supports:
 
-- choosing between two structured plans: **Bulk Pro** and **Cut Pro**
+- choosing between two plans inside one structured training system: **Bulk Pro** and **Cut Pro**
 - starting and continuing a training cycle
 - following the current training day
 - logging prescribed exercise sets
@@ -67,13 +99,12 @@ The MVP supports:
 - reviewing a completed cycle
 - restoring progress after refresh through localStorage
 
-The product direction is intentionally practical:
+The practical user outcome is:
 
 ```text
-Follow a stable training cycle.
-Log what actually happened.
-Use previous values as the next reference.
-Keep moving even when a day is partial.
+Know what to do.
+Know how to do it.
+Know what comes next.
 ```
 
 ---
@@ -82,12 +113,26 @@ Keep moving even when a day is partial.
 
 ### Structured training plans
 
-The MVP includes two predefined training systems:
+The MVP includes two plans inside the same structured training system:
 
 - **Bulk Pro** — progression-focused training with repeatable volume and productive workload
 - **Cut Pro** — recovery-aware training focused on strength retention and fatigue control
 
-Both plans use the same app flow and runtime model.
+Users choose the plan that matches their current training goal or phase.
+
+The plans share the same application infrastructure:
+
+- cycle flow
+- guided workout screens
+- set logging
+- previous-value continuity
+- partial-day behavior
+- contextual guidance
+- local persistence
+
+They differ in training purpose, exercise selection, day emphasis, workload distribution, and progression mindset.
+
+Bulk Pro and Cut Pro are plans within one product. Any future decision to unlock or sell them separately would be an access or monetization decision, not a change to the underlying product architecture.
 
 ### 6-day cycle inside a 9-day rhythm
 
@@ -100,6 +145,20 @@ D5 -> D6 -> Rest
 ```
 
 The training order stays stable while rest days give the schedule room to breathe.
+
+The cycle is not rigidly tied to Monday–Sunday labels. If real life moves a workout, the user continues from the next planned training day instead of rebuilding the week or choosing randomly.
+
+This is controlled flexibility, not a free-form scheduler.
+
+The system preserves:
+
+- day order
+- plan intent
+- recovery spacing
+- current-cycle orientation
+- the next meaningful workout step
+
+It does not automatically estimate fatigue, prescribe adaptive recovery, or allow arbitrary plan restructuring.
 
 ### Guided workout flow
 
@@ -116,7 +175,28 @@ Home
 -> Start next cycle
 ```
 
-The app keeps the next relevant action visible instead of asking the user to rebuild the training structure manually.
+The app keeps the current action and next meaningful step visible instead of asking the user to rebuild the training structure manually.
+
+During execution, the product combines:
+
+- day purpose
+- exercise order
+- prescribed targets
+- RIR
+- tempo
+- rest
+- progression rules
+- contextual cues
+- previous useful values
+- current completion state
+
+The information hierarchy follows a deliberate rule:
+
+```text
+Action first.
+Guidance in context.
+Deeper education when requested.
+```
 
 ### Exercise logging
 
@@ -153,9 +233,19 @@ Core progress supports the training system but does not affect main day progress
 
 The app allows users to finish a day even when the day was partial.
 
-This is intentional.
+This is intentional product behavior, not a missing validation rule.
 
-A finished day means the user intentionally moved the cycle forward. It does not mean every prescribed exercise or set was perfectly completed.
+A finished day means the user intentionally moved the cycle forward. It does not claim that every prescribed exercise or set was perfectly completed.
+
+This prevents the app from forcing false completion and supports real situations such as:
+
+- limited workout time
+- unexpected interruptions
+- fatigue
+- skipped optional work
+- sessions that could not be completed as planned
+
+The system records what actually happened, preserves the cycle order, and keeps the next step clear.
 
 ### Previous-value carry-over
 
@@ -191,13 +281,15 @@ Static source data is not copied into localStorage.
 
 ### Educational training layer
 
-The MVP includes a static educational layer that supports the workout flow without turning the app into a long manual.
+The MVP includes a static educational layer that supports workout execution without turning every screen into a long manual.
 
-This content covers:
+The guidance layer covers:
 
 - plan logic and cycle structure
 - RIR and effort management
+- tempo and rest targets
 - progression rules
+- exercise cues
 - recovery and fatigue control
 - warm-up guidance
 - advanced technique explanations
@@ -208,10 +300,21 @@ Education is split by context:
 - **Home** explains the product value quickly.
 - **Guide** explains the larger training system.
 - **Exercise help** explains working rules such as tempo, rest, RIR, and progression.
+- **Coach Notes and cues** provide short execution reminders near the current exercise.
 - **Advanced technique help** explains methods such as dropsets, rest-pause, cluster work, mechanical sets, and stretch-focused work.
 - **Warm-up sheets** provide short day-specific preparation guidance.
 
+The product uses progressive disclosure:
+
+```text
+Essential targets stay visible.
+Additional help appears in context.
+Deeper explanations remain available on demand.
+```
+
 This content is guidance-only. It does not affect runtime completion, set status, cycle progress, or localStorage state.
+
+The current MVP does not attempt to replace a complete exercise-form video library, individual coaching, medical advice, or professional assessment.
 
 ---
 
@@ -467,6 +570,22 @@ Design goals:
 - fast to use during workouts
 - product-like without being flashy
 
+The interface is designed around workout clarity rather than feature density.
+
+Product and information-hierarchy principles:
+
+```text
+Action first.
+Guidance in context.
+Deeper education when requested.
+```
+
+```text
+Show the current step clearly.
+Keep the next action visible.
+Do not force false completion.
+```
+
 The app uses reusable UI primitives for layout, cards, buttons, sheets, and screen structure.
 
 Important UI patterns:
@@ -476,7 +595,9 @@ Important UI patterns:
 - training screens for execution and logging
 - bottom sheets for warm-up, help, and finish-day confirmation
 - compact row-based set logging
+- contextual help without leaving the workout flow
 - read-only preview states for upcoming work
+- distinct active, partial, complete, and finished states
 - quiet utility actions such as reset local progress
 
 Desktop is intentionally presented as a centered mobile-first app shell rather than a full dashboard layout.
@@ -652,7 +773,7 @@ Completed:
 
 This MVP includes:
 
-- predefined Bulk Pro and Cut Pro plans
+- Bulk Pro and Cut Pro plans inside one structured training system
 - 6-day cycle inside a 9-day rhythm
 - guided workout flow
 - main exercise logging
@@ -707,7 +828,7 @@ Possible post-MVP directions:
 - PWA / standalone install experience
 - auth and cloud sync
 - custom plan builder
-- exercise substitutions
+- controlled exercise substitutions that preserve movement role and cycle logic
 - rest timer
 - deeper analytics
 - training history charts
@@ -723,21 +844,41 @@ These are intentionally outside the current local-first MVP scope.
 
 ## What This Project Demonstrates
 
-This project was built as a complete product-style MVP, not only as a UI prototype.
+This project was built as a complete product-style MVP, not only as a UI prototype or workout logging demo.
 
-It demonstrates:
+### Product and UX thinking
+
+- turning training-domain rules into a clear user flow
+- defining one structured system with two plan options
+- combining prescribed structure with controlled schedule flexibility
+- designing for real-life interruptions and partial workouts
+- keeping the current and next meaningful actions visible
+- separating essential workout information from optional deeper education
+- using contextual guidance and progressive disclosure
+- modeling honest partial completion instead of forcing perfect states
+- maintaining a clear MVP boundary around local-first behavior
+
+### Frontend architecture
 
 - React app architecture with route-based screens
 - Context + reducer state management
 - separation of static source data and runtime user progress
 - reducer-driven workout lifecycle transitions
-- local-first persistence with versioned localStorage
+- versioned localStorage persistence and hydration
 - safe fallback behavior for invalid stored state
 - conservative previous-value carry-over logic
 - explicit completion modeling through performed-set checkboxes
 - route-safe active, finished, and upcoming workout states
 - reusable UI primitives and mobile-first interface design
-- scope control around a clearly defined MVP boundary
+
+### Delivery and engineering discipline
+
+- structured project documentation
+- staged MVP development
+- lint and production-build verification
+- Firebase Hosting deployment
+- GitHub Actions CI
+- explicit scope decisions, accepted limitations, and post-MVP boundaries
 
 ---
 
