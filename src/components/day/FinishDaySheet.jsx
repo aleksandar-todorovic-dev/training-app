@@ -12,10 +12,7 @@ import {
   UI_TEXT_EYEBROW_ACCENT,
   UI_TEXT_META,
 } from "../../styles/ui";
-import {
-  sheetOverlayVariants,
-  sheetPanelVariants,
-} from "../../styles/motion";
+import { sheetOverlayVariants, sheetPanelVariants } from "../../styles/motion";
 
 const MotionDiv = motion.div;
 
@@ -133,7 +130,8 @@ export default function FinishDaySheet({
                 <li className="flex gap-2">
                   <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8FDCE5]/65" />
                   <span>
-                    Partial days are valid and the cycle order stays stable.
+                    You can close the day without completing every set. Your
+                    next planned workout stays the same.
                   </span>
                 </li>
               </ul>
@@ -179,9 +177,7 @@ export default function FinishDaySheet({
                   </div>
 
                   <div className="min-w-0">
-                    <p className={UI_TEXT_EYEBROW_ACCENT}>
-                      Ready to close
-                    </p>
+                    <p className={UI_TEXT_EYEBROW_ACCENT}>Ready to close</p>
 
                     <p className={`mt-1 ${UI_TEXT_BODY_STRONG}`}>
                       Your logged work is saved for this day.

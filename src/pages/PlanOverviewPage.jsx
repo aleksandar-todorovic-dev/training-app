@@ -351,9 +351,7 @@ export default function PlanOverviewPage() {
           </Link>
 
           <div className="flex flex-col gap-3">
-            <p className={UI_TEXT_EYEBROW_ACCENT}>
-              {meta.eyebrow}
-            </p>
+            <p className={UI_TEXT_EYEBROW_ACCENT}>{meta.eyebrow}</p>
 
             <div className="flex flex-col gap-2.5">
               <h1 className="text-3xl font-semibold leading-none tracking-tight text-[#F4F7F8]">
@@ -387,9 +385,7 @@ export default function PlanOverviewPage() {
             <StatusRing value={closedTrainingDays} total={totalTrainingDays} />
 
             <div className="relative max-w-[70%]">
-              <p className={UI_TEXT_EYEBROW_ACCENT}>
-                {primaryCta.eyebrow}
-              </p>
+              <p className={UI_TEXT_EYEBROW_ACCENT}>{primaryCta.eyebrow}</p>
 
               <h2 className="mt-1.5 text-2xl font-semibold tracking-tight text-[#F4F7F8]">
                 {primaryCta.title}
@@ -438,21 +434,18 @@ export default function PlanOverviewPage() {
                 {label}
               </p>
 
-              <p className={`shrink-0 ${UI_TEXT_STAT_VALUE}`}>
-                {value}
-              </p>
+              <p className={`shrink-0 ${UI_TEXT_STAT_VALUE}`}>{value}</p>
             </MotionDiv>
           ))}
         </MotionSection>
 
         <section className="flex flex-col gap-3">
           <div>
-            <h2 className={UI_TEXT_SECTION_TITLE}>
-              Cycle rhythm
-            </h2>
+            <h2 className={UI_TEXT_SECTION_TITLE}>Cycle rhythm</h2>
             <p className={UI_TEXT_BODY}>
               Your 9-day rhythm keeps the order stable while your schedule stays
-              flexible.
+              flexible. D1-D6 show the workout order, not days of the week. If
+              your schedule shifts, continue with the next planned workout.
             </p>
           </div>
 
@@ -509,9 +502,7 @@ export default function PlanOverviewPage() {
         </section>
 
         <section className="flex flex-col gap-3">
-          <h2 className={UI_TEXT_SECTION_TITLE}>
-            {meta.principlesTitle}
-          </h2>
+          <h2 className={UI_TEXT_SECTION_TITLE}>{meta.principlesTitle}</h2>
 
           <div className="overflow-hidden rounded-2xl border border-white/8 bg-[#151A1D]/86">
             {meta.principles.map(({ title, body, icon }, index) => (
@@ -534,9 +525,7 @@ export default function PlanOverviewPage() {
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className={UI_TEXT_CARD_TITLE}>
-                    {title}
-                  </p>
+                  <p className={UI_TEXT_CARD_TITLE}>{title}</p>
                   <p className={UI_TEXT_BODY}>{body}</p>
                 </div>
               </div>
@@ -551,9 +540,7 @@ export default function PlanOverviewPage() {
             </div>
 
             <div className="min-w-0 flex-1">
-              <h2 className={UI_TEXT_CARD_TITLE}>
-                Coach guide
-              </h2>
+              <h2 className={UI_TEXT_CARD_TITLE}>Coach guide</h2>
               <p className={UI_TEXT_BODY}>
                 Learn how RIR, progression, recovery, and cycle structure work.
               </p>

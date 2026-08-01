@@ -11,7 +11,10 @@ import {
 import AppShell from "../components/layout/AppShell";
 import AppMark from "../components/brand/AppMark";
 import PlanCard from "../components/plans/PlanCard";
+import PrimaryButton from "../components/common/PrimaryButton";
+import SecondaryButton from "../components/common/SecondaryButton";
 import { plans } from "../data/plans";
+import { getDaysByPlanId } from "../data/days";
 import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
 import { clearStoredAppState } from "../storage/appStateStorage";
@@ -62,6 +65,74 @@ const HOME_VALUE_CHIPS = [
   },
 ];
 
+function getActiveCycleEntries(state) {
+  return plans.flatMap((plan) => {
+    const planProgress = state.progressByPlan?.[plan.id];
+    const currentCycleNumber = planProgress?.currentCycleNumber;
+
+    if (!Number.isInteger(currentCycleNumber) || currentCycleNumber < 1) {
+      return [];
+    }
+
+    const currentCycle = planProgress?.cycles?.[currentCycleNumber];
+
+    if (
+      !currentCycle ||
+      currentCycle.planId !== plan.id ||
+      currentCycle.completedAt !== null
+    ) {
+      return [];
+    }
+
+    const currentDay = getDaysByPlanId(plan.id).find(
+      (day) => day.id === currentCycle.currentDayId,
+    );
+
+    if (!currentDay) {
+      return [];
+    }
+
+    return [
+      {
+        plan,
+        currentCycleNumber,
+        currentDay,
+        currentDayRoute: `/plan/${plan.id}/day/${currentDay.id}`,
+        cycleRoute: `/plan/${plan.id}/cycle`,
+      },
+    ];
+  });
+}
+
+function ActiveCycleEntry({ entry }) {
+  const { plan, currentCycleNumber, currentDay, currentDayRoute, cycleRoute } =
+    entry;
+
+  return (
+    <article className="rounded-2xl border border-[#3FA8B6]/16 bg-[#10292E]/44 p-3.5 shadow-[0_10px_26px_rgba(0,0,0,0.2)]">
+      <p className={UI_TEXT_EYEBROW_ACCENT}>Active cycle</p>
+
+      <h2 className={`mt-1.5 ${UI_TEXT_CARD_TITLE}`}>
+        {plan.name} · Cycle {currentCycleNumber}
+      </h2>
+
+      <p className={`mt-1 ${UI_TEXT_BODY}`}>
+        {currentDay.label} · {currentDay.name}
+      </p>
+
+      <div className="mt-3 flex flex-col gap-2 min-[380px]:flex-row">
+        <PrimaryButton to={currentDayRoute} className="w-full">
+          Continue Training
+        </PrimaryButton>
+
+        <SecondaryButton to={cycleRoute} className="w-full">
+          View Cycle
+        </SecondaryButton>
+      </div>
+    </article>
+  );
+}
+
 /**
  * Landing page for explaining the product value and selecting one of the
  * predefined MVP plans.
@@ -75,13 +146,15 @@ const HOME_VALUE_CHIPS = [
  * source data remains unchanged because it ships with the app.
  */
 export default function HomePage() {
-  const { dispatch } = useAppState();
+  const { state, dispatch } = useAppState();
   // Local product-education state only; it does not affect runtime progress.
   const [activeValueChipId, setActiveValueChipId] = useState(null);
 
   const activeValueChip = HOME_VALUE_CHIPS.find(
     (chip) => chip.id === activeValueChipId,
   );
+
+  const activeCycleEntries = getActiveCycleEntries(state);
 
   function handleResetLocalProgress() {
     const shouldReset = window.confirm(
@@ -206,6 +279,17 @@ export default function HomePage() {
             ) : null}
           </AnimatePresence>
         </header>
+
+        {activeCycleEntries.length > 0 ? (
+          <section
+            className="flex flex-col gap-2.5"
+            aria-label="Active training cycles"
+          >
+            {activeCycleEntries.map((entry) => (
+              <ActiveCycleEntry key={entry.plan.id} entry={entry} />
+            ))}
+          </section>
+        ) : null}
 
         <section className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
