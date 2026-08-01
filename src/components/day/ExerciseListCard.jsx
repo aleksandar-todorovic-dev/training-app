@@ -1,12 +1,8 @@
+import { ArrowUpRight, Check } from "lucide-react";
 import { Link } from "react-router-dom";
-import { CheckCircle2, ChevronRight } from "lucide-react";
 
 function formatTargetRir(targetRir) {
-  if (!targetRir) {
-    return null;
-  }
-
-  return targetRir.replace("≈", "").trim();
+  return targetRir ? targetRir.replace("≈", "").trim() : null;
 }
 
 export default function ExerciseListCard({
@@ -16,6 +12,7 @@ export default function ExerciseListCard({
   status,
   orderNumber,
   isNext = false,
+  isLast = false,
 }) {
   const targetRir = formatTargetRir(exercise.details?.targetRir);
   const isComplete = status === "Logged";
@@ -24,48 +21,62 @@ export default function ExerciseListCard({
   return (
     <Link
       to={`/plan/${planId}/day/${dayId}/exercise/${exercise.id}`}
-      className={[
-        "group flex items-center gap-2.5 rounded-xl px-2 py-2 transition-colors hover:bg-white/3",
-        isNext ? "bg-[#10292E]/34" : "",
-      ].join(" ")}
+      className={`group grid min-h-16 grid-cols-[2.25rem_minmax(0,1fr)_auto] gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5A3C] ${
+        isNext ? "bg-[#24221C]" : ""
+      }`}
+      aria-label={`${orderNumber}. ${exercise.name}. ${status}${isNext ? ". Next exercise" : ""}`}
     >
-      <div
-        className={[
-          "flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-xs font-semibold",
-          isNext
-            ? "border-[#3FA8B6]/34 bg-[#10292E]/54 text-[#8FDCE5]"
-            : isComplete
-              ? "border-white/8 bg-white/[0.026] text-[#8FDCE5]/78"
-              : isPartial
-                ? "border-[#C9B57A]/28 bg-[#1D1C16]/50 text-[#D8C891]"
-                : "border-white/10 bg-[#070A0B]/28 text-[#A9B0B5]",
-        ].join(" ")}
-      >
-        {isComplete ? (
-          <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-        ) : (
-          orderNumber
-        )}
+      <div className="relative flex justify-center pt-4">
+        <span
+          className={`z-10 flex h-7 w-7 items-center justify-center border font-display text-sm font-bold tabular-nums ${
+            isNext
+              ? "border-[#FF795F] bg-[#FF5A3C] text-[#171814]"
+              : isComplete
+                ? "border-[#B8CB70] bg-[#B8CB70] text-[#171814]"
+                : isPartial
+                  ? "border-[#E5A13A] bg-[#E5A13A] text-[#171814]"
+                  : "border-[#55574D] bg-[#1B1C17] text-[#AAA99F]"
+          }`}
+        >
+          {isComplete ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : orderNumber}
+        </span>
+        {!isLast ? (
+          <span
+            className={`absolute bottom-0 top-11 w-px ${
+              isComplete ? "bg-[#6C7640]" : "bg-[#45473E]"
+            }`}
+            aria-hidden="true"
+          />
+        ) : null}
       </div>
 
-      <div className="min-w-0 flex-1">
-        <h3
-          className={[
-            "line-clamp-1 text-[0.93rem] font-semibold leading-snug",
-            isNext ? "text-[#F4F7F8]" : "text-[#D3D8DB]",
-          ].join(" ")}
-        >
-          {exercise.name}
-        </h3>
-
-        <p className="mt-0.5 line-clamp-1 text-xs font-medium leading-5 text-[#747D84]">
+      <div className="border-t border-[#3B3D34] py-3.5">
+        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+          <h3 className="font-display text-xl font-semibold leading-none text-[#F2EEE4]">
+            {exercise.name}
+          </h3>
+          <span
+            className={`text-[0.62rem] font-semibold uppercase tracking-[0.12em] ${
+              isNext
+                ? "text-[#FF8B73]"
+                : isComplete
+                  ? "text-[#B8CB70]"
+                  : isPartial
+                    ? "text-[#E5A13A]"
+                    : "text-[#87877E]"
+            }`}
+          >
+            {isNext ? "Next" : status}
+          </span>
+        </div>
+        <p className="mt-1 line-clamp-1 text-xs leading-5 text-[#87877E]">
           {exercise.prescription}
           {targetRir ? ` · RIR ${targetRir}` : ""}
         </p>
       </div>
 
-      <ChevronRight
-        className="h-5 w-5 shrink-0 text-[#59636B] transition-colors group-hover:text-[#8FDCE5]"
+      <ArrowUpRight
+        className="mt-4 h-4 w-4 text-[#6E7067] transition-colors group-hover:text-[#FF8B73]"
         aria-hidden="true"
       />
     </Link>

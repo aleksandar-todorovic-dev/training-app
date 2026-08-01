@@ -1,82 +1,22 @@
-import { useEffect, useRef } from "react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
-import { motion, useReducedMotion } from "motion/react";
-import {
-  ArrowLeft,
-  ArrowRight,
-  CheckCircle2,
-  ChevronRight,
-  Dumbbell,
-  Flame,
-  Moon,
-  Sparkles,
-} from "lucide-react";
 
-import { useAppState } from "../state/useAppState";
+import ContinuityRail from "../components/cycle/ContinuityRail";
 import AppShell from "../components/layout/AppShell";
-import DayCard from "../components/cycle/DayCard";
-import CycleHeader from "../components/cycle/CycleHeader";
-
-import { getPlanById } from "../data/plans";
-import { getDaysByPlanId } from "../data/days";
 import { getDayDetails } from "../data/dayDetails";
+import { getDaysByPlanId } from "../data/days";
 import { getExercisesForDay } from "../data/exercises";
-import { UI_STACK_LG } from "../styles/ui";
-import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
+import { getPlanById } from "../data/plans";
+import { useAppState } from "../state/useAppState";
 import { getDayMode, getDayModeLabel } from "../utils/runtime/dayModeHelpers";
+import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
 
-const MotionDiv = motion.div;
-const MotionSection = motion.section;
-const MotionSpan = motion.span;
-
-const cycleRevealContainerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.045,
-      delayChildren: 0.02,
-    },
-  },
-};
-
-const cycleRevealItemVariants = {
-  hidden: {
-    opacity: 0,
-    y: 5,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.2,
-      ease: [0.2, 0, 0, 1],
-    },
-  },
-};
-
-const cycleRhythmRevealVariants = {
-  hidden: {
-    opacity: 0,
-  },
-  visible: {
-    opacity: 1,
-    transition: {
-      duration: 0.2,
-      ease: [0.2, 0, 0, 1],
-    },
-  },
-};
-
-// Screen-specific display hints for Cycle cards.
-// These do not affect day completion or core runtime state.
 const STATIC_CORE_HINT_MAP = {
-  d2: "Core A",
-  d4: "Core B",
-  d5: "Core C",
+  d2: "Core A branch",
+  d4: "Core B branch",
+  d5: "Core C branch",
 };
 
-// Screen-specific day detail hints.
-// The base day data stays unchanged; this only improves CyclePage display.
 const STATIC_DAY_DETAIL_HINT_MAP = {
   "bulk-pro": {
     d1: "Shoulder top-up",
@@ -84,121 +24,46 @@ const STATIC_DAY_DETAIL_HINT_MAP = {
     d3: "Hamstring & calf support",
     d4: "Trap work",
     d5: "Triceps support",
-    d6: "Quad, arm, and calf support",
+    d6: "Quad, arm & calf support",
   },
   "cut-pro": {
     d1: "Shoulder top-up",
     d2: "Trap top-up",
-    d3: "Hamstring spark & calf support",
+    d3: "Hamstring & calf support",
     d4: "Trap work",
     d5: "Triceps support",
-    d6: "Quad, arm, and calf support",
+    d6: "Quad, arm & calf support",
   },
 };
 
-// CyclePage display helpers.
-// They derive labels from existing runtime logs without creating or mutating
-// day, exercise, or core runtime state.
 function getDoneSetCount(dayLog) {
-  if (!dayLog) {
-    return 0;
-  }
+  if (!dayLog) return 0;
 
-  return Object.values(dayLog.mainExerciseLogs).reduce(
-    (doneSetTotal, exerciseLog) => {
-      const doneSets =
-        exerciseLog.sets?.filter((set) => set.isDone).length ?? 0;
-
-      return doneSetTotal + doneSets;
-    },
+  return Object.values(dayLog.mainExerciseLogs ?? {}).reduce(
+    (total, exerciseLog) =>
+      total + (exerciseLog.sets?.filter((set) => set.isDone).length ?? 0),
     0,
   );
 }
 
-function getLoggedSetLabel(doneSetCount) {
-  return doneSetCount === 1 ? "1 set logged" : `${doneSetCount} sets logged`;
-}
-
-function getClosedStatusLabels({
-  completedExerciseCount,
-  totalExerciseCount,
-  doneSetCount,
-}) {
-  if (completedExerciseCount === totalExerciseCount && totalExerciseCount > 0) {
-    return {
-      statusLabel: "Closed",
-      statusDetail: `${completedExerciseCount}/${totalExerciseCount} logged`,
-    };
-  }
-
-  if (completedExerciseCount > 0) {
-    return {
-      statusLabel: "Closed partial",
-      statusDetail: `${completedExerciseCount}/${totalExerciseCount} logged`,
-    };
-  }
-
-  if (doneSetCount > 0) {
-    return {
-      statusLabel: "Closed partial",
-      statusDetail: getLoggedSetLabel(doneSetCount),
-    };
-  }
-
-  return {
-    statusLabel: "Closed",
-    statusDetail: "No sets logged",
-  };
-}
-
 function hasDayActivity(dayLog) {
-  if (!dayLog) {
-    return false;
-  }
+  if (!dayLog) return false;
 
-  return Object.values(dayLog.mainExerciseLogs).some((exerciseLog) => {
-    const hasClosedExercise = Boolean(exerciseLog.closedAt);
-    const hasDoneSet = exerciseLog.sets?.some((set) => set.isDone) ?? false;
-
-    return hasClosedExercise || hasDoneSet;
-  });
+  return Object.values(dayLog.mainExerciseLogs ?? {}).some(
+    (exerciseLog) =>
+      Boolean(exerciseLog.closedAt) ||
+      Boolean(exerciseLog.sets?.some((set) => set.isDone)),
+  );
 }
 
 function areAllMainExercisesClosed(dayDetails, dayLog) {
-  if (!dayDetails?.exerciseIds?.length || !dayLog) {
-    return false;
-  }
+  if (!dayDetails?.exerciseIds?.length || !dayLog) return false;
 
-  return dayDetails.exerciseIds.every((exerciseId) => {
-    const exerciseLog = dayLog.mainExerciseLogs?.[exerciseId];
-
-    return Boolean(exerciseLog?.closedAt);
-  });
+  return dayDetails.exerciseIds.every((exerciseId) =>
+    Boolean(dayLog.mainExerciseLogs?.[exerciseId]?.closedAt),
+  );
 }
 
-function getHeroCtaLabel({
-  isCycleComplete,
-  currentDayDetails,
-  currentDayLog,
-}) {
-  if (isCycleComplete) {
-    return "Review cycle";
-  }
-
-  if (areAllMainExercisesClosed(currentDayDetails, currentDayLog)) {
-    return "Review day";
-  }
-
-  if (!hasDayActivity(currentDayLog)) {
-    return "Start day";
-  }
-
-  return "Continue day";
-}
-
-// Builds the display summary used by CyclePage and DayCard.
-// Day mode still comes from runtime helpers; this function only formats what
-// the cycle dashboard should show.
 function getDayRuntimeSummary({
   planId,
   day,
@@ -208,7 +73,6 @@ function getDayRuntimeSummary({
 }) {
   const dayDetails = getDayDetails(planId, day.id);
   const dayLog = currentCycle?.dayLogs?.[day.id];
-
   const dayMode = getDayMode({
     dayId: day.id,
     currentDayId,
@@ -217,104 +81,63 @@ function getDayRuntimeSummary({
   });
 
   const totalExerciseCount = dayLog
-    ? Object.keys(dayLog.mainExerciseLogs).length
+    ? Object.keys(dayLog.mainExerciseLogs ?? {}).length
     : (dayDetails?.exerciseIds.length ?? 0);
-
   const completedExerciseCount = dayLog
-    ? Object.values(dayLog.mainExerciseLogs).filter(
+    ? Object.values(dayLog.mainExerciseLogs ?? {}).filter(
         (exerciseLog) => getExerciseStatus(exerciseLog) === "complete",
       ).length
     : 0;
-
   const doneSetCount = getDoneSetCount(dayLog);
-  const progressLabel = `${completedExerciseCount}/${totalExerciseCount} logged`;
-  const dayModeLabel = getDayModeLabel(dayMode);
+
+  let state = "planned";
+  let stateLabel = getDayModeLabel(dayMode);
 
   if (dayMode === "finished") {
-    return {
-      dayMode,
-      completedExerciseCount,
-      totalExerciseCount,
-      doneSetCount,
-      ...getClosedStatusLabels({
-        completedExerciseCount,
-        totalExerciseCount,
-        doneSetCount,
-      }),
-    };
-  }
-
-  if (dayMode === "active") {
-    return {
-      dayMode,
-      completedExerciseCount,
-      totalExerciseCount,
-      doneSetCount,
-      statusLabel: `Current · ${progressLabel}`,
-      statusDetail: null,
-    };
-  }
-
-  if (dayMode === "upcoming") {
-    return {
-      dayMode,
-      completedExerciseCount,
-      totalExerciseCount,
-      doneSetCount,
-      statusLabel: `${totalExerciseCount} exercises`,
-      statusDetail: null,
-    };
-  }
-
-  if (dayLog) {
-    return {
-      dayMode,
-      completedExerciseCount,
-      totalExerciseCount,
-      doneSetCount,
-      statusLabel: `In progress · ${progressLabel}`,
-      statusDetail: null,
-    };
+    const isFull =
+      totalExerciseCount > 0 && completedExerciseCount === totalExerciseCount;
+    state = isFull ? "complete" : doneSetCount > 0 ? "partial" : "empty";
+    stateLabel = isFull
+      ? "Closed · full main work"
+      : doneSetCount > 0
+        ? "Closed · partial work"
+        : "Closed · no sets checked";
+  } else if (dayMode === "active") {
+    state = "current";
+    stateLabel = doneSetCount > 0 ? `Current · ${doneSetCount} sets` : "Current node";
+  } else if (dayMode === "upcoming") {
+    state = "upcoming";
+    stateLabel = "Read-only preview";
   }
 
   return {
+    day,
+    dayDetails,
+    dayLog,
     dayMode,
-    completedExerciseCount,
+    state,
+    stateLabel,
     totalExerciseCount,
+    completedExerciseCount,
     doneSetCount,
-    statusLabel: dayModeLabel,
-    statusDetail: null,
   };
 }
 
 function getNextExerciseName({ planId, dayDetails, dayLog }) {
-  if (!dayDetails?.exerciseIds?.length) {
-    return "Open workout";
-  }
+  if (!dayDetails?.exerciseIds?.length) return "Open workout";
 
   const exercises = getExercisesForDay(planId, dayDetails.exerciseIds);
 
-  if (!dayLog) {
-    return exercises[0]?.name ?? "Open workout";
-  }
+  if (!dayLog) return exercises[0]?.name ?? "Open workout";
 
   const nextExerciseId = dayDetails.exerciseIds.find((exerciseId) => {
     const exerciseLog = dayLog.mainExerciseLogs?.[exerciseId];
-
-    if (!exerciseLog) {
-      return true;
-    }
-
-    if (exerciseLog.closedAt) {
-      return false;
-    }
-
+    if (!exerciseLog) return true;
+    if (exerciseLog.closedAt) return false;
     return getExerciseStatus(exerciseLog) !== "complete";
   });
 
-  if (!nextExerciseId) {
-    return "Ready to finish day";
-  }
+  if (!nextExerciseId) return "Ready to close the day";
 
   return (
     exercises.find((exercise) => exercise.id === nextExerciseId)?.name ??
@@ -322,175 +145,111 @@ function getNextExerciseName({ planId, dayDetails, dayLog }) {
   );
 }
 
-// Rest slots are display-only rhythm markers.
-// They do not create rest-day routes, logs, completion state, or persistence.
-function buildRhythmSlots(days) {
-  return days.flatMap((day) => {
-    const slots = [{ type: "day", day }];
+function buildRailItems({ daySummaries, planId }) {
+  return daySummaries.flatMap((summary) => {
+    const { day, dayDetails } = summary;
+    const hint = [
+      STATIC_CORE_HINT_MAP[day.id],
+      STATIC_DAY_DETAIL_HINT_MAP[planId]?.[day.id],
+    ]
+      .filter(Boolean)
+      .join(" · ");
 
-    if (day.id === "d2") {
-      slots.push({ type: "rest", id: "after-d2" });
+    const item = {
+      id: day.id,
+      kind: "day",
+      label: day.label,
+      title: day.name,
+      detail:
+        summary.dayMode === "active"
+          ? dayDetails?.goal
+          : summary.dayMode === "finished"
+            ? `${summary.completedExerciseCount}/${summary.totalExerciseCount} main exercises checked · ${summary.doneSetCount} performed sets`
+            : `${summary.totalExerciseCount} exercises · ${hint}`,
+      state: summary.state,
+      stateLabel: summary.stateLabel,
+      meta: STATIC_CORE_HINT_MAP[day.id] ?? null,
+      ariaLabel: `${day.label} ${day.name}, ${summary.stateLabel}`,
+      to:
+        summary.dayMode === "active"
+          ? undefined
+          : `/plan/${planId}/day/${day.id}`,
+    };
+
+    const items = [item];
+    if (["d2", "d4", "d6"].includes(day.id)) {
+      items.push({
+        id: `rest-after-${day.id}`,
+        kind: "rest",
+        label: "Rest",
+        title: "Recovery slot",
+        detail: "Rhythm context only · no workout log",
+        state: "rest",
+        stateLabel: "Recovery",
+        ariaLabel: `Recovery slot after ${day.label}`,
+      });
     }
-
-    if (day.id === "d4") {
-      slots.push({ type: "rest", id: "after-d4" });
-    }
-
-    if (day.id === "d6") {
-      slots.push({ type: "rest", id: "after-d6" });
-    }
-
-    return slots;
+    return items;
   });
 }
 
-/**
- * Runtime-aware cycle dashboard for one selected plan.
- *
- * Runtime boundary:
- * CyclePage reads the current cycle, derives day display states, and routes the
- * user toward the current day or cycle review. It does not create day logs for
- * upcoming preview days.
- */
+/** The defining operational map for the current six-day/nine-slot cycle. */
 export default function CyclePage() {
   const { planId } = useParams();
-  const currentRhythmItemRef = useRef(null);
-  const shouldReduceMotion = useReducedMotion();
-
   const { state } = useAppState();
   const plan = getPlanById(planId);
   const days = getDaysByPlanId(planId);
-
   const planProgress = state.progressByPlan[planId];
   const currentCycleNumber = planProgress?.currentCycleNumber ?? 1;
   const currentCycle = planProgress?.cycles?.[currentCycleNumber] ?? null;
-  const currentDayId = currentCycle?.currentDayId ?? "d1";
-  const dayOrder = plan?.dayOrder ?? days.map((day) => day.id);
-  const isCycleComplete = Boolean(currentCycle?.completedAt);
-
-  // Keep the current day visible inside the horizontal rhythm strip.
-  useEffect(() => {
-    currentRhythmItemRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest",
-      inline: "center",
-    });
-  }, [currentDayId]);
-
-  const daySummaries = days.map((day) => ({
-    day,
-    ...getDayRuntimeSummary({
-      planId,
-      day,
-      currentCycle,
-      currentDayId,
-      dayOrder,
-    }),
-  }));
-
-  const completedDayCount = daySummaries.filter(
-    ({ dayMode }) => dayMode === "finished",
-  ).length;
-
-  const totalTrainingDays = days.length;
-  const progressPercent =
-    totalTrainingDays > 0 ? (completedDayCount / totalTrainingDays) * 100 : 0;
-
-  const currentDay =
-    days.find((day) => day.id === currentDayId) ?? days[0] ?? null;
-
-  const currentDayDetails = currentDay
-    ? getDayDetails(planId, currentDay.id)
-    : null;
-
-  const currentDayLog = currentDay
-    ? currentCycle?.dayLogs?.[currentDay.id]
-    : null;
-
-  const currentDaySummary = currentDay
-    ? daySummaries.find(({ day }) => day.id === currentDay.id)
-    : null;
-
-  const nextExerciseName = getNextExerciseName({
-    planId,
-    dayDetails: currentDayDetails,
-    dayLog: currentDayLog,
-  });
-
-  const heroCtaLabel = getHeroCtaLabel({
-    isCycleComplete,
-    currentDayDetails,
-    currentDayLog,
-  });
-
-  const upcomingDays = daySummaries.filter(
-    ({ dayMode }) => dayMode === "upcoming",
-  );
-
-  const completedDays = daySummaries.filter(
-    ({ dayMode }) => dayMode === "finished",
-  );
-
-  const rhythmSlots = buildRhythmSlots(days);
 
   if (!plan) {
     return (
-      <AppShell mode="training">
-        <div className={UI_STACK_LG}>
+      <AppShell mode="product">
+        <div className="flex flex-col gap-7">
           <Link
-            to={`/plan/${planId}`}
-            className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-[#5EC7D5]/85 transition-colors hover:text-[#8FDCE5]"
+            to="/"
+            className="inline-flex min-h-11 w-fit items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#66675E]"
           >
-            <ArrowLeft className="h-5 w-5" aria-hidden="true" />
-            Back to plan
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Home
           </Link>
-
-          <CycleHeader
-            planName="Plan not found"
-            cycleLabel=""
-            statusSummary="The selected plan could not be loaded."
-            progressPercent={0}
-          />
+          <section className="cut-corner border border-[#C9C1AF] bg-[#F8F5EB] p-5">
+            <h1 className="font-display text-4xl font-bold uppercase leading-none text-[#191A16]">
+              Plan not found
+            </h1>
+          </section>
         </div>
       </AppShell>
     );
   }
 
-  // CyclePage is a runtime dashboard, not a pre-start preview.
-  // If the cycle has not been created yet, send the user back to Plan Overview
-  // where the explicit Start Cycle action lives.
   if (!currentCycle) {
     return (
-      <AppShell mode="training">
-        <div className="flex flex-col gap-5 py-0">
+      <AppShell mode="product">
+        <div className="flex flex-col gap-7">
           <Link
             to={`/plan/${planId}`}
-            className="inline-flex w-fit items-center gap-1.5 text-xs font-medium text-[#8B949B] transition-colors hover:text-[#D3D8DB]"
+            className="inline-flex min-h-11 w-fit items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#66675E]"
           >
-            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-            Back to plan
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Plan overview
           </Link>
-
-          <section className="rounded-3xl border border-white/10 bg-[#151A1D] p-5 shadow-[0_12px_28px_rgba(0,0,0,0.18)]">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#8FDCE5]/78">
-              Cycle not started
+          <section className="cut-corner border border-[#C9C1AF] bg-[#F8F5EB] p-5">
+            <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#B33521]">
+              Cycle instrument offline
             </p>
-
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#F4F7F8]">
-              Start your cycle first
+            <h1 className="mt-3 font-display text-5xl font-bold uppercase leading-[0.9] text-[#191A16]">
+              Start the cycle first
             </h1>
-
-            <p className="mt-3 text-base leading-7 text-[#A9B0B5]">
-              This dashboard becomes active after you start the plan cycle from
-              the plan overview screen.
+            <p className="mt-4 max-w-md text-sm leading-6 text-[#5B5D54]">
+              The cycle view becomes a runtime map only after the explicit start
+              action on Plan Overview.
             </p>
-
             <Link
               to={`/plan/${planId}`}
-              className="mt-5 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] shadow-[0_8px_20px_rgba(63,168,182,0.13)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151A1D]"
+              className="cut-corner-sm mt-5 inline-flex min-h-12 w-full items-center justify-between border border-[#191A16] bg-[#191A16] px-4 text-sm font-semibold text-[#F8F5EB]"
             >
               Go to plan overview
-              <ChevronRight className="h-4 w-4" aria-hidden="true" />
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </section>
         </div>
@@ -498,294 +257,181 @@ export default function CyclePage() {
     );
   }
 
+  const currentDayId = currentCycle.currentDayId;
+  const dayOrder = plan.dayOrder ?? days.map((day) => day.id);
+  const isCycleComplete = Boolean(currentCycle.completedAt);
+  const daySummaries = days.map((day) =>
+    getDayRuntimeSummary({
+      planId,
+      day,
+      currentCycle,
+      currentDayId,
+      dayOrder,
+    }),
+  );
+  const completedDayCount = daySummaries.filter(
+    ({ dayMode }) => dayMode === "finished",
+  ).length;
+  const partialDayCount = daySummaries.filter(
+    ({ dayMode, doneSetCount, completedExerciseCount, totalExerciseCount }) =>
+      dayMode === "finished" &&
+      doneSetCount > 0 &&
+      completedExerciseCount < totalExerciseCount,
+  ).length;
+  const emptyDayCount = daySummaries.filter(
+    ({ dayMode, doneSetCount }) => dayMode === "finished" && doneSetCount === 0,
+  ).length;
+  const currentSummary = daySummaries.find(
+    ({ day }) => day.id === currentDayId,
+  );
+  const nextExerciseName = getNextExerciseName({
+    planId,
+    dayDetails: currentSummary?.dayDetails,
+    dayLog: currentSummary?.dayLog,
+  });
+  const railItems = buildRailItems({
+    daySummaries,
+    planId,
+  });
+
   return (
-    <AppShell mode="training">
-      <MotionDiv
-        className="flex flex-col gap-4 py-0"
-        variants={cycleRevealContainerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <MotionDiv variants={cycleRevealItemVariants}>
-          <Link
-            to={`/plan/${planId}`}
-            className="inline-flex w-fit items-center gap-1.5 text-xs font-medium text-[#8B949B] transition-colors hover:text-[#D3D8DB]"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-            Back to plan
-          </Link>
-        </MotionDiv>
-
-        <MotionDiv variants={cycleRevealItemVariants}>
-          <CycleHeader
-            planName={plan.name}
-            cycleLabel={`Cycle ${currentCycleNumber}`}
-            statusSummary={`${completedDayCount} of ${totalTrainingDays} training days closed`}
-            progressPercent={progressPercent}
-          />
-        </MotionDiv>
-
-        <MotionSection
-          aria-label="Cycle rhythm"
-          className="relative max-w-full overflow-hidden rounded-2xl border border-white/8 bg-white/[0.014]"
-          variants={cycleRhythmRevealVariants}
+    <AppShell mode="product" width="wide">
+      <div className="flex flex-col gap-7 pb-3">
+        <Link
+          to={`/plan/${planId}`}
+          className="inline-flex min-h-11 w-fit items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#66675E] transition-colors hover:text-[#191A16] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5A3C]"
         >
-          <div
-            className="pointer-events-none absolute inset-y-0 left-0 z-10 w-5 bg-gradient-to-r from-[#080D0E] to-transparent"
-            aria-hidden="true"
-          />
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Plan overview
+        </Link>
 
-          <div
-            className="pointer-events-none absolute inset-y-0 right-0 z-10 w-5 bg-gradient-to-l from-[#080D0E] to-transparent"
-            aria-hidden="true"
-          />
-
-          <div className="overflow-x-auto px-3 py-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:[scrollbar-width:thin] sm:[scrollbar-color:rgba(63,168,182,0.42)_transparent] sm:[&::-webkit-scrollbar]:block sm:[&::-webkit-scrollbar]:h-1.5 sm:[&::-webkit-scrollbar-track]:bg-transparent sm:[&::-webkit-scrollbar-thumb]:rounded-full sm:[&::-webkit-scrollbar-thumb]:bg-[#3FA8B6]/40">
-            <div className="flex min-w-max items-center gap-2">
-              {rhythmSlots.map((slot) => {
-                if (slot.type === "rest") {
-                  return (
-                    <div
-                      key={slot.id}
-                      className="flex h-12 w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-full border border-white/7 bg-white/[0.018] text-zinc-500"
-                    >
-                      <span className="text-xs font-medium">Rest</span>
-                      <Moon className="h-4 w-4" aria-hidden="true" />
-                    </div>
-                  );
-                }
-
-                const summary = daySummaries.find(
-                  ({ day }) => day.id === slot.day.id,
-                );
-
-                const isFinished = summary?.dayMode === "finished";
-                const isCurrent = summary?.dayMode === "active";
-
-                return (
-                  <Link
-                    key={slot.day.id}
-                    ref={isCurrent ? currentRhythmItemRef : null}
-                    to={`/plan/${planId}/day/${slot.day.id}`}
-                    className={[
-                      "flex h-12 w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-full border text-center transition-colors",
-                      isCurrent
-                        ? "border-[#3FA8B6]/54 bg-[#10292E]/72 text-[#DDF8FB]"
-                        : "",
-                      isFinished
-                        ? "border-white/8 bg-white/[0.026] text-[#A9B0B5]"
-                        : "",
-                      !isCurrent && !isFinished
-                        ? "border-white/7 bg-white/[0.018] text-zinc-500 hover:border-[#3FA8B6]/22"
-                        : "",
-                    ].join(" ")}
-                  >
-                    <span className="text-sm font-semibold">
-                      {slot.day.label}
-                    </span>
-
-                    {isFinished ? (
-                      <CheckCircle2
-                        className="h-3.5 w-3.5 text-[#8B949B]"
-                        aria-hidden="true"
-                      />
-                    ) : isCurrent ? (
-                      <MotionSpan
-                        className="h-2 w-2 rounded-full bg-[#5EC7D5]"
-                        animate={
-                          shouldReduceMotion
-                            ? undefined
-                            : {
-                                opacity: [0.82, 1, 0.82],
-                                scale: [1, 1.18, 1],
-                              }
-                        }
-                        transition={{
-                          duration: 2.4,
-                          ease: "easeInOut",
-                          repeat: Infinity,
-                        }}
-                      />
-                    ) : (
-                      <span className="h-2 w-2 rounded-full bg-white/14" />
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
+        <header className="grid gap-5 border-b border-[#C9C1AF] pb-6 sm:grid-cols-[1fr_auto] sm:items-end">
+          <div>
+            <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#B33521]">
+              {plan.name} · Continuity map
+            </p>
+            <h1 className="mt-2 font-display text-6xl font-extrabold uppercase leading-[0.84] tracking-[-0.035em] text-[#191A16] min-[390px]:text-7xl">
+              Cycle {currentCycleNumber}
+              <span className="block text-[#6F7068]">
+                {isCycleComplete ? "Path closed" : "In motion"}
+              </span>
+            </h1>
           </div>
-        </MotionSection>
 
-        {currentDay ? (
-          <MotionSection
-            className="relative overflow-hidden rounded-2xl border border-[#3FA8B6]/14 bg-[#10292E]/58 p-4 shadow-[0_12px_30px_rgba(0,0,0,0.2)]"
-            variants={cycleRevealItemVariants}
-          >
-            <div
-              className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_18%,rgba(95,199,213,0.08),transparent_34%),radial-gradient(circle_at_12%_100%,rgba(63,168,182,0.06),transparent_40%)]"
-              aria-hidden="true"
-            />
-            <div className="relative flex flex-col gap-3.5">
-              <div className="flex flex-col gap-2.5">
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.16em] text-[#8FDCE5]/82">
-                  {isCycleComplete ? "Current cycle" : "Current day"}
-                </p>
+          <div className="border-l-2 border-[#FF5A3C] pl-4 sm:min-w-48">
+            <p className="font-display text-4xl font-bold leading-none tabular-nums text-[#191A16]">
+              {String(completedDayCount).padStart(2, "0")}
+              <span className="text-[#6F7068]">/06</span>
+            </p>
+            <p className="mt-1 text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-[#5F6158]">
+              Days closed
+            </p>
+            <p className="mt-2 text-xs leading-5 text-[#66675E]">
+              {partialDayCount > 0
+                ? `${partialDayCount} closed with partial main work`
+                : emptyDayCount > 0
+                  ? `${emptyDayCount} closed without performed main sets`
+                  : "Performed work remains separate from closure"}
+            </p>
+          </div>
+        </header>
 
-                <div className="flex flex-col gap-2">
-                  <h2 className="text-2xl font-semibold leading-tight tracking-tight text-[#F4F7F8]">
-                    {isCycleComplete
-                      ? "Cycle complete"
-                      : `${currentDay.label} ${currentDay.name}`}
-                  </h2>
+        {!isCycleComplete && currentSummary ? (
+          <section className="cut-corner grid gap-4 border border-[#34362E] bg-[#1B1C17] p-5 text-[#F2EEE4] sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+            <div>
+              <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#FF8B73]">
+                Current marker · {currentSummary.day.label}
+              </p>
+              <h2 className="mt-2 font-display text-4xl font-bold uppercase leading-none">
+                {nextExerciseName}
+              </h2>
+              <p className="mt-3 max-w-lg text-sm leading-6 text-[#AAA99F]">
+                {hasDayActivity(currentSummary.dayLog)
+                  ? "Continue from the evidence already saved in this day."
+                  : "Open the day to create its prescribed logging rows."}
+              </p>
+            </div>
+            <Link
+              to={`/plan/${planId}/day/${currentSummary.day.id}`}
+              className="cut-corner-sm inline-flex min-h-12 items-center justify-between gap-5 border border-[#FF795F] bg-[#FF5A3C] px-4 text-sm font-semibold text-[#171814] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5A3C] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1B1C17]"
+            >
+              {areAllMainExercisesClosed(
+                currentSummary.dayDetails,
+                currentSummary.dayLog,
+              )
+                ? "Review day"
+                : hasDayActivity(currentSummary.dayLog)
+                  ? "Continue day"
+                  : "Start day"}
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </section>
+        ) : null}
 
-                  <p className="max-w-sm text-sm leading-5 text-[#C7D0D4]">
-                    {isCycleComplete
-                      ? `All ${totalTrainingDays} training days are closed. Review your cycle before starting the next one.`
-                      : (currentDayDetails?.goal ??
-                        "Open the current training day and keep the cycle moving.")}
-                  </p>
-                </div>
-              </div>
+        {isCycleComplete ? (
+          <section className="cut-corner grid gap-4 border border-[#34362E] bg-[#1B1C17] p-5 text-[#F2EEE4] sm:grid-cols-[1fr_auto] sm:items-end">
+            <div>
+              <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#B8CB70]">
+                Handoff ready
+              </p>
+              <h2 className="mt-2 font-display text-4xl font-bold uppercase leading-none">
+                Six days closed. Evidence preserved.
+              </h2>
+              <p className="mt-3 max-w-lg text-sm leading-6 text-[#AAA99F]">
+                Review the actual path before explicitly starting another cycle.
+              </p>
+            </div>
+            <Link
+              to={`/plan/${planId}/end-cycle`}
+              className="cut-corner-sm inline-flex min-h-12 items-center justify-between gap-5 border border-[#B8CB70] bg-[#B8CB70] px-4 text-sm font-semibold text-[#171814]"
+            >
+              Review cycle
+              <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+            </Link>
+          </section>
+        ) : null}
 
-              <div className="border-t border-white/10 pt-3.5">
-                {isCycleComplete ? (
-                  <div className="flex items-center gap-2 text-sm font-medium text-[#C7D0D4]">
-                    <CheckCircle2
-                      className="h-4 w-4 shrink-0 text-[#8FDCE5]"
-                      aria-hidden="true"
-                    />
-                    <span>
-                      {completedDayCount}/{totalTrainingDays} training days
-                      closed
-                    </span>
-                  </div>
-                ) : (
-                  <div className="flex flex-col gap-2">
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm font-medium text-[#C7D0D4]">
-                      <span className="inline-flex items-center gap-1.5">
-                        <Dumbbell
-                          className="h-4 w-4 text-[#5EC7D5]"
-                          aria-hidden="true"
-                        />
-                        {currentDaySummary?.totalExerciseCount ?? 0} exercises
-                      </span>
-
-                      <span className="inline-flex items-center gap-1.5">
-                        <Flame
-                          className="h-4 w-4 text-amber-300"
-                          aria-hidden="true"
-                        />
-                        Warm-up ready
-                      </span>
-                    </div>
-
-                    <div className="flex min-w-0 items-center gap-2 text-sm">
-                      <ArrowRight
-                        className="h-4 w-4 shrink-0 text-[#5EC7D5]"
-                        aria-hidden="true"
-                      />
-
-                      <p className="min-w-0 text-[#C7D0D4]">
-                        <span className="font-medium text-[#8FDCE5]">
-                          Next up:
-                        </span>{" "}
-                        <span className="font-semibold text-[#F4F7F8]">
-                          {nextExerciseName}
-                        </span>
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <Link
-                to={
-                  isCycleComplete
-                    ? `/plan/${planId}/end-cycle`
-                    : `/plan/${planId}/day/${currentDay.id}`
-                }
-                className="inline-flex min-h-12 items-center justify-center rounded-xl bg-[#5EC7D5] px-5 text-sm font-semibold text-[#031014] shadow-[0_8px_18px_rgba(63,168,182,0.13)] transition-colors hover:bg-[#6DD6E2] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#10292E]"
+        <section aria-labelledby="cycle-path-heading">
+          <div className="mb-5 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#5F6158]">
+                {isCycleComplete
+                  ? "Closed → review → next cycle"
+                  : "Performed → current → next → rest"}
+              </p>
+              <h2
+                id="cycle-path-heading"
+                className="mt-1 font-display text-4xl font-bold uppercase leading-none text-[#191A16]"
               >
-                {heroCtaLabel}
-                <ChevronRight className="ml-2 h-5 w-5" aria-hidden="true" />
-              </Link>
+                One connected path
+              </h2>
             </div>
-          </MotionSection>
-        ) : null}
-
-        {upcomingDays.length > 0 ? (
-          <MotionSection
-            className="flex flex-col gap-2"
-            variants={cycleRevealItemVariants}
-          >
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#A9B0B5]">
-              Up next
+            <p className="hidden max-w-52 text-right text-xs leading-5 text-[#66675E] sm:block">
+              Select a closed day to review it or an upcoming day to preview it.
             </p>
-
-            <div className="flex flex-col gap-2">
-              {upcomingDays.map(({ day, statusLabel, statusDetail }) => (
-                <DayCard
-                  key={day.id}
-                  planId={planId}
-                  day={day}
-                  status={statusLabel}
-                  statusDetail={statusDetail}
-                  meta={[
-                    STATIC_CORE_HINT_MAP[day.id],
-                    STATIC_DAY_DETAIL_HINT_MAP[planId]?.[day.id],
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                  mode="upcoming"
-                />
-              ))}
-            </div>
-          </MotionSection>
-        ) : null}
-
-        {completedDays.length > 0 ? (
-          <MotionSection
-            className="flex flex-col gap-2"
-            variants={cycleRevealItemVariants}
-          >
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#A9B0B5]">
-              Closed days
-            </p>
-
-            <div className="flex flex-col gap-2">
-              {completedDays.map(({ day, statusLabel, statusDetail }) => (
-                <DayCard
-                  key={day.id}
-                  planId={planId}
-                  day={day}
-                  status={statusLabel}
-                  statusDetail={statusDetail}
-                  meta={[
-                    STATIC_CORE_HINT_MAP[day.id],
-                    STATIC_DAY_DETAIL_HINT_MAP[planId]?.[day.id],
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                  mode="finished"
-                />
-              ))}
-            </div>
-          </MotionSection>
-        ) : null}
-
-        <MotionSection
-          className="flex items-center gap-3 rounded-xl border border-white/7 bg-white/[0.018] px-3 py-2.5"
-          variants={cycleRevealItemVariants}
-        >
-          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/8 bg-white/[0.026] text-[#8FDCE5]/68">
-            <Sparkles className="h-5 w-5" aria-hidden="true" />
           </div>
 
-          <p className="text-sm font-medium leading-5 text-[#A9B0B5]">
-            Rest days keep the cycle moving.
+          <ContinuityRail
+            items={railItems}
+            orientation="vertical"
+            tone="paper"
+            animate
+            ariaLabel={`${plan.name}, cycle ${currentCycleNumber}, nine-slot continuity map`}
+            className="border-y border-[#C9C1AF]"
+          />
+        </section>
+
+        <footer className="grid gap-2 border-t border-[#C9C1AF] pt-4 text-xs text-[#66675E] min-[390px]:grid-cols-3">
+          <p><span className="font-semibold text-[#38502F]">Closed</span> records lifecycle.</p>
+          <p><span className="font-semibold text-[#7A4B09]">Partial</span> keeps work honest.</p>
+          <p>
+            {isCycleComplete ? (
+              <><span className="font-semibold text-[#5F6158]">Empty</span> remains a valid record.</>
+            ) : (
+              <><span className="font-semibold text-[#A72F1D]">Current</span> owns the next action.</>
+            )}
           </p>
-        </MotionSection>
-      </MotionDiv>
+        </footer>
+      </div>
     </AppShell>
   );
 }

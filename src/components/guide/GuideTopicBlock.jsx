@@ -1,66 +1,29 @@
-import { motion } from "motion/react";
-
-import { staggerItemVariants } from "../../styles/motion";
-import {
-  UI_TEXT_BODY_RELAXED,
-  UI_TEXT_BODY_STRONG,
-  UI_TEXT_CARD_TITLE,
-  UI_TEXT_EYEBROW,
-} from "../../styles/ui";
-
-const MotionArticle = motion.article;
-
-/**
- * Displays one guide topic with optional paragraph and bullet content.
- *
- * UI note:
- * Topic blocks render static educational content from the guide data layer.
- */
-export default function GuideTopicBlock({
-  topic,
-  index,
-  isFirst = false,
-  isLast = false,
-}) {
+/** One static educational topic in the paper guide reader. */
+export default function GuideTopicBlock({ topic, index }) {
   const [leadParagraph, ...bodyParagraphs] = topic.paragraphs ?? [];
-  const hasBullets = Boolean(topic.bullets?.length);
-
-  const articleClassName = [
-    "rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3",
-    isFirst ? "" : "",
-    isLast ? "" : "",
-    !isLast && !hasBullets ? "" : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
 
   return (
-    <MotionArticle className={articleClassName} variants={staggerItemVariants}>
-      <div className="flex items-start gap-3">
-        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#3FA8B6]/18 bg-[#10292E]/36 text-sm font-semibold text-[#8FDCE5]">
-          {index + 1}
-        </div>
-
-        <h3 className={`min-w-0 flex-1 leading-snug ${UI_TEXT_CARD_TITLE}`}>
+    <article className="grid grid-cols-[2.5rem_minmax(0,1fr)] gap-3 border-b border-[#C9C1AF] py-6">
+      <span className="font-display text-sm font-bold text-[#66675E]">
+        {String(index + 1).padStart(2, "0")}
+      </span>
+      <div className="min-w-0">
+        <h3 className="font-display text-2xl font-bold uppercase leading-none text-[#191A16]">
           {topic.title}
         </h3>
-      </div>
 
-      <div className="mt-4">
         {leadParagraph ? (
-          <p
-            className={`rounded-xl border border-amber-300/14 bg-amber-300/[0.035] px-3 py-2 font-medium ${UI_TEXT_BODY_STRONG}`}
-          >
+          <p className="mt-4 border-l-2 border-[#E5A13A] pl-3 text-sm font-medium leading-6 text-[#363831]">
             {leadParagraph}
           </p>
         ) : null}
 
         {bodyParagraphs.length ? (
-          <div className="mt-4 flex flex-col gap-3">
+          <div className="mt-4 space-y-3">
             {bodyParagraphs.map((paragraph, paragraphIndex) => (
               <p
                 key={`${topic.id}-paragraph-${paragraphIndex}`}
-                className={UI_TEXT_BODY_RELAXED}
+                className="text-sm leading-6 text-[#5F6158]"
               >
                 {paragraph}
               </p>
@@ -68,19 +31,18 @@ export default function GuideTopicBlock({
           </div>
         ) : null}
 
-        {hasBullets ? (
-          <div className="mt-5">
-            <p className={UI_TEXT_EYEBROW}>
+        {topic.bullets?.length ? (
+          <div className="mt-5 border-y border-[#D8D1C2] bg-[#E7E1D2]/45 px-3 py-3">
+            <p className="text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-[#5F6158]">
               Practical rules
             </p>
-
-            <ul className="mt-2.5 flex flex-col border-y border-white/7">
+            <ul className="mt-2 space-y-2">
               {topic.bullets.map((bullet, bulletIndex) => (
                 <li
                   key={`${topic.id}-bullet-${bulletIndex}`}
-                  className={`flex gap-2.5 border-b border-white/7 py-2 last:border-b-0 ${UI_TEXT_BODY_STRONG}`}
+                  className="grid grid-cols-[1rem_minmax(0,1fr)] gap-2 text-sm font-medium leading-6 text-[#363831]"
                 >
-                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C9B57A]/72" />
+                  <span className="text-[#B33521]" aria-hidden="true">—</span>
                   <span>{bullet}</span>
                 </li>
               ))}
@@ -88,6 +50,6 @@ export default function GuideTopicBlock({
           </div>
         ) : null}
       </div>
-    </MotionArticle>
+    </article>
   );
 }

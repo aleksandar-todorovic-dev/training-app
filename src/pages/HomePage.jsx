@@ -1,68 +1,27 @@
-import { createElement, useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
-import {
-  CalendarClock,
-  Dumbbell,
-  History,
-  Repeat2,
-  RotateCcw,
-} from "lucide-react";
+import { RotateCcw } from "lucide-react";
 
-import AppShell from "../components/layout/AppShell";
 import AppMark from "../components/brand/AppMark";
-import PlanCard from "../components/plans/PlanCard";
 import PrimaryButton from "../components/common/PrimaryButton";
 import SecondaryButton from "../components/common/SecondaryButton";
-import { plans } from "../data/plans";
+import ContinuityRail from "../components/cycle/ContinuityRail";
+import AppShell from "../components/layout/AppShell";
+import PlanCard from "../components/plans/PlanCard";
 import { getDaysByPlanId } from "../data/days";
+import { plans } from "../data/plans";
+import { clearStoredAppState } from "../storage/appStateStorage";
 import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
-import { clearStoredAppState } from "../storage/appStateStorage";
-import { pressableTap, revealPanelVariants } from "../styles/motion";
-import {
-  UI_TEXT_BODY,
-  UI_TEXT_BODY_RELAXED,
-  UI_TEXT_CARD_TITLE,
-  UI_TEXT_EYEBROW_ACCENT,
-  UI_TEXT_META,
-} from "../styles/ui";
 
-const MotionButton = motion.button;
-const MotionDiv = motion.div;
-
-const HOME_VALUE_CHIPS = [
-  {
-    id: "cycle-based",
-    label: "Cycle-based",
-    icon: Repeat2,
-    title: "A cycle that stays connected",
-    description:
-      "The plan is built around repeated training signals, not a perfect calendar week. Main work, support work, and smaller top-ups keep the cycle connected, so moving a rest day does not turn the plan random. Rest when needed, then continue with the next planned workout.",
-  },
-  {
-    id: "guided-workouts",
-    label: "Guided workouts",
-    icon: Dumbbell,
-    title: "Know what to do next",
-    description:
-      "Each session gives you the next exercise, targets, cues, warm-up guidance, coach notes, and a clear finish flow so you can focus on execution instead of piecing the workout together.",
-  },
-  {
-    id: "previous-values",
-    label: "Previous values",
-    icon: History,
-    title: "Your last work stays useful",
-    description:
-      "Logged sets become reference points for the next cycle. You can compare weight, reps, and RIR without relying on memory or old notes.",
-  },
-  {
-    id: "partial-days",
-    label: "Partial days",
-    icon: CalendarClock,
-    title: "Honest logs when life gets messy",
-    description:
-      "Partial days are for low time, high fatigue, or sessions you cannot finish properly. The app records what actually happened instead of forcing fake completion, while the goal stays to train well when you can.",
-  },
+const HOME_RHYTHM_ITEMS = [
+  { id: "d1", kind: "day", label: "D1", shortTitle: "Train", state: "planned" },
+  { id: "d2", kind: "day", label: "D2", shortTitle: "Train", state: "planned" },
+  { id: "r1", kind: "rest", label: "Rest", shortTitle: "Recover", state: "rest" },
+  { id: "d3", kind: "day", label: "D3", shortTitle: "Train", state: "planned" },
+  { id: "d4", kind: "day", label: "D4", shortTitle: "Train", state: "planned" },
+  { id: "r2", kind: "rest", label: "Rest", shortTitle: "Recover", state: "rest" },
+  { id: "d5", kind: "day", label: "D5", shortTitle: "Train", state: "planned" },
+  { id: "d6", kind: "day", label: "D6", shortTitle: "Train", state: "planned" },
+  { id: "r3", kind: "rest", label: "Rest", shortTitle: "Recover", state: "rest" },
 ];
 
 function getActiveCycleEntries(state) {
@@ -104,29 +63,47 @@ function getActiveCycleEntries(state) {
   });
 }
 
-function ActiveCycleEntry({ entry }) {
+function ActiveCycleEntry({ entry, index }) {
   const { plan, currentCycleNumber, currentDay, currentDayRoute, cycleRoute } =
     entry;
 
   return (
-    <article className="rounded-2xl border border-[#3FA8B6]/16 bg-[#10292E]/44 p-3.5 shadow-[0_10px_26px_rgba(0,0,0,0.2)]">
-      <p className={UI_TEXT_EYEBROW_ACCENT}>Active cycle</p>
+    <article
+      className={`grid gap-4 px-4 py-5 sm:grid-cols-[1fr_auto] sm:items-end ${
+        index > 0 ? "border-t border-[#45473E]" : ""
+      }`}
+    >
+      <div className="min-w-0">
+        <div className="flex items-baseline justify-between gap-4">
+          <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#FF8B73]">
+            Active cycle {currentCycleNumber}
+          </p>
+          <p className="text-[0.66rem] font-semibold uppercase tracking-[0.12em] text-[#87877E]">
+            {plan.name}
+          </p>
+        </div>
 
-      <h2 className={`mt-1.5 ${UI_TEXT_CARD_TITLE}`}>
-        {plan.name} · Cycle {currentCycleNumber}
-      </h2>
+        <div className="mt-3 flex items-start gap-3">
+          <span className="flex h-9 min-w-9 items-center justify-center border border-[#FF795F] bg-[#FF5A3C] px-1.5 font-display text-lg font-bold text-[#171814]">
+            {currentDay.label}
+          </span>
+          <div className="min-w-0">
+            <p className="font-display text-2xl font-semibold leading-none text-[#F2EEE4]">
+              {currentDay.name}
+            </p>
+            <p className="mt-1 text-sm leading-5 text-[#AAA99F]">
+              Your next planned step is already fixed.
+            </p>
+          </div>
+        </div>
+      </div>
 
-      <p className={`mt-1 ${UI_TEXT_BODY}`}>
-        {currentDay.label} · {currentDay.name}
-      </p>
-
-      <div className="mt-3 flex flex-col gap-2 min-[380px]:flex-row">
+      <div className="grid grid-cols-2 gap-2 sm:w-64">
         <PrimaryButton to={currentDayRoute} className="w-full">
-          Continue Training
+          Continue
         </PrimaryButton>
-
         <SecondaryButton to={cycleRoute} className="w-full">
-          View Cycle
+          Cycle map
         </SecondaryButton>
       </div>
     </article>
@@ -134,26 +111,13 @@ function ActiveCycleEntry({ entry }) {
 }
 
 /**
- * Landing page for explaining the product value and selecting one of the
- * predefined MVP plans.
+ * Product entry for new and returning users.
  *
- * Runtime note:
- * Rendering plan cards or opening value chips does not create user progress.
- * Runtime cycle creation starts from the plan overview flow.
- *
- * Persistence note:
- * The reset action clears local runtime progress for this device only. Static
- * source data remains unchanged because it ships with the app.
+ * Rendering plans, the rhythm specimen, or resume entries is read-only. A
+ * cycle is still created only from the explicit Plan Overview start action.
  */
 export default function HomePage() {
   const { state, dispatch } = useAppState();
-  // Local product-education state only; it does not affect runtime progress.
-  const [activeValueChipId, setActiveValueChipId] = useState(null);
-
-  const activeValueChip = HOME_VALUE_CHIPS.find(
-    (chip) => chip.id === activeValueChipId,
-  );
-
   const activeCycleEntries = getActiveCycleEntries(state);
 
   function handleResetLocalProgress() {
@@ -166,156 +130,150 @@ export default function HomePage() {
     }
 
     clearStoredAppState();
-
-    dispatch({
-      type: APP_ACTIONS.RESET_APP_STATE,
-    });
-  }
-
-  function handleValueChipClick(chipId) {
-    setActiveValueChipId((currentChipId) =>
-      currentChipId === chipId ? null : chipId,
-    );
+    dispatch({ type: APP_ACTIONS.RESET_APP_STATE });
   }
 
   return (
-    <AppShell mode="training">
-      <div className="relative isolate flex flex-col gap-5 py-1">
-        <div
-          className="pointer-events-none absolute -top-16 left-1/2 -z-10 h-56 w-56 -translate-x-1/2 rounded-full bg-[#3FA8B6]/5 blur-3xl"
-          aria-hidden="true"
-        />
-
-        <header className="flex flex-col gap-4">
-          <div className="inline-flex w-fit items-center gap-2.5">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-[#3FA8B6]/14 bg-[#10292E]/46 text-[#8FDCE5]/90">
-              <AppMark className="h-10 w-10 shrink-0" />
+    <AppShell mode="product" width="wide">
+      <div className="flex flex-col gap-10 pb-2">
+        <header>
+          <div className="flex items-center justify-between gap-4 border-b border-[#C9C1AF] pb-4">
+            <div className="flex items-center gap-3">
+              <AppMark className="h-10 w-10" tone="paper" />
+              <div>
+                <p className="font-display text-xl font-bold uppercase leading-none tracking-wide text-[#191A16]">
+                  Cycle Coach
+                </p>
+                <p className="mt-1 text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-[#5F6158]">
+                  Structured training companion
+                </p>
+              </div>
             </div>
-
-            <div className="flex flex-col">
-              <p className="text-base font-semibold tracking-tight text-[#F4F7F8]">
-                Cycle Coach
-              </p>
-              <p className={UI_TEXT_META}>Structured training companion</p>
-            </div>
+            <span className="font-display text-lg font-semibold text-[#6F7068]">
+              06 / 09
+            </span>
           </div>
 
-          <div className="flex flex-col gap-3">
-            <h1 className="max-w-sm text-[2.32rem] font-semibold leading-[1.03] tracking-tight text-[#F4F7F8]">
-              Your training cycle, organized
-              <span className="text-[#5EC7D5]">.</span>
-            </h1>
+          {activeCycleEntries.length > 0 ? (
+            <section className="mt-4" aria-labelledby="active-cycles-heading">
+              <div className="mb-3 flex items-end justify-between gap-4">
+                <div>
+                  <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#B33521]">
+                    Resume
+                  </p>
+                  <p
+                    id="active-cycles-heading"
+                    className="mt-1 font-display text-3xl font-bold uppercase leading-none text-[#191A16]"
+                  >
+                    Pick up the rail
+                  </p>
+                </div>
+                <p className="hidden max-w-52 text-right text-xs leading-5 text-[#66675E] min-[390px]:block">
+                  Each plan keeps its own local cycle.
+                </p>
+              </div>
 
-            <p className={`max-w-sm ${UI_TEXT_BODY_RELAXED}`}>
-              Follow Bulk or Cut cycles with guided workouts, previous values,
-              and flexible progress when real life changes the schedule.
+              <div className="cut-corner overflow-hidden border border-[#34362E] bg-[#1B1C17]">
+                {activeCycleEntries.map((entry, index) => (
+                  <ActiveCycleEntry
+                    key={entry.plan.id}
+                    entry={entry}
+                    index={index}
+                  />
+                ))}
+              </div>
+            </section>
+          ) : null}
+
+          <div className="grid gap-7 py-8 sm:grid-cols-[1.25fr_0.75fr] sm:items-end">
+            <div>
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.18em] text-[#B33521]">
+                The cycle is the system
+              </p>
+              <h1 className="mt-3 max-w-xl font-display text-[3.6rem] font-extrabold uppercase leading-[0.82] tracking-[-0.035em] text-[#191A16] min-[390px]:text-[4.25rem] sm:text-[5.2rem]">
+                The calendar moves.
+                <span className="block text-[#C83C24]">The order stays.</span>
+              </h1>
+            </div>
+
+            <p className="max-w-md border-l-2 border-[#FF5A3C] pl-4 text-base leading-7 text-[#4E5048]">
+              Follow a predefined Bulk or Cut cycle, log what actually happened,
+              and return to one clear next action—even after a partial day.
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-2.5">
-            {HOME_VALUE_CHIPS.map(({ id, label, icon }) => {
-              const isActive = activeValueChipId === id;
-
-              return (
-                <MotionButton
-                  key={id}
-                  type="button"
-                  aria-expanded={isActive}
-                  aria-controls={isActive ? "home-value-chip-panel" : undefined}
-                  onClick={() => handleValueChipClick(id)}
-                  whileTap={pressableTap}
-                  className={[
-                    "inline-flex min-h-9 items-center gap-2 rounded-xl border px-2.5 py-1.5 text-left text-xs font-medium transition duration-150 ease-out motion-reduce:transition-none",
-                    isActive
-                      ? "border-[#3FA8B6]/26 bg-[#10292E]/48 text-[#F4F7F8]"
-                      : "border-white/8 bg-white/[0.018] text-[#D3D8DB] hover:border-[#3FA8B6]/18 hover:bg-white/[0.035]",
-                  ].join(" ")}
-                >
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-[#8FDCE5]/78">
-                    {createElement(icon, {
-                      className: "h-3 w-3",
-                      "aria-hidden": "true",
-                    })}
-                  </span>
-                  <span className="leading-tight">{label}</span>
-                </MotionButton>
-              );
-            })}
+          <div className="border-y border-[#C9C1AF] py-5">
+            <div className="mb-4 flex items-baseline justify-between gap-4">
+              <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#5F6158]">
+                Nine-slot rhythm
+              </p>
+              <p className="text-xs text-[#66675E]">2 train · 1 recover · repeat</p>
+            </div>
+            <ContinuityRail
+              items={HOME_RHYTHM_ITEMS}
+              tone="paper"
+              animate
+              ariaLabel="Six training days inside a nine-slot recovery rhythm"
+            />
           </div>
 
-          <AnimatePresence initial={false} mode="wait">
-            {activeValueChip ? (
-              <MotionDiv
-                key={activeValueChip.id}
-                id="home-value-chip-panel"
-                className="rounded-2xl border border-[#3FA8B6]/12 bg-[#10292E]/32 px-3.5 py-3"
-                variants={revealPanelVariants}
-                initial="hidden"
-                animate="visible"
-                exit="exit"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className={UI_TEXT_EYEBROW_ACCENT}>Why it matters</p>
-
-                    <h2 className={`mt-1.5 ${UI_TEXT_CARD_TITLE}`}>
-                      {activeValueChip.title}
-                    </h2>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => setActiveValueChipId(null)}
-                    className="shrink-0 rounded-full border border-white/8 px-2.5 py-1 text-xs font-medium text-[#A9B0B5] transition duration-150 ease-out hover:text-[#F4F7F8] active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100"
-                  >
-                    Close
-                  </button>
-                </div>
-
-                <p className={`mt-2 ${UI_TEXT_BODY}`}>
-                  {activeValueChip.description}
-                </p>
-              </MotionDiv>
-            ) : null}
-          </AnimatePresence>
+          <div className="grid border-b border-[#C9C1AF] sm:grid-cols-2">
+            <div className="py-5 pr-0 sm:border-r sm:border-[#C9C1AF] sm:pr-6">
+              <p className="font-display text-2xl font-bold uppercase leading-none text-[#191A16]">
+                Stable sequence
+              </p>
+              <p className="mt-2 text-sm leading-6 text-[#5B5D54]">
+                D1–D6 keep their order. Recovery creates room without turning the
+                plan into random sessions.
+              </p>
+            </div>
+            <div className="border-t border-[#C9C1AF] py-5 sm:border-t-0 sm:pl-6">
+              <p className="font-display text-2xl font-bold uppercase leading-none text-[#191A16]">
+                Honest evidence
+              </p>
+              <p className="mt-2 text-sm leading-6 text-[#5B5D54]">
+                Checked sets record performed work. Partial days remain useful,
+                and previous values carry the next cycle forward.
+              </p>
+            </div>
+          </div>
         </header>
 
-        {activeCycleEntries.length > 0 ? (
-          <section
-            className="flex flex-col gap-2.5"
-            aria-label="Active training cycles"
-          >
-            {activeCycleEntries.map((entry) => (
-              <ActiveCycleEntry key={entry.plan.id} entry={entry} />
-            ))}
-          </section>
-        ) : null}
-
-        <section className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1">
-            <h2 className={UI_TEXT_CARD_TITLE}>Choose your plan</h2>
-            <p className={UI_TEXT_BODY_RELAXED}>
-              Pick the phase that matches your current goal.
+        <section aria-labelledby="choose-plan-heading">
+          <div className="mb-5 grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+            <div>
+              <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#B33521]">
+                Two prescribed phases
+              </p>
+              <h2
+                id="choose-plan-heading"
+                className="mt-1 font-display text-4xl font-bold uppercase leading-none text-[#191A16]"
+              >
+                Choose the work
+              </h2>
+            </div>
+            <p className="max-w-sm text-sm leading-6 text-[#5B5D54]">
+              Same stable cycle. Different training priority and fatigue logic.
             </p>
           </div>
 
-          <div className="flex flex-col gap-3">
-            {plans.map((plan) => (
-              <PlanCard key={plan.id} plan={plan} />
+          <div className="grid gap-px overflow-hidden border border-[#A9A292] bg-[#A9A292] sm:grid-cols-2">
+            {plans.map((plan, index) => (
+              <PlanCard key={plan.id} plan={plan} index={index} />
             ))}
           </div>
         </section>
 
-        <div className="-mt-2 -mb-5 border-t border-white/8 pt-2">
+        <footer className="border-t border-[#C9C1AF] pt-4">
           <button
             type="button"
-            className="mx-auto flex min-h-8 items-center justify-center gap-2 rounded-xl px-3 text-xs font-medium text-zinc-600 transition-colors hover:text-zinc-400"
             onClick={handleResetLocalProgress}
+            className="inline-flex min-h-11 items-center gap-2 text-xs font-semibold uppercase tracking-[0.12em] text-[#5F6158] transition-colors hover:text-[#B33521] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5A3C]"
           >
-            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+            <RotateCcw className="h-4 w-4" aria-hidden="true" />
             Reset local progress
           </button>
-        </div>
+        </footer>
       </div>
     </AppShell>
   );

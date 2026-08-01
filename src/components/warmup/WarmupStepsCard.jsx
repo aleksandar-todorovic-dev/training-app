@@ -6,52 +6,48 @@
  */
 export default function WarmupStepsCard({ steps }) {
   return (
-    <div className="flex flex-col gap-3">
-      <div className="flex items-end justify-between gap-3">
-        <div>
-          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]">
-            Flow
-          </p>
-
-          <h3 className="mt-0.5 text-base font-semibold tracking-tight text-[#F4F7F8]">
-            Three quick steps
-          </h3>
-        </div>
-
-        <p className="text-xs font-medium text-[#747D84]">Guidance only</p>
+    <section aria-labelledby="warmup-flow-title">
+      <div className="flex items-end justify-between gap-3 border-b border-[#C9C1AF] pb-2">
+        <h3
+          id="warmup-flow-title"
+          className="font-display text-xl font-bold uppercase leading-none text-[#191A16]"
+        >
+          Three-step flow
+        </h3>
+        <p className="text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-[#5F6158]">
+          Guidance only
+        </p>
       </div>
 
-      <div className="overflow-hidden rounded-2xl border border-white/8 bg-white/[0.014]">
+      <ol>
         {steps.map((step, index) => (
-          <div
+          <li
             key={step.title}
-            className={`grid grid-cols-[1.9rem_1fr] gap-2.5 px-3 py-3 ${
-              index > 0 ? "border-t border-white/7" : ""
-            }`}
+            className="grid grid-cols-[2.25rem_minmax(0,1fr)] gap-3 border-b border-[#D8D1C2] py-4"
           >
-            <div className="flex h-7 w-7 items-center justify-center rounded-full border border-amber-300/24 bg-amber-300/8 text-xs font-semibold text-amber-200">
-              {index + 1}
+            <div className="flex h-8 w-8 items-center justify-center border border-[#B77A20] bg-[#E5A13A]/10 font-display text-sm font-bold text-[#7A4B09]">
+              {String(index + 1).padStart(2, "0")}
             </div>
 
             <div className="min-w-0">
-              <h4 className="text-sm font-semibold text-[#F4F7F8]">
+              <h4 className="text-sm font-semibold text-[#191A16]">
                 {step.title}
               </h4>
 
-              <ul className="mt-1.5 space-y-1">
+              <ul className="mt-1.5 space-y-1.5">
                 {step.items.map((item) => (
                   <li
                     key={item}
-                    className="text-sm leading-5 text-zinc-400"
+                    className="border-l border-[#C9C1AF] pl-2.5 text-sm leading-5 text-[#5F6158]"
                   >
                     {item}
                   </li>
                 ))}
               </ul>
             </div>
-          </div>
+          </li>
         ))}
-      </div>
-    </div>
+      </ol>
+    </section>
   );
 }

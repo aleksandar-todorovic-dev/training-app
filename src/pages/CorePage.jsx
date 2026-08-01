@@ -1,79 +1,81 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useMemo } from "react";
-import { motion } from "motion/react";
 
 import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
 import AppShell from "../components/layout/AppShell";
-import SectionCard from "../components/layout/SectionCard";
-import { UI_TEXT_MUTED } from "../styles/ui";
-import { revealPanelVariants } from "../styles/motion";
+import CoreWorkflowCard from "../components/core/CoreWorkflowCard";
 import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getCoreBlockById, getCoreExercisesByIds } from "../data/core";
-import CoreWorkflowCard from "../components/core/CoreWorkflowCard";
 import { sanitizeCoreSetInputValue } from "../utils/runtime/coreInputHelpers";
+import { getLatestCoreCarryOverFieldValue } from "../utils/runtime/coreCarryOverHelpers";
 import { getDayMode } from "../utils/runtime/dayModeHelpers";
 
-const MotionDiv = motion.div;
-
-/**
- * Page-level orchestrator for one core block workflow.
- *
- * Runtime note:
- * CorePage resolves route/static data, reads the active cycle core log, lazily
- * ensures the core block log for active days, and delegates row updates to the
- * reducer through intent handlers.
- */
+/** Page-level runtime boundary for one Core support branch. */
 export default function CorePage() {
   const { planId, dayId, coreId } = useParams();
   const navigate = useNavigate();
   const { state, dispatch } = useAppState();
-
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
   const coreBlock = getCoreBlockById(coreId);
   const isCoreBlockForDay = Boolean(dayDetails?.coreBlockId === coreId);
-
   const coreExercises = useMemo(
     () => getCoreExercisesByIds(coreBlock?.exerciseIds ?? []),
     [coreBlock],
   );
-
-  // Read the current runtime cycle/day/core state used for page mode and rows.
   const planProgress = state.progressByPlan[planId];
   const currentCycleNumber = planProgress?.currentCycleNumber;
   const currentCycle = currentCycleNumber
     ? planProgress?.cycles?.[currentCycleNumber]
     : null;
-
   const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
   const coreBlockLog = dayLog?.coreBlockLog ?? null;
-
   const currentDayId = currentCycle?.currentDayId ?? "d1";
   const dayOrder = plan?.dayOrder ?? [];
-
   const dayMode = dayDetails
-    ? getDayMode({
-        dayId: dayDetails.id,
-        currentDayId,
-        dayLog,
-        dayOrder,
-      })
+    ? getDayMode({ dayId: dayDetails.id, currentDayId, dayLog, dayOrder })
     : "inactive";
-
   const isUpcomingPreview = dayMode === "upcoming";
   const isActiveCoreRoute = dayMode === "active" && isCoreBlockForDay;
   const needsDayEntryFirst = isActiveCoreRoute && !dayLog;
 
-  // Lazily create the core block log only when the core workflow is available
-  // for logging/review. Upcoming preview routes stay static/read-only and must
-  // not create progress. Active deep links without a day log are guarded below.
+  const previousValuesByExercise = useMemo(
+    () =>
+      Object.fromEntries(
+        coreExercises.map((exercise) => [
+          exercise.id,
+          Array.from({ length: exercise.setCount }, (_, index) => {
+            const setIndex = index + 1;
+            const lookup = (field) =>
+              getLatestCoreCarryOverFieldValue({
+                cycles: planProgress?.cycles,
+                currentCycleNumber,
+                dayId,
+                coreExerciseId: exercise.id,
+                setIndex,
+                field,
+              });
+            return {
+              setNumber: setIndex,
+              load: lookup("load"),
+              reps: lookup("reps"),
+              time: lookup("time"),
+              rir: lookup("rir"),
+            };
+          }),
+        ]),
+      ),
+    [coreExercises, currentCycleNumber, dayId, planProgress?.cycles],
+  );
+
   useEffect(() => {
     if (
       !plan ||
       !dayDetails ||
       !coreBlock ||
+      !isCoreBlockForDay ||
       isUpcomingPreview ||
       !dayLog ||
       coreBlockLog
@@ -83,12 +85,7 @@ export default function CorePage() {
 
     dispatch({
       type: APP_ACTIONS.ENSURE_CORE_BLOCK_LOG,
-      payload: {
-        planId,
-        dayId,
-        coreBlock,
-        coreExercises,
-      },
+      payload: { planId, dayId, coreBlock, coreExercises },
     });
   }, [
     dispatch,
@@ -98,41 +95,24 @@ export default function CorePage() {
     dayDetails,
     coreBlock,
     coreExercises,
+    isCoreBlockForDay,
     isUpcomingPreview,
     dayLog,
     coreBlockLog,
   ]);
 
-  // Handler guards are a safety boundary: upcoming previews may render the
-  // structure, but they must not dispatch runtime updates.
   function handleToggleCoreSetDone(coreExerciseId, setNumber) {
-    if (isUpcomingPreview) {
-      return;
-    }
-
+    if (isUpcomingPreview) return;
     dispatch({
       type: APP_ACTIONS.TOGGLE_CORE_SET_DONE,
-      payload: {
-        planId,
-        dayId,
-        coreExerciseId,
-        setIndex: setNumber,
-      },
+      payload: { planId, dayId, coreExerciseId, setIndex: setNumber },
     });
   }
 
-  // Update one editable value on one prescribed core set row.
   function handleUpdateCoreSetField(coreExerciseId, setNumber, field, value) {
-    if (isUpcomingPreview) {
-      return;
-    }
-
+    if (isUpcomingPreview) return;
     const sanitizedValue = sanitizeCoreSetInputValue(field, value);
-
-    if (sanitizedValue === null) {
-      return;
-    }
-
+    if (sanitizedValue === null) return;
     dispatch({
       type: APP_ACTIONS.UPDATE_CORE_SET_FIELD,
       payload: {
@@ -146,42 +126,24 @@ export default function CorePage() {
     });
   }
 
-  // Close intent is stored at core-block level; set completion remains derived
-  // from core set rows.
   function handleCloseCoreBlock() {
-    if (isUpcomingPreview) {
-      return;
-    }
-
+    if (isUpcomingPreview) return;
     dispatch({
       type: APP_ACTIONS.MARK_CORE_BLOCK_CLOSED,
-      payload: {
-        planId,
-        dayId,
-        closedAt: new Date().toISOString(),
-      },
+      payload: { planId, dayId, closedAt: new Date().toISOString() },
     });
-
     navigate(`/plan/${planId}/day/${dayId}`);
   }
 
   if (!plan || !dayDetails || !coreBlock || !isCoreBlockForDay) {
     return (
-      <AppShell>
+      <AppShell mode="training">
         <div className="space-y-6">
-          <Link
-            to={planId ? `/plan/${planId}/cycle` : "/"}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[#C4B5FD] transition hover:text-[#DDD6FE]"
-          >
-            <span aria-hidden="true">←</span>
-            Back
-          </Link>
-
-          <SectionCard>
-            <p className={UI_TEXT_MUTED}>
-              Core block data could not be found for this route.
-            </p>
-          </SectionCard>
+          <Link to={planId ? `/plan/${planId}/cycle` : "/"} className="inline-flex min-h-11 items-center text-xs font-semibold uppercase tracking-[0.12em] text-[#AAA99F]">← Back</Link>
+          <section className="cut-corner border border-[#465056] bg-[#202522] p-5">
+            <h1 className="font-display text-3xl font-bold uppercase text-[#F2EEE4]">Core block not found</h1>
+            <p className="mt-2 text-sm leading-6 text-[#9FA8AB]">Core block data could not be found for this route.</p>
+          </section>
         </div>
       </AppShell>
     );
@@ -189,105 +151,44 @@ export default function CorePage() {
 
   if (needsDayEntryFirst) {
     return (
-      <AppShell>
+      <AppShell mode="training">
         <div className="space-y-5">
-          <Link
-            to={`/plan/${planId}/day/${dayId}`}
-            className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
-          >
-            <span aria-hidden="true">←</span>
-            Back to Day
-          </Link>
-
-          <SectionCard>
-            <p className={UI_TEXT_MUTED}>
-              {currentCycle
-                ? "Open the day first to prepare today's core log."
-                : "Start a cycle before logging this core block."}
-            </p>
-          </SectionCard>
+          <Link to={`/plan/${planId}/day/${dayId}`} className="inline-flex min-h-11 items-center text-xs font-semibold uppercase tracking-[0.12em] text-[#AAA99F]">← Back to day</Link>
+          <section className="cut-corner border border-[#465056] bg-[#202522] p-5">
+            <h1 className="font-display text-3xl font-bold uppercase text-[#F2EEE4]">Enter the day first</h1>
+            <p className="mt-2 text-sm leading-6 text-[#9FA8AB]">{currentCycle ? "Open the day first to prepare today’s Core log." : "Start a cycle before logging this Core block."}</p>
+          </section>
         </div>
       </AppShell>
     );
   }
 
-  const coreWorkflowCard = (
-    <CoreWorkflowCard
-      coreBlock={coreBlock}
-      exercises={coreExercises}
-      coreBlockLog={coreBlockLog}
-      dayMode={dayMode}
-      isReadOnly={isUpcomingPreview}
-      onToggleCoreSetDone={handleToggleCoreSetDone}
-      onUpdateCoreSetField={handleUpdateCoreSetField}
-      onCloseCoreBlock={handleCloseCoreBlock}
-    />
-  );
-
   return (
-    <AppShell>
+    <AppShell mode="training" width="compact">
       <div className="space-y-5">
-        <header className="space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <Link
-              to={`/plan/${planId}/day/${dayId}`}
-              className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
-            >
-              <span aria-hidden="true">←</span>
-              Back to Day
-            </Link>
-
-            <p className="flex min-w-0 items-center justify-end gap-2 truncate text-right text-xs font-medium text-zinc-500">
-              <span className="min-w-0 truncate">
-                {plan.name} · Cycle {currentCycleNumber ?? 1} ·{" "}
-                {dayDetails.label}
-              </span>
-
-              <span
-                className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#8B5CF6]/80"
-                aria-hidden="true"
-              />
-            </p>
+        <header>
+          <div className="flex items-center justify-between gap-3 border-b border-[#465056] pb-3">
+            <Link to={`/plan/${planId}/day/${dayId}`} className="inline-flex min-h-11 shrink-0 items-center text-xs font-semibold uppercase tracking-[0.12em] text-[#AAA99F] hover:text-[#F2EEE4]">← Day</Link>
+            <p className="min-w-0 truncate text-right text-[0.64rem] font-semibold uppercase tracking-[0.12em] text-[#8D989D]">{plan.name} · C{currentCycleNumber ?? 1} · {dayDetails.label}</p>
           </div>
-
-          <div className="space-y-1.5">
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
-              {coreBlock.name}
-            </h1>
-
-            <p className="text-sm leading-5 text-zinc-400">{coreBlock.focus}</p>
+          <div className="pt-5">
+            <p className="text-[0.64rem] font-semibold uppercase tracking-[0.15em] text-[#B7C0C4]">Core / separate support branch</p>
+            <h1 className="mt-2 font-display text-4xl font-bold uppercase leading-[0.92] text-[#F2EEE4] sm:text-5xl">{coreBlock.name}</h1>
+            <p className="mt-3 max-w-lg text-sm leading-6 text-[#9FA8AB]">{coreBlock.focus}</p>
           </div>
         </header>
 
-        {isUpcomingPreview ? (
-          <MotionDiv
-            className="rounded-2xl border border-[#8B5CF6]/22 bg-[#4C1D95]/10 px-4 py-4"
-            variants={revealPanelVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#C4B5FD]">
-              Preview mode
-            </p>
-
-            <p className="mt-1.5 text-sm leading-5 text-zinc-400">
-              Review the core structure now. Logging unlocks when this day
-              becomes current.
-            </p>
-          </MotionDiv>
-        ) : null}
-
-        {dayMode === "active" ? (
-          <MotionDiv
-            variants={revealPanelVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            {coreWorkflowCard}
-          </MotionDiv>
-        ) : (
-          coreWorkflowCard
-        )}
+        <CoreWorkflowCard
+          coreBlock={coreBlock}
+          exercises={coreExercises}
+          coreBlockLog={coreBlockLog}
+          previousValuesByExercise={previousValuesByExercise}
+          dayMode={dayMode}
+          isReadOnly={isUpcomingPreview}
+          onToggleCoreSetDone={handleToggleCoreSetDone}
+          onUpdateCoreSetField={handleUpdateCoreSetField}
+          onCloseCoreBlock={handleCloseCoreBlock}
+        />
       </div>
     </AppShell>
   );

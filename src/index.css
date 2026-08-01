@@ -1,7 +1,106 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap");
 @import "tailwindcss";
 
-/* Global app font setup. Tailwind uses this token through `font-sans`. */
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "IBM Plex Sans", "Segoe UI", "Noto Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Arial Narrow", "Nimbus Sans Narrow", "Roboto Condensed", "DejaVu Sans Condensed", ui-sans-serif, sans-serif;
+}
+
+:root {
+  color-scheme: light dark;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --paper: #efebdf;
+  --paper-raised: #f8f5eb;
+  --paper-muted: #ded8c9;
+  --ink: #191a16;
+  --ink-soft: #5b5d54;
+  --coal: #171814;
+  --coal-raised: #21221d;
+  --coal-soft: #2a2c25;
+  --chalk: #f2eee4;
+  --chalk-muted: #aaa99f;
+  --rule-light: #c9c1af;
+  --rule-dark: #3b3d34;
+  --signal: #ff5a3c;
+  --signal-dark: #c83c24;
+  --evidence: #b8cb70;
+  --partial: #e5a13a;
+  --support: #9ba7ad;
+}
+
+html {
+  min-width: 320px;
+  background: var(--coal);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: var(--coal);
+}
+
+main[data-ui-mode="product"] {
+  color-scheme: light;
+}
+
+main[data-ui-mode="training"] {
+  color-scheme: dark;
+}
+
+button,
+a,
+input,
+summary {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--signal) 28%, transparent);
+}
+
+.font-display {
+  font-family: "Arial Narrow", "Nimbus Sans Narrow", "Roboto Condensed", "DejaVu Sans Condensed", ui-sans-serif, sans-serif;
+}
+
+.paper-rules {
+  background-image:
+    linear-gradient(90deg, transparent 0, transparent 2.8rem, rgba(25, 26, 22, 0.055) 2.8rem, rgba(25, 26, 22, 0.055) calc(2.8rem + 1px), transparent calc(2.8rem + 1px)),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), transparent 12rem);
+}
+
+.training-field {
+  background-image:
+    linear-gradient(135deg, rgba(255, 90, 60, 0.035), transparent 22rem),
+    linear-gradient(180deg, #191a16 0%, #151611 100%);
+}
+
+.cut-corner {
+  clip-path: polygon(0 0, calc(100% - 0.9rem) 0, 100% 0.9rem, 100% 100%, 0 100%);
+}
+
+.cut-corner-sm {
+  clip-path: polygon(0 0, calc(100% - 0.55rem) 0, 100% 0.55rem, 100% 100%, 0 100%);
+}
+
+.cut-corner:focus-visible,
+.cut-corner-sm:focus-visible {
+  clip-path: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
 }

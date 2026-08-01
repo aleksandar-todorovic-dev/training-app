@@ -1,429 +1,239 @@
 import { useMemo } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { motion } from "motion/react";
-import {
-  ArrowLeft,
-  CheckCircle2,
-  Dumbbell,
-  Layers3,
-  RotateCcw,
-  ShieldCheck,
-} from "lucide-react";
 
 import AppShell from "../components/layout/AppShell";
-
+import PrimaryButton from "../components/common/PrimaryButton";
+import SecondaryButton from "../components/common/SecondaryButton";
+import ContinuityRail from "../components/cycle/ContinuityRail";
 import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
 import { getDayDetails } from "../data/dayDetails";
 import { getPlanById } from "../data/plans";
 import { getCycleSummary } from "../utils/runtime/cycleSummaryHelpers";
-import {
-  staggerContainerVariants,
-  staggerItemVariants,
-} from "../styles/motion";
-import {
-  UI_TEXT_BODY,
-  UI_TEXT_CARD_TITLE,
-  UI_TEXT_EYEBROW,
-  UI_TEXT_EYEBROW_ACCENT,
-  UI_TEXT_META,
-  UI_TEXT_SECTION_TITLE,
-} from "../styles/ui";
+import { getDayStatus } from "../utils/runtime/dayStatusHelpers";
 
-const MotionDiv = motion.div;
-
-/**
- * Compact metric tile for the completed cycle recap.
- *
- * Runtime note:
- * Values shown here must stay runtime-derived. This card should not display
- * placeholder or fake analytics.
- */
-function CycleMetricTile({ icon, label, value, helper }) {
-  const MetricIcon = icon;
-
-  return (
-    <MotionDiv
-      className="flex items-center gap-3 border-b border-white/7 px-3 py-2.5 last:border-b-0"
-      variants={staggerItemVariants}
-    >
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/8 bg-white/[0.026] text-[#8FDCE5]/70">
-        <MetricIcon className="h-3.5 w-3.5" aria-hidden="true" />
-      </div>
-
-      <div className="min-w-0 flex-1">
-        <p className={`font-medium ${UI_TEXT_BODY}`}>{label}</p>
-        {helper ? (
-          <p className={`mt-0.5 ${UI_TEXT_META}`}>{helper}</p>
-        ) : null}
-      </div>
-
-      <p className="shrink-0 text-base font-semibold tracking-tight text-[#F4F7F8]">
-        {value}
-      </p>
-    </MotionDiv>
+function getPerformedMainSetCount(dayLog) {
+  return Object.values(dayLog?.mainExerciseLogs ?? {}).reduce(
+    (count, exerciseLog) =>
+      count + (exerciseLog.sets?.filter((set) => set.isDone).length ?? 0),
+    0,
   );
 }
 
-/**
- * Page-level review for a completed cycle.
- *
- * Runtime note:
- * EndCyclePage blocks new-cycle creation until the current cycle is complete.
- * Starting a new cycle dispatches START_PLAN_CYCLE and keeps previous cycle
- * logs available in runtime state.
- */
+function buildCompletedRailItems({ planId, dayDetailsList, cycle }) {
+  return dayDetailsList.flatMap((dayDetails, index) => {
+    const dayLog = cycle?.dayLogs?.[dayDetails.id];
+    const dayStatus = getDayStatus(dayLog, dayDetails.exerciseIds);
+    const performedSetCount = getPerformedMainSetCount(dayLog);
+    const state =
+      dayStatus === "complete"
+        ? "complete"
+        : performedSetCount > 0
+          ? "partial"
+          : "empty";
+    const stateLabel =
+      state === "complete"
+        ? "Closed · full main work"
+        : state === "partial"
+          ? `Closed · ${performedSetCount} performed sets`
+          : "Closed · no performed sets";
+    const items = [
+      {
+        id: dayDetails.id,
+        kind: "day",
+        label: dayDetails.label,
+        shortTitle:
+          state === "complete" ? "Full" : state === "partial" ? "Partial" : "Empty",
+        state,
+        stateLabel,
+        ariaLabel: `${dayDetails.label} ${dayDetails.name}, ${stateLabel}`,
+        to: `/plan/${planId}/day/${dayDetails.id}`,
+      },
+    ];
+
+    if ([1, 3, 5].includes(index)) {
+      items.push({
+        id: `rest-${index}`,
+        kind: "rest",
+        label: "Rest",
+        shortTitle: "Recovery",
+        state: "rest",
+        stateLabel: "Recovery",
+        ariaLabel: `Recovery slot after ${dayDetails.label}`,
+      });
+    }
+
+    return items;
+  });
+}
+
+function EvidenceRow({ index, label, value, detail, tone = "ink" }) {
+  const valueClassName =
+    tone === "support"
+      ? "text-[#59686E]"
+      : tone === "partial"
+        ? "text-[#8A570F]"
+        : "text-[#191A16]";
+
+  return (
+    <div className="grid grid-cols-[2.5rem_minmax(0,1fr)_auto] gap-3 border-b border-[#C9C1AF] py-4 last:border-b-0">
+      <span className="font-display text-sm font-bold text-[#66675E]">{index}</span>
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-[#191A16]">{label}</p>
+        <p className="mt-1 text-xs leading-5 text-[#66675E]">{detail}</p>
+      </div>
+      <strong className={`font-display text-2xl font-bold tabular-nums ${valueClassName}`}>
+        {value}
+      </strong>
+    </div>
+  );
+}
+
+/** Completed-cycle review and the only explicit next-cycle start surface. */
 export default function EndCyclePage() {
   const { planId } = useParams();
   const navigate = useNavigate();
   const { state, dispatch } = useAppState();
-
   const plan = getPlanById(planId);
   const planProgress = state.progressByPlan[planId];
   const currentCycleNumber = planProgress?.currentCycleNumber ?? 1;
   const nextCycleNumber = currentCycleNumber + 1;
   const currentCycle = planProgress?.cycles?.[currentCycleNumber] ?? null;
   const isCycleComplete = Boolean(currentCycle?.completedAt);
-
-  // Static day details are needed so the summary can compare runtime logs
-  // against the expected training-day structure.
   const dayDetailsList = useMemo(() => {
-    if (!plan) {
-      return [];
-    }
-
+    if (!plan) return [];
     return plan.dayOrder
       .map((dayId) => getDayDetails(planId, dayId))
       .filter(Boolean);
   }, [plan, planId]);
-
   const cycleSummary = getCycleSummary({
     cycle: currentCycle,
     dayDetailsList,
   });
-
-  const hasPartialDays = cycleSummary.partialDaysCount > 0;
+  const railItems = buildCompletedRailItems({
+    planId,
+    dayDetailsList,
+    cycle: currentCycle,
+  });
   const hasCoreBlocks = cycleSummary.totalCoreBlocksCount > 0;
-  const hasLoggedMainWork = cycleSummary.loggedMainExercisesCount > 0;
-  const hasLoggedCoreWork = cycleSummary.loggedCoreBlocksCount > 0;
-  const hasAnyLoggedWork = hasLoggedMainWork || hasLoggedCoreWork;
+  const hasAnyLoggedWork =
+    cycleSummary.loggedMainExercisesCount > 0 ||
+    cycleSummary.loggedCoreBlocksCount > 0;
   const isEmptyClosedCycle = !hasAnyLoggedWork;
-
-  // Partial logged work is supportive context, not failure. Cycle completion
-  // still comes from closed training days, not perfect workout logging.
   const hasPartialLoggedWork =
     hasAnyLoggedWork &&
     (cycleSummary.loggedMainExercisesCount <
       cycleSummary.totalMainExercisesCount ||
       cycleSummary.loggedCoreBlocksCount < cycleSummary.totalCoreBlocksCount);
 
-  // Start the next cycle while preserving previous cycle logs in app state.
   function handleStartNewCycle() {
     dispatch({
       type: APP_ACTIONS.START_PLAN_CYCLE,
-      payload: {
-        planId,
-        startedAt: new Date().toISOString(),
-      },
+      payload: { planId, startedAt: new Date().toISOString() },
     });
-
     navigate(`/plan/${planId}/cycle`);
   }
 
   if (!plan) {
     return (
-      <AppShell>
-        <div className="flex flex-col gap-7">
-          <Link
-            to="/"
-            className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back to home
-          </Link>
-
-          <header className="flex flex-col gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300/80">
-              Cycle review
-            </p>
-
-            <h1 className="text-4xl font-semibold leading-tight tracking-tight text-zinc-50">
-              Cycle not found
-            </h1>
-
-            <p className="max-w-sm text-base leading-7 text-zinc-400">
-              The selected plan could not be loaded.
-            </p>
-          </header>
+      <AppShell mode="product">
+        <div className="space-y-7">
+          <Link to="/" className="inline-flex min-h-11 items-center text-xs font-semibold uppercase tracking-[0.12em] text-[#66675E]">← Home</Link>
+          <section className="cut-corner border border-[#C9C1AF] bg-[#F8F5EB] p-5">
+            <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#B33521]">Cycle review</p>
+            <h1 className="mt-3 font-display text-5xl font-bold uppercase leading-[0.9] text-[#191A16]">Cycle not found</h1>
+          </section>
         </div>
       </AppShell>
     );
   }
 
-  // Guard against starting a new cycle before all training days are closed.
   if (!isCycleComplete) {
     return (
-      <AppShell>
-        <div className="flex flex-col gap-7">
-          <Link
-            to={`/plan/${planId}/cycle`}
-            className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back to Cycle
-          </Link>
-
-          <header className="flex flex-col gap-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-cyan-300/80">
-              Cycle checkpoint
-            </p>
-
-            <p className="text-sm font-medium text-zinc-500">
-              {plan.name} — Cycle {currentCycleNumber}
-            </p>
-
-            <h1 className="text-4xl font-semibold leading-tight tracking-tight text-zinc-50">
-              Cycle is not complete yet
-            </h1>
-
-            <p className="max-w-sm text-base leading-7 text-zinc-400">
-              Finish all training days before starting the next cycle.
-            </p>
+      <AppShell mode="product" width="wide">
+        <div className="space-y-7">
+          <Link to={`/plan/${planId}/cycle`} className="inline-flex min-h-11 items-center text-xs font-semibold uppercase tracking-[0.12em] text-[#66675E]">← Cycle instrument</Link>
+          <header className="border-b border-[#C9C1AF] pb-6">
+            <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#B33521]">Cycle checkpoint · {plan.name}</p>
+            <h1 className="mt-3 max-w-3xl font-display text-6xl font-extrabold uppercase leading-[0.84] tracking-[-0.03em] text-[#191A16]">The handoff is not ready yet.</h1>
+            <p className="mt-5 max-w-xl border-l-2 border-[#FF5A3C] pl-4 text-sm leading-6 text-[#4E5048]">All six training-day logs must be closed before another cycle can begin.</p>
           </header>
-
-          <section className="rounded-3xl border border-zinc-800 bg-zinc-950/70 p-5">
-            <div className="flex gap-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border border-cyan-300/25 bg-cyan-300/10 text-cyan-200">
-                <RotateCcw className="h-5 w-5" aria-hidden="true" />
-              </div>
-
-              <div className="min-w-0">
-                <h2 className="text-lg font-semibold tracking-tight text-zinc-50">
-                  Current progress
-                </h2>
-
-                <p className="mt-2 text-sm leading-6 text-zinc-400">
-                  Training days finished:{" "}
-                  <span className="font-semibold text-zinc-200">
-                    {cycleSummary.finishedTrainingDaysCount}/
-                    {cycleSummary.totalTrainingDaysCount}
-                  </span>
-                </p>
-
-                <p className="mt-2 text-sm leading-6 text-zinc-500">
-                  A new cycle should only be started after all training days in
-                  the current cycle are closed.
-                </p>
-              </div>
+          <section className="cut-corner grid gap-4 border border-[#34362E] bg-[#1B1C17] p-5 text-[#F2EEE4] sm:grid-cols-[1fr_auto] sm:items-end">
+            <div>
+              <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#FF8B73]">Current lifecycle</p>
+              <p className="mt-2 font-display text-5xl font-bold tabular-nums">{cycleSummary.finishedTrainingDaysCount}<span className="text-[#77796D]">/{cycleSummary.totalTrainingDaysCount}</span></p>
+              <p className="mt-2 text-sm leading-6 text-[#AAA99F]">Partial and empty days may still be closed; perfection is not required.</p>
             </div>
+            <SecondaryButton variant="training" to={`/plan/${planId}/cycle`}>Return to cycle</SecondaryButton>
           </section>
-
-          <Link
-            to={`/plan/${planId}/cycle`}
-            className="inline-flex min-h-12 items-center justify-center rounded-2xl bg-cyan-300 px-5 text-sm font-semibold text-zinc-950 transition hover:bg-cyan-200"
-          >
-            Back to Cycle
-          </Link>
         </div>
       </AppShell>
     );
   }
 
   return (
-    <AppShell>
-      <div className="flex flex-col gap-5">
-        <Link
-          to={`/plan/${planId}/cycle`}
-          className="inline-flex w-fit items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-          Back to Cycle
-        </Link>
+    <AppShell mode="product" width="wide">
+      <div className="space-y-8 pb-4">
+        <Link to={`/plan/${planId}/cycle`} className="inline-flex min-h-11 items-center text-xs font-semibold uppercase tracking-[0.12em] text-[#66675E]">← Cycle instrument</Link>
 
-        <header className="rounded-2xl border border-[#3FA8B6]/14 bg-[radial-gradient(circle_at_top_right,rgba(94,199,213,0.06),transparent_42%),linear-gradient(180deg,rgba(16,41,46,0.34),rgba(17,21,24,0.92))] p-4 shadow-[0_14px_34px_rgba(0,0,0,0.22)]">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0">
-              <p className={UI_TEXT_EYEBROW_ACCENT}>
-                Cycle complete
-              </p>
-
-              <p className={`mt-2 ${UI_TEXT_META}`}>
-                {plan.name} — Cycle {currentCycleNumber}
-              </p>
-
-              <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight text-zinc-50">
-                Cycle {currentCycleNumber} complete
-              </h1>
-            </div>
-
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-cyan-300/20 bg-cyan-300/8 text-cyan-200">
-              <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
-            </div>
+        <header className="grid gap-6 border-b border-[#C9C1AF] pb-7 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+          <div>
+            <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#49623F]">Cycle {currentCycleNumber} · handoff ready</p>
+            <h1 className="mt-3 max-w-3xl font-display text-6xl font-extrabold uppercase leading-[0.84] tracking-[-0.035em] text-[#191A16] min-[390px]:text-7xl">The sequence closed.<span className="block text-[#77796D]">The evidence stays.</span></h1>
+            <p className="mt-5 max-w-xl border-l-2 border-[#6E8B63] pl-4 text-sm leading-6 text-[#4E5048]">All six day records are closed. The next cycle can use only the performed field values that actually exist.</p>
           </div>
-
-          <p className="mt-3 border-l border-cyan-300/28 pl-3 text-sm leading-5 text-zinc-300">
-            You closed all training days. Your next cycle starts with context
-            from your logged work.
-          </p>
-
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            <span className="rounded-full border border-cyan-300/20 bg-cyan-300/8 px-2.5 py-0.5 text-xs font-semibold text-cyan-100">
-              {cycleSummary.finishedTrainingDaysCount}/
-              {cycleSummary.totalTrainingDaysCount} training days closed
-            </span>
-
-            <span className="rounded-full border border-zinc-800 bg-zinc-950/55 px-2.5 py-0.5 text-xs font-semibold text-zinc-400">
-              Cycle {nextCycleNumber} ready
-            </span>
+          <div className="border-l border-[#C9C1AF] pl-4">
+            <p className="font-display text-5xl font-bold tabular-nums text-[#38502F]">06<span className="text-[#6F7068]">/06</span></p>
+            <p className="mt-1 text-[0.64rem] font-semibold uppercase tracking-[0.14em] text-[#5F6158]">Day logs closed</p>
           </div>
         </header>
 
-        <section className="flex flex-col gap-3">
-          <div>
-            <p className={UI_TEXT_EYEBROW}>
-              Recap
-            </p>
-
-            <h2 className={`mt-1 ${UI_TEXT_SECTION_TITLE}`}>
-              What happened this cycle
-            </h2>
-          </div>
-
-          <MotionDiv
-            className="overflow-hidden rounded-2xl border border-white/8 bg-white/[0.018]"
-            variants={staggerContainerVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <CycleMetricTile
-              icon={CheckCircle2}
-              label="Days closed"
-              value={`${cycleSummary.finishedTrainingDaysCount}/${cycleSummary.totalTrainingDaysCount}`}
-              helper="Training days"
-            />
-
-            <CycleMetricTile
-              icon={Dumbbell}
-              label="Main work logged"
-              value={`${cycleSummary.loggedMainExercisesCount}/${cycleSummary.totalMainExercisesCount}`}
-              helper="Exercises"
-            />
-
-            <CycleMetricTile
-              icon={Layers3}
-              label="Partial days"
-              value={cycleSummary.partialDaysCount}
-              helper={
-                isEmptyClosedCycle
-                  ? "No workout values"
-                  : hasPartialDays
-                    ? "Logged work varies"
-                    : "No partial days"
-              }
-            />
-
-            <CycleMetricTile
-              icon={ShieldCheck}
-              label="Core work logged"
-              value={`${cycleSummary.loggedCoreBlocksCount}/${cycleSummary.totalCoreBlocksCount}`}
-              helper={hasCoreBlocks ? "Core blocks" : "No core blocks"}
-            />
-          </MotionDiv>
-        </section>
-
-        <section className="rounded-2xl border border-white/8 bg-white/[0.018] p-4">
-          <div className="space-y-4">
+        <section className="border-y border-[#C9C1AF] py-5" aria-labelledby="closed-path-title">
+          <div className="mb-4 flex items-end justify-between gap-4">
             <div>
-              <h2 className={UI_TEXT_SECTION_TITLE}>
-                What this means
-              </h2>
-
-              <div className={`mt-2 space-y-2 ${UI_TEXT_BODY}`}>
-                {isEmptyClosedCycle ? (
-                  <p>
-                    This cycle is closed, but no workout values were logged.
-                    Earlier valid references may still be used.
-                  </p>
-                ) : hasPartialLoggedWork ? (
-                  <p>
-                    Partial days are valid. Your next cycle uses the logged work
-                    it can trust.
-                  </p>
-                ) : (
-                  <p>
-                    Your logged work gives the next cycle useful reference
-                    points.
-                  </p>
-                )}
-
-                <p>
-                  This recap shows what you logged, not an idealized version of
-                  the plan.
-                </p>
-              </div>
+              <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#5F6158]">Six days · three recovery positions</p>
+              <h2 id="closed-path-title" className="mt-1 font-display text-3xl font-bold uppercase leading-none text-[#191A16]">Closed path</h2>
             </div>
+            <p className="hidden text-right text-xs text-[#66675E] sm:block">Select a day to review its saved record.</p>
+          </div>
+          <ContinuityRail items={railItems} tone="paper" animate ariaLabel={`${plan.name}, completed cycle ${currentCycleNumber}`} />
+        </section>
 
-            {hasCoreBlocks ? (
-              <div className="border-t border-white/8 pt-4">
-                <div className="flex gap-2.5">
-                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-violet-400/26 bg-violet-500/10 text-violet-200">
-                    <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-                  </div>
-
-                  <div className="min-w-0">
-                    <h2 className={UI_TEXT_CARD_TITLE}>
-                      Core stays separate
-                    </h2>
-
-                    <p className={`mt-1 ${UI_TEXT_BODY}`}>
-                      Core is support work. Missed or partial core blocks do not
-                      erase the main cycle.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ) : null}
-
-            <div className="border-t border-white/8 pt-4">
-              <div className="flex gap-2.5">
-                <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-cyan-300/20 bg-cyan-300/8 text-cyan-200">
-                  <RotateCcw className="h-4 w-4" aria-hidden="true" />
-                </div>
-
-                <div className="min-w-0">
-                  <h2 className={UI_TEXT_CARD_TITLE}>
-                    Next cycle uses this context
-                  </h2>
-
-                  <p className={`mt-1 ${UI_TEXT_BODY}`}>
-                    Logged set values can help guide the next pass through the
-                    plan.
-                  </p>
-
-                  <p className="mt-1.5 text-sm leading-5 text-zinc-500">
-                    Nothing new is created until you choose to move on.
-                  </p>
-                </div>
-              </div>
+        <section aria-labelledby="cycle-evidence-title">
+          <div className="flex items-end justify-between gap-4 border-b border-[#AFA796] pb-2">
+            <div>
+              <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#5F6158]">Runtime-derived recap</p>
+              <h2 id="cycle-evidence-title" className="mt-1 font-display text-4xl font-bold uppercase leading-none text-[#191A16]">Evidence ledger</h2>
             </div>
+            <span className="text-[0.64rem] font-semibold uppercase tracking-[0.12em] text-[#5F6158]">No idealized totals</span>
+          </div>
+          <EvidenceRow index="01" label="Training days closed" value={`${cycleSummary.finishedTrainingDaysCount}/${cycleSummary.totalTrainingDaysCount}`} detail="Lifecycle evidence; this is what makes the cycle complete." />
+          <EvidenceRow index="02" label="Main exercises with useful performed values" value={`${cycleSummary.loggedMainExercisesCount}/${cycleSummary.totalMainExercisesCount}`} detail="Unchecked sets and empty fields are not treated as logged work." />
+          <EvidenceRow index="03" label="Partial closed days" value={cycleSummary.partialDaysCount} detail={isEmptyClosedCycle ? "The cycle closed without useful workout values." : "Partial records are valid and remain visible."} tone="partial" />
+          <EvidenceRow index="C" label="Core blocks with useful performed values" value={`${cycleSummary.loggedCoreBlocksCount}/${cycleSummary.totalCoreBlocksCount}`} detail="Support work remains separate from main exercise completion." tone="support" />
+        </section>
+
+        <section className="cut-corner grid gap-5 border border-[#34362E] bg-[#1B1C17] p-5 text-[#F2EEE4] sm:grid-cols-[minmax(0,1fr)_minmax(15rem,0.7fr)]">
+          <div>
+            <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#B8CB70]">What carries forward</p>
+            <h2 className="mt-2 font-display text-4xl font-bold uppercase leading-none">Context, not completion.</h2>
+            <p className="mt-3 max-w-lg text-sm leading-6 text-[#AAA99F]">
+              {isEmptyClosedCycle
+                ? "No useful values were logged in this cycle. Earlier valid references may still be found."
+                : hasPartialLoggedWork
+                  ? "The next cycle will use the latest valid performed values field by field, wherever they exist."
+                  : "This cycle provides a complete set of useful reference points for the next pass."}
+            </p>
+          </div>
+          <div className="border-t border-[#45473E] pt-4 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0">
+            <p className="text-sm font-semibold text-[#D7DFE1]">Core remains a support branch.</p>
+            <p className="mt-2 text-xs leading-5 text-[#8D989D]">{hasCoreBlocks ? "Its values can carry over, but missed Core work never erases the main cycle." : "This plan has no Core blocks in its current static structure."}</p>
           </div>
         </section>
 
-        <div className="flex flex-col gap-3 pb-2">
-          <button
-            type="button"
-            onClick={handleStartNewCycle}
-            className="inline-flex min-h-11 items-center justify-center rounded-xl bg-cyan-300 px-5 text-sm font-semibold text-zinc-950 transition duration-150 ease-out hover:bg-cyan-200 active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100"
-          >
-            Start Cycle {nextCycleNumber}
-          </button>
-
-          <Link
-            to={`/plan/${planId}/cycle`}
-            className="inline-flex min-h-10 items-center justify-center rounded-xl border border-zinc-800 bg-zinc-950/55 px-5 text-sm font-semibold text-zinc-300 transition hover:border-zinc-700 hover:bg-zinc-900"
-          >
-            Review days
-          </Link>
+        <div className="grid gap-2.5 sm:grid-cols-2">
+          <PrimaryButton variant="product" onClick={handleStartNewCycle}>Start Cycle {nextCycleNumber} <span aria-hidden="true">→</span></PrimaryButton>
+          <SecondaryButton variant="product" to={`/plan/${planId}/cycle`}>Review closed days</SecondaryButton>
         </div>
       </div>
     </AppShell>

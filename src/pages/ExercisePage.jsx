@@ -3,23 +3,17 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { useAppState } from "../state/useAppState";
 import { APP_ACTIONS } from "../state/appActions";
 import AppShell from "../components/layout/AppShell";
-import SectionCard from "../components/layout/SectionCard";
-import { UI_TEXT_MUTED } from "../styles/ui";
+import ExerciseWorkflowCard from "../components/exercise/ExerciseWorkflowCard";
 import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getExerciseById } from "../data/exercises";
-import ExerciseWorkflowCard from "../components/exercise/ExerciseWorkflowCard";
 import { sanitizeSetInputValue } from "../utils/runtime/setInputHelpers";
-import { hasCarryOverValuesForExercise } from "../utils/runtime/carryOverHelpers";
+import {
+  getLatestCarryOverFieldValue,
+  hasCarryOverValuesForExercise,
+} from "../utils/runtime/carryOverHelpers";
 import { getDayMode } from "../utils/runtime/dayModeHelpers";
 
-/**
- * Builds display-only rows for upcoming exercise previews.
- *
- * Runtime note:
- * These rows are not runtime scaffolding. Real exercise logs are created by
- * the reducer/helper layer from structured metadata such as `setCount`.
- */
 function buildStaticExerciseRows(exercise) {
   const setCount =
     Number.isInteger(exercise?.setCount) && exercise.setCount > 0
@@ -35,13 +29,7 @@ function buildStaticExerciseRows(exercise) {
   }));
 }
 
-/**
- * Page-level orchestrator for one exercise workflow.
- *
- * Runtime note:
- * ExercisePage chooses between read-only preview rows and runtime set rows,
- * then delegates all set updates and close intent through reducer actions.
- */
+/** Page-level runtime boundary for one main exercise. */
 export default function ExercisePage() {
   const { planId, dayId, exerciseId } = useParams();
   const navigate = useNavigate();
@@ -50,11 +38,7 @@ export default function ExercisePage() {
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
   const exercise = getExerciseById(planId, exerciseId);
-  const isExerciseInDay = Boolean(
-    dayDetails?.exerciseIds?.includes(exerciseId),
-  );
-
-  // Read the current runtime cycle/day/exercise state for this route.
+  const isExerciseInDay = Boolean(dayDetails?.exerciseIds?.includes(exerciseId));
   const planProgress = state.progressByPlan[planId];
   const currentCycleNumber = planProgress?.currentCycleNumber;
   const currentCycle = currentCycleNumber
@@ -64,25 +48,15 @@ export default function ExercisePage() {
   const exerciseLog = exerciseId
     ? dayLog?.mainExerciseLogs?.[exerciseId]
     : null;
-
   const currentDayId = currentCycle?.currentDayId ?? "d1";
   const dayOrder = plan?.dayOrder ?? [];
-
   const dayMode = dayDetails
-    ? getDayMode({
-        dayId: dayDetails.id,
-        currentDayId,
-        dayLog,
-        dayOrder,
-      })
+    ? getDayMode({ dayId: dayDetails.id, currentDayId, dayLog, dayOrder })
     : "inactive";
-
-  // Upcoming mode is preview-only: no input edits, done toggles, or close action.
   const isUpcomingPreview = dayMode === "upcoming";
   const isActiveExerciseRoute = dayMode === "active" && isExerciseInDay;
   const needsDayEntryFirst = isActiveExerciseRoute && !dayLog;
 
-  // Adapt runtime set rows to the display shape expected by ExerciseWorkflowCard.
   const runtimeSets =
     exerciseLog?.sets.map((set) => ({
       setNumber: set.setIndex,
@@ -91,15 +65,9 @@ export default function ExercisePage() {
       rir: set.rir,
       isDone: set.isDone,
     })) ?? [];
-
-  const previewSets = buildStaticExerciseRows(exercise);
-
-  // Upcoming days use static preview rows. Active/finished days use runtime rows.
-  const displaySets = isUpcomingPreview ? previewSets : runtimeSets;
-
-  // Previous-values UI must reflect historical carry-over availability only.
-  // Today's editable rows are intentionally ignored so typing new values does not
-  // turn the message into "Previous values available".
+  const displaySets = isUpcomingPreview
+    ? buildStaticExerciseRows(exercise)
+    : runtimeSets;
   const hasPreviousValues =
     !isUpcomingPreview &&
     hasCarryOverValuesForExercise({
@@ -109,37 +77,46 @@ export default function ExercisePage() {
       exerciseId,
       setCount: exercise?.setCount,
     });
+  const previousSets = displaySets.map((set) => ({
+    setNumber: set.setNumber,
+    weight: getLatestCarryOverFieldValue({
+      cycles: planProgress?.cycles,
+      currentCycleNumber,
+      dayId: dayDetails?.id,
+      exerciseId,
+      setIndex: set.setNumber,
+      field: "weight",
+    }),
+    reps: getLatestCarryOverFieldValue({
+      cycles: planProgress?.cycles,
+      currentCycleNumber,
+      dayId: dayDetails?.id,
+      exerciseId,
+      setIndex: set.setNumber,
+      field: "reps",
+    }),
+    rir: getLatestCarryOverFieldValue({
+      cycles: planProgress?.cycles,
+      currentCycleNumber,
+      dayId: dayDetails?.id,
+      exerciseId,
+      setIndex: set.setNumber,
+      field: "rir",
+    }),
+  }));
 
-  // Handler guards are a safety boundary: upcoming previews may render the
-  // target structure, but they must not dispatch runtime updates.
   function handleToggleSetDone(setNumber) {
-    if (isUpcomingPreview) {
-      return;
-    }
-
+    if (isUpcomingPreview) return;
     dispatch({
       type: APP_ACTIONS.TOGGLE_EXERCISE_SET_DONE,
-      payload: {
-        planId,
-        dayId,
-        exerciseId,
-        setIndex: setNumber,
-      },
+      payload: { planId, dayId, exerciseId, setIndex: setNumber },
     });
   }
 
-  // Update one editable value on one prescribed runtime set row.
   function handleUpdateSetField(setNumber, field, value) {
-    if (isUpcomingPreview) {
-      return;
-    }
-
+    if (isUpcomingPreview) return;
     const sanitizedValue = sanitizeSetInputValue(field, value);
-
-    if (sanitizedValue === null) {
-      return;
-    }
-
+    if (sanitizedValue === null) return;
     dispatch({
       type: APP_ACTIONS.UPDATE_EXERCISE_SET_FIELD,
       payload: {
@@ -153,43 +130,33 @@ export default function ExercisePage() {
     });
   }
 
-  // Close intent is stored on the exercise log; set completion remains derived
-  // from set rows.
   function handleCloseExercise() {
-    if (isUpcomingPreview) {
-      return;
-    }
-
+    if (isUpcomingPreview) return;
     dispatch({
       type: APP_ACTIONS.MARK_EXERCISE_CLOSED,
-      payload: {
-        planId,
-        dayId,
-        exerciseId,
-        closedAt: new Date().toISOString(),
-      },
+      payload: { planId, dayId, exerciseId, closedAt: new Date().toISOString() },
     });
-
     navigate(`/plan/${planId}/day/${dayId}`);
   }
 
   if (!plan || !dayDetails || !exercise || !isExerciseInDay) {
     return (
-      <AppShell>
+      <AppShell mode="training">
         <div className="space-y-6">
           <Link
             to={planId ? `/plan/${planId}/cycle` : "/"}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 transition hover:text-cyan-100"
+            className="inline-flex min-h-11 items-center text-xs font-semibold uppercase tracking-[0.12em] text-[#AAA99F]"
           >
-            <span aria-hidden="true">←</span>
-            Back
+            ← Back
           </Link>
-
-          <SectionCard>
-            <p className={UI_TEXT_MUTED}>
+          <section className="cut-corner border border-[#3B3D34] bg-[#21221D] p-5">
+            <h1 className="font-display text-3xl font-bold uppercase text-[#F2EEE4]">
+              Exercise not found
+            </h1>
+            <p className="mt-2 text-sm leading-6 text-[#AAA99F]">
               Exercise data could not be found for this route.
             </p>
-          </SectionCard>
+          </section>
         </div>
       </AppShell>
     );
@@ -197,60 +164,52 @@ export default function ExercisePage() {
 
   if (needsDayEntryFirst) {
     return (
-      <AppShell>
+      <AppShell mode="training">
         <div className="space-y-5">
           <Link
             to={`/plan/${planId}/day/${dayId}`}
-            className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
+            className="inline-flex min-h-11 items-center text-xs font-semibold uppercase tracking-[0.12em] text-[#AAA99F]"
           >
-            <span aria-hidden="true">←</span>
-            Back to Day
+            ← Back to day
           </Link>
-
-          <SectionCard>
-            <p className={UI_TEXT_MUTED}>
+          <section className="cut-corner border border-[#3B3D34] bg-[#21221D] p-5">
+            <h1 className="font-display text-3xl font-bold uppercase text-[#F2EEE4]">
+              Enter the day first
+            </h1>
+            <p className="mt-2 text-sm leading-6 text-[#AAA99F]">
               {currentCycle
-                ? "Open the day first to prepare today's exercise log."
+                ? "Open the day first to prepare today’s exercise log."
                 : "Start a cycle before logging this exercise."}
             </p>
-          </SectionCard>
+          </section>
         </div>
       </AppShell>
     );
   }
 
   return (
-    <AppShell>
+    <AppShell mode="training" width="compact">
       <div className="space-y-5">
-        <header className="space-y-3">
-          <div className="flex items-center justify-between gap-3">
+        <header>
+          <div className="flex items-center justify-between gap-3 border-b border-[#3B3D34] pb-3">
             <Link
               to={`/plan/${planId}/day/${dayId}`}
-              className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
+              className="inline-flex min-h-11 shrink-0 items-center text-xs font-semibold uppercase tracking-[0.12em] text-[#AAA99F] hover:text-[#F2EEE4]"
             >
-              <span aria-hidden="true">←</span>
-              Back to Day
+              ← Day
             </Link>
-
-            <p className="flex min-w-0 items-center justify-end gap-2 text-right text-xs font-medium text-zinc-500">
-              <span className="min-w-0 truncate">
-                {plan.name} · Cycle {currentCycleNumber ?? 1} ·{" "}
-                {dayDetails.label}
-              </span>
-
-              <span
-                aria-hidden="true"
-                className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300/80"
-              />
+            <p className="min-w-0 truncate text-right text-[0.64rem] font-semibold uppercase tracking-[0.12em] text-[#87877E]">
+              {plan.name} · C{currentCycleNumber ?? 1} · {dayDetails.label}
             </p>
           </div>
-
-          <div className="space-y-1.5">
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
+          <div className="pt-5">
+            <p className="text-[0.64rem] font-semibold uppercase tracking-[0.15em] text-[#FF8B73]">
+              Main exercise / {String(dayDetails.exerciseIds.indexOf(exerciseId) + 1).padStart(2, "0")}
+            </p>
+            <h1 className="mt-2 font-display text-4xl font-bold uppercase leading-[0.92] tracking-[-0.015em] text-[#F2EEE4] sm:text-5xl">
               {exercise.name}
             </h1>
-
-            <p className="text-sm leading-5 text-zinc-400">
+            <p className="mt-3 max-w-lg text-sm leading-6 text-[#AAA99F]">
               {exercise.subtitle}
             </p>
           </div>
@@ -259,6 +218,7 @@ export default function ExercisePage() {
         <ExerciseWorkflowCard
           exercise={exercise}
           sets={displaySets}
+          previousSets={previousSets}
           isReadOnly={isUpcomingPreview}
           hasPreviousValues={hasPreviousValues}
           dayMode={dayMode}

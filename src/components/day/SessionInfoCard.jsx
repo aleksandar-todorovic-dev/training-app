@@ -1,83 +1,49 @@
-import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 
-/**
- * Displays compact day-level coaching guidance.
- *
- * Runtime note:
- * Session info is guidance only and does not affect completion.
- */
+/** Guidance-only day annotations; no runtime state is stored here. */
 export default function SessionInfoCard({ sessionInfo, dayGoal, coreBlock }) {
   const [isOpen, setIsOpen] = useState(false);
-
   const hasAdvancedTechnique = sessionInfo.advancedTechniques !== "None";
-
   const notes = [
-    {
-      label: "Effort",
-      value: sessionInfo.rirRule,
-    },
-    {
-      label: hasAdvancedTechnique ? "Technique" : "Focus",
-      value: hasAdvancedTechnique ? sessionInfo.advancedTechniques : dayGoal,
-    },
+    ["Effort", sessionInfo.rirRule],
+    [hasAdvancedTechnique ? "Method" : "Focus", hasAdvancedTechnique ? sessionInfo.advancedTechniques : dayGoal],
   ];
 
-  if (coreBlock) {
-    notes.push({
-      label: "Core",
-      value: `${coreBlock.name} · Flexible block`,
-    });
-  }
-
-  const helperText = coreBlock
-    ? "Effort, technique, and core focus"
-    : "Effort and technique focus";
+  if (coreBlock) notes.push(["Core branch", `${coreBlock.name} · Flexible support work`]);
 
   return (
-    <div className="flex flex-col">
+    <section className="border-y border-[#3B3D34]">
       <button
         type="button"
-        className="flex w-full items-center justify-between gap-4 rounded-xl py-1 text-left"
-        onClick={() => setIsOpen((currentValue) => !currentValue)}
+        onClick={() => setIsOpen((value) => !value)}
         aria-expanded={isOpen}
+        className="flex min-h-14 w-full items-center justify-between gap-4 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5A3C]"
       >
-        <div className="min-w-0">
-          <p className="text-sm font-semibold text-[#D3D8DB]">
-            Coach notes
+        <div>
+          <p className="font-display text-xl font-semibold leading-none text-[#F2EEE4]">
+            Session annotations
           </p>
-
-          <p className="mt-0.5 text-xs leading-5 text-[#747D84]">
-            {helperText}
+          <p className="mt-1 text-xs leading-5 text-[#87877E]">
+            Effort, method{coreBlock ? ", and support branch" : ""}
           </p>
         </div>
-
-        <span className="flex shrink-0 items-center gap-1.5 text-xs font-semibold text-[#8FDCE5]">
-          {isOpen ? "Hide" : "View"}
-
-          <ChevronDown
-            className={[
-              "h-4 w-4 text-[#59636B] transition-transform",
-              isOpen ? "rotate-180" : "",
-            ].join(" ")}
-            aria-hidden="true"
-          />
+        <span className="text-[0.66rem] font-semibold uppercase tracking-[0.12em] text-[#FF8B73]">
+          {isOpen ? "Close" : "Read"}
         </span>
       </button>
 
       {isOpen ? (
-        <div className="mt-2.5 flex flex-col gap-3 rounded-2xl bg-white/[0.018] px-3 py-3">
-          {notes.map((note) => (
-            <div key={note.label} className="flex flex-col gap-1.5">
-              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#747D84]">
-                {note.label}
-              </p>
-
-              <p className="text-sm leading-5 text-[#A9B0B5]">{note.value}</p>
+        <dl className="border-t border-[#3B3D34] pb-2">
+          {notes.map(([label, value]) => (
+            <div key={label} className="grid grid-cols-[5rem_1fr] gap-3 border-b border-[#303229] py-3 last:border-b-0">
+              <dt className="text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-[#87877E]">
+                {label}
+              </dt>
+              <dd className="text-sm leading-6 text-[#C8C5BB]">{value}</dd>
             </div>
           ))}
-        </div>
+        </dl>
       ) : null}
-    </div>
+    </section>
   );
 }

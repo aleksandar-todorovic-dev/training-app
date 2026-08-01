@@ -1,6 +1,8 @@
+import { useRef } from "react";
 import { motion } from "motion/react";
 
 import SecondaryButton from "../common/SecondaryButton";
+import useDialogFocus from "../common/useDialogFocus";
 import WarmupStepsCard from "./WarmupStepsCard";
 import {
   UI_SHEET_BODY,
@@ -8,9 +10,6 @@ import {
   UI_SHEET_HEADER,
   UI_SHEET_OVERLAY,
   UI_SHEET_PANEL,
-  UI_TEXT_BODY,
-  UI_TEXT_BODY_STRONG,
-  UI_TEXT_META,
 } from "../../styles/ui";
 import {
   sheetOverlayVariants,
@@ -19,14 +18,13 @@ import {
 
 const MotionDiv = motion.div;
 
-/**
- * Displays the warm-up guidance sheet for the selected day.
- *
- * Runtime note:
- * Warm-up is local guidance only. Opening or closing this sheet does not affect
- * day progress, exercise completion, or cycle state.
- */
+/** Warm-up is local guidance only and never changes workout progress. */
 export default function WarmupSheet({ dayDetails, warmup, onClose }) {
+  const dialogRef = useRef(null);
+  const closeButtonRef = useRef(null);
+
+  useDialogFocus({ dialogRef, initialFocusRef: closeButtonRef, onClose });
+
   if (!warmup) return null;
 
   return (
@@ -38,59 +36,74 @@ export default function WarmupSheet({ dayDetails, warmup, onClose }) {
       exit="exit"
     >
       <MotionDiv
+        ref={dialogRef}
+        tabIndex={-1}
         className={UI_SHEET_PANEL}
         variants={sheetPanelVariants}
         role="dialog"
         aria-modal="true"
         aria-labelledby="warmup-sheet-title"
+        aria-describedby="warmup-sheet-purpose"
       >
-        <div className={UI_SHEET_HEADER}>
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-amber-200">
-                Warm-up prep
+        <header className={UI_SHEET_HEADER}>
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#9A6418]">
+                Warm-up / {dayDetails.label}
               </p>
-
               <h2
                 id="warmup-sheet-title"
-                className="mt-1.5 text-lg font-semibold leading-tight tracking-tight text-zinc-50"
+                className="mt-2 font-display text-3xl font-bold uppercase leading-none text-[#191A16]"
               >
-                {dayDetails.label} warm-up
+                Prepare, don&apos;t perform
               </h2>
-              <p className={`mt-0.5 ${UI_TEXT_META}`}>{dayDetails.name}</p>
+              <p className="mt-2 text-sm font-medium text-[#5F6158]">
+                {dayDetails.name} · 3–8 min
+              </p>
             </div>
 
-            <p className="shrink-0 rounded-full border border-amber-300/18 bg-amber-300/8 px-2 py-0.5 text-xs font-semibold text-amber-100">
-              3-8 min
-            </p>
+            <button
+              ref={closeButtonRef}
+              type="button"
+              onClick={onClose}
+              aria-label="Close warm-up guidance"
+              className="flex h-11 w-11 shrink-0 items-center justify-center border border-[#9F9889] text-xl text-[#4E5048] transition-colors hover:bg-[#E4DECF] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5A3C]"
+            >
+              <span aria-hidden="true">×</span>
+            </button>
           </div>
 
           <p
-            className={`mt-2 border-l border-amber-300/28 pl-3 ${UI_TEXT_BODY_STRONG}`}
+            id="warmup-sheet-purpose"
+            className="mt-4 border-l-2 border-[#E5A13A] pl-3 text-sm font-medium leading-6 text-[#363831]"
           >
             {warmup.goal}
           </p>
-        </div>
+        </header>
 
         <div className={UI_SHEET_BODY}>
           <WarmupStepsCard steps={warmup.steps} />
 
-          <div className="mt-3 border-t border-white/8 pt-3">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-amber-200">
+          <aside className="mt-5 border-y border-[#C9C1AF] bg-[#E7E1D2]/65 px-3 py-3">
+            <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#9A6418]">
               Coach reminder
             </p>
-            <p className={`mt-1.5 ${UI_TEXT_BODY}`}>
+            <p className="mt-1.5 text-sm leading-6 text-[#4E5048]">
               Warm up to feel ready, not tired. Keep ramp sets clean and save
               the real effort for working sets.
             </p>
-          </div>
+          </aside>
         </div>
 
-        <div className={UI_SHEET_FOOTER}>
-          <SecondaryButton onClick={onClose} className="w-full">
+        <footer className={UI_SHEET_FOOTER}>
+          <SecondaryButton
+            variant="product"
+            onClick={onClose}
+            className="w-full"
+          >
             Done warming up
           </SecondaryButton>
-        </div>
+        </footer>
       </MotionDiv>
     </MotionDiv>
   );

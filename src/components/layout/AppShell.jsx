@@ -1,52 +1,48 @@
-import { MotionConfig, motion } from "motion/react";
-import { useLocation } from "react-router-dom";
+import { MotionConfig } from "motion/react";
 
 import {
   UI_CONTAINER,
   UI_PAGE_PRODUCT,
   UI_PAGE_TRAINING,
 } from "../../styles/ui";
-import { pageContentVariants } from "../../styles/motion";
-
-const MotionDiv = motion.div;
 
 const PAGE_MODE_CLASS_NAMES = {
   product: UI_PAGE_PRODUCT,
   training: UI_PAGE_TRAINING,
 };
 
+const PAGE_WIDTH_CLASS_NAMES = {
+  compact: "max-w-xl",
+  wide: "max-w-3xl",
+};
+
 /**
- * Provides the shared page frame for all MVP screens.
- *
- * Phase 5 note:
- * AppShell now supports two visual modes:
+ * Provides the shared page frame in two visual modes:
  *
  * - product: overview, learning, review, and plan-selection screens
  * - training: execution, logging, and workout-flow screens
  *
- * Default remains "training" so existing screens keep their current dark
- * behavior until they are intentionally migrated during Phase 5 polish.
+ * The default is the training mode used by direct logging routes.
  */
-export default function AppShell({ children, mode = "training" }) {
-  const location = useLocation();
-
+export default function AppShell({
+  children,
+  mode = "training",
+  width = "compact",
+}) {
   const pageClassName =
     PAGE_MODE_CLASS_NAMES[mode] ?? PAGE_MODE_CLASS_NAMES.training;
+  const widthClassName =
+    PAGE_WIDTH_CLASS_NAMES[width] ?? PAGE_WIDTH_CLASS_NAMES.compact;
 
   return (
     <MotionConfig reducedMotion="user">
       <main
+        data-ui-mode={mode}
         className={`${pageClassName} relative isolate w-full max-w-full overflow-x-hidden overscroll-x-none`}
       >
-        <MotionDiv
-          key={location.pathname}
-          className={`${UI_CONTAINER} w-full max-w-full`}
-          variants={pageContentVariants}
-          initial="hidden"
-          animate="visible"
-        >
+        <div className={`${UI_CONTAINER} ${widthClassName} max-w-full`}>
           {children}
-        </MotionDiv>
+        </div>
       </main>
     </MotionConfig>
   );

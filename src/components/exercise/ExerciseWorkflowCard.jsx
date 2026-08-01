@@ -1,101 +1,51 @@
 import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
 
-import { Crosshair, ListChecks, Zap, ChevronRight } from "lucide-react";
 import HelpSheet from "../common/HelpSheet";
+import PrimaryButton from "../common/PrimaryButton";
 import SetRow from "./SetRow";
 import {
   exerciseHelp,
   advancedTechniqueHelpByType,
 } from "../../data/contextualHelp";
-import {
-  UI_TEXT_BODY,
-  UI_TEXT_BODY_STRONG,
-  UI_TEXT_CARD_TITLE,
-  UI_TEXT_EYEBROW,
-  UI_TEXT_EYEBROW_ACCENT,
-  UI_TEXT_META,
-  UI_TEXT_SECTION_TITLE,
-  UI_TEXT_STAT_LABEL,
-  UI_TEXT_STAT_VALUE,
-} from "../../styles/ui";
-import { revealPanelVariants } from "../../styles/motion";
-
-const MotionDiv = motion.div;
-const MotionSection = motion.section;
 
 const METHOD_SUMMARY_BY_TYPE = {
-  mechanicalDropset: "Mechanical dropset · view exact sequence",
-  mechanicalSet: "Mechanical set · view exact sequence",
-  restPause: "Rest-pause · view exact method",
-  dropset: "Dropset · view exact method",
-  cluster: "Cluster set · view exact structure",
-  isoHold: "Iso hold · view exact timing",
-  isoStretch: "Iso stretch · view exact timing",
+  mechanicalDropset: "Mechanical dropset sequence",
+  mechanicalSet: "Mechanical set sequence",
+  restPause: "Rest-pause method",
+  dropset: "Dropset method",
+  cluster: "Cluster structure",
+  isoHold: "Iso hold timing",
+  isoStretch: "Iso stretch timing",
 };
 
 function cleanSummaryValue(value) {
-  if (!value || typeof value !== "string") {
-    return "—";
-  }
-
-  return value.replace(/^≈\s*/, "").trim();
-}
-
-// Normalizes compact target values for metric cells without changing source data.
-function compactSummaryValue(value) {
-  return cleanSummaryValue(value)
-    .replace(/\s*x\s*/i, " x ")
-    .replace(/\s*-\s*/g, "-")
-    .replace(/(\d)\s*s\b/gi, "$1 s");
-}
-
-function getMethodSummary(advancedTechniqueType) {
-  return (
-    METHOD_SUMMARY_BY_TYPE[advancedTechniqueType] ??
-    "Advanced method · view exact sequence"
-  );
-}
-
-function DetailBlock({ title, children, hasDivider = false }) {
-  if (!children) {
-    return null;
-  }
-
-  return (
-    <div
-      className={`space-y-1.5 ${
-        hasDivider ? "border-t border-zinc-800/70 pt-4" : ""
-      }`}
-    >
-      <h3 className="text-sm font-semibold text-[#F4F7F8]">{title}</h3>
-      <div className={UI_TEXT_BODY}>{children}</div>
-    </div>
-  );
+  if (!value || typeof value !== "string") return "—";
+  return value
+    .replace(/^≈\s*/, "")
+    .replace(/\s*x\s*/i, " × ")
+    .replace(/\s*-\s*/g, "–")
+    .replace(/(\d)\s*s\b/gi, "$1 s")
+    .trim();
 }
 
 function TargetItem({ label, value }) {
   return (
-    <div className="min-w-0 text-center">
-      <p className={UI_TEXT_STAT_LABEL}>{label}</p>
-
-      <p className={`mt-1 whitespace-nowrap tabular-nums ${UI_TEXT_STAT_VALUE}`}>
+    <div className="min-w-0 border-l border-[#3B3D34] px-2 py-3 first:border-l-0">
+      <p className="text-[0.6rem] font-semibold uppercase tracking-[0.14em] text-[#87877E]">
+        {label}
+      </p>
+      <p className="mt-1 font-display text-lg font-semibold leading-none tabular-nums text-[#F2EEE4]">
         {value}
       </p>
     </div>
   );
 }
 
-/**
- * Displays one full exercise workflow.
- *
- * Runtime note:
- * The card receives runtime or preview set rows from the page layer and
- * delegates all row updates upward. It does not create or mutate runtime logs.
- */
+/** Presentation-only exercise ledger; all mutations are delegated upward. */
 export default function ExerciseWorkflowCard({
   exercise,
   sets = [],
+  previousSets = [],
   isReadOnly = false,
   hasPreviousValues = false,
   dayMode = "inactive",
@@ -105,14 +55,8 @@ export default function ExerciseWorkflowCard({
 }) {
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isAdvancedHelpOpen, setIsAdvancedHelpOpen] = useState(false);
-  const [isMethodOpen, setIsMethodOpen] = useState(false);
-  const [isCoachNotesOpen, setIsCoachNotesOpen] = useState(false);
 
-  if (!exercise) {
-    return null;
-  }
-
-  const prescriptionDisplay = exercise.prescription ?? "—";
+  if (!exercise) return null;
 
   const {
     tempo = "—",
@@ -124,305 +68,196 @@ export default function ExerciseWorkflowCard({
     extraCues = [],
   } = exercise.details ?? {};
 
-  const cleanedPrescriptionDisplay = compactSummaryValue(prescriptionDisplay);
-  const cleanedTempo = compactSummaryValue(tempo);
-  const cleanedTargetRir = compactSummaryValue(targetRir);
-  const cleanedRest = compactSummaryValue(rest);
-
   const advancedTechniqueHelp = advancedTechniqueType
     ? advancedTechniqueHelpByType[advancedTechniqueType]
     : null;
-
-  const methodSummary = getMethodSummary(advancedTechniqueType);
-  const hasCoachNotes = Boolean(progression) || extraCues.length > 0;
-
-  const logTitle = isReadOnly ? "Set preview" : "Today's work";
-
-  // Preview mode is read-only plan review, not disabled logging.
-  // Active and finished days keep DONE controls because saved logs remain editable.
-  const showDoneControls = !isReadOnly;
-  const focusLabel = isReadOnly ? "Exercise focus" : "Today's focus";
-  const isClosedLog = dayMode === "finished";
-  const finishButtonLabel = isClosedLog ? "Save changes" : "Finish exercise";
+  const isSavedLog = dayMode === "finished";
   const completedSetCount = sets.filter((set) => set.isDone).length;
-  const setProgressLabel = `${completedSetCount}/${sets.length} sets checked`;
+  const setProgressLabel = `${completedSetCount}/${sets.length} performed`;
+  const finishButtonLabel = isSavedLog ? "Save changes" : "Finish exercise";
 
   return (
     <>
       <div className="space-y-5">
-        {isReadOnly ? (
-          <MotionSection
-            className="rounded-xl border border-[#3FA8B6]/12 bg-[#10292E]/22 p-3"
-            variants={revealPanelVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <p className={UI_TEXT_EYEBROW_ACCENT}>
-              Preview mode
+        {isReadOnly || isSavedLog ? (
+          <aside className="border-l-2 border-[#B7C0C4] bg-[#232722] px-3 py-3">
+            <p className="text-[0.64rem] font-semibold uppercase tracking-[0.15em] text-[#B7C0C4]">
+              {isReadOnly ? "Read-only preview" : "Saved day log"}
             </p>
-            <p className={`mt-1 ${UI_TEXT_BODY}`}>
-              Review the targets now. Logging unlocks when this day becomes
-              current.
+            <p className="mt-1 text-sm leading-6 text-[#C8C5BB]">
+              {isReadOnly
+                ? "Review the prescription now. Logging unlocks when this day becomes current."
+                : "Values and performed markers remain editable after the day is closed."}
             </p>
-          </MotionSection>
+          </aside>
         ) : null}
 
-        {isClosedLog ? (
-          <MotionSection
-            className="rounded-xl border border-[#3FA8B6]/12 bg-[#10292E]/22 p-3"
-            variants={revealPanelVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <p className={UI_TEXT_EYEBROW_ACCENT}>
-              Closed day log
+        <section className="cut-corner border border-[#4A4C42] bg-[#21221D]">
+          <div className="border-b border-[#3B3D34] px-4 py-4">
+            <p className="text-[0.64rem] font-semibold uppercase tracking-[0.15em] text-[#FF8B73]">
+              Movement intent
             </p>
-            <p className={`mt-1 ${UI_TEXT_BODY}`}>
-              Review or adjust the values you saved.
-            </p>
-          </MotionSection>
-        ) : null}
-
-        <section className="rounded-xl border border-white/8 bg-white/[0.018] px-3 py-2.5">
-          <div className="flex items-center gap-2">
-            <Crosshair
-              aria-hidden="true"
-              className="h-4 w-4 text-[#8FDCE5]"
-            />
-
-            <p className={UI_TEXT_EYEBROW_ACCENT}>
-              {focusLabel}
+            <p className="mt-2 text-sm font-medium leading-6 text-[#E0DDD3]">
+              {exercise.cue ??
+                "Keep the movement controlled and log the work you actually perform."}
             </p>
           </div>
 
-          <p className={`mt-1.5 ${UI_TEXT_BODY_STRONG}`}>
-            {exercise.cue ??
-              "Keep the movement controlled and log the work you actually perform."}
-          </p>
+          <div className="flex items-center justify-between gap-4 border-b border-[#3B3D34] px-4 py-3">
+            <div>
+              <p className="text-[0.64rem] font-semibold uppercase tracking-[0.15em] text-[#87877E]">
+                Prescription
+              </p>
+              <h2 className="mt-1 font-display text-2xl font-bold uppercase leading-none text-[#F2EEE4]">
+                Work ledger
+              </h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsHelpOpen(true)}
+              className="min-h-11 border border-[#55574D] px-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#C8C5BB] hover:border-[#FF795F] hover:text-[#F2EEE4] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5A3C]"
+            >
+              Field help
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 border-b border-[#3B3D34] min-[390px]:grid-cols-4">
+            <TargetItem label="Sets" value={cleanSummaryValue(exercise.prescription)} />
+            <TargetItem label="Tempo" value={cleanSummaryValue(tempo)} />
+            <TargetItem label="Rest" value={cleanSummaryValue(rest)} />
+            <TargetItem label="Target RIR" value={cleanSummaryValue(targetRir)} />
+          </div>
+
+          {!isReadOnly ? (
+            <div className="flex items-start justify-between gap-4 border-b border-[#3B3D34] bg-[#1D1E19] px-4 py-3">
+              <div className="min-w-0">
+                <p className="text-xs font-semibold text-[#E0DDD3]">
+                  {hasPreviousValues
+                    ? "Previous-cycle references shown per set"
+                    : "No previous performed values yet"}
+                </p>
+                <p className="mt-1 text-xs leading-5 text-[#87877E]">
+                  {hasPreviousValues
+                    ? "LAST is read-only history; TODAY remains editable."
+                    : "Today’s performed work can become the next cycle’s reference."}
+                </p>
+              </div>
+              <span className="shrink-0 font-display text-lg font-bold tabular-nums text-[#9EB096]">
+                {setProgressLabel}
+              </span>
+            </div>
+          ) : null}
+
+          <ol aria-label={isReadOnly ? "Set targets" : "Exercise set log"}>
+            {sets.map((set) => (
+              <SetRow
+                key={`${exercise.id}-set-${set.setNumber}`}
+                isReadOnly={isReadOnly}
+                showDoneControl={!isReadOnly}
+                setNumber={set.setNumber}
+                weight={set.weight}
+                reps={set.reps}
+                rir={set.rir}
+                previousValues={previousSets.find(
+                  (previousSet) => previousSet.setNumber === set.setNumber,
+                )}
+                isDone={set.isDone}
+                onToggleDone={() => onToggleSetDone?.(set.setNumber)}
+                onSetFieldChange={(field, value) =>
+                  onUpdateSetField?.(set.setNumber, field, value)
+                }
+              />
+            ))}
+          </ol>
+
+          {!isReadOnly ? (
+            <div className="border-t border-[#3B3D34] p-4">
+              <p className="mb-3 text-xs leading-5 text-[#87877E]">
+                Closing records your intent to leave this exercise. Unchecked
+                sets stay unperformed.
+              </p>
+              <PrimaryButton onClick={onCloseExercise} className="w-full">
+                {finishButtonLabel}
+                <span aria-hidden="true">→</span>
+              </PrimaryButton>
+            </div>
+          ) : null}
         </section>
 
         {advancedTechnique ? (
-          <section className="rounded-2xl border border-amber-300/14 bg-amber-300/[0.035] px-3 py-3">
-            <button
-              type="button"
-              aria-expanded={isMethodOpen}
-              onClick={() => setIsMethodOpen((current) => !current)}
-              className="flex w-full items-start justify-between gap-4 text-left"
-            >
-              <div className="min-w-0">
-                <div className="flex items-center gap-2">
-                  <Zap
-                    aria-hidden="true"
-                    className="h-4 w-4 text-amber-200"
-                  />
-
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-amber-200">
-                    Prescribed method
-                  </p>
-                </div>
-
-                <p className={`mt-1 ${UI_TEXT_BODY}`}>
-                  {isMethodOpen
-                    ? "Review the exact method before logging."
-                    : methodSummary}
-                </p>
-              </div>
-
-              <span className="shrink-0 pt-0.5 text-sm font-semibold text-amber-100">
-                {isMethodOpen ? "Hide" : "View"}
-              </span>
-            </button>
-
-            <AnimatePresence initial={false}>
-              {isMethodOpen ? (
-                <MotionDiv
-                  className="space-y-3"
-                  variants={revealPanelVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                >
-                  <div>
-                    <h3 className="text-sm font-semibold text-zinc-100">
-                      Method
-                    </h3>
-                    <p className={`mt-1 ${UI_TEXT_BODY}`}>
-                      {advancedTechnique}
-                    </p>
-                  </div>
-
-                  {advancedTechniqueHelp ? (
-                    <button
-                      type="button"
-                      onClick={() => setIsAdvancedHelpOpen(true)}
-                      className="rounded-full border border-amber-300/22 px-3 py-1 text-xs font-semibold text-amber-100 transition hover:bg-amber-300/10"
-                    >
-                      Method help
-                    </button>
-                  ) : null}
-                </MotionDiv>
-              ) : null}
-            </AnimatePresence>
-          </section>
-        ) : null}
-
-        <section className="space-y-3 rounded-2xl border border-white/10 bg-[#111518]/92 px-3.5 py-3.5 shadow-[0_14px_34px_rgba(0,0,0,0.24)]">
-          <div>
-            <div className="mb-2.5 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <ListChecks
-                  aria-hidden="true"
-                  className="h-4 w-4 text-[#8FDCE5]/72"
-                />
-
-                <p className={UI_TEXT_EYEBROW}>
-                  Targets
-                </p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setIsHelpOpen(true)}
-                className="rounded-full border border-white/10 bg-white/[0.026] px-2.5 py-1 text-xs font-semibold text-[#8FDCE5] transition hover:border-[#3FA8B6]/28 hover:bg-[#10292E]/50"
-              >
-                Help
-              </button>
-            </div>
-
-            <div className="grid grid-cols-4 divide-x divide-white/7 overflow-hidden rounded-xl bg-white/[0.024] px-1 py-1.5">
-              <TargetItem label="Sets" value={cleanedPrescriptionDisplay} />
-              <TargetItem label="Tempo" value={cleanedTempo} />
-              <TargetItem label="Rest" value={cleanedRest} />
-              <TargetItem label="RIR" value={cleanedTargetRir} />
-            </div>
-          </div>
-
-          <div className="space-y-2.5">
-            <div className="flex items-end justify-between gap-4 border-t border-white/7 pt-3">
+          <details className="group border-l-4 border-[#E5A13A] bg-[#E5A13A]/8 px-4 py-3">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-left [&::-webkit-details-marker]:hidden">
               <div>
-                <h2 className={UI_TEXT_SECTION_TITLE}>{logTitle}</h2>
-              </div>
-
-              <p className="shrink-0 rounded-full border border-white/10 bg-white/[0.026] px-2.5 py-0.5 text-xs font-semibold text-[#A9B0B5]">
-                {showDoneControls ? setProgressLabel : `${sets.length} sets`}
-              </p>
-            </div>
-
-            {!isReadOnly ? (
-              <MotionDiv
-                className="flex items-start justify-between gap-3 rounded-lg bg-white/[0.018] px-2.5 py-2"
-                variants={revealPanelVariants}
-                initial="hidden"
-                animate="visible"
-              >
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold text-[#D3D8DB]">
-                    {hasPreviousValues
-                      ? "Previous values available"
-                      : "No previous values yet"}
-                  </p>
-                  <p className={`mt-0.5 ${UI_TEXT_META}`}>
-                    {hasPreviousValues
-                      ? "Use your last logged work as a guide."
-                      : "Log today to build the next-cycle reference."}
-                  </p>
-                </div>
-              </MotionDiv>
-            ) : null}
-
-            <div className="flex flex-col gap-1.5">
-              {/* Set rows may be runtime logs or read-only preview rows; updates are delegated upward. */}
-              {sets.map((set, index) => (
-                <SetRow
-                  key={`${exercise.id}-set-${set.setNumber}`}
-                  isReadOnly={isReadOnly}
-                  showDoneControl={showDoneControls}
-                  setNumber={set.setNumber}
-                  weight={set.weight}
-                  reps={set.reps}
-                  rir={set.rir}
-                  isDone={set.isDone}
-                  isLast={index === sets.length - 1}
-                  onToggleDone={() => onToggleSetDone?.(set.setNumber)}
-                  onSetFieldChange={(field, value) =>
-                    onUpdateSetField?.(set.setNumber, field, value)
-                  }
-                />
-              ))}
-            </div>
-
-            {!isReadOnly ? (
-              <div className="space-y-2 pt-1">
-                <p className={`text-center ${UI_TEXT_META}`}>
-                  {setProgressLabel}
+                <p className="text-[0.64rem] font-semibold uppercase tracking-[0.15em] text-[#E7B562]">
+                  Prescribed method
                 </p>
-
+                <p className="mt-1 text-sm font-medium text-[#E0DDD3]">
+                  {METHOD_SUMMARY_BY_TYPE[advancedTechniqueType] ??
+                    "Advanced method"}
+                </p>
+              </div>
+              <span className="text-sm font-semibold text-[#E7B562] group-open:hidden">
+                Open
+              </span>
+              <span className="hidden text-sm font-semibold text-[#E7B562] group-open:inline">
+                Close
+              </span>
+            </summary>
+            <div className="border-t border-[#6D5631] pt-3">
+              <p className="text-sm leading-6 text-[#C8C5BB]">
+                {advancedTechnique}
+              </p>
+              {advancedTechniqueHelp ? (
                 <button
                   type="button"
-                  onClick={onCloseExercise}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5EC7D5] px-5 py-3 text-sm font-semibold text-[#031014] shadow-[0_10px_24px_rgba(63,168,182,0.14)] transition duration-150 ease-out hover:bg-[#6DD6E2] active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100"
+                  onClick={() => setIsAdvancedHelpOpen(true)}
+                  className="mt-3 min-h-11 border border-[#8E6C35] px-3 text-xs font-semibold uppercase tracking-[0.1em] text-[#E7B562] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5A3C]"
                 >
-                  {finishButtonLabel}
-                  <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                  Open method note
                 </button>
-              </div>
-            ) : null}
-          </div>
-        </section>
+              ) : null}
+            </div>
+          </details>
+        ) : null}
 
-        {hasCoachNotes ? (
-          <section className="rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3">
-            <button
-              type="button"
-              aria-expanded={isCoachNotesOpen}
-              onClick={() => setIsCoachNotesOpen((current) => !current)}
-              className="flex w-full items-start justify-between gap-4 text-left"
-            >
+        {progression || extraCues.length ? (
+          <details className="group border-y border-[#3B3D34] px-1 py-2">
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 text-left [&::-webkit-details-marker]:hidden">
               <div>
-                <h2 className={UI_TEXT_CARD_TITLE}>
+                <h2 className="font-display text-xl font-bold uppercase leading-none text-[#F2EEE4]">
                   Coach notes
                 </h2>
-                <p className={`mt-1 ${UI_TEXT_BODY}`}>
-                  Progression and extra cues for this exercise.
+                <p className="mt-1 text-xs text-[#87877E]">
+                  Progression and local movement cues
                 </p>
               </div>
-
-              <span className="pt-1 text-sm font-semibold text-[#8FDCE5]">
-                {isCoachNotesOpen ? "Hide" : "View"}
+              <span className="text-xs font-semibold uppercase tracking-[0.1em] text-[#FF8B73] group-open:hidden">
+                View
               </span>
-            </button>
-
-            <AnimatePresence initial={false}>
-              {isCoachNotesOpen ? (
-                <MotionDiv
-                  className="space-y-4"
-                  variants={revealPanelVariants}
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                >
-                  {progression ? (
-                    <DetailBlock title="Progression">
-                      <p>{progression}</p>
-                    </DetailBlock>
-                  ) : null}
-
-                  {extraCues.length > 0 ? (
-                    <DetailBlock
-                      title="Extra cues"
-                      hasDivider={Boolean(progression)}
-                    >
-                      <ul className="space-y-1">
-                        {extraCues.map((cue) => (
-                          <li key={cue}>- {cue}</li>
-                        ))}
-                      </ul>
-                    </DetailBlock>
-                  ) : null}
-                </MotionDiv>
+              <span className="hidden text-xs font-semibold uppercase tracking-[0.1em] text-[#FF8B73] group-open:inline">
+                Hide
+              </span>
+            </summary>
+            <div className="space-y-4 border-t border-[#3B3D34] py-4">
+              {progression ? (
+                <div>
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.12em] text-[#87877E]">
+                    Progression
+                  </h3>
+                  <p className="mt-1.5 text-sm leading-6 text-[#C8C5BB]">
+                    {progression}
+                  </p>
+                </div>
               ) : null}
-            </AnimatePresence>
-          </section>
+              {extraCues.length ? (
+                <ul className="space-y-2 border-l border-[#55574D] pl-3 text-sm leading-6 text-[#C8C5BB]">
+                  {extraCues.map((cue) => (
+                    <li key={cue}>{cue}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+          </details>
         ) : null}
       </div>
 

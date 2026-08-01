@@ -1,102 +1,71 @@
+import { ArrowUpRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
 
-import SectionCard from "../layout/SectionCard";
-import {
-  UI_CARD_INTERACTIVE,
-  UI_TEXT_BODY,
-  UI_TEXT_EYEBROW,
-} from "../../styles/ui";
-
-// Home-specific presentation metadata for plan cards.
-// Static plan source data still comes from src/data/plans.
 const PLAN_CARD_META = {
   "bulk-pro": {
-    badge: "Growth phase",
-    promise: "Build muscle through repeatable volume and clear progression.",
-    chips: ["Growth", "Progression", "Volume"],
-    icon: TrendingUp,
-    accentClassName: "bg-[#5EC7D5]",
-    iconClassName: "border-[#3FA8B6]/18 bg-[#10292E]/48 text-[#8FDCE5]",
-    chipClassName: "border-[#3FA8B6]/14 bg-[#10292E]/34 text-[#B9EEF4]",
+    index: "01",
+    phase: "Growth phase",
+    promise: "Repeatable volume with a clear progression path.",
+    signal: "Build",
+    details: ["6 training days", "Productive workload", "Selective intensity"],
   },
   "cut-pro": {
-    badge: "Cut phase",
-    promise: "Preserve strength while keeping fatigue under control.",
-    chips: ["Retention", "Fatigue control", "Recovery aware"],
-    icon: TrendingDown,
-    accentClassName: "bg-[#C9B57A]",
-    iconClassName: "border-[#4A4433]/72 bg-[#1D1C16]/58 text-[#C9B57A]",
-    chipClassName: "border-[#4A4433]/60 bg-[#1D1C16]/44 text-[#D8C891]",
+    index: "02",
+    phase: "Cut phase",
+    promise: "Strength retention with recovery-aware fatigue control.",
+    signal: "Preserve",
+    details: ["6 training days", "Fatigue control", "Recovery protected"],
   },
 };
 
-/**
- * Displays one predefined plan entry on the Home screen.
- *
- * UI note:
- * PlanCard uses static plan metadata only. Opening a plan does not start a
- * runtime cycle by itself.
- */
+/** Plan selection is static navigation; it never starts runtime progress. */
 export default function PlanCard({ plan }) {
   const meta = PLAN_CARD_META[plan.id] ?? PLAN_CARD_META["bulk-pro"];
 
-  const Icon = meta.icon;
-
   return (
-    <SectionCard
-      variant="training"
-      className={`group relative overflow-hidden border-white/8 bg-[#12181B]/78 p-0 shadow-[0_10px_24px_rgba(0,0,0,0.14)] hover:border-[#3FA8B6]/22 ${UI_CARD_INTERACTIVE}`}
-    >
-      <div
-        className={`pointer-events-none absolute bottom-0 left-0 top-0 w-0.5 ${meta.accentClassName}`}
-        aria-hidden="true"
-      />
-
-      <div className="relative flex flex-col gap-3.5 px-4 py-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-col gap-3">
-            <span className={UI_TEXT_EYEBROW}>
-              {meta.badge}
-            </span>
-
-            <div className="flex flex-col gap-2">
-              <h2 className="text-2xl font-semibold leading-none tracking-tight text-[#F4F7F8]">
-                {plan.name}
-              </h2>
-
-              <p className={`max-w-[18rem] ${UI_TEXT_BODY}`}>
-                {meta.promise}
-              </p>
-            </div>
-          </div>
-
-          <div
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${meta.iconClassName}`}
-          >
-            <Icon className="h-4 w-4" aria-hidden="true" />
-          </div>
-        </div>
-
-        <div className="flex flex-wrap gap-1.5">
-          {meta.chips.map((chip) => (
-            <span
-              key={chip}
-              className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${meta.chipClassName}`}
-            >
-              {chip}
-            </span>
-          ))}
-        </div>
-
-        <Link
-          to={`/plan/${plan.id}`}
-          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] shadow-[0_6px_14px_rgba(63,168,182,0.1)] transition duration-150 ease-out hover:bg-[#6DD6E2] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151A1D] motion-reduce:transition-none motion-reduce:active:scale-100"
-        >
-          View plan
-          <ChevronRight className="h-4 w-4" aria-hidden="true" />
-        </Link>
+    <article className="group flex min-h-[23rem] flex-col bg-[#F8F5EB] p-5 transition-colors hover:bg-[#F2EDDF]">
+      <div className="flex items-start justify-between gap-4">
+        <span className="font-display text-5xl font-bold leading-none text-[#C9C1AF]">
+          {meta.index}
+        </span>
+        <span className="border-b border-[#C9C1AF] pb-1 text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#5F6158]">
+          {meta.phase}
+        </span>
       </div>
-    </SectionCard>
+
+      <div className="mt-8">
+        <p className="text-[0.66rem] font-semibold uppercase tracking-[0.16em] text-[#B33521]">
+          {meta.signal}
+        </p>
+        <h3 className="mt-2 font-display text-5xl font-extrabold uppercase leading-none tracking-[-0.025em] text-[#191A16]">
+          {plan.name}
+        </h3>
+        <p className="mt-3 max-w-xs text-base leading-6 text-[#4E5048]">
+          {meta.promise}
+        </p>
+      </div>
+
+      <ul className="mt-7 border-t border-[#C9C1AF]">
+        {meta.details.map((detail, index) => (
+          <li
+            key={detail}
+            className="flex items-center gap-3 border-b border-[#D7D0C0] py-2.5 text-sm text-[#5B5D54]"
+          >
+            <span className="font-display text-base font-semibold tabular-nums text-[#6F7068]">
+              0{index + 1}
+            </span>
+            {detail}
+          </li>
+        ))}
+      </ul>
+
+      <Link
+        to={`/plan/${plan.id}`}
+        className="cut-corner-sm mt-auto inline-flex min-h-12 items-center justify-between border border-[#191A16] bg-[#191A16] px-4 text-sm font-semibold text-[#F8F5EB] transition-colors hover:bg-[#34362E] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5A3C] focus-visible:ring-offset-2 focus-visible:ring-offset-[#F8F5EB]"
+      >
+        View plan
+        <ArrowUpRight className="h-4 w-4" aria-hidden="true" />
+      </Link>
+    </article>
   );
 }

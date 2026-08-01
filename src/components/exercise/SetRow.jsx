@@ -1,140 +1,159 @@
-import { motion } from "motion/react";
+function displayValue(value) {
+  return typeof value === "string" && value.trim() ? value : "—";
+}
 
-import { softPressTap } from "../../styles/motion";
-
-const MotionButton = motion.button;
-
-function DoneControl({ isDone = false }) {
+function PreviousValue({ label, value }) {
   return (
-    <span
-      className={`inline-flex min-h-8 w-full items-center justify-center rounded-full border px-2 text-xs font-semibold transition duration-150 ease-out motion-reduce:transition-none ${
-        isDone
-          ? "border-[#8FDCE5] bg-[#5EC7D5] text-[#031014]"
-          : "border-white/10 bg-white/[0.028] text-[#D3D8DB]"
-      }`}
-    >
-      Done
+    <span className="inline-flex items-baseline gap-1">
+      <span className="text-[0.58rem] font-semibold uppercase tracking-[0.1em] text-[#AAA99F]">
+        {label}
+      </span>
+      <span className="font-display text-sm font-semibold tabular-nums text-[#B8B7AF]">
+        {displayValue(value)}
+      </span>
     </span>
   );
 }
 
-function MetricField({ label, name, value, onChange, isReadOnly = false }) {
-  const displayValue = value || "—";
+function MetricField({
+  label,
+  name,
+  value,
+  setNumber,
+  onChange,
+  isReadOnly = false,
+}) {
+  const shownValue = displayValue(value);
   const inputValue = value === "—" ? "" : value;
 
   if (isReadOnly) {
     return (
-      <div className="min-w-0 px-1 py-1.5 text-center">
-        <span className="block text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
+      <div className="min-w-0 border-l border-[#3B3D34] px-2 py-2.5 text-center first:border-l-0">
+        <span className="block text-[0.6rem] font-semibold uppercase tracking-[0.12em] text-[#87877E]">
           {label}
         </span>
-        <span className="mt-0.5 block whitespace-nowrap text-sm font-semibold tabular-nums text-[#F4F7F8]">
-          {displayValue}
+        <span className="mt-1 block font-display text-lg font-semibold tabular-nums text-[#E0DDD3]">
+          {shownValue}
         </span>
       </div>
     );
   }
 
   return (
-    <label className="min-w-0 px-1 py-1.5 text-center">
-      <span className="block text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
+    <label className="min-w-0 border-l border-[#3B3D34] px-1.5 py-1.5 text-center first:border-l-0">
+      <span className="block text-[0.6rem] font-semibold uppercase tracking-[0.12em] text-[#87877E]">
         {label}
       </span>
       <input
+        aria-label={`Set ${setNumber} ${label}`}
         name={name}
         value={inputValue}
         onChange={(event) => onChange?.(event.target.value)}
         inputMode="decimal"
         autoComplete="off"
         placeholder="—"
-        className="mt-0.5 w-full min-w-0 bg-transparent text-center text-sm font-semibold tabular-nums text-[#F4F7F8] outline-none placeholder:text-[#59636B] focus:text-[#8FDCE5]"
+        className="mt-0.5 h-10 w-full min-w-0 border-b border-transparent bg-transparent text-center font-display text-lg font-semibold tabular-nums text-[#F2EEE4] outline-none placeholder:text-[#5E6058] focus:border-[#FF5A3C] focus:text-[#FF8B73]"
       />
     </label>
   );
 }
 
-/**
- * Displays one prescribed set row and forwards set-row actions upward.
- *
- * Runtime note:
- * SetRow does not update global state directly. It receives the current
- * set values and `isDone` state, then forwards input changes and done-toggle
- * intent to the parent workflow.
- */
+/** One prescribed set. Values never imply completion; isDone does. */
 export default function SetRow({
   setNumber,
   weight,
   reps,
   rir,
+  previousValues,
   isDone = false,
-  isLast = false,
   onToggleDone,
   onSetFieldChange,
   isReadOnly = false,
   showDoneControl = true,
 }) {
-  const rowGridClass = showDoneControl
-    ? "grid-cols-[1.5rem_minmax(0,1fr)_3.75rem]"
-    : "grid-cols-[1.5rem_minmax(0,1fr)]";
+  const hasPreviousValues = [
+    previousValues?.weight,
+    previousValues?.reps,
+    previousValues?.rir,
+  ].some((value) => typeof value === "string" && value.trim());
 
   return (
-    <div
-      className={[
-        `grid ${rowGridClass} items-center gap-0.5 rounded-xl border px-2.5 py-2 transition-colors duration-200 ease-out motion-reduce:transition-none`,
+    <li
+      className={`border-t transition-colors duration-150 motion-reduce:transition-none ${
         isDone
-          ? "border-[#5EC7D5]/42 bg-[#10292E]/46"
-          : "border-white/8 bg-[#0B0F11]/64",
-        !isLast ? "" : "",
-      ].join(" ")}
+          ? "border-[#6E8B63] bg-[#6E8B63]/8"
+          : "border-[#3B3D34] bg-[#1B1C17]"
+      }`}
     >
-      <div className="min-w-0">
-        <p className="text-[0.6rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
-          Set
-        </p>
-        <p className="mt-0.5 text-sm font-semibold tabular-nums text-[#F4F7F8]">
-          {setNumber}
-        </p>
+      <div className="flex min-h-14 items-center justify-between gap-3 px-3 py-2">
+        <div className="flex min-w-0 items-baseline gap-2">
+          <span className="font-display text-2xl font-bold tabular-nums text-[#F2EEE4]">
+            {String(setNumber).padStart(2, "0")}
+          </span>
+          <span className="text-[0.62rem] font-semibold uppercase tracking-[0.14em] text-[#87877E]">
+            Set
+          </span>
+        </div>
+
+        {showDoneControl ? (
+          <button
+            type="button"
+            aria-label={`Mark set ${setNumber} ${isDone ? "not done" : "done"}`}
+            aria-pressed={isDone}
+            disabled={isReadOnly}
+            onClick={isReadOnly ? undefined : onToggleDone}
+            className={`inline-flex min-h-11 min-w-[7.25rem] items-center justify-center border px-3 text-xs font-semibold uppercase tracking-[0.1em] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF5A3C] ${
+              isDone
+                ? "border-[#809B76] bg-[#6E8B63] text-[#10130F]"
+                : "border-[#55574D] text-[#C8C5BB] hover:border-[#FF795F] hover:text-[#F2EEE4]"
+            } ${isReadOnly ? "cursor-not-allowed opacity-50" : ""}`}
+          >
+            {isDone ? "Performed" : "Mark done"}
+          </button>
+        ) : (
+          <span className="text-[0.62rem] font-semibold uppercase tracking-[0.12em] text-[#87877E]">
+            Preview
+          </span>
+        )}
       </div>
 
-      <div className="mr-1 grid min-w-0 grid-cols-3 divide-x divide-white/7 overflow-hidden rounded-lg bg-white/[0.024]">
+      {!isReadOnly && hasPreviousValues ? (
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 border-y border-[#34362E] bg-[#24251F] px-3 py-2">
+          <span className="text-[0.6rem] font-bold uppercase tracking-[0.14em] text-[#9EB096]">
+            Last performed
+          </span>
+          <PreviousValue label="kg" value={previousValues.weight} />
+          <PreviousValue label="reps" value={previousValues.reps} />
+          <PreviousValue label="RIR" value={previousValues.rir} />
+        </div>
+      ) : null}
+
+      <div className="grid grid-cols-3 border-t border-[#34362E]">
         <MetricField
           label="Kg"
           name={`set-${setNumber}-weight`}
           value={weight}
+          setNumber={setNumber}
           isReadOnly={isReadOnly}
           onChange={(value) => onSetFieldChange?.("weight", value)}
         />
-
         <MetricField
           label="Reps"
           name={`set-${setNumber}-reps`}
           value={reps}
+          setNumber={setNumber}
           isReadOnly={isReadOnly}
           onChange={(value) => onSetFieldChange?.("reps", value)}
         />
-
         <MetricField
           label="RIR"
           name={`set-${setNumber}-rir`}
           value={rir}
+          setNumber={setNumber}
           isReadOnly={isReadOnly}
           onChange={(value) => onSetFieldChange?.("rir", value)}
         />
       </div>
-
-      {showDoneControl ? (
-        <MotionButton
-          type="button"
-          aria-label={`Mark set ${setNumber} ${isDone ? "not done" : "done"}`}
-          aria-pressed={isDone}
-          disabled={isReadOnly}
-          onClick={isReadOnly ? undefined : onToggleDone}
-          className={isReadOnly ? "cursor-not-allowed opacity-50" : ""}
-          whileTap={isReadOnly ? undefined : softPressTap}
-        >
-          <DoneControl isDone={isDone} />
-        </MotionButton>
-      ) : null}
-    </div>
+    </li>
   );
 }
