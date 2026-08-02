@@ -1,9 +1,11 @@
 import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, BookOpen, ChevronRight } from "lucide-react";
+import { BookOpen, ChevronRight } from "lucide-react";
 
 import AppShell from "../components/layout/AppShell";
+import BackControl from "../components/common/BackControl";
+import GuardState from "../components/common/GuardState";
 import GuideGroupCard from "../components/guide/GuideGroupCard";
 
 import { getPlanById } from "../data/plans";
@@ -86,37 +88,23 @@ export default function GuidePage() {
   }
 
   if (!plan || !guide) {
+    const fallbackTo = plan ? `/plan/${planId}` : "/";
+    const fallbackLabel = plan ? "Back to plan" : "Back to home";
+
     return (
-      <AppShell mode="performance">
-        <div className="flex flex-col gap-7">
-          <Link
-            to={plan ? `/plan/${planId}` : "/"}
-            className="inline-flex min-h-11 w-fit items-center gap-2 rounded-lg pr-2 text-sm font-medium text-[#8E98A2] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/55"
-          >
-            <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-            Back to {plan ? "plan" : "home"}
-          </Link>
-
-          <header>
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#F1B864]">
-              Coach library
-            </p>
-
-            <h1 className="mt-3 text-4xl font-semibold leading-[1.02] tracking-[-0.035em] text-[#F3F5F1]">
-              Guide not found
-            </h1>
-
-            <p className="mt-4 max-w-sm text-sm leading-6 text-[#AAB2BA]">
-              The selected guide could not be loaded.
-            </p>
-          </header>
-        </div>
-      </AppShell>
+      <GuardState
+        eyebrow="Coach library"
+        context={plan?.name}
+        title="This guide could not be loaded."
+        description="Return to a valid plan and reopen its coaching library from the plan overview."
+        primaryTo={fallbackTo}
+        primaryLabel={fallbackLabel}
+      />
     );
   }
 
   return (
-    <AppShell mode="performance">
+    <AppShell>
       <AnimatePresence initial={false} mode="wait">
         {!activeGroup ? (
           <MotionDiv
@@ -127,13 +115,7 @@ export default function GuidePage() {
             animate="visible"
             exit="exit"
           >
-            <Link
-              to={`/plan/${planId}`}
-              className="inline-flex min-h-11 w-fit items-center gap-2 rounded-lg pr-2 text-sm font-medium text-[#8E98A2] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/55"
-            >
-              <ArrowLeft aria-hidden="true" className="h-4 w-4" />
-              Back to plan
-            </Link>
+            <BackControl to={`/plan/${planId}`}>Back to plan</BackControl>
 
             <header>
               <div className="flex items-center justify-between gap-4">
@@ -265,14 +247,9 @@ export default function GuidePage() {
             animate="visible"
             exit="exit"
           >
-            <button
-              type="button"
-              onClick={handleBackToSections}
-              className="inline-flex min-h-11 w-fit items-center gap-2 rounded-lg pr-2 text-sm font-medium text-[#8E98A2] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/55"
-            >
-              <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+            <BackControl onClick={handleBackToSections}>
               Guide sections
-            </button>
+            </BackControl>
 
             <GuideGroupCard
               group={activeGroup}
@@ -283,14 +260,9 @@ export default function GuidePage() {
             />
 
             <div className="border-t border-[#2A3138] pt-5">
-              <button
-                type="button"
-                onClick={handleBackToSections}
-                className="inline-flex min-h-11 items-center gap-2 rounded-lg pr-2 text-sm font-semibold text-[#AAB2BA] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/55"
-              >
-                <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+              <BackControl onClick={handleBackToSections}>
                 Back to all guide sections
-              </button>
+              </BackControl>
             </div>
           </MotionSection>
         )}

@@ -2,7 +2,6 @@ import { useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useReducedMotion } from "motion/react";
 import {
-  ArrowLeft,
   ArrowRight,
   Check,
   ChevronRight,
@@ -11,6 +10,8 @@ import {
 
 import { useAppState } from "../state/useAppState";
 import AppShell from "../components/layout/AppShell";
+import BackControl from "../components/common/BackControl";
+import GuardState from "../components/common/GuardState";
 import DayCard from "../components/cycle/DayCard";
 import CycleHeader from "../components/cycle/CycleHeader";
 
@@ -437,81 +438,36 @@ export default function CyclePage() {
 
   if (!plan) {
     return (
-      <AppShell mode="performance">
-        <div className="flex flex-col gap-6">
-          <Link
-            to="/"
-            className="inline-flex min-h-9 w-fit items-center gap-1.5 rounded-lg text-xs font-semibold text-[#77818B] transition-colors hover:text-[#DDE1DD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E99A4] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0E11]"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-            Back to Home
-          </Link>
-
-          <section className="rounded-[1.35rem] border border-[#2A3138] bg-[#13181D] p-5">
-            <p className="text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#D36F72]">
-              Invalid plan
-            </p>
-            <h1 className="mt-2 text-3xl font-semibold tracking-[-0.045em] text-[#F3F5F1]">
-              Cycle unavailable
-            </h1>
-            <p className="mt-3 text-sm leading-6 text-[#AAB2BA]">
-              The selected plan could not be loaded. Return Home and choose a
-              valid plan.
-            </p>
-          </section>
-        </div>
-      </AppShell>
+      <GuardState
+        eyebrow="Cycle unavailable"
+        title="This cycle does not belong to a current plan."
+        description="Return home and choose a valid training plan before opening its cycle dashboard."
+        primaryTo="/"
+        primaryLabel="Back to home"
+      />
     );
   }
 
   // Cycle is an operational dashboard, not a pre-start preview.
   if (!currentCycle) {
     return (
-      <AppShell mode="performance">
-        <div className="flex flex-col gap-6">
-          <Link
-            to={`/plan/${planId}`}
-            className="inline-flex min-h-9 w-fit items-center gap-1.5 rounded-lg text-xs font-semibold text-[#77818B] transition-colors hover:text-[#DDE1DD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E99A4] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0E11]"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-            Back to plan
-          </Link>
-
-          <header>
-            <p className="text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#77818B]">
-              {plan.name}
-            </p>
-            <h1 className="mt-2 text-[2.55rem] font-semibold leading-none tracking-[-0.065em] text-[#F3F5F1]">
-              Cycle not started
-            </h1>
-            <p className="mt-3 max-w-sm text-sm leading-6 text-[#AAB2BA]">
-              Start the plan cycle first. This dashboard will then show the
-              current day, rhythm, and next meaningful training action.
-            </p>
-          </header>
-
-          <Link
-            to={`/plan/${planId}`}
-            className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#B8F36B] px-4 text-sm font-bold text-[#0B0E11] transition duration-150 ease-out hover:bg-[#C8F78F] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0E11] motion-reduce:transition-none motion-reduce:active:scale-100"
-          >
-            Go to plan overview
-            <ChevronRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
-        </div>
-      </AppShell>
+      <GuardState
+        eyebrow="Cycle not started"
+        context={plan.name}
+        title="Start this plan cycle first."
+        description="The dashboard becomes active after you explicitly start the cycle from Plan Overview."
+        primaryTo={`/plan/${planId}`}
+        primaryLabel="Go to plan overview"
+        secondaryTo="/"
+        secondaryLabel="Back to home"
+      />
     );
   }
 
   return (
-    <AppShell mode="performance">
+    <AppShell>
       <div className="flex flex-col gap-6 pb-2">
-        <Link
-          to={`/plan/${planId}`}
-          className="inline-flex min-h-9 w-fit items-center gap-1.5 rounded-lg text-xs font-semibold text-[#77818B] transition-colors hover:text-[#DDE1DD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E99A4] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0E11]"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-          Back to plan
-        </Link>
+        <BackControl to={`/plan/${planId}`}>Back to plan</BackControl>
 
         <CycleHeader
           planName={plan.name}

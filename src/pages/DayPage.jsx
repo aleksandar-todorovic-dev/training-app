@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence } from "motion/react";
 import {
-  ArrowLeft,
   CheckCircle2,
   ChevronRight,
   Flame,
@@ -16,6 +15,8 @@ import { getCoreBlockStatus } from "../utils/runtime/coreStatusHelpers";
 import { getDayMode } from "../utils/runtime/dayModeHelpers";
 
 import AppShell from "../components/layout/AppShell";
+import BackControl from "../components/common/BackControl";
+import GuardState from "../components/common/GuardState";
 import SessionInfoCard from "../components/day/SessionInfoCard";
 import ExerciseListCard from "../components/day/ExerciseListCard";
 import CoreBlockCard from "../components/day/CoreBlockCard";
@@ -307,43 +308,27 @@ export default function DayPage() {
   }
 
   if (!plan || !dayDetails) {
-    return (
-      <AppShell mode="training">
-        <div className="flex flex-col gap-6">
-          <Link
-            to={plan ? `/plan/${planId}/cycle` : "/"}
-            className="inline-flex min-h-11 w-fit items-center gap-2 text-sm font-semibold text-[#AAB2BA] transition-colors hover:text-[#F3F5F1]"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            {plan ? "Back to Cycle" : "Back to Home"}
-          </Link>
+    const fallbackTo = plan ? `/plan/${planId}/cycle` : "/";
+    const fallbackLabel = plan ? "Back to cycle" : "Back to home";
 
-          <header className="border-t border-[#2A3138] pt-6">
-            <p className="text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-[#77818B]">
-              Invalid route
-            </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-[#F3F5F1]">
-              Day not found
-            </h1>
-            <p className="mt-3 text-base leading-7 text-[#AAB2BA]">
-              The selected training day could not be loaded.
-            </p>
-          </header>
-        </div>
-      </AppShell>
+    return (
+      <GuardState
+        eyebrow="Day unavailable"
+        context={plan?.name}
+        title="This training day could not be loaded."
+        description="Return to a valid cycle position and continue from the current planned workout."
+        primaryTo={fallbackTo}
+        primaryLabel={fallbackLabel}
+      />
     );
   }
 
   return (
-    <AppShell mode="training">
+    <AppShell>
       <div className="flex flex-col gap-5">
-        <Link
-          to={`/plan/${planId}/cycle`}
-          className="inline-flex min-h-10 w-fit items-center gap-1.5 text-xs font-medium text-[#77818B] transition-colors hover:text-[#D7DCDE]"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-          Back to Cycle
-        </Link>
+        <BackControl to={`/plan/${planId}/cycle`}>
+          Back to cycle
+        </BackControl>
 
         <header>
           <p className="text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-[#77818B]">

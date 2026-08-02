@@ -6,7 +6,6 @@ import {
   BookOpen,
   CalendarCheck,
   CalendarClock,
-  ChevronLeft,
   ChevronRight,
   Dumbbell,
   Gauge,
@@ -23,6 +22,8 @@ import {
 import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
 import AppShell from "../components/layout/AppShell";
+import BackControl from "../components/common/BackControl";
+import GuardState from "../components/common/GuardState";
 import { getPlanById } from "../data/plans";
 import { getDaysByPlanId } from "../data/days";
 import { revealPanelVariants } from "../styles/motion";
@@ -230,27 +231,13 @@ export default function PlanOverviewPage() {
 
   if (!plan) {
     return (
-      <AppShell mode="performance">
-        <div className="flex flex-col gap-6">
-          <Link
-            to="/"
-            className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-[#AAB2BA] transition-colors hover:text-white"
-          >
-            <ChevronLeft className="h-4 w-4" aria-hidden="true" />
-            Back to Home
-          </Link>
-
-          <section className="rounded-[1.35rem] border border-[#2A3138] bg-[#13181D] p-5">
-            <h1 className="text-2xl font-semibold tracking-[-0.04em] text-[#F3F5F1]">
-              Plan not found
-            </h1>
-            <p className="mt-2 text-sm leading-6 text-[#AAB2BA]">
-              The selected plan could not be loaded. Return to Home and choose a
-              valid plan.
-            </p>
-          </section>
-        </div>
-      </AppShell>
+      <GuardState
+        eyebrow="Plan unavailable"
+        title="This training plan could not be loaded."
+        description="Return home and choose one of the current structured plans to continue."
+        primaryTo="/"
+        primaryLabel="Back to home"
+      />
     );
   }
 
@@ -296,16 +283,10 @@ export default function PlanOverviewPage() {
   }
 
   return (
-    <AppShell mode="performance">
+    <AppShell>
       <div className="flex flex-col gap-7 pb-1">
         <header>
-          <Link
-            to="/"
-            className="inline-flex min-h-9 items-center gap-1.5 rounded-lg text-xs font-semibold text-[#7E8994] transition-colors hover:text-[#DDE1DD] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E99A4] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0E11]"
-          >
-            <ChevronLeft className="h-3.5 w-3.5" aria-hidden="true" />
-            Back
-          </Link>
+          <BackControl to="/">Back to home</BackControl>
 
           <div className="mt-4">
             <p className={`text-[0.68rem] font-bold uppercase tracking-[0.18em] ${meta.accentText}`}>

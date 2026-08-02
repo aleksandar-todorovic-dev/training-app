@@ -1,8 +1,8 @@
 import { createElement } from "react";
-import { ArrowLeft, ShieldAlert } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ShieldAlert } from "lucide-react";
 
 import AppShell from "../layout/AppShell";
+import BackControl from "./BackControl";
 import PrimaryButton from "./PrimaryButton";
 import SecondaryButton from "./SecondaryButton";
 
@@ -28,16 +28,10 @@ export default function GuardState({
   secondaryLabel,
 }) {
   return (
-    <AppShell mode="performance">
+    <AppShell>
       <div className="flex min-h-[calc(100dvh-3rem)] flex-col">
         {backTo && backLabel ? (
-          <Link
-            to={backTo}
-            className="inline-flex min-h-11 w-fit items-center gap-1.5 rounded-lg pr-2 text-xs font-medium text-[#8B949D] transition-colors hover:text-[#D7DCD7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#101419]"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-            {backLabel}
-          </Link>
+          <BackControl to={backTo}>{backLabel}</BackControl>
         ) : null}
 
         <div className="flex flex-1 flex-col justify-center py-10">
@@ -75,10 +69,7 @@ export default function GuardState({
           {children ? <div className="mt-7">{children}</div> : null}
 
           <div className="mt-8 flex flex-col gap-3">
-            <PrimaryButton
-              to={primaryTo}
-              className="w-full"
-            >
+            <PrimaryButton to={primaryTo} className="w-full">
               {primaryLabel}
             </PrimaryButton>
 

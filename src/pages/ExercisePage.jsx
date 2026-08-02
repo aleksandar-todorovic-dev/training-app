@@ -1,9 +1,10 @@
-import { ArrowLeft } from "lucide-react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { useAppState } from "../state/useAppState";
 import { APP_ACTIONS } from "../state/appActions";
 import AppShell from "../components/layout/AppShell";
+import BackControl from "../components/common/BackControl";
+import GuardState from "../components/common/GuardState";
 import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getExerciseById } from "../data/exercises";
@@ -69,26 +70,6 @@ function getExerciseState({ dayMode, sets }) {
     label: "Current exercise",
     className: "text-[#B8F36B]",
   };
-}
-
-function GuardSurface({ title, body, to, actionLabel }) {
-  return (
-    <section className="rounded-[1.25rem] border border-[#2A3138] bg-[#13181D] p-5 shadow-[0_14px_36px_rgba(0,0,0,0.2)]">
-      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#77818B]">
-        Exercise unavailable
-      </p>
-      <h1 className="mt-3 text-2xl font-semibold tracking-[-0.035em] text-[#F3F5F1]">
-        {title}
-      </h1>
-      <p className="mt-3 text-sm leading-6 text-[#AAB2BA]">{body}</p>
-      <Link
-        to={to}
-        className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#B8F36B] px-4 text-sm font-semibold text-[#0B0E11] transition-colors hover:bg-[#C8F78F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8F78F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#13181D]"
-      >
-        {actionLabel}
-      </Link>
-    </section>
-  );
 }
 
 /**
@@ -230,52 +211,40 @@ export default function ExercisePage() {
   }
 
   if (!plan || !dayDetails || !exercise || !isExerciseInDay) {
-    return (
-      <AppShell mode="performance">
-        <div className="space-y-5">
-          <Link
-            to={planId ? `/plan/${planId}/cycle` : "/"}
-            className="inline-flex min-h-11 w-fit items-center gap-2 text-sm font-medium text-[#77818B] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0E11]"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back
-          </Link>
+    const fallbackTo = plan ? `/plan/${planId}/cycle` : "/";
+    const fallbackLabel = plan ? "Return to cycle" : "Back to home";
+    const context = plan
+      ? `${plan.name}${dayDetails ? ` · ${dayDetails.label}` : ""}`
+      : null;
 
-          <GuardSurface
-            title="Exercise not found"
-            body="This exercise does not belong to the selected day, or its source data could not be loaded."
-            to={planId ? `/plan/${planId}/cycle` : "/"}
-            actionLabel="Return to cycle"
-          />
-        </div>
-      </AppShell>
+    return (
+      <GuardState
+        eyebrow="Exercise unavailable"
+        context={context}
+        title="This exercise could not be loaded."
+        description="The exercise does not belong to this training day, or its source data is unavailable. Return to a valid workout position."
+        primaryTo={fallbackTo}
+        primaryLabel={fallbackLabel}
+      />
     );
   }
 
   if (needsDayEntryFirst) {
     return (
-      <AppShell mode="performance">
-        <div className="space-y-5">
-          <Link
-            to={`/plan/${planId}/day/${dayId}`}
-            className="inline-flex min-h-11 w-fit items-center gap-2 text-sm font-medium text-[#77818B] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0E11]"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back to day
-          </Link>
-
-          <GuardSurface
-            title={currentCycle ? "Open the day first" : "Start a cycle first"}
-            body={
-              currentCycle
-                ? "Enter the current day before opening its exercise log. This keeps runtime creation inside the valid workout flow."
-                : "Exercise logging becomes available after the plan cycle has been started."
-            }
-            to={`/plan/${planId}/day/${dayId}`}
-            actionLabel="Go to day"
-          />
-        </div>
-      </AppShell>
+      <GuardState
+        eyebrow="Exercise checkpoint"
+        context={`${plan.name} · ${dayDetails.label}`}
+        title={currentCycle ? "Open the day first." : "Start a cycle first."}
+        description={
+          currentCycle
+            ? "Enter the current day before opening its exercise log. This keeps runtime creation inside the valid workout flow."
+            : "Exercise logging becomes available after the plan cycle has been started."
+        }
+        backTo={`/plan/${planId}/cycle`}
+        backLabel="Back to cycle"
+        primaryTo={`/plan/${planId}/day/${dayId}`}
+        primaryLabel="Go to day"
+      />
     );
   }
 
@@ -285,17 +254,13 @@ export default function ExercisePage() {
   });
 
   return (
-    <AppShell mode="performance">
+    <AppShell>
       <div className="space-y-5">
         <header className="space-y-4">
           <div className="flex items-center justify-between gap-4">
-            <Link
-              to={`/plan/${planId}/day/${dayId}`}
-              className="inline-flex min-h-11 shrink-0 items-center gap-2 text-sm font-medium text-[#77818B] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0E11]"
-            >
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            <BackControl to={`/plan/${planId}/day/${dayId}`} className="shrink-0">
               Back to day
-            </Link>
+            </BackControl>
 
             <p className="min-w-0 truncate text-right text-xs font-medium text-[#77818B]">
               {plan.name} · Cycle {currentCycleNumber ?? 1} · {dayDetails.label}

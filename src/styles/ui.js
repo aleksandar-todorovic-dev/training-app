@@ -8,24 +8,17 @@
  */
 
 /* -------------------------------------------------------------------------- */
-/* Page shells                                                                 */
+/* Page shell and navigation                                                   */
 /* -------------------------------------------------------------------------- */
-
-/**
- * Temporary legacy execution shell.
- *
- * DayPage is the only remaining active user of this visual treatment. It is
- * intentionally retained until the whole-app consistency pass migrates that
- * screen to the shared graphite shell.
- */
-export const UI_PAGE_TRAINING =
-  "min-h-screen bg-[#070A0C] bg-[radial-gradient(circle_at_top,rgba(63,168,182,0.06),transparent_30%),linear-gradient(180deg,#0A1114_0%,#080D10_48%,#060708_100%)] text-zinc-100 font-sans antialiased";
 
 export const UI_PAGE_PERFORMANCE =
   "min-h-screen bg-[#0B0E11] bg-[linear-gradient(180deg,#101419_0%,#0B0E11_44%,#090B0D_100%)] text-[#F3F5F1] font-sans antialiased [color-scheme:dark]";
 
 export const UI_CONTAINER =
   "mx-auto flex min-h-screen w-full max-w-md flex-col px-4 pb-7 pt-5";
+
+export const UI_BACK_CONTROL =
+  "inline-flex min-h-11 w-fit items-center gap-1.5 rounded-lg pr-2 text-xs font-medium text-[#8B949D] transition-colors hover:text-[#D7DCD7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#101419]";
 
 /* -------------------------------------------------------------------------- */
 /* Sheets                                                                      */

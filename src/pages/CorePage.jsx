@@ -1,10 +1,11 @@
-import { ArrowLeft } from "lucide-react";
 import { useEffect, useMemo } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
 import AppShell from "../components/layout/AppShell";
+import BackControl from "../components/common/BackControl";
+import GuardState from "../components/common/GuardState";
 import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getCoreBlockById, getCoreExercisesByIds } from "../data/core";
@@ -12,26 +13,6 @@ import CoreWorkflowCard from "../components/core/CoreWorkflowCard";
 import { sanitizeCoreSetInputValue } from "../utils/runtime/coreInputHelpers";
 import { getDayMode } from "../utils/runtime/dayModeHelpers";
 import { getCoreBlockStatus } from "../utils/runtime/coreStatusHelpers";
-
-function GuardSurface({ title, body, to, actionLabel }) {
-  return (
-    <section className="rounded-[1.25rem] border border-[#2A3138] bg-[#13181D] p-5 shadow-[0_14px_36px_rgba(0,0,0,0.2)]">
-      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#77818B]">
-        Core unavailable
-      </p>
-      <h1 className="mt-3 text-2xl font-semibold tracking-[-0.035em] text-[#F3F5F1]">
-        {title}
-      </h1>
-      <p className="mt-3 text-sm leading-6 text-[#AAB2BA]">{body}</p>
-      <Link
-        to={to}
-        className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#B8F36B] px-4 text-sm font-semibold text-[#0B0E11] transition-colors hover:bg-[#C8F78F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8F78F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#13181D]"
-      >
-        {actionLabel}
-      </Link>
-    </section>
-  );
-}
 
 function getCorePageState({ dayMode, coreBlockLog }) {
   if (dayMode === "upcoming") {
@@ -234,52 +215,40 @@ export default function CorePage() {
   }
 
   if (!plan || !dayDetails || !coreBlock || !isCoreBlockForDay) {
-    return (
-      <AppShell mode="performance">
-        <div className="space-y-5">
-          <Link
-            to={planId ? `/plan/${planId}/cycle` : "/"}
-            className="inline-flex min-h-11 w-fit items-center gap-2 text-sm font-medium text-[#77818B] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0E11]"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back
-          </Link>
+    const fallbackTo = plan ? `/plan/${planId}/cycle` : "/";
+    const fallbackLabel = plan ? "Return to cycle" : "Back to home";
+    const context = plan
+      ? `${plan.name}${dayDetails ? ` · ${dayDetails.label}` : ""}`
+      : null;
 
-          <GuardSurface
-            title="Core block not found"
-            body="This core block does not belong to the selected day, or its source data could not be loaded."
-            to={planId ? `/plan/${planId}/cycle` : "/"}
-            actionLabel="Return to cycle"
-          />
-        </div>
-      </AppShell>
+    return (
+      <GuardState
+        eyebrow="Core unavailable"
+        context={context}
+        title="This Core block could not be loaded."
+        description="The support block does not belong to this training day, or its source data is unavailable. Return to a valid workout position."
+        primaryTo={fallbackTo}
+        primaryLabel={fallbackLabel}
+      />
     );
   }
 
   if (needsDayEntryFirst) {
     return (
-      <AppShell mode="performance">
-        <div className="space-y-5">
-          <Link
-            to={`/plan/${planId}/day/${dayId}`}
-            className="inline-flex min-h-11 w-fit items-center gap-2 text-sm font-medium text-[#77818B] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0E11]"
-          >
-            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-            Back to day
-          </Link>
-
-          <GuardSurface
-            title={currentCycle ? "Open the day first" : "Start a cycle first"}
-            body={
-              currentCycle
-                ? "Enter the current day before opening its core log. This keeps runtime creation inside the valid workout flow."
-                : "Core logging becomes available after the plan cycle has been started."
-            }
-            to={`/plan/${planId}/day/${dayId}`}
-            actionLabel="Go to day"
-          />
-        </div>
-      </AppShell>
+      <GuardState
+        eyebrow="Core checkpoint"
+        context={`${plan.name} · ${dayDetails.label}`}
+        title={currentCycle ? "Open the day first." : "Start a cycle first."}
+        description={
+          currentCycle
+            ? "Enter the current day before opening its Core log. This keeps runtime creation inside the valid workout flow."
+            : "Core logging becomes available after the plan cycle has been started."
+        }
+        backTo={`/plan/${planId}/cycle`}
+        backLabel="Back to cycle"
+        primaryTo={`/plan/${planId}/day/${dayId}`}
+        primaryLabel="Go to day"
+      />
     );
   }
 
@@ -289,17 +258,13 @@ export default function CorePage() {
   });
 
   return (
-    <AppShell mode="performance">
+    <AppShell>
       <div className="space-y-5">
         <header className="space-y-4">
           <div className="flex items-center justify-between gap-4">
-            <Link
-              to={`/plan/${planId}/day/${dayId}`}
-              className="inline-flex min-h-11 shrink-0 items-center gap-2 text-sm font-medium text-[#77818B] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0E11]"
-            >
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            <BackControl to={`/plan/${planId}/day/${dayId}`} className="shrink-0">
               Back to day
-            </Link>
+            </BackControl>
 
             <p className="min-w-0 truncate text-right text-xs font-medium text-[#77818B]">
               {plan.name} · Cycle {currentCycleNumber ?? 1} · {dayDetails.label}

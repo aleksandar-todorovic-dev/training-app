@@ -215,7 +215,7 @@ export default function HomePage() {
   }
 
   return (
-    <AppShell mode="performance">
+    <AppShell>
       <div className="flex flex-col gap-7 pb-1">
         <header className="flex items-center justify-between gap-4">
           <div className="inline-flex min-w-0 items-center gap-3">

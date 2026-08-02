@@ -1,13 +1,13 @@
 import { useMemo } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
-  ArrowLeft,
   Check,
   CheckCircle2,
   RotateCcw,
 } from "lucide-react";
 
 import AppShell from "../components/layout/AppShell";
+import BackControl from "../components/common/BackControl";
 import GuardState from "../components/common/GuardState";
 import PrimaryButton from "../components/common/PrimaryButton";
 import SecondaryButton from "../components/common/SecondaryButton";
@@ -245,15 +245,11 @@ export default function EndCyclePage() {
   }
 
   return (
-    <AppShell mode="performance">
+    <AppShell>
       <div className="flex flex-col gap-8 pb-3">
-        <Link
-          to={`/plan/${planId}/cycle`}
-          className="inline-flex min-h-11 w-fit items-center gap-1.5 rounded-lg pr-2 text-xs font-medium text-[#8B949D] transition-colors hover:text-[#D7DCD7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#101419]"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
+        <BackControl to={`/plan/${planId}/cycle`}>
           Back to cycle
-        </Link>
+        </BackControl>
 
         <header>
           <div className="flex items-center justify-between gap-4">
