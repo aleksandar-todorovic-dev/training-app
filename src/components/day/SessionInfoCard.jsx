@@ -1,14 +1,15 @@
+import { useId, useState } from "react";
 import { ChevronDown } from "lucide-react";
-import { useState } from "react";
 
 /**
- * Displays compact day-level coaching guidance.
+ * Compact disclosure for day-level coaching guidance.
  *
  * Runtime note:
- * Session info is guidance only and does not affect completion.
+ * Session information is guidance only and does not affect workout state.
  */
 export default function SessionInfoCard({ sessionInfo, dayGoal, coreBlock }) {
   const [isOpen, setIsOpen] = useState(false);
+  const contentId = useId();
 
   const hasAdvancedTechnique = sessionInfo.advancedTechniques !== "None";
 
@@ -18,46 +19,43 @@ export default function SessionInfoCard({ sessionInfo, dayGoal, coreBlock }) {
       value: sessionInfo.rirRule,
     },
     {
-      label: hasAdvancedTechnique ? "Technique" : "Focus",
+      label: hasAdvancedTechnique ? "Method" : "Focus",
       value: hasAdvancedTechnique ? sessionInfo.advancedTechniques : dayGoal,
     },
   ];
 
   if (coreBlock) {
     notes.push({
-      label: "Core",
-      value: `${coreBlock.name} · Flexible block`,
+      label: "Support",
+      value: `${coreBlock.name} is a flexible block and stays separate from main-day completion.`,
     });
   }
 
   const helperText = coreBlock
-    ? "Effort, technique, and core focus"
-    : "Effort and technique focus";
+    ? "Effort, method, and support context"
+    : "Effort and execution context";
 
   return (
-    <div className="flex flex-col">
+    <section className="border-y border-[#2A3138]/75 py-3">
       <button
         type="button"
-        className="flex w-full items-center justify-between gap-4 rounded-xl py-1 text-left"
+        className="group flex min-h-12 w-full items-center justify-between gap-4 text-left"
         onClick={() => setIsOpen((currentValue) => !currentValue)}
         aria-expanded={isOpen}
+        aria-controls={contentId}
       >
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-[#D3D8DB]">
-            Coach notes
-          </p>
-
-          <p className="mt-0.5 text-xs leading-5 text-[#747D84]">
+          <p className="text-sm font-semibold text-[#DCE1E2]">Coach notes</p>
+          <p className="mt-0.5 text-xs leading-5 text-[#77818B]">
             {helperText}
           </p>
         </div>
 
-        <span className="flex shrink-0 items-center gap-1.5 text-xs font-semibold text-[#8FDCE5]">
+        <span className="flex shrink-0 items-center gap-1.5 text-xs font-semibold text-[#AAB2BA] transition-colors group-hover:text-[#F3F5F1]">
           {isOpen ? "Hide" : "View"}
-
           <ChevronDown
             className={[
-              "h-4 w-4 text-[#59636B] transition-transform",
+              "h-4 w-4 text-[#68727B] transition-transform",
               isOpen ? "rotate-180" : "",
             ].join(" ")}
             aria-hidden="true"
@@ -66,18 +64,23 @@ export default function SessionInfoCard({ sessionInfo, dayGoal, coreBlock }) {
       </button>
 
       {isOpen ? (
-        <div className="mt-2.5 flex flex-col gap-3 rounded-2xl bg-white/[0.018] px-3 py-3">
-          {notes.map((note) => (
-            <div key={note.label} className="flex flex-col gap-1.5">
-              <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#747D84]">
+        <div id={contentId} className="mt-3 border-t border-[#2A3138]/65 pt-1">
+          {notes.map((note, index) => (
+            <div
+              key={note.label}
+              className={[
+                "grid grid-cols-[4.25rem_1fr] gap-3 py-3",
+                index < notes.length - 1 ? "border-b border-[#2A3138]/55" : "",
+              ].join(" ")}
+            >
+              <p className="pt-0.5 text-[0.64rem] font-semibold uppercase tracking-[0.11em] text-[#77818B]">
                 {note.label}
               </p>
-
-              <p className="text-sm leading-5 text-[#A9B0B5]">{note.value}</p>
+              <p className="text-sm leading-5 text-[#AAB2BA]">{note.value}</p>
             </div>
           ))}
         </div>
       ) : null}
-    </div>
+    </section>
   );
 }
