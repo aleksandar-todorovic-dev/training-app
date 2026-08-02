@@ -1,14 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
-import {
-  ArrowLeft,
-  BookOpen,
-  CheckSquare,
-  ChevronRight,
-  GitBranch,
-  Moon,
-} from "lucide-react";
+import { ArrowLeft, BookOpen, ChevronRight } from "lucide-react";
 
 import AppShell from "../components/layout/AppShell";
 import GuideGroupCard from "../components/guide/GuideGroupCard";
@@ -16,51 +9,71 @@ import GuideGroupCard from "../components/guide/GuideGroupCard";
 import { getPlanById } from "../data/plans";
 import { getGuideByPlanId } from "../data/guides";
 import { pressableTap, revealPanelVariants } from "../styles/motion";
-import {
-  UI_TEXT_BODY,
-  UI_TEXT_BODY_RELAXED,
-  UI_TEXT_CARD_TITLE,
-  UI_TEXT_EYEBROW,
-  UI_TEXT_EYEBROW_ACCENT,
-  UI_TEXT_META,
-  UI_TEXT_SECTION_TITLE,
-} from "../styles/ui";
 
 const MotionButton = motion.button;
 const MotionDiv = motion.div;
 const MotionSection = motion.section;
 
-const GUIDE_SECTION_ICONS = [BookOpen, CheckSquare, GitBranch, Moon];
+function getPlanGuideTone(planId) {
+  if (planId === "cut-pro") {
+    return {
+      phaseCode: "PRESERVE / 02",
+      accentText: "text-[#F4C87F]",
+      accentBorder: "border-[#F1B864]/38",
+      accentBackground: "bg-[#F1B864]/8",
+      hoverBorder: "hover:border-[#F1B864]/34",
+      hoverText: "group-hover:text-[#F4C87F]",
+    };
+  }
+
+  return {
+    phaseCode: "BUILD / 01",
+    accentText: "text-[#C8F78F]",
+    accentBorder: "border-[#B8F36B]/34",
+    accentBackground: "bg-[#B8F36B]/7",
+    hoverBorder: "hover:border-[#B8F36B]/30",
+    hoverText: "group-hover:text-[#C8F78F]",
+  };
+}
+
+function scrollToPageTop() {
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: "auto",
+  });
+}
 
 /**
- * Page-level guide reader for one predefined plan.
+ * Page-level coach library for one predefined plan.
  *
- * Runtime note:
- * GuidePage reads static educational content and uses local UI state to switch
- * guide sections. It does not read or mutate workout progress.
+ * Runtime boundary:
+ * GuidePage reads static educational content and uses local UI state for
+ * section navigation. It does not read or mutate workout progress.
  */
 export default function GuidePage() {
   const { planId } = useParams();
 
   const plan = getPlanById(planId);
   const guide = getGuideByPlanId(planId);
+  const tone = getPlanGuideTone(planId);
 
-  // Local guide navigation state only; selecting a group does not affect runtime progress.
   const [activeGroupId, setActiveGroupId] = useState(null);
 
-  // Resolve the currently selected guide group from static guide data.
   const activeGroup = useMemo(() => {
     if (!guide?.groups?.length || !activeGroupId) return null;
     return guide.groups.find((group) => group.id === activeGroupId) ?? null;
   }, [guide, activeGroupId]);
 
-  function scrollToPageTop() {
-    window.scrollTo({
-      top: 0,
-      left: 0,
-      behavior: "auto",
-    });
-  }
+  const activeGroupIndex = activeGroup
+    ? guide.groups.findIndex((group) => group.id === activeGroup.id)
+    : -1;
+
+  const totalTopicCount =
+    guide?.groups?.reduce(
+      (topicCount, group) => topicCount + group.topics.length,
+      0,
+    ) ?? 0;
 
   function handleOpenGroup(groupId) {
     setActiveGroupId(groupId);
@@ -74,26 +87,26 @@ export default function GuidePage() {
 
   if (!plan || !guide) {
     return (
-      <AppShell>
+      <AppShell mode="performance">
         <div className="flex flex-col gap-7">
           <Link
             to={plan ? `/plan/${planId}` : "/"}
-            className="inline-flex w-fit items-center gap-2 text-sm font-semibold text-cyan-300 transition hover:text-cyan-200"
+            className="inline-flex min-h-11 w-fit items-center gap-2 rounded-lg pr-2 text-sm font-medium text-[#8E98A2] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/55"
           >
             <ArrowLeft aria-hidden="true" className="h-4 w-4" />
             Back to {plan ? "plan" : "home"}
           </Link>
 
-          <header className="flex flex-col gap-3">
-            <p className={UI_TEXT_EYEBROW_ACCENT}>
-              Coach Library
+          <header>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#F1B864]">
+              Coach library
             </p>
 
-            <h1 className="text-4xl font-semibold tracking-tight text-zinc-50">
+            <h1 className="mt-3 text-4xl font-semibold leading-[1.02] tracking-[-0.035em] text-[#F3F5F1]">
               Guide not found
             </h1>
 
-            <p className={UI_TEXT_BODY_RELAXED}>
+            <p className="mt-4 max-w-sm text-sm leading-6 text-[#AAB2BA]">
               The selected guide could not be loaded.
             </p>
           </header>
@@ -103,12 +116,12 @@ export default function GuidePage() {
   }
 
   return (
-    <AppShell>
+    <AppShell mode="performance">
       <AnimatePresence initial={false} mode="wait">
         {!activeGroup ? (
           <MotionDiv
             key="guide-sections"
-            className="flex flex-col gap-5"
+            className="flex flex-col gap-7"
             variants={revealPanelVariants}
             initial="hidden"
             animate="visible"
@@ -116,115 +129,137 @@ export default function GuidePage() {
           >
             <Link
               to={`/plan/${planId}`}
-              className="inline-flex w-fit items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
+              className="inline-flex min-h-11 w-fit items-center gap-2 rounded-lg pr-2 text-sm font-medium text-[#8E98A2] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/55"
             >
-              <ArrowLeft aria-hidden="true" className="h-3.5 w-3.5" />
+              <ArrowLeft aria-hidden="true" className="h-4 w-4" />
               Back to plan
             </Link>
 
-            <header className="flex flex-col gap-4">
-              <div className="flex flex-col gap-2.5">
-                <p className={UI_TEXT_EYEBROW_ACCENT}>
-                  Coach Library
+            <header>
+              <div className="flex items-center justify-between gap-4">
+                <p
+                  className={`text-[0.68rem] font-semibold uppercase tracking-[0.14em] ${tone.accentText}`}
+                >
+                  Coach library
                 </p>
 
-                <h1 className="text-3xl font-semibold leading-tight tracking-tight text-zinc-50">
-                  {guide.title}
-                </h1>
-
-                <p className={`max-w-sm ${UI_TEXT_BODY_RELAXED}`}>
-                  {guide.intro}
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#77818B]">
+                  {tone.phaseCode}
                 </p>
               </div>
 
-              <div className="border-l border-amber-300/32 pl-3">
-                <p className="text-sm font-semibold text-amber-200">
-                  Learn the system, then train with less guessing.
-                </p>
+              <div className="mt-4 flex items-start gap-3">
+                <div
+                  className={`mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${tone.accentBorder} ${tone.accentBackground} ${tone.accentText}`}
+                >
+                  <BookOpen aria-hidden="true" className="h-5 w-5" />
+                </div>
 
-                <p className={`mt-1 ${UI_TEXT_META}`}>
-                  Use this library to understand the cycle, progression,
-                  logging, recovery, and plan decisions.
-                </p>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-[#AAB2BA]">
+                    {plan.name}
+                  </p>
+
+                  <h1 className="mt-1 text-[2.45rem] font-semibold leading-[0.98] tracking-[-0.045em] text-[#F3F5F1]">
+                    {guide.title.replace(`${plan.name} `, "")}
+                  </h1>
+                </div>
+              </div>
+
+              <p className="mt-5 max-w-[25rem] text-[0.95rem] leading-7 text-[#AAB2BA]">
+                {guide.intro}
+              </p>
+
+              <div className="mt-5 grid grid-cols-2 border-y border-[#2A3138] py-3">
+                <div>
+                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">
+                    Sections
+                  </p>
+                  <p className="mt-1 text-lg font-semibold tabular-nums text-[#F3F5F1]">
+                    {guide.groups.length}
+                  </p>
+                </div>
+
+                <div className="border-l border-[#2A3138] pl-4">
+                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">
+                    Topics
+                  </p>
+                  <p className="mt-1 text-lg font-semibold tabular-nums text-[#F3F5F1]">
+                    {totalTopicCount}
+                  </p>
+                </div>
               </div>
             </header>
 
-            <section className="flex flex-col gap-3">
+            <aside className="border-l-2 border-[#F1B864]/58 pl-4">
+              <p className="text-sm font-semibold text-[#F4C87F]">
+                Read only what helps the next decision.
+              </p>
+              <p className="mt-1 text-sm leading-6 text-[#8E98A2]">
+                Training screens stay action-first. Deeper cycle, progression,
+                logging, and recovery guidance lives here when you need it.
+              </p>
+            </aside>
+
+            <section aria-labelledby="guide-section-index-title">
               <div className="flex items-end justify-between gap-4">
                 <div>
-                  <p className={UI_TEXT_EYEBROW}>
-                    Sections
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#77818B]">
+                    Section index
                   </p>
-
-                  <h2 className={`mt-1 ${UI_TEXT_SECTION_TITLE}`}>
-                    Choose what you need now
+                  <h2
+                    id="guide-section-index-title"
+                    className="mt-1.5 text-xl font-semibold tracking-[-0.025em] text-[#F3F5F1]"
+                  >
+                    Choose the question you are solving
                   </h2>
                 </div>
-
-                <p className={UI_TEXT_META}>
-                  {guide.groups.length} areas
-                </p>
               </div>
 
-              <div className="flex flex-col gap-2.5">
-                {guide.groups.map((group, index) => {
-                  const SectionIcon = GUIDE_SECTION_ICONS[index] ?? BookOpen;
-
-                  return (
-                    <MotionButton
-                      key={group.id}
-                      type="button"
-                      onClick={() => handleOpenGroup(group.id)}
-                      whileTap={pressableTap}
-                      className="group rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3 text-left transition hover:border-[#3FA8B6]/18 hover:bg-white/[0.03]"
+              <div className="mt-4 overflow-hidden rounded-[1.25rem] border border-[#2A3138] bg-[#13181D]">
+                {guide.groups.map((group, index) => (
+                  <MotionButton
+                    key={group.id}
+                    type="button"
+                    onClick={() => handleOpenGroup(group.id)}
+                    whileTap={pressableTap}
+                    className={`group grid min-h-[6.25rem] w-full grid-cols-[2rem_minmax(0,1fr)_auto] gap-3 border-b border-[#2A3138] px-4 py-4 text-left transition-colors last:border-b-0 hover:bg-[#171D22] ${tone.hoverBorder} focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#B8F36B]/55`}
+                  >
+                    <span
+                      className={`pt-0.5 text-sm font-semibold tabular-nums ${tone.accentText}`}
                     >
-                      <div className="grid grid-cols-[2rem_1fr] gap-3">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[#3FA8B6]/18 bg-[#10292E]/36 text-sm font-semibold text-[#8FDCE5]">
-                          {index + 1}
-                        </div>
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
 
-                        <div className="min-w-0">
-                          <div className="flex items-start justify-between gap-4">
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-2">
-                                <SectionIcon
-                                  aria-hidden="true"
-                                  className="h-4 w-4 shrink-0 text-[#8FDCE5]/64"
-                                />
+                    <span className="min-w-0">
+                      <span
+                        className={`block text-base font-semibold leading-snug tracking-[-0.015em] text-[#E8ECE8] transition-colors ${tone.hoverText}`}
+                      >
+                        {group.title}
+                      </span>
 
-                                <h3
-                                  className={`${UI_TEXT_CARD_TITLE} transition group-hover:text-cyan-100`}
-                                >
-                                  {group.title}
-                                </h3>
-                              </div>
+                      <span className="mt-1.5 block text-sm leading-5 text-[#8E98A2]">
+                        {group.intro}
+                      </span>
 
-                              <p className={`mt-1.5 ${UI_TEXT_BODY}`}>
-                                {group.intro}
-                              </p>
-                            </div>
+                      <span className="mt-2 block text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">
+                        {group.topics.length} topics
+                      </span>
+                    </span>
 
-                            <ChevronRight
-                              aria-hidden="true"
-                              className="mt-1 h-5 w-5 shrink-0 text-zinc-600 transition group-hover:text-cyan-300"
-                            />
-                          </div>
-
-                          <p className={`mt-2 ${UI_TEXT_EYEBROW}`}>
-                            {group.topics.length} topics
-                          </p>
-                        </div>
-                      </div>
-                    </MotionButton>
-                  );
-                })}
+                    <ChevronRight
+                      aria-hidden="true"
+                      className="mt-0.5 h-5 w-5 shrink-0 text-[#5F6973] transition group-hover:translate-x-0.5 group-hover:text-[#AAB2BA] motion-reduce:transform-none"
+                    />
+                  </MotionButton>
+                ))}
               </div>
             </section>
           </MotionDiv>
         ) : (
           <MotionSection
             key={activeGroup.id}
-            className="flex flex-col gap-5"
+            className="flex flex-col gap-6"
             variants={revealPanelVariants}
             initial="hidden"
             animate="visible"
@@ -233,22 +268,28 @@ export default function GuidePage() {
             <button
               type="button"
               onClick={handleBackToSections}
-              className="inline-flex w-fit items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
+              className="inline-flex min-h-11 w-fit items-center gap-2 rounded-lg pr-2 text-sm font-medium text-[#8E98A2] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/55"
             >
-              <ArrowLeft aria-hidden="true" className="h-3.5 w-3.5" />
+              <ArrowLeft aria-hidden="true" className="h-4 w-4" />
               Guide sections
             </button>
 
-            <GuideGroupCard group={activeGroup} />
+            <GuideGroupCard
+              group={activeGroup}
+              groupIndex={activeGroupIndex}
+              groupCount={guide.groups.length}
+              accentTextClassName={tone.accentText}
+              accentBorderClassName={tone.accentBorder}
+            />
 
-            <div className="pt-2">
+            <div className="border-t border-[#2A3138] pt-5">
               <button
                 type="button"
                 onClick={handleBackToSections}
-                className="inline-flex w-fit items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-cyan-300/75 transition hover:text-cyan-200"
+                className="inline-flex min-h-11 items-center gap-2 rounded-lg pr-2 text-sm font-semibold text-[#AAB2BA] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/55"
               >
-                <ArrowLeft aria-hidden="true" className="h-3.5 w-3.5" />
-                Guide sections
+                <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+                Back to all guide sections
               </button>
             </div>
           </MotionSection>
