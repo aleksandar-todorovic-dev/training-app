@@ -1,34 +1,25 @@
+import { Check } from "lucide-react";
 import { motion } from "motion/react";
 
 import { softPressTap } from "../../styles/motion";
 
 const MotionButton = motion.button;
 
-function DoneControl({ isDone = false }) {
-  return (
-    <span
-      className={`inline-flex min-h-8 w-full items-center justify-center rounded-full border px-2 text-xs font-semibold transition duration-150 ease-out motion-reduce:transition-none ${
-        isDone
-          ? "border-[#8FDCE5] bg-[#5EC7D5] text-[#031014]"
-          : "border-white/10 bg-white/[0.028] text-[#D3D8DB]"
-      }`}
-    >
-      Done
-    </span>
-  );
-}
-
-function MetricField({ label, name, value, onChange, isReadOnly = false }) {
+function MetricField({
+  label,
+  name,
+  value,
+  setNumber,
+  onChange,
+  isReadOnly = false,
+}) {
   const displayValue = value || "—";
   const inputValue = value === "—" ? "" : value;
 
   if (isReadOnly) {
     return (
-      <div className="min-w-0 px-1 py-1.5 text-center">
-        <span className="block text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
-          {label}
-        </span>
-        <span className="mt-0.5 block whitespace-nowrap text-sm font-semibold tabular-nums text-[#F4F7F8]">
+      <div className="flex min-h-11 min-w-0 items-center justify-center px-1.5 text-center">
+        <span className="whitespace-nowrap text-sm font-semibold tabular-nums text-[#F3F5F1]">
           {displayValue}
         </span>
       </div>
@@ -36,18 +27,19 @@ function MetricField({ label, name, value, onChange, isReadOnly = false }) {
   }
 
   return (
-    <label className="min-w-0 px-1 py-1.5 text-center">
-      <span className="block text-[0.58rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
-        {label}
+    <label className="flex min-h-11 min-w-0 items-center justify-center px-1.5">
+      <span className="sr-only">
+        Set {setNumber} {label}
       </span>
       <input
+        aria-label={`Set ${setNumber} ${label}`}
         name={name}
         value={inputValue}
         onChange={(event) => onChange?.(event.target.value)}
         inputMode="decimal"
         autoComplete="off"
         placeholder="—"
-        className="mt-0.5 w-full min-w-0 bg-transparent text-center text-sm font-semibold tabular-nums text-[#F4F7F8] outline-none placeholder:text-[#59636B] focus:text-[#8FDCE5]"
+        className="h-9 w-full min-w-0 rounded-lg bg-transparent px-1 text-center text-sm font-semibold tabular-nums text-[#F3F5F1] outline-none transition-colors placeholder:text-[#59636B] focus:bg-[#1C2329] focus:text-[#C8F78F] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#B8F36B]/55"
       />
     </label>
   );
@@ -67,47 +59,46 @@ export default function SetRow({
   reps,
   rir,
   isDone = false,
-  isLast = false,
   onToggleDone,
   onSetFieldChange,
   isReadOnly = false,
   showDoneControl = true,
 }) {
   const rowGridClass = showDoneControl
-    ? "grid-cols-[1.5rem_minmax(0,1fr)_3.75rem]"
-    : "grid-cols-[1.5rem_minmax(0,1fr)]";
+    ? "grid-cols-[1.9rem_minmax(0,1fr)_2.75rem]"
+    : "grid-cols-[1.9rem_minmax(0,1fr)]";
 
   return (
     <div
       className={[
-        `grid ${rowGridClass} items-center gap-0.5 rounded-xl border px-2.5 py-2 transition-colors duration-200 ease-out motion-reduce:transition-none`,
+        `grid ${rowGridClass} min-h-14 items-center gap-1 border-t px-2 transition-colors duration-150 motion-reduce:transition-none`,
         isDone
-          ? "border-[#5EC7D5]/42 bg-[#10292E]/46"
-          : "border-white/8 bg-[#0B0F11]/64",
-        !isLast ? "" : "",
+          ? "border-[#79C89A]/18 bg-[#79C89A]/[0.07]"
+          : "border-[#2A3138] bg-transparent",
       ].join(" ")}
     >
-      <div className="min-w-0">
-        <p className="text-[0.6rem] font-semibold uppercase tracking-[0.08em] text-[#747D84]">
-          Set
-        </p>
-        <p className="mt-0.5 text-sm font-semibold tabular-nums text-[#F4F7F8]">
-          {setNumber}
-        </p>
-      </div>
+      <p
+        className={`text-center text-sm font-semibold tabular-nums ${
+          isDone ? "text-[#A7DDB9]" : "text-[#77818B]"
+        }`}
+      >
+        {setNumber}
+      </p>
 
-      <div className="mr-1 grid min-w-0 grid-cols-3 divide-x divide-white/7 overflow-hidden rounded-lg bg-white/[0.024]">
+      <div className="grid min-w-0 grid-cols-3 divide-x divide-[#2A3138]">
         <MetricField
-          label="Kg"
+          label="weight"
           name={`set-${setNumber}-weight`}
+          setNumber={setNumber}
           value={weight}
           isReadOnly={isReadOnly}
           onChange={(value) => onSetFieldChange?.("weight", value)}
         />
 
         <MetricField
-          label="Reps"
+          label="reps"
           name={`set-${setNumber}-reps`}
+          setNumber={setNumber}
           value={reps}
           isReadOnly={isReadOnly}
           onChange={(value) => onSetFieldChange?.("reps", value)}
@@ -116,6 +107,7 @@ export default function SetRow({
         <MetricField
           label="RIR"
           name={`set-${setNumber}-rir`}
+          setNumber={setNumber}
           value={rir}
           isReadOnly={isReadOnly}
           onChange={(value) => onSetFieldChange?.("rir", value)}
@@ -125,14 +117,23 @@ export default function SetRow({
       {showDoneControl ? (
         <MotionButton
           type="button"
-          aria-label={`Mark set ${setNumber} ${isDone ? "not done" : "done"}`}
+          aria-label={`Mark set ${setNumber} ${isDone ? "not performed" : "performed"}`}
           aria-pressed={isDone}
           disabled={isReadOnly}
           onClick={isReadOnly ? undefined : onToggleDone}
-          className={isReadOnly ? "cursor-not-allowed opacity-50" : ""}
+          className="inline-flex h-11 w-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#13181D] disabled:cursor-not-allowed disabled:opacity-45"
           whileTap={isReadOnly ? undefined : softPressTap}
         >
-          <DoneControl isDone={isDone} />
+          <span
+            className={`inline-flex h-8 w-8 items-center justify-center rounded-full border transition-colors duration-150 motion-reduce:transition-none ${
+              isDone
+                ? "border-[#79C89A] bg-[#79C89A] text-[#0B0E11]"
+                : "border-[#3A434C] bg-[#171D22] text-[#77818B]"
+            }`}
+            aria-hidden="true"
+          >
+            <Check className="h-4 w-4" strokeWidth={2.4} />
+          </span>
         </MotionButton>
       ) : null}
     </div>

@@ -1,10 +1,9 @@
+import { ArrowLeft } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { useAppState } from "../state/useAppState";
 import { APP_ACTIONS } from "../state/appActions";
 import AppShell from "../components/layout/AppShell";
-import SectionCard from "../components/layout/SectionCard";
-import { UI_TEXT_MUTED } from "../styles/ui";
 import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getExerciseById } from "../data/exercises";
@@ -33,6 +32,63 @@ function buildStaticExerciseRows(exercise) {
     rir: "—",
     isDone: false,
   }));
+}
+
+function getExerciseState({ dayMode, sets }) {
+  if (dayMode === "upcoming") {
+    return {
+      label: "Preview",
+      className: "text-[#AAB2BA]",
+    };
+  }
+
+  if (dayMode === "finished") {
+    return {
+      label: "Saved log",
+      className: "text-[#79C89A]",
+    };
+  }
+
+  const completedSetCount = sets.filter((set) => set.isDone).length;
+
+  if (sets.length > 0 && completedSetCount === sets.length) {
+    return {
+      label: "Logged",
+      className: "text-[#79C89A]",
+    };
+  }
+
+  if (completedSetCount > 0) {
+    return {
+      label: "In progress",
+      className: "text-[#F1B864]",
+    };
+  }
+
+  return {
+    label: "Current exercise",
+    className: "text-[#B8F36B]",
+  };
+}
+
+function GuardSurface({ title, body, to, actionLabel }) {
+  return (
+    <section className="rounded-[1.25rem] border border-[#2A3138] bg-[#13181D] p-5 shadow-[0_14px_36px_rgba(0,0,0,0.2)]">
+      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#77818B]">
+        Exercise unavailable
+      </p>
+      <h1 className="mt-3 text-2xl font-semibold tracking-[-0.035em] text-[#F3F5F1]">
+        {title}
+      </h1>
+      <p className="mt-3 text-sm leading-6 text-[#AAB2BA]">{body}</p>
+      <Link
+        to={to}
+        className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#B8F36B] px-4 text-sm font-semibold text-[#0B0E11] transition-colors hover:bg-[#C8F78F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8F78F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#13181D]"
+      >
+        {actionLabel}
+      </Link>
+    </section>
+  );
 }
 
 /**
@@ -175,21 +231,22 @@ export default function ExercisePage() {
 
   if (!plan || !dayDetails || !exercise || !isExerciseInDay) {
     return (
-      <AppShell>
-        <div className="space-y-6">
+      <AppShell mode="performance">
+        <div className="space-y-5">
           <Link
             to={planId ? `/plan/${planId}/cycle` : "/"}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 transition hover:text-cyan-100"
+            className="inline-flex min-h-11 w-fit items-center gap-2 text-sm font-medium text-[#77818B] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0E11]"
           >
-            <span aria-hidden="true">←</span>
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
             Back
           </Link>
 
-          <SectionCard>
-            <p className={UI_TEXT_MUTED}>
-              Exercise data could not be found for this route.
-            </p>
-          </SectionCard>
+          <GuardSurface
+            title="Exercise not found"
+            body="This exercise does not belong to the selected day, or its source data could not be loaded."
+            to={planId ? `/plan/${planId}/cycle` : "/"}
+            actionLabel="Return to cycle"
+          />
         </div>
       </AppShell>
     );
@@ -197,60 +254,66 @@ export default function ExercisePage() {
 
   if (needsDayEntryFirst) {
     return (
-      <AppShell>
+      <AppShell mode="performance">
         <div className="space-y-5">
           <Link
             to={`/plan/${planId}/day/${dayId}`}
-            className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
+            className="inline-flex min-h-11 w-fit items-center gap-2 text-sm font-medium text-[#77818B] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0E11]"
           >
-            <span aria-hidden="true">←</span>
-            Back to Day
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Back to day
           </Link>
 
-          <SectionCard>
-            <p className={UI_TEXT_MUTED}>
-              {currentCycle
-                ? "Open the day first to prepare today's exercise log."
-                : "Start a cycle before logging this exercise."}
-            </p>
-          </SectionCard>
+          <GuardSurface
+            title={currentCycle ? "Open the day first" : "Start a cycle first"}
+            body={
+              currentCycle
+                ? "Enter the current day before opening its exercise log. This keeps runtime creation inside the valid workout flow."
+                : "Exercise logging becomes available after the plan cycle has been started."
+            }
+            to={`/plan/${planId}/day/${dayId}`}
+            actionLabel="Go to day"
+          />
         </div>
       </AppShell>
     );
   }
 
+  const exerciseState = getExerciseState({
+    dayMode,
+    sets: displaySets,
+  });
+
   return (
-    <AppShell>
+    <AppShell mode="performance">
       <div className="space-y-5">
-        <header className="space-y-3">
-          <div className="flex items-center justify-between gap-3">
+        <header className="space-y-4">
+          <div className="flex items-center justify-between gap-4">
             <Link
               to={`/plan/${planId}/day/${dayId}`}
-              className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
+              className="inline-flex min-h-11 shrink-0 items-center gap-2 text-sm font-medium text-[#77818B] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0E11]"
             >
-              <span aria-hidden="true">←</span>
-              Back to Day
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+              Back to day
             </Link>
 
-            <p className="flex min-w-0 items-center justify-end gap-2 text-right text-xs font-medium text-zinc-500">
-              <span className="min-w-0 truncate">
-                {plan.name} · Cycle {currentCycleNumber ?? 1} ·{" "}
-                {dayDetails.label}
-              </span>
-
-              <span
-                aria-hidden="true"
-                className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300/80"
-              />
+            <p className="min-w-0 truncate text-right text-xs font-medium text-[#77818B]">
+              {plan.name} · Cycle {currentCycleNumber ?? 1} · {dayDetails.label}
             </p>
           </div>
 
-          <div className="space-y-1.5">
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
+          <div className="border-b border-[#2A3138] pb-5">
+            <p
+              className={`text-[0.68rem] font-semibold uppercase tracking-[0.14em] ${exerciseState.className}`}
+            >
+              {exerciseState.label}
+            </p>
+
+            <h1 className="mt-2 max-w-[20ch] text-[2rem] font-semibold leading-[1.06] tracking-[-0.045em] text-[#F3F5F1]">
               {exercise.name}
             </h1>
 
-            <p className="text-sm leading-5 text-zinc-400">
+            <p className="mt-2 max-w-[34rem] text-sm leading-6 text-[#AAB2BA]">
               {exercise.subtitle}
             </p>
           </div>
