@@ -1,46 +1,59 @@
-import { CheckCircle2 } from "lucide-react";
-
 export default function CycleHeader({
   planName,
   cycleLabel,
-  statusSummary,
-  progressPercent = 0,
+  closedCount = 0,
+  totalCount = 6,
 }) {
-  const safeProgressPercent = Math.min(Math.max(progressPercent, 0), 100);
+  const safeTotalCount = totalCount > 0 ? totalCount : 6;
+  const safeClosedCount = Math.min(
+    Math.max(closedCount, 0),
+    safeTotalCount,
+  );
 
   return (
-    <header className="flex flex-col gap-3 rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3">
-      <div className="flex flex-col gap-1">
-        <h1 className="text-[1.65rem] font-semibold leading-none tracking-tight text-[#F4F7F8]">
-          {planName}
-        </h1>
+    <header className="flex flex-col gap-4">
+      <div className="flex items-end justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#77818B]">
+            {planName}
+          </p>
 
-        {cycleLabel ? (
-          <p className="text-sm font-medium text-[#A9B0B5]">{cycleLabel}</p>
-        ) : null}
+          <h1 className="mt-1.5 text-[2.45rem] font-semibold leading-none tracking-[-0.065em] text-[#F3F5F1]">
+            {cycleLabel}
+          </h1>
+        </div>
+
+        <div className="shrink-0 text-right">
+          <p className="text-[1.85rem] font-semibold leading-none tracking-[-0.06em] text-[#DDE1DD] tabular-nums">
+            {safeClosedCount}
+            <span className="text-base font-medium tracking-normal text-[#77818B]">
+              /{safeTotalCount}
+            </span>
+          </p>
+          <p className="mt-1 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-[#77818B]">
+            Days closed
+          </p>
+        </div>
       </div>
 
-      {statusSummary ? (
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-2.5">
-            <CheckCircle2
-              className="h-4 w-4 shrink-0 text-[#8FDCE5]/72"
-              aria-hidden="true"
-            />
-
-            <p className="text-sm font-medium text-[#D3D8DB]">
-              {statusSummary}
-            </p>
-          </div>
-
-          <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-            <div
-              className="h-full rounded-full bg-[#5EC7D5] transition-all"
-              style={{ width: `${safeProgressPercent}%` }}
-            />
-          </div>
-        </div>
-      ) : null}
+      <div
+        className="grid grid-cols-6 gap-1.5"
+        role="progressbar"
+        aria-label="Training days closed"
+        aria-valuemin={0}
+        aria-valuemax={safeTotalCount}
+        aria-valuenow={safeClosedCount}
+      >
+        {Array.from({ length: safeTotalCount }, (_, index) => (
+          <span
+            key={index}
+            className={`h-1.5 rounded-full transition-colors ${
+              index < safeClosedCount ? "bg-[#79C89A]" : "bg-[#2A3138]"
+            }`}
+            aria-hidden="true"
+          />
+        ))}
+      </div>
     </header>
   );
 }
