@@ -25,7 +25,7 @@ export const sheetOverlayVariants = {
     opacity: 1,
     willChange: "auto",
     transition: {
-      duration: 0.24,
+      duration: 0.18,
       ease: EASE_OUT,
     },
   },
@@ -33,7 +33,7 @@ export const sheetOverlayVariants = {
     opacity: 0,
     willChange: "opacity",
     transition: {
-      duration: 0.22,
+      duration: 0.16,
       ease: EASE_IN,
     },
   },
@@ -42,7 +42,7 @@ export const sheetOverlayVariants = {
 export const sheetPanelVariants = {
   hidden: {
     opacity: 0,
-    y: 20,
+    y: 16,
     willChange: "transform, opacity",
   },
   visible: {
@@ -50,16 +50,16 @@ export const sheetPanelVariants = {
     y: 0,
     willChange: "auto",
     transition: {
-      duration: 0.34,
+      duration: 0.24,
       ease: EASE_OUT,
     },
   },
   exit: {
     opacity: 0,
-    y: 14,
+    y: 10,
     willChange: "transform, opacity",
     transition: {
-      duration: 0.24,
+      duration: 0.18,
       ease: EASE_IN,
     },
   },

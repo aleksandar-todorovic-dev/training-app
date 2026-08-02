@@ -1,31 +1,19 @@
-import { useEffect } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence } from "motion/react";
+import { BookOpenText } from "lucide-react";
 
+import BottomSheet from "./BottomSheet";
 import SecondaryButton from "./SecondaryButton";
 import {
   UI_SHEET_BODY,
   UI_SHEET_FOOTER,
   UI_SHEET_HEADER,
-  UI_SHEET_OVERLAY,
-  UI_SHEET_PANEL,
-  UI_TEXT_BODY,
-  UI_TEXT_BODY_STRONG,
-  UI_TEXT_EYEBROW_ACCENT,
-  UI_TITLE,
 } from "../../styles/ui";
-import {
-  sheetOverlayVariants,
-  sheetPanelVariants,
-} from "../../styles/motion";
-
-const MotionDiv = motion.div;
 
 /**
- * Shared bottom-sheet help pattern used for local guidance content.
+ * Shared local coaching/help sheet.
  *
- * UI note:
- * This sheet owns only presentation behavior such as body scroll lock and
- * Escape-to-close. It does not write runtime workout progress.
+ * Runtime note:
+ * Help content is presentation-only and never writes workout progress.
  */
 export default function HelpSheet({
   isOpen,
@@ -34,122 +22,107 @@ export default function HelpSheet({
   sections = [],
   onClose,
 }) {
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    const handleEscape = (event) => {
-      if (event.key === "Escape") {
-        onClose();
-      }
-    };
-
-    window.addEventListener("keydown", handleEscape);
-
-    return () => {
-      document.body.style.overflow = originalOverflow;
-      window.removeEventListener("keydown", handleEscape);
-    };
-  }, [isOpen, onClose]);
-
   return (
     <AnimatePresence>
       {isOpen ? (
-        <MotionDiv
-          className={UI_SHEET_OVERLAY}
-          variants={sheetOverlayVariants}
-          initial="hidden"
-          animate="visible"
-          exit="exit"
+        <BottomSheet
+          key="help-sheet"
+          onClose={onClose}
+          labelledBy="help-sheet-title"
+          describedBy={intro ? "help-sheet-description" : undefined}
+          closeLabel="Close help"
         >
-          <MotionDiv
-            className={UI_SHEET_PANEL}
-            variants={sheetPanelVariants}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="help-sheet-title"
-          >
-            <div className={UI_SHEET_HEADER}>
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex flex-col gap-2">
-                  <p className={UI_TEXT_EYEBROW_ACCENT}>
-                    Quick coaching
-                  </p>
-
-                  <h2 id="help-sheet-title" className={UI_TITLE}>
-                    {title}
-                  </h2>
-
-                  {intro ? <p className={UI_TEXT_BODY}>{intro}</p> : null}
-                </div>
+          <header className={UI_SHEET_HEADER}>
+            <div className="pr-12">
+              <div className="flex items-center gap-2 text-[#F1B864]">
+                <BookOpenText className="h-4 w-4" aria-hidden="true" />
+                <p className="text-[0.67rem] font-semibold uppercase tracking-[0.13em]">
+                  Quick coaching
+                </p>
               </div>
+
+              <h2
+                id="help-sheet-title"
+                className="mt-3 text-[1.65rem] font-semibold leading-[1.08] tracking-[-0.025em] text-[#F3F5F1]"
+              >
+                {title}
+              </h2>
+
+              {intro ? (
+                <p
+                  id="help-sheet-description"
+                  className="mt-3 max-w-[34rem] text-sm leading-6 text-[#AAB2BA]"
+                >
+                  {intro}
+                </p>
+              ) : null}
             </div>
+          </header>
 
-            <div className={UI_SHEET_BODY}>
-              <div className="overflow-hidden rounded-2xl border border-white/8 bg-white/[0.016]">
-                {sections.map((section, index) => (
-                  <section
-                    key={section.id}
-                    className={`px-3 py-3 ${
-                      index > 0 ? "border-t border-white/7" : ""
-                    }`}
-                  >
-                    <div className="flex flex-col gap-1.5 min-[390px]:flex-row min-[390px]:items-start min-[390px]:gap-2.5">
-                      <p
-                        className={`w-auto shrink-0 min-[390px]:w-[4.5rem] ${UI_TEXT_EYEBROW_ACCENT}`}
-                      >
-                        {section.title}
-                      </p>
+          <div className={UI_SHEET_BODY}>
+            <div className="border-y border-[#2A3138]">
+              {sections.map((section, index) => (
+                <section
+                  key={section.id}
+                  className={`grid grid-cols-[1.75rem_minmax(0,1fr)] gap-3 py-4 ${
+                    index > 0 ? "border-t border-[#2A3138]" : ""
+                  }`}
+                >
+                  <span className="text-sm font-semibold tabular-nums text-[#F1B864]">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
 
-                      <div className="min-w-0 flex-1">
-                        {section.paragraphs?.length ? (
-                          <div className="space-y-1.5">
-                            {section.paragraphs.map(
-                              (paragraph, paragraphIndex) => (
-                                <p
-                                  key={paragraph}
-                                  className={
-                                    paragraphIndex === 0
-                                      ? `font-medium ${UI_TEXT_BODY_STRONG}`
-                                      : UI_TEXT_BODY
-                                  }
-                                >
-                                  {paragraph}
-                                </p>
-                              ),
-                            )}
-                          </div>
-                        ) : null}
+                  <div className="min-w-0">
+                    <h3 className="text-sm font-semibold text-[#E4E8E3]">
+                      {section.title}
+                    </h3>
 
-                        {section.bullets?.length ? (
-                          <ul className="mt-2 space-y-1">
-                            {section.bullets.map((bullet) => (
-                              <li
-                                key={bullet}
-                                className={`flex gap-2 ${UI_TEXT_BODY}`}
-                              >
-                                <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#C9B57A]/75" />
-                                <span>{bullet}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : null}
+                    {section.paragraphs?.length ? (
+                      <div className="mt-2 space-y-2.5">
+                        {section.paragraphs.map((paragraph, paragraphIndex) => (
+                          <p
+                            key={paragraph}
+                            className={`text-sm leading-6 ${
+                              paragraphIndex === 0
+                                ? "font-medium text-[#D4D9D4]"
+                                : "text-[#AAB2BA]"
+                            }`}
+                          >
+                            {paragraph}
+                          </p>
+                        ))}
                       </div>
-                    </div>
-                  </section>
-                ))}
-              </div>
-            </div>
+                    ) : null}
 
-            <div className={UI_SHEET_FOOTER}>
-              <SecondaryButton onClick={onClose} className="w-full">
-                Close help
-              </SecondaryButton>
+                    {section.bullets?.length ? (
+                      <ul className="mt-3 space-y-2">
+                        {section.bullets.map((bullet) => (
+                          <li
+                            key={bullet}
+                            className="flex gap-2.5 text-sm leading-6 text-[#AAB2BA]"
+                          >
+                            <span className="mt-[0.68rem] h-1 w-1 shrink-0 rounded-full bg-[#F1B864]" />
+                            <span>{bullet}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                  </div>
+                </section>
+              ))}
             </div>
-          </MotionDiv>
-        </MotionDiv>
+          </div>
+
+          <footer className={UI_SHEET_FOOTER}>
+            <SecondaryButton
+              variant="performance"
+              onClick={onClose}
+              className="w-full"
+            >
+              Close help
+            </SecondaryButton>
+          </footer>
+        </BottomSheet>
       ) : null}
     </AnimatePresence>
   );

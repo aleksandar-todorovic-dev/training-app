@@ -191,18 +191,6 @@ export default function DayPage() {
   const [isWarmupOpen, setIsWarmupOpen] = useState(false);
   const [isFinishDayOpen, setIsFinishDayOpen] = useState(false);
 
-  // Prevent background scrolling while day-level sheets are open.
-  useEffect(() => {
-    if (!isWarmupOpen && !isFinishDayOpen) return;
-
-    const originalOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = originalOverflow;
-    };
-  }, [isWarmupOpen, isFinishDayOpen]);
-
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
 

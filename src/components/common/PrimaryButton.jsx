@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 
 import {
+  UI_BUTTON_PRIMARY_PERFORMANCE,
   UI_BUTTON_PRIMARY_PRODUCT,
   UI_BUTTON_PRIMARY_TRAINING,
 } from "../../styles/ui";
 
 const PRIMARY_BUTTON_VARIANTS = {
+  performance: UI_BUTTON_PRIMARY_PERFORMANCE,
   product: UI_BUTTON_PRIMARY_PRODUCT,
   training: UI_BUTTON_PRIMARY_TRAINING,
 };
@@ -13,8 +15,9 @@ const PRIMARY_BUTTON_VARIANTS = {
 /**
  * Shared primary CTA.
  *
- * Use `variant="product"` for light product screens and `variant="training"`
- * for workout/execution screens.
+ * Use `variant="performance"` for the approved graphite/lime system,
+ * `variant="product"` for legacy light screens, and `variant="training"` for
+ * legacy execution screens that have not migrated yet.
  *
  * Pass `to` for route navigation, or omit it for local/runtime actions.
  */

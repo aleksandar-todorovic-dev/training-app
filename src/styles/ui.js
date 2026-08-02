@@ -126,19 +126,19 @@ export const UI_ACCENT_AMBER_TEXT = "text-[#D8C891]";
 export const UI_ACCENT_PURPLE_TEXT = "text-[#C4B5FD]";
 
 export const UI_SHEET_OVERLAY =
-  "fixed inset-x-0 bottom-0 top-0 z-50 flex h-dvh items-end justify-center overflow-hidden bg-[#020607]/82 px-4 pb-4 pt-10 backdrop-blur-sm";
+  "fixed inset-0 z-50 flex h-dvh items-end justify-center overflow-hidden bg-[#020405]/84 px-0 pt-8 sm:px-4 sm:pb-4 supports-[backdrop-filter]:backdrop-blur-[2px]";
 
 export const UI_SHEET_PANEL =
-  "flex max-h-[min(84dvh,calc(100dvh-4.5rem))] w-full max-w-md flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#101417] shadow-2xl shadow-black/45";
+  "flex max-h-[min(90dvh,calc(100dvh-2rem))] w-full max-w-md flex-col overflow-hidden rounded-t-[1.75rem] border border-b-0 border-[#2A3138] bg-[#101419] shadow-[0_-18px_60px_rgba(0,0,0,0.48)] sm:rounded-[1.75rem] sm:border-b";
 
 export const UI_SHEET_HEADER =
-  "shrink-0 border-b border-white/8 bg-white/[0.018] px-4 py-3.5";
+  "shrink-0 border-b border-[#2A3138] px-5 pb-4 pt-3";
 
 export const UI_SHEET_BODY =
-  "min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-3.5 [scrollbar-width:thin] [scrollbar-color:rgba(63,63,70,0.8)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-zinc-700/80";
+  "min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4 [scrollbar-width:thin] [scrollbar-color:rgba(58,67,76,0.9)_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[#3A434C]";
 
 export const UI_SHEET_FOOTER =
-  "shrink-0 border-t border-white/8 bg-[#101417]/96 px-4 py-3";
+  "shrink-0 border-t border-[#2A3138] bg-[#101419]/98 px-5 pt-3 pb-[max(0.875rem,env(safe-area-inset-bottom))]";
 
 /**
  * Backward-compatible card default.
@@ -187,6 +187,12 @@ export const UI_BUTTON_PRIMARY_TRAINING =
 
 export const UI_BUTTON_SECONDARY_TRAINING =
   `${UI_BUTTON_BASE} border border-white/10 bg-white/[0.026] text-[#D3D8DB] hover:border-white/16 hover:bg-white/[0.045] hover:text-[#F4F7F8]`.trim();
+
+export const UI_BUTTON_PRIMARY_PERFORMANCE =
+  `${UI_BUTTON_BASE} min-h-12 bg-[#B8F36B] text-[#0B0E11] hover:bg-[#C8F78F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8F78F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101419]`.trim();
+
+export const UI_BUTTON_SECONDARY_PERFORMANCE =
+  `${UI_BUTTON_BASE} min-h-12 border border-[#3A434C] bg-[#171D22] text-[#D6DBD6] hover:border-[#56616B] hover:bg-[#1C2329] hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#101419]`.trim();
 
 export const UI_BUTTON_GHOST_TRAINING =
   "inline-flex min-h-9 items-center justify-center rounded-lg px-1.5 text-xs font-medium text-[#8B949B] transition-colors hover:text-[#D3D8DB]";

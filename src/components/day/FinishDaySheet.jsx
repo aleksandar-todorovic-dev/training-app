@@ -1,31 +1,26 @@
-import { AlertTriangle, CheckCircle2, ShieldCheck } from "lucide-react";
-import { motion } from "motion/react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle2,
+  ShieldCheck,
+} from "lucide-react";
+
+import BottomSheet from "../common/BottomSheet";
+import PrimaryButton from "../common/PrimaryButton";
+import SecondaryButton from "../common/SecondaryButton";
 import {
   UI_SHEET_BODY,
   UI_SHEET_FOOTER,
   UI_SHEET_HEADER,
-  UI_SHEET_OVERLAY,
-  UI_SHEET_PANEL,
-  UI_TEXT_BODY,
-  UI_TEXT_BODY_STRONG,
-  UI_TEXT_CARD_TITLE,
-  UI_TEXT_EYEBROW_ACCENT,
-  UI_TEXT_META,
 } from "../../styles/ui";
-import { sheetOverlayVariants, sheetPanelVariants } from "../../styles/motion";
-
-const MotionDiv = motion.div;
 
 /**
  * Confirmation sheet for closing the active training day.
  *
  * Runtime note:
- * This component presents finish-day guidance and heads-up details only.
- * The actual runtime state change is delegated upward through `onConfirmFinish`.
- *
- * Heads-up note:
- * Missing-value and empty-day messages are informational. They do not block
- * finishing the day because partial and empty closed days are valid.
+ * This component presents finish-day consequences and informational heads-up
+ * details only. The actual state transition remains delegated through
+ * `onConfirmFinish`.
  */
 export default function FinishDaySheet({
   dayDetails,
@@ -43,190 +38,190 @@ export default function FinishDaySheet({
   const isBaselineWarning = warningSummary.warningType === "baseline";
 
   const warningTitle = hasNoLoggedValues
-    ? "No set values logged yet"
+    ? "No performed sets yet"
     : isBaselineWarning
       ? "Baseline heads-up"
       : "Carry-over heads-up";
 
   const warningText = hasNoLoggedValues
-    ? "You can still close this day. Earlier valid references may still be used."
+    ? "You can still close the day. Unchecked work stays unperformed and the cycle continues."
     : isBaselineWarning
-      ? "Some logged sets have empty fields. Reps, time, and RIR help create a useful baseline for future cycles."
-      : "Some logged sets have empty fields. The next cycle will use the latest valid values when it can.";
+      ? "Some performed sets have empty fields. Reps, time, and RIR create a more useful baseline for future cycles."
+      : "Some performed sets have empty fields. The next cycle will use the latest valid values it can find.";
 
   const warningDetails = [
     warningSummary.missingMainImportantCount > 0
-      ? `Main missing reps or RIR fields: ${warningSummary.missingMainImportantCount}`
+      ? `Main reps or RIR fields: ${warningSummary.missingMainImportantCount}`
       : null,
     warningSummary.missingCoreImportantCount > 0
-      ? `Core missing reps/time or RIR fields: ${warningSummary.missingCoreImportantCount}`
+      ? `Core reps/time or RIR fields: ${warningSummary.missingCoreImportantCount}`
       : null,
     warningSummary.missingMainLoadCount > 0
-      ? `Main weight fields missing: ${warningSummary.missingMainLoadCount}`
+      ? `Main weight fields: ${warningSummary.missingMainLoadCount}`
       : null,
     warningSummary.missingCoreLoadCount > 0
-      ? `Core load fields missing: ${warningSummary.missingCoreLoadCount}`
+      ? `Core load fields: ${warningSummary.missingCoreLoadCount}`
       : null,
   ].filter(Boolean);
 
   return (
-    <MotionDiv
-      className={UI_SHEET_OVERLAY}
-      variants={sheetOverlayVariants}
-      initial="hidden"
-      animate="visible"
-      exit="exit"
+    <BottomSheet
+      onClose={onClose}
+      labelledBy="finish-day-sheet-title"
+      describedBy="finish-day-sheet-description"
+      closeLabel="Keep logging"
     >
-      <MotionDiv
-        className={UI_SHEET_PANEL}
-        variants={sheetPanelVariants}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="finish-day-sheet-title"
-      >
-        <header className={UI_SHEET_HEADER}>
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className={UI_TEXT_EYEBROW_ACCENT}>Finish day</p>
-
-              <h2
-                id="finish-day-sheet-title"
-                className="mt-1.5 text-lg font-semibold leading-tight tracking-tight text-zinc-50"
-              >
-                Close training day?
-              </h2>
-
-              <p className={`mt-0.5 ${UI_TEXT_META}`}>
-                {dayDetails.label} - {dayDetails.name}
-              </p>
-            </div>
-
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-[#3FA8B6]/18 bg-[#10292E]/42 text-[#8FDCE5]">
-              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-            </div>
+      <header className={UI_SHEET_HEADER}>
+        <div className="pr-12">
+          <div className="flex items-center gap-2 text-[#B8F36B]">
+            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+            <p className="text-[0.67rem] font-semibold uppercase tracking-[0.13em]">
+              Finish day
+            </p>
           </div>
 
-          <p
-            className={`mt-2 rounded-xl border border-[#3FA8B6]/12 bg-[#10292E]/24 px-3 py-2 ${UI_TEXT_BODY}`}
+          <h2
+            id="finish-day-sheet-title"
+            className="mt-3 text-[1.65rem] font-semibold leading-[1.08] tracking-[-0.025em] text-[#F3F5F1]"
           >
-            {progressText}. Closing this day moves the cycle forward.
+            Close training day?
+          </h2>
+
+          <p className="mt-1.5 text-sm leading-5 text-[#77818B]">
+            {dayDetails.label} · {dayDetails.name}
           </p>
-        </header>
-
-        <div className={UI_SHEET_BODY}>
-          <div className="flex flex-col gap-3">
-            <section className="rounded-xl bg-white/[0.014] px-3 py-3">
-              <h3 className={UI_TEXT_CARD_TITLE}>Before you finish</h3>
-
-              <ul className={`mt-2 space-y-1.5 ${UI_TEXT_BODY}`}>
-                <li className="flex gap-2">
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8FDCE5]/65" />
-                  <span>Checked sets count as performed.</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8FDCE5]/65" />
-                  <span>Unchecked sets stay unperformed, not missing.</span>
-                </li>
-                <li className="flex gap-2">
-                  <span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-[#8FDCE5]/65" />
-                  <span>
-                    You can close the day without completing every set. Your
-                    next planned workout stays the same.
-                  </span>
-                </li>
-              </ul>
-            </section>
-
-            {hasWarnings ? (
-              <section className="rounded-2xl border border-amber-300/16 bg-amber-300/[0.035] px-3 py-3">
-                <div className="flex gap-2.5">
-                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-amber-300/22 bg-amber-300/8 text-amber-200">
-                    <AlertTriangle className="h-4 w-4" aria-hidden="true" />
-                  </div>
-
-                  <div className="min-w-0">
-                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-amber-200">
-                      {warningTitle}
-                    </p>
-
-                    <p className={`mt-1 ${UI_TEXT_BODY_STRONG}`}>
-                      {warningText}
-                    </p>
-
-                    {!hasNoLoggedValues && warningDetails.length ? (
-                      <ul
-                        className={`mt-1.5 flex flex-col gap-1 ${UI_TEXT_META}`}
-                      >
-                        {warningDetails.map((detail) => (
-                          <li key={detail}>{detail}</li>
-                        ))}
-                      </ul>
-                    ) : null}
-
-                    <p className="mt-1.5 text-sm font-semibold text-amber-100">
-                      You can still finish the day.
-                    </p>
-                  </div>
-                </div>
-              </section>
-            ) : (
-              <section className="rounded-2xl border border-[#3FA8B6]/14 bg-[#10292E]/22 px-3 py-3">
-                <div className="flex gap-2.5">
-                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[#3FA8B6]/18 bg-[#10292E]/42 text-[#8FDCE5]">
-                    <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-                  </div>
-
-                  <div className="min-w-0">
-                    <p className={UI_TEXT_EYEBROW_ACCENT}>Ready to close</p>
-
-                    <p className={`mt-1 ${UI_TEXT_BODY_STRONG}`}>
-                      Your logged work is saved for this day.
-                    </p>
-                  </div>
-                </div>
-              </section>
-            )}
-
-            {hasCoreBlock ? (
-              <section className="rounded-2xl border border-white/8 bg-white/[0.014] px-3 py-3">
-                <div className="flex gap-2.5">
-                  <div className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-violet-400/20 bg-violet-500/8 text-violet-200">
-                    <ShieldCheck className="h-4 w-4" aria-hidden="true" />
-                  </div>
-
-                  <div className="min-w-0">
-                    <h3 className={UI_TEXT_CARD_TITLE}>
-                      Core is tracked separately
-                    </h3>
-
-                    <p className={`mt-1 ${UI_TEXT_BODY}`}>
-                      Main work and core work stay separate in your recap.
-                    </p>
-                  </div>
-                </div>
-              </section>
-            ) : null}
-          </div>
         </div>
 
-        <footer className={UI_SHEET_FOOTER}>
-          <button
-            type="button"
-            onClick={onConfirmFinish}
-            className="inline-flex min-h-10 w-full items-center justify-center rounded-xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] transition duration-150 ease-out hover:bg-[#6DD6E2] active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100"
-          >
-            Finish and move on
-          </button>
+        <div
+          id="finish-day-sheet-description"
+          className="mt-4 border-t border-[#2A3138] pt-4"
+        >
+          <p className="text-sm font-semibold text-[#E4E8E3]">
+            {progressText}
+          </p>
+          <p className="mt-1 text-sm leading-6 text-[#AAB2BA]">
+            Closing records this day as finished and moves the cycle to the next
+            planned workout.
+          </p>
+        </div>
+      </header>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="mt-2 inline-flex min-h-10 w-full items-center justify-center rounded-xl border border-white/10 bg-white/[0.026] px-4 text-sm font-semibold text-zinc-300 transition duration-150 ease-out hover:border-white/16 hover:bg-white/[0.045] active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100"
-          >
-            Keep logging
-          </button>
-        </footer>
-      </MotionDiv>
-    </MotionDiv>
+      <div className={UI_SHEET_BODY}>
+        <section>
+          <p className="text-[0.67rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">
+            What closing means
+          </p>
+
+          <div className="mt-3 border-y border-[#2A3138]">
+            {[
+              "Done sets remain the performed work for this day.",
+              "Unchecked sets remain unperformed, not missing.",
+              "A partial or empty day does not create a punishment backlog.",
+            ].map((item, index) => (
+              <div
+                key={item}
+                className={`grid grid-cols-[1.75rem_minmax(0,1fr)] gap-3 py-3.5 ${
+                  index > 0 ? "border-t border-[#2A3138]" : ""
+                }`}
+              >
+                <span className="text-sm font-semibold tabular-nums text-[#77818B]">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <p className="text-sm leading-6 text-[#AAB2BA]">{item}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section
+          className={`mt-5 border-l-2 px-4 py-3.5 ${
+            hasWarnings
+              ? "border-[#F1B864] bg-[#F1B864]/[0.055]"
+              : "border-[#79C89A] bg-[#79C89A]/[0.045]"
+          }`}
+        >
+          <div className="flex gap-3">
+            <div
+              className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                hasWarnings
+                  ? "bg-[#F1B864]/12 text-[#F4C87F]"
+                  : "bg-[#79C89A]/12 text-[#79C89A]"
+              }`}
+            >
+              {hasWarnings ? (
+                <AlertTriangle className="h-4 w-4" aria-hidden="true" />
+              ) : (
+                <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+              )}
+            </div>
+
+            <div className="min-w-0">
+              <h3
+                className={`text-sm font-semibold ${
+                  hasWarnings ? "text-[#F4C87F]" : "text-[#9FD9B5]"
+                }`}
+              >
+                {hasWarnings ? warningTitle : "Ready to close"}
+              </h3>
+
+              <p className="mt-1 text-sm leading-6 text-[#C1C7C2]">
+                {hasWarnings
+                  ? warningText
+                  : "Your performed work is saved for this day."}
+              </p>
+
+              {!hasNoLoggedValues && warningDetails.length ? (
+                <ul className="mt-2 space-y-1 text-xs leading-5 text-[#AAB2BA]">
+                  {warningDetails.map((detail) => (
+                    <li key={detail}>{detail}</li>
+                  ))}
+                </ul>
+              ) : null}
+
+              {hasWarnings ? (
+                <p className="mt-2 text-sm font-semibold text-[#F4C87F]">
+                  This does not block finishing.
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </section>
+
+        {hasCoreBlock ? (
+          <section className="mt-5 flex gap-3 border-t border-[#2A3138] pt-4">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#A7A2D8]/10 text-[#A7A2D8]">
+              <ShieldCheck className="h-4 w-4" aria-hidden="true" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-[#D8D5EE]">
+                Core remains separate
+              </h3>
+              <p className="mt-1 text-sm leading-6 text-[#AAB2BA]">
+                Main work and Core keep their own evidence in the cycle recap.
+              </p>
+            </div>
+          </section>
+        ) : null}
+      </div>
+
+      <footer className={UI_SHEET_FOOTER}>
+        <PrimaryButton
+          variant="performance"
+          onClick={onConfirmFinish}
+          className="w-full gap-2"
+        >
+          Finish and move on
+          <ArrowRight className="h-4 w-4" aria-hidden="true" />
+        </PrimaryButton>
+
+        <SecondaryButton
+          variant="performance"
+          onClick={onClose}
+          className="mt-2 w-full"
+        >
+          Keep logging
+        </SecondaryButton>
+      </footer>
+    </BottomSheet>
   );
 }
