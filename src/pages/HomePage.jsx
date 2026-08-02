@@ -220,7 +220,6 @@ export default function HomePage() {
         <header className="flex items-center justify-between gap-4">
           <div className="inline-flex min-w-0 items-center gap-3">
             <AppMark
-              variant="performance"
               className="h-11 w-11 shrink-0"
               title="Cycle Coach"
             />

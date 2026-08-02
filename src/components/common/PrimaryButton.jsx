@@ -1,23 +1,9 @@
 import { Link } from "react-router-dom";
 
-import {
-  UI_BUTTON_PRIMARY_PERFORMANCE,
-  UI_BUTTON_PRIMARY_PRODUCT,
-  UI_BUTTON_PRIMARY_TRAINING,
-} from "../../styles/ui";
-
-const PRIMARY_BUTTON_VARIANTS = {
-  performance: UI_BUTTON_PRIMARY_PERFORMANCE,
-  product: UI_BUTTON_PRIMARY_PRODUCT,
-  training: UI_BUTTON_PRIMARY_TRAINING,
-};
+import { UI_BUTTON_PRIMARY_PERFORMANCE } from "../../styles/ui";
 
 /**
- * Shared primary CTA.
- *
- * Use `variant="performance"` for the approved graphite/lime system,
- * `variant="product"` for legacy light screens, and `variant="training"` for
- * legacy execution screens that have not migrated yet.
+ * Shared primary CTA for the active graphite/lime UI system.
  *
  * Pass `to` for route navigation, or omit it for local/runtime actions.
  */
@@ -26,13 +12,10 @@ export default function PrimaryButton({
   children,
   className = "",
   type = "button",
-  variant = "training",
   ...props
 }) {
-  const variantClassName =
-    PRIMARY_BUTTON_VARIANTS[variant] ?? PRIMARY_BUTTON_VARIANTS.training;
-
-  const combinedClassName = `${variantClassName} ${className}`.trim();
+  const combinedClassName =
+    `${UI_BUTTON_PRIMARY_PERFORMANCE} ${className}`.trim();
 
   if (to) {
     return (

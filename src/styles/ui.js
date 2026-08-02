@@ -1,25 +1,25 @@
 /**
- * Shared Tailwind UI presets for the MVP.
+ * Active shared Tailwind UI presets.
  *
- * Phase 5 note:
- * The app now supports two visual modes:
- *
- * - product mode: lighter overview/learning/review screens
- * - training mode: darker execution/logging screens
- *
- * Keep these presets generic. Screen-specific visual decisions should stay in
- * the screen/component that owns that UI.
+ * The application is in the final stage of the Cold Performance / Structured
+ * Coaching migration. Keep only reusable presets that are still used by the
+ * current interface. Screen-specific composition remains with the owning
+ * screen or component.
  */
 
 /* -------------------------------------------------------------------------- */
 /* Page shells                                                                 */
 /* -------------------------------------------------------------------------- */
 
+/**
+ * Temporary legacy execution shell.
+ *
+ * DayPage is the only remaining active user of this visual treatment. It is
+ * intentionally retained until the whole-app consistency pass migrates that
+ * screen to the shared graphite shell.
+ */
 export const UI_PAGE_TRAINING =
   "min-h-screen bg-[#070A0C] bg-[radial-gradient(circle_at_top,rgba(63,168,182,0.06),transparent_30%),linear-gradient(180deg,#0A1114_0%,#080D10_48%,#060708_100%)] text-zinc-100 font-sans antialiased";
-
-export const UI_PAGE_PRODUCT =
-  "min-h-screen bg-zinc-50 text-zinc-950 font-sans";
 
 export const UI_PAGE_PERFORMANCE =
   "min-h-screen bg-[#0B0E11] bg-[linear-gradient(180deg,#101419_0%,#0B0E11_44%,#090B0D_100%)] text-[#F3F5F1] font-sans antialiased [color-scheme:dark]";
@@ -27,103 +27,9 @@ export const UI_PAGE_PERFORMANCE =
 export const UI_CONTAINER =
   "mx-auto flex min-h-screen w-full max-w-md flex-col px-4 pb-7 pt-5";
 
-/**
- * Backward-compatible defaults.
- *
- * These keep existing screens working while Phase 5 moves screens gradually to
- * explicit product/training modes.
- */
-export const UI_PAGE = UI_PAGE_TRAINING;
-
 /* -------------------------------------------------------------------------- */
-/* Layout stacks                                                               */
+/* Sheets                                                                      */
 /* -------------------------------------------------------------------------- */
-
-export const UI_STACK_LG = "flex flex-col gap-5";
-export const UI_STACK_MD = "flex flex-col gap-3.5";
-export const UI_STACK_SM = "flex flex-col gap-3";
-
-/* -------------------------------------------------------------------------- */
-/* Text                                                                        */
-/* -------------------------------------------------------------------------- */
-
-export const UI_TITLE_TRAINING =
-  "text-xl font-semibold tracking-tight text-[#F4F7F8]";
-
-export const UI_TITLE_PRODUCT =
-  "text-xl font-semibold tracking-tight text-zinc-950";
-
-export const UI_TEXT_MUTED_TRAINING = "text-sm leading-5 text-zinc-400";
-export const UI_TEXT_BODY_TRAINING = "text-sm leading-5 text-[#A9B0B5]";
-export const UI_TEXT_META_TRAINING = "text-xs font-medium text-[#747D84]";
-export const UI_TEXT_LABEL_TRAINING =
-  "text-[0.68rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]";
-
-export const UI_TEXT_EYEBROW =
-  "text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#747D84]";
-
-export const UI_TEXT_EYEBROW_ACCENT =
-  "text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#8FDCE5]/82";
-
-export const UI_TEXT_SECTION_TITLE =
-  "text-lg font-semibold tracking-tight text-[#F4F7F8]";
-
-export const UI_TEXT_CARD_TITLE =
-  "text-base font-semibold tracking-tight text-[#E7ECEE]";
-
-export const UI_TEXT_BODY = UI_TEXT_BODY_TRAINING;
-
-export const UI_TEXT_BODY_STRONG = "text-sm leading-5 text-[#D3D8DB]";
-
-export const UI_TEXT_BODY_RELAXED = "text-sm leading-6 text-[#A9B0B5]";
-
-export const UI_TEXT_META = UI_TEXT_META_TRAINING;
-
-export const UI_TEXT_STAT_LABEL =
-  "text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-[#747D84]";
-
-export const UI_TEXT_STAT_VALUE =
-  "text-sm font-semibold tracking-tight text-[#F4F7F8]";
-
-export const UI_TEXT_MUTED_PRODUCT = "text-sm leading-5 text-zinc-600";
-
-/**
- * Backward-compatible text defaults.
- */
-export const UI_TITLE = UI_TITLE_TRAINING;
-export const UI_TEXT_MUTED = UI_TEXT_MUTED_TRAINING;
-
-/* -------------------------------------------------------------------------- */
-/* Surfaces                                                                    */
-/* -------------------------------------------------------------------------- */
-
-export const UI_CARD_TRAINING =
-  "rounded-2xl border border-white/8 bg-[#111518]/82 p-3.5 shadow-[0_10px_28px_rgba(0,0,0,0.2)]";
-
-export const UI_CARD_PRODUCT =
-  "rounded-2xl border border-zinc-200 bg-white p-3.5 shadow-sm";
-
-export const UI_CARD_PRODUCT_SOFT =
-  "rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3.5 shadow-sm";
-
-export const UI_CARD_TRAINING_SOFT =
-  "rounded-2xl border border-white/8 bg-white/[0.024] p-3.5 shadow-sm";
-
-export const UI_SURFACE_BASE =
-  "rounded-2xl border border-white/8 bg-[#111518]/82 shadow-[0_10px_28px_rgba(0,0,0,0.2)]";
-
-export const UI_SURFACE_SOFT =
-  "rounded-2xl border border-white/7 bg-white/[0.026]";
-
-export const UI_SURFACE_FLAT =
-  "rounded-xl border border-white/7 bg-white/[0.018]";
-
-export const UI_SURFACE_ACTIVE =
-  "rounded-2xl border border-[#3FA8B6]/14 bg-[#121B1E]/88 shadow-[0_12px_30px_rgba(0,0,0,0.24)]";
-
-export const UI_ACCENT_CYAN_TEXT = "text-[#8FDCE5]";
-export const UI_ACCENT_AMBER_TEXT = "text-[#D8C891]";
-export const UI_ACCENT_PURPLE_TEXT = "text-[#C4B5FD]";
 
 export const UI_SHEET_OVERLAY =
   "fixed inset-0 z-50 flex h-dvh items-end justify-center overflow-hidden bg-[#020405]/84 px-0 pt-8 sm:px-4 sm:pb-4 supports-[backdrop-filter]:backdrop-blur-[2px]";
@@ -140,79 +46,18 @@ export const UI_SHEET_BODY =
 export const UI_SHEET_FOOTER =
   "shrink-0 border-t border-[#2A3138] bg-[#101419]/98 px-5 pt-3 pb-[max(0.875rem,env(safe-area-inset-bottom))]";
 
-/**
- * Backward-compatible card default.
- */
-export const UI_CARD = UI_CARD_TRAINING;
-
-/* -------------------------------------------------------------------------- */
-/* Pills / chips                                                               */
-/* -------------------------------------------------------------------------- */
-
-export const UI_PILL_BASE =
-  "inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium";
-
-export const UI_PILL_PRODUCT =
-  `${UI_PILL_BASE} border border-zinc-200 bg-white text-zinc-700`.trim();
-
-export const UI_PILL_PRODUCT_ACCENT =
-  `${UI_PILL_BASE} border border-emerald-200 bg-emerald-50 text-emerald-800`.trim();
-
-export const UI_PILL_TRAINING =
-  `${UI_PILL_BASE} border border-zinc-800 bg-zinc-900 text-zinc-300`.trim();
-
-export const UI_PILL_TRAINING_ACCENT =
-  `${UI_PILL_BASE} border border-emerald-800/70 bg-emerald-950/40 text-emerald-300`.trim();
-
 /* -------------------------------------------------------------------------- */
 /* Buttons                                                                     */
 /* -------------------------------------------------------------------------- */
 
-export const UI_ACTION_ROW = "flex flex-col gap-3";
-
-export const UI_PRESSABLE =
+const PRESSABLE =
   "transition duration-150 ease-out active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100";
 
-export const UI_PRESSABLE_SOFT =
-  "transition duration-150 ease-out active:scale-[0.992] motion-reduce:transition-none motion-reduce:active:scale-100";
-
-export const UI_CARD_INTERACTIVE =
-  "transition duration-150 ease-out active:scale-[0.992] motion-reduce:transition-none motion-reduce:active:scale-100";
-
-export const UI_BUTTON_BASE =
-  `inline-flex min-h-10 items-center justify-center rounded-xl px-4 text-sm font-semibold ${UI_PRESSABLE}`.trim();
-
-export const UI_BUTTON_PRIMARY_TRAINING =
-  `${UI_BUTTON_BASE} bg-[#5EC7D5] text-[#031014] shadow-[0_8px_18px_rgba(63,168,182,0.12)] hover:bg-[#6DD6E2]`.trim();
-
-export const UI_BUTTON_SECONDARY_TRAINING =
-  `${UI_BUTTON_BASE} border border-white/10 bg-white/[0.026] text-[#D3D8DB] hover:border-white/16 hover:bg-white/[0.045] hover:text-[#F4F7F8]`.trim();
+const BUTTON_BASE =
+  `inline-flex min-h-10 items-center justify-center rounded-xl px-4 text-sm font-semibold ${PRESSABLE}`.trim();
 
 export const UI_BUTTON_PRIMARY_PERFORMANCE =
-  `${UI_BUTTON_BASE} min-h-12 bg-[#B8F36B] text-[#0B0E11] hover:bg-[#C8F78F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8F78F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101419]`.trim();
+  `${BUTTON_BASE} min-h-12 bg-[#B8F36B] text-[#0B0E11] hover:bg-[#C8F78F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8F78F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101419]`.trim();
 
 export const UI_BUTTON_SECONDARY_PERFORMANCE =
-  `${UI_BUTTON_BASE} min-h-12 border border-[#3A434C] bg-[#171D22] text-[#D6DBD6] hover:border-[#56616B] hover:bg-[#1C2329] hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#101419]`.trim();
-
-export const UI_BUTTON_GHOST_TRAINING =
-  "inline-flex min-h-9 items-center justify-center rounded-lg px-1.5 text-xs font-medium text-[#8B949B] transition-colors hover:text-[#D3D8DB]";
-
-export const UI_BUTTON_PRIMARY_PRODUCT =
-  `${UI_BUTTON_BASE} bg-zinc-950 text-white hover:bg-zinc-800`.trim();
-
-export const UI_BUTTON_SECONDARY_PRODUCT =
-  `${UI_BUTTON_BASE} border border-zinc-200 bg-white text-zinc-900 hover:border-zinc-300 hover:bg-zinc-50`.trim();
-
-export const UI_BUTTON_GHOST_PRODUCT =
-  "inline-flex min-h-9 items-center justify-center rounded-lg px-1.5 text-xs font-medium text-zinc-600 transition-colors hover:text-zinc-950";
-
-/**
- * Backward-compatible button defaults.
- *
- * Existing screens currently assume a dark/training UI. Keeping these mapped to
- * training variants prevents accidental visual changes before each screen is
- * intentionally polished.
- */
-export const UI_BUTTON_PRIMARY = UI_BUTTON_PRIMARY_TRAINING;
-export const UI_BUTTON_SECONDARY = UI_BUTTON_SECONDARY_TRAINING;
-export const UI_BUTTON_GHOST = UI_BUTTON_GHOST_TRAINING;
+  `${BUTTON_BASE} min-h-12 border border-[#3A434C] bg-[#171D22] text-[#D6DBD6] hover:border-[#56616B] hover:bg-[#1C2329] hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#101419]`.trim();

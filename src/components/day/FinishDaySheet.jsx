@@ -206,7 +206,6 @@ export default function FinishDaySheet({
 
       <footer className={UI_SHEET_FOOTER}>
         <PrimaryButton
-          variant="performance"
           onClick={onConfirmFinish}
           className="w-full gap-2"
         >
@@ -215,7 +214,6 @@ export default function FinishDaySheet({
         </PrimaryButton>
 
         <SecondaryButton
-          variant="performance"
           onClick={onClose}
           className="mt-2 w-full"
         >

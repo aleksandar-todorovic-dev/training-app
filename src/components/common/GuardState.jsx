@@ -1,3 +1,4 @@
+import { createElement } from "react";
 import { ArrowLeft, ShieldAlert } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -19,7 +20,7 @@ export default function GuardState({
   context,
   title,
   description,
-  icon: GuardIcon = ShieldAlert,
+  icon = ShieldAlert,
   children,
   primaryTo,
   primaryLabel,
@@ -43,7 +44,10 @@ export default function GuardState({
           <header>
             <div className="flex items-center gap-3">
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#3A434C] bg-[#171D22] text-[#AAB2BA]">
-                <GuardIcon className="h-4 w-4" aria-hidden="true" />
+                {createElement(icon, {
+                  className: "h-4 w-4",
+                  "aria-hidden": true,
+                })}
               </span>
 
               <div className="min-w-0">
@@ -73,18 +77,13 @@ export default function GuardState({
           <div className="mt-8 flex flex-col gap-3">
             <PrimaryButton
               to={primaryTo}
-              variant="performance"
               className="w-full"
             >
               {primaryLabel}
             </PrimaryButton>
 
             {secondaryTo && secondaryLabel ? (
-              <SecondaryButton
-                to={secondaryTo}
-                variant="performance"
-                className="w-full"
-              >
+              <SecondaryButton to={secondaryTo} className="w-full">
                 {secondaryLabel}
               </SecondaryButton>
             ) : null}

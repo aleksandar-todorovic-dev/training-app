@@ -81,7 +81,6 @@ export default function WarmupSheet({ dayDetails, warmup, onClose }) {
 
       <footer className={UI_SHEET_FOOTER}>
         <SecondaryButton
-          variant="performance"
           onClick={onClose}
           className="w-full"
         >

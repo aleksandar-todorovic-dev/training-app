@@ -115,7 +115,6 @@ export default function HelpSheet({
 
           <footer className={UI_SHEET_FOOTER}>
             <SecondaryButton
-              variant="performance"
               onClick={onClose}
               className="w-full"
             >

@@ -403,7 +403,6 @@ export default function EndCyclePage() {
 
           <div className="mt-5 flex flex-col gap-3">
             <PrimaryButton
-              variant="performance"
               className="w-full"
               onClick={handleStartNewCycle}
             >
@@ -412,7 +411,6 @@ export default function EndCyclePage() {
 
             <SecondaryButton
               to={`/plan/${planId}/cycle`}
-              variant="performance"
               className="w-full"
             >
               Review days

@@ -4,7 +4,6 @@ import { useLocation } from "react-router-dom";
 import {
   UI_CONTAINER,
   UI_PAGE_PERFORMANCE,
-  UI_PAGE_PRODUCT,
   UI_PAGE_TRAINING,
 } from "../../styles/ui";
 import { pageContentVariants } from "../../styles/motion";
@@ -13,26 +12,20 @@ const MotionDiv = motion.div;
 
 const PAGE_MODE_CLASS_NAMES = {
   performance: UI_PAGE_PERFORMANCE,
-  product: UI_PAGE_PRODUCT,
   training: UI_PAGE_TRAINING,
 };
 
 /**
- * Provides the shared page frame for all MVP screens.
+ * Provides the shared mobile-first page frame.
  *
- * Modes:
- * - performance: scoped product/overview exploration for Home and Plan Overview
- * - product: lighter overview, learning, and review screens
- * - training: execution, logging, and workout-flow screens
- *
- * Default remains "training" so all existing screens preserve their current
- * behavior unless they explicitly opt into another visual mode.
+ * `performance` is the active graphite system. `training` is retained only for
+ * the remaining DayPage shell until the whole-app consistency pass.
  */
-export default function AppShell({ children, mode = "training" }) {
+export default function AppShell({ children, mode = "performance" }) {
   const location = useLocation();
 
   const pageClassName =
-    PAGE_MODE_CLASS_NAMES[mode] ?? PAGE_MODE_CLASS_NAMES.training;
+    PAGE_MODE_CLASS_NAMES[mode] ?? PAGE_MODE_CLASS_NAMES.performance;
 
   return (
     <MotionConfig reducedMotion="user">

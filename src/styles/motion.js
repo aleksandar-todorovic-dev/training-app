@@ -91,31 +91,6 @@ export const revealPanelVariants = {
   },
 };
 
-export const staggerContainerVariants = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.04,
-      delayChildren: 0.03,
-    },
-  },
-};
-
-export const staggerItemVariants = {
-  hidden: {
-    opacity: 0,
-    y: 8,
-  },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      duration: 0.2,
-      ease: EASE_OUT,
-    },
-  },
-};
-
 export const pressableTap = {
   scale: 0.985,
 };
