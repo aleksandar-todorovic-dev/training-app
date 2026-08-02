@@ -21,6 +21,9 @@ export const UI_PAGE_TRAINING =
 export const UI_PAGE_PRODUCT =
   "min-h-screen bg-zinc-50 text-zinc-950 font-sans";
 
+export const UI_PAGE_PERFORMANCE =
+  "min-h-screen bg-[#0B0E11] bg-[linear-gradient(180deg,#101419_0%,#0B0E11_44%,#090B0D_100%)] text-[#F3F5F1] font-sans antialiased [color-scheme:dark]";
+
 export const UI_CONTAINER =
   "mx-auto flex min-h-screen w-full max-w-md flex-col px-4 pb-7 pt-5";
 
