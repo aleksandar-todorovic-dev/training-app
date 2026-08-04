@@ -228,7 +228,7 @@ export default function DayPage() {
 
   const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
   const coreBlockLog = dayLog?.coreBlockLog ?? null;
-  const currentDayId = currentCycle?.currentDayId ?? "d1";
+  const currentDayId = currentCycle?.currentDayId ?? null;
   const dayOrder = plan?.dayOrder ?? [];
 
   const dayMode = dayDetails
@@ -319,6 +319,21 @@ export default function DayPage() {
         description="Return to a valid cycle position and continue from the current planned workout."
         primaryTo={fallbackTo}
         primaryLabel={fallbackLabel}
+      />
+    );
+  }
+
+  if (!currentCycle) {
+    return (
+      <GuardState
+        backTo="/"
+        backLabel="Back to home"
+        eyebrow="Day checkpoint"
+        context={plan.name}
+        title="Start a cycle first."
+        description="This training day becomes active after you explicitly start the plan cycle from Plan Overview."
+        primaryTo={`/plan/${planId}`}
+        primaryLabel="Go to plan overview"
       />
     );
   }

@@ -1,4 +1,4 @@
-import { createElement } from "react";
+import { createElement, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "motion/react";
 import {
@@ -214,6 +214,7 @@ function CycleProgress({ value, total, meta }) {
 export default function PlanOverviewPage() {
   const { planId } = useParams();
   const { state, dispatch } = useAppState();
+  const [pendingPrimaryCta, setPendingPrimaryCta] = useState(null);
 
   const plan = getPlanById(planId);
   const days = getDaysByPlanId(planId);
@@ -250,6 +251,11 @@ export default function PlanOverviewPage() {
     planId,
   });
 
+  // Keep the start-state copy stable until navigation unmounts this page.
+  // The cycle state updates before the Link navigation completes, so without
+  // this snapshot the card can briefly render the continue state for one frame.
+  const displayedPrimaryCta = pendingPrimaryCta ?? primaryCta;
+
   const rhythmItems = [
     days[0],
     days[1],
@@ -272,6 +278,8 @@ export default function PlanOverviewPage() {
     if (primaryCta.mode !== "start") {
       return;
     }
+
+    setPendingPrimaryCta(primaryCta);
 
     dispatch({
       type: APP_ACTIONS.START_PLAN_CYCLE,
@@ -334,13 +342,13 @@ export default function PlanOverviewPage() {
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-[0.65rem] font-bold uppercase tracking-[0.17em] text-[#7E8994]">
-                  {primaryCta.eyebrow}
+                  {displayedPrimaryCta.eyebrow}
                 </p>
                 <h2 className="mt-1.5 text-2xl font-semibold tracking-[-0.045em] text-[#F3F5F1]">
-                  {primaryCta.title}
+                  {displayedPrimaryCta.title}
                 </h2>
                 <p className="mt-1.5 text-sm leading-5 text-[#AAB2BA]">
-                  {primaryCta.body}
+                  {displayedPrimaryCta.body}
                 </p>
               </div>
 
@@ -361,11 +369,11 @@ export default function PlanOverviewPage() {
             />
 
             <Link
-              to={primaryCta.to}
+              to={displayedPrimaryCta.to}
               onClick={handlePrimaryCtaClick}
               className={`mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold text-[#0A0D10] transition duration-150 ease-out hover:brightness-105 active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#13181D] motion-reduce:transition-none motion-reduce:active:scale-100 ${meta.accentBg} ${meta.focusRing}`}
             >
-              {primaryCta.label}
+              {displayedPrimaryCta.label}
               <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>

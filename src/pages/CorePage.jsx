@@ -104,7 +104,7 @@ export default function CorePage() {
   const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
   const coreBlockLog = dayLog?.coreBlockLog ?? null;
 
-  const currentDayId = currentCycle?.currentDayId ?? "d1";
+  const currentDayId = currentCycle?.currentDayId ?? null;
   const dayOrder = plan?.dayOrder ?? [];
 
   const dayMode = dayDetails
@@ -233,17 +233,28 @@ export default function CorePage() {
     );
   }
 
+  if (!currentCycle) {
+    return (
+      <GuardState
+        backTo="/"
+        backLabel="Back to home"
+        eyebrow="Core checkpoint"
+        context={`${plan.name} · ${dayDetails.label}`}
+        title="Start a cycle first."
+        description="Core logging becomes available after you explicitly start the plan cycle from Plan Overview."
+        primaryTo={`/plan/${planId}`}
+        primaryLabel="Go to plan overview"
+      />
+    );
+  }
+
   if (needsDayEntryFirst) {
     return (
       <GuardState
         eyebrow="Core checkpoint"
         context={`${plan.name} · ${dayDetails.label}`}
-        title={currentCycle ? "Open the day first." : "Start a cycle first."}
-        description={
-          currentCycle
-            ? "Enter the current day before opening its Core log. This keeps runtime creation inside the valid workout flow."
-            : "Core logging becomes available after the plan cycle has been started."
-        }
+        title="Open the day first."
+        description="Enter the current day before opening its Core log. This keeps runtime creation inside the valid workout flow."
         backTo={`/plan/${planId}/cycle`}
         backLabel="Back to cycle"
         primaryTo={`/plan/${planId}/day/${dayId}`}
