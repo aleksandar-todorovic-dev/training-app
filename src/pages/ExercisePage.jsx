@@ -1,10 +1,10 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { useAppState } from "../state/useAppState";
 import { APP_ACTIONS } from "../state/appActions";
 import AppShell from "../components/layout/AppShell";
-import SectionCard from "../components/layout/SectionCard";
-import { UI_TEXT_MUTED } from "../styles/ui";
+import BackControl from "../components/common/BackControl";
+import GuardState from "../components/common/GuardState";
 import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getExerciseById } from "../data/exercises";
@@ -33,6 +33,43 @@ function buildStaticExerciseRows(exercise) {
     rir: "—",
     isDone: false,
   }));
+}
+
+function getExerciseState({ dayMode, sets }) {
+  if (dayMode === "upcoming") {
+    return {
+      label: "Preview",
+      className: "text-[#AAB2BA]",
+    };
+  }
+
+  if (dayMode === "finished") {
+    return {
+      label: "Saved log",
+      className: "text-[#79C89A]",
+    };
+  }
+
+  const completedSetCount = sets.filter((set) => set.isDone).length;
+
+  if (sets.length > 0 && completedSetCount === sets.length) {
+    return {
+      label: "Logged",
+      className: "text-[#79C89A]",
+    };
+  }
+
+  if (completedSetCount > 0) {
+    return {
+      label: "In progress",
+      className: "text-[#F1B864]",
+    };
+  }
+
+  return {
+    label: "Current exercise",
+    className: "text-[#B8F36B]",
+  };
 }
 
 /**
@@ -65,7 +102,7 @@ export default function ExercisePage() {
     ? dayLog?.mainExerciseLogs?.[exerciseId]
     : null;
 
-  const currentDayId = currentCycle?.currentDayId ?? "d1";
+  const currentDayId = currentCycle?.currentDayId ?? null;
   const dayOrder = plan?.dayOrder ?? [];
 
   const dayMode = dayDetails
@@ -174,83 +211,85 @@ export default function ExercisePage() {
   }
 
   if (!plan || !dayDetails || !exercise || !isExerciseInDay) {
-    return (
-      <AppShell>
-        <div className="space-y-6">
-          <Link
-            to={planId ? `/plan/${planId}/cycle` : "/"}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-cyan-200 transition hover:text-cyan-100"
-          >
-            <span aria-hidden="true">←</span>
-            Back
-          </Link>
+    const fallbackTo = plan ? `/plan/${planId}/cycle` : "/";
+    const fallbackLabel = plan ? "Return to cycle" : "Back to home";
+    const context = plan
+      ? `${plan.name}${dayDetails ? ` · ${dayDetails.label}` : ""}`
+      : null;
 
-          <SectionCard>
-            <p className={UI_TEXT_MUTED}>
-              Exercise data could not be found for this route.
-            </p>
-          </SectionCard>
-        </div>
-      </AppShell>
+    return (
+      <GuardState
+        eyebrow="Exercise unavailable"
+        context={context}
+        title="This exercise could not be loaded."
+        description="The exercise does not belong to this training day, or its source data is unavailable. Return to a valid workout position."
+        primaryTo={fallbackTo}
+        primaryLabel={fallbackLabel}
+      />
+    );
+  }
+
+  if (!currentCycle) {
+    return (
+      <GuardState
+        backTo="/"
+        backLabel="Back to home"
+        eyebrow="Exercise checkpoint"
+        context={`${plan.name} · ${dayDetails.label}`}
+        title="Start a cycle first."
+        description="Exercise logging becomes available after you explicitly start the plan cycle from Plan Overview."
+        primaryTo={`/plan/${planId}`}
+        primaryLabel="Go to plan overview"
+      />
     );
   }
 
   if (needsDayEntryFirst) {
     return (
-      <AppShell>
-        <div className="space-y-5">
-          <Link
-            to={`/plan/${planId}/day/${dayId}`}
-            className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
-          >
-            <span aria-hidden="true">←</span>
-            Back to Day
-          </Link>
-
-          <SectionCard>
-            <p className={UI_TEXT_MUTED}>
-              {currentCycle
-                ? "Open the day first to prepare today's exercise log."
-                : "Start a cycle before logging this exercise."}
-            </p>
-          </SectionCard>
-        </div>
-      </AppShell>
+      <GuardState
+        eyebrow="Exercise checkpoint"
+        context={`${plan.name} · ${dayDetails.label}`}
+        title="Open the day first."
+        description="Enter the current day before opening its exercise log. This keeps runtime creation inside the valid workout flow."
+        backTo={`/plan/${planId}/cycle`}
+        backLabel="Back to cycle"
+        primaryTo={`/plan/${planId}/day/${dayId}`}
+        primaryLabel="Go to day"
+      />
     );
   }
+
+  const exerciseState = getExerciseState({
+    dayMode,
+    sets: displaySets,
+  });
 
   return (
     <AppShell>
       <div className="space-y-5">
-        <header className="space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <Link
-              to={`/plan/${planId}/day/${dayId}`}
-              className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
-            >
-              <span aria-hidden="true">←</span>
-              Back to Day
-            </Link>
+        <header className="space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <BackControl to={`/plan/${planId}/day/${dayId}`} className="shrink-0">
+              Back to day
+            </BackControl>
 
-            <p className="flex min-w-0 items-center justify-end gap-2 text-right text-xs font-medium text-zinc-500">
-              <span className="min-w-0 truncate">
-                {plan.name} · Cycle {currentCycleNumber ?? 1} ·{" "}
-                {dayDetails.label}
-              </span>
-
-              <span
-                aria-hidden="true"
-                className="h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300/80"
-              />
+            <p className="min-w-0 truncate text-right text-xs font-medium text-[#77818B]">
+              {plan.name} · Cycle {currentCycleNumber ?? 1} · {dayDetails.label}
             </p>
           </div>
 
-          <div className="space-y-1.5">
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
+          <div className="border-b border-[#2A3138] pb-5">
+            <p
+              className={`text-[0.68rem] font-semibold uppercase tracking-[0.14em] ${exerciseState.className}`}
+            >
+              {exerciseState.label}
+            </p>
+
+            <h1 className="mt-2 max-w-[20ch] text-[2rem] font-semibold leading-[1.06] tracking-[-0.045em] text-[#F3F5F1]">
               {exercise.name}
             </h1>
 
-            <p className="text-sm leading-5 text-zinc-400">
+            <p className="mt-2 max-w-[34rem] text-sm leading-6 text-[#AAB2BA]">
               {exercise.subtitle}
             </p>
           </div>

@@ -6,6 +6,31 @@ import { areAllTrainingDaysFinished } from "../utils/runtime/cycleStatusHelpers"
 
 const TRAINING_DAY_ORDER = ["d1", "d2", "d3", "d4", "d5", "d6"];
 
+function isRuntimeRecord(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+function isUsablePlanProgress(planProgress) {
+  if (
+    !isRuntimeRecord(planProgress) ||
+    !Number.isInteger(planProgress.currentCycleNumber) ||
+    !Number.isSafeInteger(planProgress.currentCycleNumber) ||
+    planProgress.currentCycleNumber < 1 ||
+    !isRuntimeRecord(planProgress.cycles)
+  ) {
+    return false;
+  }
+
+  const currentCycle =
+    planProgress.cycles[planProgress.currentCycleNumber];
+
+  return (
+    isRuntimeRecord(currentCycle) &&
+    currentCycle.cycleNumber === planProgress.currentCycleNumber &&
+    isRuntimeRecord(currentCycle.dayLogs)
+  );
+}
+
 function getNextTrainingDayId(dayId) {
   const currentIndex = TRAINING_DAY_ORDER.indexOf(dayId);
 
@@ -53,24 +78,32 @@ export function appReducer(state, action) {
 
     case APP_ACTIONS.START_PLAN_CYCLE: {
       const { planId, startedAt } = action.payload;
-      const existingPlanProgress = state.progressByPlan[planId];
-
-      const nextCycleNumber = existingPlanProgress
+      const progressByPlan = isRuntimeRecord(state.progressByPlan)
+        ? state.progressByPlan
+        : {};
+      const existingPlanProgress = progressByPlan[planId];
+      const hasUsableExistingProgress =
+        isUsablePlanProgress(existingPlanProgress);
+      const nextCycleNumber = hasUsableExistingProgress
         ? existingPlanProgress.currentCycleNumber + 1
         : 1;
+      const existingCycles = hasUsableExistingProgress
+        ? existingPlanProgress.cycles
+        : {};
 
-      // Starting a cycle creates only the cycle shell.
+      // Starting a cycle creates only the cycle shell. Malformed hydrated plan
+      // progress is treated as absent so cycle numbering can never become NaN.
       // Day, exercise, and core logs are created later when the user opens the
       // active workflow for that cycle.
       return {
         ...state,
         selectedPlanId: planId,
         progressByPlan: {
-          ...state.progressByPlan,
+          ...progressByPlan,
           [planId]: {
             currentCycleNumber: nextCycleNumber,
             cycles: {
-              ...(existingPlanProgress?.cycles ?? {}),
+              ...existingCycles,
               [nextCycleNumber]: {
                 planId,
                 cycleNumber: nextCycleNumber,

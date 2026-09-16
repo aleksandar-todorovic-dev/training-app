@@ -1,27 +1,82 @@
-import { Link, useNavigate, useParams } from "react-router-dom";
 import { useEffect, useMemo } from "react";
-import { motion } from "motion/react";
+import { useNavigate, useParams } from "react-router-dom";
 
 import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
 import AppShell from "../components/layout/AppShell";
-import SectionCard from "../components/layout/SectionCard";
-import { UI_TEXT_MUTED } from "../styles/ui";
-import { revealPanelVariants } from "../styles/motion";
+import BackControl from "../components/common/BackControl";
+import GuardState from "../components/common/GuardState";
 import { getPlanById } from "../data/plans";
 import { getDayDetails } from "../data/dayDetails";
 import { getCoreBlockById, getCoreExercisesByIds } from "../data/core";
 import CoreWorkflowCard from "../components/core/CoreWorkflowCard";
 import { sanitizeCoreSetInputValue } from "../utils/runtime/coreInputHelpers";
 import { getDayMode } from "../utils/runtime/dayModeHelpers";
+import { getCoreBlockStatus } from "../utils/runtime/coreStatusHelpers";
 
-const MotionDiv = motion.div;
+function getCorePageState({ dayMode, coreBlockLog }) {
+  if (dayMode === "upcoming") {
+    return {
+      label: "Preview",
+      className: "text-[#AAB2BA]",
+    };
+  }
+
+  if (dayMode === "finished") {
+    return {
+      label: "Saved log",
+      className: "text-[#79C89A]",
+    };
+  }
+
+  const coreStatus = getCoreBlockStatus(coreBlockLog);
+
+  if (coreBlockLog?.closedAt) {
+    if (coreStatus === "complete") {
+      return {
+        label: "Logged",
+        className: "text-[#79C89A]",
+      };
+    }
+
+    if (coreStatus === "partial") {
+      return {
+        label: "Closed partial",
+        className: "text-[#F1B864]",
+      };
+    }
+
+    return {
+      label: "Closed",
+      className: "text-[#AAB2BA]",
+    };
+  }
+
+  if (coreStatus === "complete") {
+    return {
+      label: "Logged",
+      className: "text-[#79C89A]",
+    };
+  }
+
+  if (coreStatus === "partial") {
+    return {
+      label: "In progress",
+      className: "text-[#F1B864]",
+    };
+  }
+
+  return {
+    label: "Flexible support",
+    className: "text-[#A7A2D8]",
+  };
+}
 
 /**
  * Page-level orchestrator for one core block workflow.
  *
  * Runtime note:
- * CorePage resolves route/static data, reads the active cycle core log, lazily
+ * CorePage resolves route/static data, reads the current cycle core log, lazily
  * ensures the core block log for active days, and delegates row updates to the
  * reducer through intent handlers.
  */
@@ -40,7 +95,6 @@ export default function CorePage() {
     [coreBlock],
   );
 
-  // Read the current runtime cycle/day/core state used for page mode and rows.
   const planProgress = state.progressByPlan[planId];
   const currentCycleNumber = planProgress?.currentCycleNumber;
   const currentCycle = currentCycleNumber
@@ -50,7 +104,7 @@ export default function CorePage() {
   const dayLog = dayDetails ? currentCycle?.dayLogs?.[dayDetails.id] : null;
   const coreBlockLog = dayLog?.coreBlockLog ?? null;
 
-  const currentDayId = currentCycle?.currentDayId ?? "d1";
+  const currentDayId = currentCycle?.currentDayId ?? null;
   const dayOrder = plan?.dayOrder ?? [];
 
   const dayMode = dayDetails
@@ -103,8 +157,6 @@ export default function CorePage() {
     coreBlockLog,
   ]);
 
-  // Handler guards are a safety boundary: upcoming previews may render the
-  // structure, but they must not dispatch runtime updates.
   function handleToggleCoreSetDone(coreExerciseId, setNumber) {
     if (isUpcomingPreview) {
       return;
@@ -121,7 +173,6 @@ export default function CorePage() {
     });
   }
 
-  // Update one editable value on one prescribed core set row.
   function handleUpdateCoreSetField(coreExerciseId, setNumber, field, value) {
     if (isUpcomingPreview) {
       return;
@@ -146,8 +197,6 @@ export default function CorePage() {
     });
   }
 
-  // Close intent is stored at core-block level; set completion remains derived
-  // from core set rows.
   function handleCloseCoreBlock() {
     if (isUpcomingPreview) {
       return;
@@ -166,128 +215,117 @@ export default function CorePage() {
   }
 
   if (!plan || !dayDetails || !coreBlock || !isCoreBlockForDay) {
-    return (
-      <AppShell>
-        <div className="space-y-6">
-          <Link
-            to={planId ? `/plan/${planId}/cycle` : "/"}
-            className="inline-flex items-center gap-2 text-sm font-semibold text-[#C4B5FD] transition hover:text-[#DDD6FE]"
-          >
-            <span aria-hidden="true">←</span>
-            Back
-          </Link>
+    const fallbackTo = plan ? `/plan/${planId}/cycle` : "/";
+    const fallbackLabel = plan ? "Return to cycle" : "Back to home";
+    const context = plan
+      ? `${plan.name}${dayDetails ? ` · ${dayDetails.label}` : ""}`
+      : null;
 
-          <SectionCard>
-            <p className={UI_TEXT_MUTED}>
-              Core block data could not be found for this route.
-            </p>
-          </SectionCard>
-        </div>
-      </AppShell>
+    return (
+      <GuardState
+        eyebrow="Core unavailable"
+        context={context}
+        title="This Core block could not be loaded."
+        description="The support block does not belong to this training day, or its source data is unavailable. Return to a valid workout position."
+        primaryTo={fallbackTo}
+        primaryLabel={fallbackLabel}
+      />
+    );
+  }
+
+  if (!currentCycle) {
+    return (
+      <GuardState
+        backTo="/"
+        backLabel="Back to home"
+        eyebrow="Core checkpoint"
+        context={`${plan.name} · ${dayDetails.label}`}
+        title="Start a cycle first."
+        description="Core logging becomes available after you explicitly start the plan cycle from Plan Overview."
+        primaryTo={`/plan/${planId}`}
+        primaryLabel="Go to plan overview"
+      />
     );
   }
 
   if (needsDayEntryFirst) {
     return (
-      <AppShell>
-        <div className="space-y-5">
-          <Link
-            to={`/plan/${planId}/day/${dayId}`}
-            className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
-          >
-            <span aria-hidden="true">←</span>
-            Back to Day
-          </Link>
-
-          <SectionCard>
-            <p className={UI_TEXT_MUTED}>
-              {currentCycle
-                ? "Open the day first to prepare today's core log."
-                : "Start a cycle before logging this core block."}
-            </p>
-          </SectionCard>
-        </div>
-      </AppShell>
+      <GuardState
+        eyebrow="Core checkpoint"
+        context={`${plan.name} · ${dayDetails.label}`}
+        title="Open the day first."
+        description="Enter the current day before opening its Core log. This keeps runtime creation inside the valid workout flow."
+        backTo={`/plan/${planId}/cycle`}
+        backLabel="Back to cycle"
+        primaryTo={`/plan/${planId}/day/${dayId}`}
+        primaryLabel="Go to day"
+      />
     );
   }
 
-  const coreWorkflowCard = (
-    <CoreWorkflowCard
-      coreBlock={coreBlock}
-      exercises={coreExercises}
-      coreBlockLog={coreBlockLog}
-      dayMode={dayMode}
-      isReadOnly={isUpcomingPreview}
-      onToggleCoreSetDone={handleToggleCoreSetDone}
-      onUpdateCoreSetField={handleUpdateCoreSetField}
-      onCloseCoreBlock={handleCloseCoreBlock}
-    />
-  );
+  const corePageState = getCorePageState({
+    dayMode,
+    coreBlockLog,
+  });
 
   return (
     <AppShell>
       <div className="space-y-5">
-        <header className="space-y-3">
-          <div className="flex items-center justify-between gap-3">
-            <Link
-              to={`/plan/${planId}/day/${dayId}`}
-              className="inline-flex shrink-0 items-center gap-1.5 text-xs font-medium text-zinc-500 transition hover:text-zinc-200"
-            >
-              <span aria-hidden="true">←</span>
-              Back to Day
-            </Link>
+        <header className="space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <BackControl to={`/plan/${planId}/day/${dayId}`} className="shrink-0">
+              Back to day
+            </BackControl>
 
-            <p className="flex min-w-0 items-center justify-end gap-2 truncate text-right text-xs font-medium text-zinc-500">
-              <span className="min-w-0 truncate">
-                {plan.name} · Cycle {currentCycleNumber ?? 1} ·{" "}
-                {dayDetails.label}
-              </span>
-
-              <span
-                className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#8B5CF6]/80"
-                aria-hidden="true"
-              />
+            <p className="min-w-0 truncate text-right text-xs font-medium text-[#77818B]">
+              {plan.name} · Cycle {currentCycleNumber ?? 1} · {dayDetails.label}
             </p>
           </div>
 
-          <div className="space-y-1.5">
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">
-              {coreBlock.name}
-            </h1>
+          <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3">
+            <span
+              className="mt-1 h-10 w-1 rounded-full bg-[#A7A2D8]"
+              aria-hidden="true"
+            />
 
-            <p className="text-sm leading-5 text-zinc-400">{coreBlock.focus}</p>
+            <div className="min-w-0">
+              <p
+                className={`text-[0.68rem] font-semibold uppercase tracking-[0.14em] ${corePageState.className}`}
+              >
+                {corePageState.label}
+              </p>
+              <h1 className="mt-2 text-[2rem] font-semibold leading-[1.02] tracking-[-0.045em] text-[#F3F5F1]">
+                {coreBlock.name}
+              </h1>
+              <p className="mt-2 text-sm leading-6 text-[#AAB2BA]">
+                {coreBlock.focus}
+              </p>
+            </div>
           </div>
         </header>
 
         {isUpcomingPreview ? (
-          <MotionDiv
-            className="rounded-2xl border border-[#8B5CF6]/22 bg-[#4C1D95]/10 px-4 py-4"
-            variants={revealPanelVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#C4B5FD]">
-              Preview mode
+          <section className="border-y border-[#2A3138] py-4">
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#A7A2D8]">
+              Read-only preview
             </p>
-
-            <p className="mt-1.5 text-sm leading-5 text-zinc-400">
-              Review the core structure now. Logging unlocks when this day
-              becomes current.
+            <p className="mt-2 text-sm leading-6 text-[#AAB2BA]">
+              Review the block structure now. Logging and Done controls unlock
+              when this day becomes current.
             </p>
-          </MotionDiv>
+          </section>
         ) : null}
 
-        {dayMode === "active" ? (
-          <MotionDiv
-            variants={revealPanelVariants}
-            initial="hidden"
-            animate="visible"
-          >
-            {coreWorkflowCard}
-          </MotionDiv>
-        ) : (
-          coreWorkflowCard
-        )}
+        <CoreWorkflowCard
+          coreBlock={coreBlock}
+          exercises={coreExercises}
+          coreBlockLog={coreBlockLog}
+          dayMode={dayMode}
+          isReadOnly={isUpcomingPreview}
+          onToggleCoreSetDone={handleToggleCoreSetDone}
+          onUpdateCoreSetField={handleUpdateCoreSetField}
+          onCloseCoreBlock={handleCloseCoreBlock}
+        />
       </div>
     </AppShell>
   );

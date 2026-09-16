@@ -1,33 +1,30 @@
 import { Link } from "react-router-dom";
-import { ChevronRight, TrendingDown, TrendingUp } from "lucide-react";
-
-import SectionCard from "../layout/SectionCard";
-import {
-  UI_CARD_INTERACTIVE,
-  UI_TEXT_BODY,
-  UI_TEXT_EYEBROW,
-} from "../../styles/ui";
+import { ArrowUpRight, TrendingDown, TrendingUp } from "lucide-react";
 
 // Home-specific presentation metadata for plan cards.
 // Static plan source data still comes from src/data/plans.
 const PLAN_CARD_META = {
   "bulk-pro": {
+    code: "BUILD / 01",
     badge: "Growth phase",
     promise: "Build muscle through repeatable volume and clear progression.",
     chips: ["Growth", "Progression", "Volume"],
     icon: TrendingUp,
-    accentClassName: "bg-[#5EC7D5]",
-    iconClassName: "border-[#3FA8B6]/18 bg-[#10292E]/48 text-[#8FDCE5]",
-    chipClassName: "border-[#3FA8B6]/14 bg-[#10292E]/34 text-[#B9EEF4]",
+    accentBar: "bg-[#B8F36B]",
+    accentText: "text-[#C8F78F]",
+    accentBorder: "border-[#B8F36B]/30",
+    accentSoft: "bg-[#B8F36B]/[0.07]",
   },
   "cut-pro": {
+    code: "PRESERVE / 02",
     badge: "Cut phase",
     promise: "Preserve strength while keeping fatigue under control.",
     chips: ["Retention", "Fatigue control", "Recovery aware"],
     icon: TrendingDown,
-    accentClassName: "bg-[#C9B57A]",
-    iconClassName: "border-[#4A4433]/72 bg-[#1D1C16]/58 text-[#C9B57A]",
-    chipClassName: "border-[#4A4433]/60 bg-[#1D1C16]/44 text-[#D8C891]",
+    accentBar: "bg-[#F1B864]",
+    accentText: "text-[#F4C87F]",
+    accentBorder: "border-[#F1B864]/30",
+    accentSoft: "bg-[#F1B864]/[0.07]",
   },
 };
 
@@ -40,63 +37,69 @@ const PLAN_CARD_META = {
  */
 export default function PlanCard({ plan }) {
   const meta = PLAN_CARD_META[plan.id] ?? PLAN_CARD_META["bulk-pro"];
-
   const Icon = meta.icon;
 
   return (
-    <SectionCard
-      variant="training"
-      className={`group relative overflow-hidden border-white/8 bg-[#12181B]/78 p-0 shadow-[0_10px_24px_rgba(0,0,0,0.14)] hover:border-[#3FA8B6]/22 ${UI_CARD_INTERACTIVE}`}
+    <Link
+      to={`/plan/${plan.id}`}
+      className="group relative block overflow-hidden rounded-[1.35rem] border border-[#2A3138] bg-[#13181D] transition duration-150 ease-out hover:border-[#3A444E] hover:bg-[#151B20] active:scale-[0.992] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F1F4ED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0E11] motion-reduce:transition-none motion-reduce:active:scale-100"
+      aria-label={`View ${plan.name}`}
     >
       <div
-        className={`pointer-events-none absolute bottom-0 left-0 top-0 w-0.5 ${meta.accentClassName}`}
+        className={`absolute left-0 right-0 top-0 h-0.5 ${meta.accentBar}`}
         aria-hidden="true"
       />
 
-      <div className="relative flex flex-col gap-3.5 px-4 py-4">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex min-w-0 flex-col gap-3">
-            <span className={UI_TEXT_EYEBROW}>
-              {meta.badge}
-            </span>
+      <div className="p-4">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className={`text-[0.65rem] font-bold uppercase tracking-[0.17em] ${meta.accentText}`}>
+              {meta.code}
+            </p>
 
-            <div className="flex flex-col gap-2">
-              <h2 className="text-2xl font-semibold leading-none tracking-tight text-[#F4F7F8]">
-                {plan.name}
-              </h2>
+            <h3 className="mt-2 text-[1.65rem] font-semibold leading-none tracking-[-0.05em] text-[#F3F5F1]">
+              {plan.name}
+            </h3>
 
-              <p className={`max-w-[18rem] ${UI_TEXT_BODY}`}>
-                {meta.promise}
-              </p>
-            </div>
+            <p className="mt-2 max-w-[18rem] text-sm leading-5 text-[#AAB2BA]">
+              {meta.promise}
+            </p>
           </div>
 
           <div
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${meta.iconClassName}`}
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border ${meta.accentBorder} ${meta.accentSoft} ${meta.accentText}`}
           >
             <Icon className="h-4 w-4" aria-hidden="true" />
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-1.5">
-          {meta.chips.map((chip) => (
+        <div className="mt-4 grid grid-cols-3 border-y border-[#272E35]">
+          {meta.chips.map((chip, index) => (
             <span
               key={chip}
-              className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${meta.chipClassName}`}
+              className={`flex min-h-12 items-center justify-center px-2 text-center text-[0.65rem] font-semibold uppercase leading-4 tracking-[0.08em] text-[#89949E] ${
+                index > 0 ? "border-l border-[#272E35]" : ""
+              }`}
             >
               {chip}
             </span>
           ))}
         </div>
 
-        <Link
-          to={`/plan/${plan.id}`}
-          className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl bg-[#5EC7D5] px-4 text-sm font-semibold text-[#031014] shadow-[0_6px_14px_rgba(63,168,182,0.1)] transition duration-150 ease-out hover:bg-[#6DD6E2] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#5EC7D5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151A1D] motion-reduce:transition-none motion-reduce:active:scale-100"
-        >
-          View plan
-          <ChevronRight className="h-4 w-4" aria-hidden="true" />
-        </Link>
+        <div className="mt-4 flex items-center justify-between gap-3">
+          <span className="text-[0.68rem] font-bold uppercase tracking-[0.16em] text-[#69747E]">
+            {meta.badge}
+          </span>
+
+          <span className="inline-flex items-center gap-2 text-sm font-semibold text-[#F3F5F1]">
+            View plan
+            <ArrowUpRight
+              className="h-4 w-4 transition-transform duration-150 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none"
+              aria-hidden="true"
+            />
+          </span>
+        </div>
       </div>
-    </SectionCard>
+    </Link>
   );
 }

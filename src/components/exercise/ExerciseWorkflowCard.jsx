@@ -1,37 +1,32 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+import {
+  ArrowRight,
+  ChevronDown,
+  Crosshair,
+  History,
+  ListChecks,
+  Zap,
+} from "lucide-react";
 
-import { Crosshair, ListChecks, Zap, ChevronRight } from "lucide-react";
 import HelpSheet from "../common/HelpSheet";
 import SetRow from "./SetRow";
 import {
   exerciseHelp,
   advancedTechniqueHelpByType,
 } from "../../data/contextualHelp";
-import {
-  UI_TEXT_BODY,
-  UI_TEXT_BODY_STRONG,
-  UI_TEXT_CARD_TITLE,
-  UI_TEXT_EYEBROW,
-  UI_TEXT_EYEBROW_ACCENT,
-  UI_TEXT_META,
-  UI_TEXT_SECTION_TITLE,
-  UI_TEXT_STAT_LABEL,
-  UI_TEXT_STAT_VALUE,
-} from "../../styles/ui";
 import { revealPanelVariants } from "../../styles/motion";
 
 const MotionDiv = motion.div;
-const MotionSection = motion.section;
 
 const METHOD_SUMMARY_BY_TYPE = {
-  mechanicalDropset: "Mechanical dropset · view exact sequence",
-  mechanicalSet: "Mechanical set · view exact sequence",
-  restPause: "Rest-pause · view exact method",
-  dropset: "Dropset · view exact method",
-  cluster: "Cluster set · view exact structure",
-  isoHold: "Iso hold · view exact timing",
-  isoStretch: "Iso stretch · view exact timing",
+  mechanicalDropset: "Mechanical dropset · exact sequence available",
+  mechanicalSet: "Mechanical set · exact sequence available",
+  restPause: "Rest-pause · exact method available",
+  dropset: "Dropset · exact method available",
+  cluster: "Cluster set · exact structure available",
+  isoHold: "Iso hold · exact timing available",
+  isoStretch: "Iso stretch · exact timing available",
 };
 
 function cleanSummaryValue(value) {
@@ -53,36 +48,31 @@ function compactSummaryValue(value) {
 function getMethodSummary(advancedTechniqueType) {
   return (
     METHOD_SUMMARY_BY_TYPE[advancedTechniqueType] ??
-    "Advanced method · view exact sequence"
-  );
-}
-
-function DetailBlock({ title, children, hasDivider = false }) {
-  if (!children) {
-    return null;
-  }
-
-  return (
-    <div
-      className={`space-y-1.5 ${
-        hasDivider ? "border-t border-zinc-800/70 pt-4" : ""
-      }`}
-    >
-      <h3 className="text-sm font-semibold text-[#F4F7F8]">{title}</h3>
-      <div className={UI_TEXT_BODY}>{children}</div>
-    </div>
+    "Advanced method · exact sequence available"
   );
 }
 
 function TargetItem({ label, value }) {
   return (
-    <div className="min-w-0 text-center">
-      <p className={UI_TEXT_STAT_LABEL}>{label}</p>
-
-      <p className={`mt-1 whitespace-nowrap tabular-nums ${UI_TEXT_STAT_VALUE}`}>
+    <div className="min-w-0 px-1.5 text-center">
+      <p className="text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-[#77818B]">
+        {label}
+      </p>
+      <p className="mt-1 whitespace-nowrap text-xs font-semibold tabular-nums text-[#F3F5F1] min-[360px]:text-sm">
         {value}
       </p>
     </div>
+  );
+}
+
+function DisclosureChevron({ isOpen, className = "text-[#AAB2BA]" }) {
+  return (
+    <ChevronDown
+      className={`h-4 w-4 shrink-0 transition-transform duration-150 motion-reduce:transition-none ${className} ${
+        isOpen ? "rotate-180" : ""
+      }`}
+      aria-hidden="true"
+    />
   );
 }
 
@@ -90,7 +80,7 @@ function TargetItem({ label, value }) {
  * Displays one full exercise workflow.
  *
  * Runtime note:
- * The card receives runtime or preview set rows from the page layer and
+ * The component receives runtime or preview set rows from the page layer and
  * delegates all row updates upward. It does not create or mutate runtime logs.
  */
 export default function ExerciseWorkflowCard({
@@ -107,6 +97,8 @@ export default function ExerciseWorkflowCard({
   const [isAdvancedHelpOpen, setIsAdvancedHelpOpen] = useState(false);
   const [isMethodOpen, setIsMethodOpen] = useState(false);
   const [isCoachNotesOpen, setIsCoachNotesOpen] = useState(false);
+  const methodPanelId = useId();
+  const coachNotesPanelId = useId();
 
   if (!exercise) {
     return null;
@@ -136,128 +128,107 @@ export default function ExerciseWorkflowCard({
   const methodSummary = getMethodSummary(advancedTechniqueType);
   const hasCoachNotes = Boolean(progression) || extraCues.length > 0;
 
-  const logTitle = isReadOnly ? "Set preview" : "Today's work";
-
-  // Preview mode is read-only plan review, not disabled logging.
-  // Active and finished days keep DONE controls because saved logs remain editable.
-  const showDoneControls = !isReadOnly;
-  const focusLabel = isReadOnly ? "Exercise focus" : "Today's focus";
   const isClosedLog = dayMode === "finished";
   const finishButtonLabel = isClosedLog ? "Save changes" : "Finish exercise";
   const completedSetCount = sets.filter((set) => set.isDone).length;
-  const setProgressLabel = `${completedSetCount}/${sets.length} sets checked`;
+  const setProgressLabel = `${completedSetCount} of ${sets.length} performed`;
 
   return (
     <>
       <div className="space-y-5">
         {isReadOnly ? (
-          <MotionSection
-            className="rounded-xl border border-[#3FA8B6]/12 bg-[#10292E]/22 p-3"
-            variants={revealPanelVariants}
-            initial="hidden"
-            animate="visible"
+          <section
+            role="note"
+            className="border-l-2 border-[#77818B] bg-[#13181D]/55 px-4 py-3"
           >
-            <p className={UI_TEXT_EYEBROW_ACCENT}>
-              Preview mode
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#AAB2BA]">
+              Read-only preview
             </p>
-            <p className={`mt-1 ${UI_TEXT_BODY}`}>
-              Review the targets now. Logging unlocks when this day becomes
+            <p className="mt-1 text-sm leading-6 text-[#AAB2BA]">
+              Review the prescription now. Logging opens when this day becomes
               current.
             </p>
-          </MotionSection>
+          </section>
         ) : null}
 
         {isClosedLog ? (
-          <MotionSection
-            className="rounded-xl border border-[#3FA8B6]/12 bg-[#10292E]/22 p-3"
-            variants={revealPanelVariants}
-            initial="hidden"
-            animate="visible"
+          <section
+            role="note"
+            className="border-l-2 border-[#79C89A] bg-[#79C89A]/[0.05] px-4 py-3"
           >
-            <p className={UI_TEXT_EYEBROW_ACCENT}>
-              Closed day log
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#A7DDB9]">
+              Saved log
             </p>
-            <p className={`mt-1 ${UI_TEXT_BODY}`}>
-              Review or adjust the values you saved.
+            <p className="mt-1 text-sm leading-6 text-[#AAB2BA]">
+              Review or adjust the values already stored for this closed day.
             </p>
-          </MotionSection>
+          </section>
         ) : null}
 
-        <section className="rounded-xl border border-white/8 bg-white/[0.018] px-3 py-2.5">
+        <section className="border-b border-[#2A3138] pb-5">
           <div className="flex items-center gap-2">
-            <Crosshair
-              aria-hidden="true"
-              className="h-4 w-4 text-[#8FDCE5]"
-            />
-
-            <p className={UI_TEXT_EYEBROW_ACCENT}>
-              {focusLabel}
+            <Crosshair className="h-4 w-4 text-[#B8F36B]" aria-hidden="true" />
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">
+              {isReadOnly ? "Exercise focus" : "Today's focus"}
             </p>
           </div>
 
-          <p className={`mt-1.5 ${UI_TEXT_BODY_STRONG}`}>
+          <p className="mt-2 text-base font-medium leading-6 text-[#E4E8E3]">
             {exercise.cue ??
               "Keep the movement controlled and log the work you actually perform."}
           </p>
         </section>
 
         {advancedTechnique ? (
-          <section className="rounded-2xl border border-amber-300/14 bg-amber-300/[0.035] px-3 py-3">
+          <section className="border-y border-[#F1B864]/25 bg-[#F1B864]/[0.035] px-4 py-1">
             <button
               type="button"
               aria-expanded={isMethodOpen}
+              aria-controls={methodPanelId}
               onClick={() => setIsMethodOpen((current) => !current)}
-              className="flex w-full items-start justify-between gap-4 text-left"
+              className="flex min-h-14 w-full items-center justify-between gap-4 py-2 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#F1B864]/70"
             >
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
-                  <Zap
-                    aria-hidden="true"
-                    className="h-4 w-4 text-amber-200"
-                  />
-
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-amber-200">
+                  <Zap className="h-4 w-4 text-[#F1B864]" aria-hidden="true" />
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#F4C87F]">
                     Prescribed method
                   </p>
                 </div>
-
-                <p className={`mt-1 ${UI_TEXT_BODY}`}>
+                <p className="mt-1 text-sm leading-5 text-[#AAB2BA]">
                   {isMethodOpen
-                    ? "Review the exact method before logging."
+                    ? "Use the sequence below before logging the working set."
                     : methodSummary}
                 </p>
               </div>
 
-              <span className="shrink-0 pt-0.5 text-sm font-semibold text-amber-100">
-                {isMethodOpen ? "Hide" : "View"}
-              </span>
+              <DisclosureChevron
+                isOpen={isMethodOpen}
+                className="text-[#F4C87F]"
+              />
             </button>
 
             <AnimatePresence initial={false}>
               {isMethodOpen ? (
                 <MotionDiv
-                  className="space-y-3"
+                  id={methodPanelId}
+                  className="border-t border-[#F1B864]/18 pb-4 pt-3"
                   variants={revealPanelVariants}
                   initial="hidden"
                   animate="visible"
                   exit="exit"
                 >
-                  <div>
-                    <h3 className="text-sm font-semibold text-zinc-100">
-                      Method
-                    </h3>
-                    <p className={`mt-1 ${UI_TEXT_BODY}`}>
-                      {advancedTechnique}
-                    </p>
-                  </div>
+                  <p className="text-sm leading-6 text-[#D8D0C1]">
+                    {advancedTechnique}
+                  </p>
 
                   {advancedTechniqueHelp ? (
                     <button
                       type="button"
                       onClick={() => setIsAdvancedHelpOpen(true)}
-                      className="rounded-full border border-amber-300/22 px-3 py-1 text-xs font-semibold text-amber-100 transition hover:bg-amber-300/10"
+                      className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-[#F1B864]/28 px-3 text-sm font-semibold text-[#F4C87F] transition-colors hover:bg-[#F1B864]/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F1B864]"
                     >
-                      Method help
+                      Open method help
                     </button>
                   ) : null}
                 </MotionDiv>
@@ -266,30 +237,26 @@ export default function ExerciseWorkflowCard({
           </section>
         ) : null}
 
-        <section className="space-y-3 rounded-2xl border border-white/10 bg-[#111518]/92 px-3.5 py-3.5 shadow-[0_14px_34px_rgba(0,0,0,0.24)]">
-          <div>
-            <div className="mb-2.5 flex items-center justify-between gap-3">
+        <section className="overflow-hidden rounded-[1.25rem] border border-[#2A3138] bg-[#13181D] shadow-[0_18px_42px_rgba(0,0,0,0.22)]">
+          <div className="px-3.5 pb-4 pt-4">
+            <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <ListChecks
-                  aria-hidden="true"
-                  className="h-4 w-4 text-[#8FDCE5]/72"
-                />
-
-                <p className={UI_TEXT_EYEBROW}>
-                  Targets
+                <ListChecks className="h-4 w-4 text-[#AAB2BA]" aria-hidden="true" />
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">
+                  Working targets
                 </p>
               </div>
 
               <button
                 type="button"
                 onClick={() => setIsHelpOpen(true)}
-                className="rounded-full border border-white/10 bg-white/[0.026] px-2.5 py-1 text-xs font-semibold text-[#8FDCE5] transition hover:border-[#3FA8B6]/28 hover:bg-[#10292E]/50"
+                className="inline-flex min-h-11 items-center px-2 text-sm font-semibold text-[#AAB2BA] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]"
               >
                 Help
               </button>
             </div>
 
-            <div className="grid grid-cols-4 divide-x divide-white/7 overflow-hidden rounded-xl bg-white/[0.024] px-1 py-1.5">
+            <div className="mt-3 grid grid-cols-4 divide-x divide-[#2A3138] py-1">
               <TargetItem label="Sets" value={cleanedPrescriptionDisplay} />
               <TargetItem label="Tempo" value={cleanedTempo} />
               <TargetItem label="Rest" value={cleanedRest} />
@@ -297,52 +264,68 @@ export default function ExerciseWorkflowCard({
             </div>
           </div>
 
-          <div className="space-y-2.5">
-            <div className="flex items-end justify-between gap-4 border-t border-white/7 pt-3">
+          <div className="border-t border-[#2A3138] bg-[#101419]/62">
+            <div className="flex items-end justify-between gap-4 px-3.5 pb-3 pt-4">
               <div>
-                <h2 className={UI_TEXT_SECTION_TITLE}>{logTitle}</h2>
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">
+                  Workbench
+                </p>
+                <h2 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-[#F3F5F1]">
+                  {isReadOnly ? "Set preview" : "Today's work"}
+                </h2>
               </div>
 
-              <p className="shrink-0 rounded-full border border-white/10 bg-white/[0.026] px-2.5 py-0.5 text-xs font-semibold text-[#A9B0B5]">
-                {showDoneControls ? setProgressLabel : `${sets.length} sets`}
+              <p className="shrink-0 text-xs font-semibold tabular-nums text-[#AAB2BA]">
+                {isReadOnly ? `${sets.length} sets` : setProgressLabel}
               </p>
             </div>
 
             {!isReadOnly ? (
-              <MotionDiv
-                className="flex items-start justify-between gap-3 rounded-lg bg-white/[0.018] px-2.5 py-2"
-                variants={revealPanelVariants}
-                initial="hidden"
-                animate="visible"
-              >
+              <div className="mx-3.5 mb-3 flex items-start gap-3 border-l-2 border-[#3A434C] px-3 py-1.5">
+                <History className="mt-0.5 h-4 w-4 shrink-0 text-[#77818B]" aria-hidden="true" />
                 <div className="min-w-0">
-                  <p className="text-xs font-semibold text-[#D3D8DB]">
+                  <p className="text-xs font-semibold text-[#D7DDD7]">
                     {hasPreviousValues
-                      ? "Previous values available"
+                      ? "Previous values loaded"
                       : "No previous values yet"}
                   </p>
-                  <p className={`mt-0.5 ${UI_TEXT_META}`}>
+                  <p className="mt-0.5 text-xs leading-5 text-[#77818B]">
                     {hasPreviousValues
-                      ? "Use your last logged work as a guide."
-                      : "Log today to build the next-cycle reference."}
+                      ? "Use them as a reference. Performed sets still begin unchecked."
+                      : "Today's performed work will become a next-cycle reference."}
                   </p>
                 </div>
-              </MotionDiv>
+              </div>
             ) : null}
 
-            <div className="flex flex-col gap-1.5">
-              {/* Set rows may be runtime logs or read-only preview rows; updates are delegated upward. */}
-              {sets.map((set, index) => (
+            <div
+              className={`grid min-h-9 items-center gap-1 border-t border-[#2A3138] bg-[#171D22]/70 px-2 text-[0.6rem] font-semibold uppercase tracking-[0.08em] text-[#77818B] ${
+                isReadOnly
+                  ? "grid-cols-[1.9rem_minmax(0,1fr)]"
+                  : "grid-cols-[1.9rem_minmax(0,1fr)_2.75rem]"
+              }`}
+              aria-hidden="true"
+            >
+              <span className="text-center">Set</span>
+              <span className="grid grid-cols-3 text-center">
+                <span>Kg</span>
+                <span>Reps</span>
+                <span>RIR</span>
+              </span>
+              {!isReadOnly ? <span className="text-center">Done</span> : null}
+            </div>
+
+            <div>
+              {sets.map((set) => (
                 <SetRow
                   key={`${exercise.id}-set-${set.setNumber}`}
                   isReadOnly={isReadOnly}
-                  showDoneControl={showDoneControls}
+                  showDoneControl={!isReadOnly}
                   setNumber={set.setNumber}
                   weight={set.weight}
                   reps={set.reps}
                   rir={set.rir}
                   isDone={set.isDone}
-                  isLast={index === sets.length - 1}
                   onToggleDone={() => onToggleSetDone?.(set.setNumber)}
                   onSetFieldChange={(field, value) =>
                     onUpdateSetField?.(set.setNumber, field, value)
@@ -352,18 +335,23 @@ export default function ExerciseWorkflowCard({
             </div>
 
             {!isReadOnly ? (
-              <div className="space-y-2 pt-1">
-                <p className={`text-center ${UI_TEXT_META}`}>
-                  {setProgressLabel}
-                </p>
+              <div className="border-t border-[#2A3138] px-3.5 pb-4 pt-3">
+                <div className="mb-3 flex items-center justify-between gap-3 text-xs">
+                  <span className="text-[#77818B]">
+                    Done marks what was actually performed.
+                  </span>
+                  <span className="shrink-0 font-semibold tabular-nums text-[#AAB2BA]">
+                    {setProgressLabel}
+                  </span>
+                </div>
 
                 <button
                   type="button"
                   onClick={onCloseExercise}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#5EC7D5] px-5 py-3 text-sm font-semibold text-[#031014] shadow-[0_10px_24px_rgba(63,168,182,0.14)] transition duration-150 ease-out hover:bg-[#6DD6E2] active:scale-[0.985] motion-reduce:transition-none motion-reduce:active:scale-100"
+                  className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#B8F36B] px-5 text-sm font-semibold text-[#0B0E11] transition-colors hover:bg-[#C8F78F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8F78F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101419]"
                 >
                   {finishButtonLabel}
-                  <ChevronRight className="h-5 w-5" aria-hidden="true" />
+                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </button>
               </div>
             ) : null}
@@ -371,53 +359,74 @@ export default function ExerciseWorkflowCard({
         </section>
 
         {hasCoachNotes ? (
-          <section className="rounded-2xl border border-white/8 bg-white/[0.018] px-3 py-3">
+          <section className="border-y border-[#2A3138]">
             <button
               type="button"
               aria-expanded={isCoachNotesOpen}
+              aria-controls={coachNotesPanelId}
               onClick={() => setIsCoachNotesOpen((current) => !current)}
-              className="flex w-full items-start justify-between gap-4 text-left"
+              className="flex min-h-16 w-full items-center justify-between gap-4 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#B8F36B]/65"
             >
               <div>
-                <h2 className={UI_TEXT_CARD_TITLE}>
+                <h2 className="text-base font-semibold text-[#E4E8E3]">
                   Coach notes
                 </h2>
-                <p className={`mt-1 ${UI_TEXT_BODY}`}>
-                  Progression and extra cues for this exercise.
+                <p className="mt-1 text-sm leading-5 text-[#77818B]">
+                  Progression and extra execution cues.
                 </p>
               </div>
 
-              <span className="pt-1 text-sm font-semibold text-[#8FDCE5]">
-                {isCoachNotesOpen ? "Hide" : "View"}
-              </span>
+              <DisclosureChevron isOpen={isCoachNotesOpen} />
             </button>
 
             <AnimatePresence initial={false}>
               {isCoachNotesOpen ? (
                 <MotionDiv
-                  className="space-y-4"
+                  id={coachNotesPanelId}
+                  className="space-y-4 border-t border-[#2A3138] pb-5 pt-4"
                   variants={revealPanelVariants}
                   initial="hidden"
                   animate="visible"
                   exit="exit"
                 >
                   {progression ? (
-                    <DetailBlock title="Progression">
-                      <p>{progression}</p>
-                    </DetailBlock>
+                    <div className="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-3">
+                      <span className="text-sm font-semibold tabular-nums text-[#77818B]">
+                        01
+                      </span>
+                      <div>
+                        <h3 className="text-sm font-semibold text-[#E4E8E3]">
+                          Progression
+                        </h3>
+                        <p className="mt-1 text-sm leading-6 text-[#AAB2BA]">
+                          {progression}
+                        </p>
+                      </div>
+                    </div>
                   ) : null}
 
                   {extraCues.length > 0 ? (
-                    <DetailBlock
-                      title="Extra cues"
-                      hasDivider={Boolean(progression)}
-                    >
-                      <ul className="space-y-1">
-                        {extraCues.map((cue) => (
-                          <li key={cue}>- {cue}</li>
-                        ))}
-                      </ul>
-                    </DetailBlock>
+                    <div className="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-3 border-t border-[#2A3138] pt-4">
+                      <span className="text-sm font-semibold tabular-nums text-[#77818B]">
+                        {progression ? "02" : "01"}
+                      </span>
+                      <div>
+                        <h3 className="text-sm font-semibold text-[#E4E8E3]">
+                          Extra cues
+                        </h3>
+                        <ul className="mt-2 space-y-2">
+                          {extraCues.map((cue) => (
+                            <li
+                              key={cue}
+                              className="flex gap-2 text-sm leading-6 text-[#AAB2BA]"
+                            >
+                              <span className="mt-[0.65rem] h-1 w-1 shrink-0 rounded-full bg-[#77818B]" />
+                              <span>{cue}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
                   ) : null}
                 </MotionDiv>
               ) : null}

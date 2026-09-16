@@ -1,40 +1,22 @@
-import { Link } from "react-router-dom";
+import { MapPinned } from "lucide-react";
 
-import AppShell from "../components/layout/AppShell";
-import ScreenHeader from "../components/layout/ScreenHeader";
-import SectionCard from "../components/layout/SectionCard";
-import { UI_STACK_LG, UI_TEXT_MUTED } from "../styles/ui";
+import GuardState from "../components/common/GuardState";
 
 /**
  * Fallback page for unmatched routes.
  *
- * UI note:
- * This page is static and does not read or mutate runtime state.
+ * Runtime boundary:
+ * This page is static and never reads, creates, or mutates training progress.
  */
 export default function NotFoundPage() {
   return (
-    <AppShell>
-      <div className={UI_STACK_LG}>
-        <ScreenHeader
-          title="Screen not found"
-          subtitle="This route does not match a training screen in the current app."
-        />
-
-        <SectionCard>
-          <div className="flex flex-col gap-4">
-            <p className={UI_TEXT_MUTED}>
-              Go back home and choose a plan to continue your training flow.
-            </p>
-
-            <Link
-              to="/"
-              className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-cyan-300 px-4 text-sm font-semibold text-zinc-950 transition hover:bg-cyan-200"
-            >
-              Back to home
-            </Link>
-          </div>
-        </SectionCard>
-      </div>
-    </AppShell>
+    <GuardState
+      eyebrow="Route unavailable"
+      title="This training screen does not exist."
+      description="The address does not match a current plan, workout, or guide route. Return home and continue from a valid training entry point."
+      icon={MapPinned}
+      primaryTo="/"
+      primaryLabel="Back to home"
+    />
   );
 }
