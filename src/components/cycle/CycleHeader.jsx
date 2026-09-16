@@ -3,8 +3,10 @@ export default function CycleHeader({
   cycleLabel,
   closedCount = 0,
   totalCount = 6,
+  phaseAccent = "neutral",
 }) {
   const safeTotalCount = totalCount > 0 ? totalCount : 6;
+  const isCutPhase = phaseAccent === "cut";
   const safeClosedCount = Math.min(
     Math.max(closedCount, 0),
     safeTotalCount,
@@ -14,7 +16,11 @@ export default function CycleHeader({
     <header className="flex flex-col gap-4">
       <div className="flex items-end justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#77818B]">
+          <p
+            className={`text-[0.68rem] font-bold uppercase tracking-[0.17em] ${
+              isCutPhase ? "text-[#F4C87F]" : "text-[#77818B]"
+            }`}
+          >
             {planName}
           </p>
 

@@ -374,6 +374,7 @@ export default function CyclePage() {
   const currentDayId = currentCycle?.currentDayId ?? "d1";
   const dayOrder = plan?.dayOrder ?? days.map((day) => day.id);
   const isCycleComplete = Boolean(currentCycle?.completedAt);
+  const isCutPlan = planId === "cut-pro";
 
   useEffect(() => {
     currentRhythmItemRef.current?.scrollIntoView({
@@ -474,6 +475,7 @@ export default function CyclePage() {
           cycleLabel={`Cycle ${currentCycleNumber}`}
           closedCount={completedDayCount}
           totalCount={totalTrainingDays}
+          phaseAccent={isCutPlan ? "cut" : "neutral"}
         />
 
         <section aria-labelledby="cycle-rhythm-title">
@@ -586,7 +588,11 @@ export default function CyclePage() {
           <section className="relative overflow-hidden rounded-[1.4rem] border border-[#3A434C] bg-[#171D22] shadow-[0_16px_36px_rgba(0,0,0,0.22)]">
             <div
               className={`absolute inset-x-0 top-0 h-0.5 ${
-                isCycleComplete ? "bg-[#79C89A]" : "bg-[#B8F36B]"
+                isCycleComplete
+                  ? "bg-[#79C89A]"
+                  : isCutPlan
+                    ? "bg-[#F1B864]"
+                    : "bg-[#B8F36B]"
               }`}
               aria-hidden="true"
             />
