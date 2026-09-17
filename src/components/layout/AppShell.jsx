@@ -3,6 +3,7 @@ import { useLocation } from "react-router-dom";
 
 import { UI_CONTAINER, UI_PAGE_PERFORMANCE } from "../../styles/ui";
 import { pageContentVariants } from "../../styles/motion";
+import PersistenceNotice from "../system/PersistenceNotice";
 
 const MotionDiv = motion.div;
 
@@ -22,6 +23,7 @@ export default function AppShell({ children }) {
           initial="hidden"
           animate="visible"
         >
+          <PersistenceNotice />
           {children}
         </MotionDiv>
       </main>

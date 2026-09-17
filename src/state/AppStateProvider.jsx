@@ -1,4 +1,4 @@
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { appReducer } from "./appReducer";
 import { AppStateContext } from "./AppStateContext";
 import {
@@ -27,13 +27,16 @@ export function AppStateProvider({ children }) {
     undefined,
     loadInitialAppState,
   );
+  const [isPersistenceAvailable, setIsPersistenceAvailable] = useState(true);
 
   useEffect(() => {
-    saveStoredAppState(state);
+    setIsPersistenceAvailable(saveStoredAppState(state));
   }, [state]);
 
   return (
-    <AppStateContext.Provider value={{ state, dispatch }}>
+    <AppStateContext.Provider
+      value={{ state, dispatch, isPersistenceAvailable }}
+    >
       {children}
     </AppStateContext.Provider>
   );

@@ -240,8 +240,10 @@ export function saveStoredAppState(state) {
     };
 
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(valueToStore));
+    return true;
   } catch (error) {
     console.warn("Failed to save app state:", error);
+    return false;
   }
 }
 
