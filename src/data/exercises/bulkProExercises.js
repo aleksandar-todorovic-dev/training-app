@@ -168,7 +168,7 @@ export const bulkProExercises = [
   {
     id: "face-pull",
     name: "Face Pull",
-    subtitle: "Rear-delt and scap health support",
+    subtitle: "Rear-delt and scapular-control accessory work",
     prescription: "2 x 15",
     setCount: 2,
     cue: "Pull high, rotate out at the top, and finish with clean scap control",
@@ -275,7 +275,7 @@ export const bulkProExercises = [
   {
     id: "back-extension",
     name: "Back Extension",
-    subtitle: "Lower-back health and hinge support",
+    subtitle: "Lower-back and hinge accessory work",
     prescription: "2 x 15",
     setCount: 2,
     cue: "Move from the hips, pause briefly at the top, and stop before the low back takes over",

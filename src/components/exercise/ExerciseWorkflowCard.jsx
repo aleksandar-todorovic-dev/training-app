@@ -369,7 +369,7 @@ export default function ExerciseWorkflowCard({
             >
               <div>
                 <h2 className="text-base font-semibold text-[#E4E8E3]">
-                  Coach notes
+                  Training notes
                 </h2>
                 <p className="mt-1 text-sm leading-5 text-[#77818B]">
                   Progression and extra execution cues.

@@ -10,21 +10,22 @@ export const cutProGuide = {
   id: "cut-pro",
   title: "Cut Pro Guide",
   intro:
-    "Learn how the cut plan works, how to keep training productive in a deficit, and how to preserve strength and muscle while recovery is lower.",
+    "Learn how the cut plan works, how to keep training productive in a deficit, and how to train with the aim of maintaining useful strength and muscle while managing fatigue.",
   groups: [
     {
       id: "start-here",
       title: "Start here",
       intro:
-        "Understand how the cut cycle works, why it stays flexible, and how to log productive training while recovery is lower.",
+        "Understand how the cut cycle works, why it stays flexible, and how to log productive training while recovery can be more constrained.",
       topics: [
         {
           id: "structured-cut",
-          title: "A controlled cut, not random fat-loss workouts",
+          title: "Structured cut training, not random workouts",
           paragraphs: [
             "Cut Pro is still a real training cycle.",
-            "The app moves you through D1-D6 in order, but the plan uses tighter volume, fewer intensity methods, and more fatigue control than Bulk Pro. The goal is to keep strength, muscle, and clean movement while bodyweight moves down.",
-            "Lower volume does not mean lower purpose. It means the work is selected more carefully because recovery is more limited.",
+            "The app moves you through D1-D6 in order, but the plan uses tighter volume, fewer intensity methods, and more fatigue control than Bulk Pro. The goal is to provide a strong resistance-training stimulus during a cut while keeping training quality and fatigue manageable.",
+            "Cycle Coach does not create or track your calorie deficit. Body-weight and body-composition outcomes depend on nutrition, training, recovery, and individual factors.",
+            "Lower volume does not mean lower purpose. It means the work is selected more carefully because recovery can be more constrained during an energy deficit.",
           ],
           bullets: [
             "The cut plan is still structured training.",
@@ -97,7 +98,7 @@ export const cutProGuide = {
             "Do not chase PRs just to prove the cut is working.",
             "Keep form and RIR honest.",
             "Use the first cycle to establish a realistic cut baseline.",
-            "Stable performance is already a strong result in a deficit.",
+            "Stable performance is a reasonable goal during a deficit.",
           ],
         },
       ],
@@ -106,14 +107,14 @@ export const cutProGuide = {
       id: "train-and-progress",
       title: "Training rules",
       intro:
-        "Use these rules to keep training productive while recovery is lower and fatigue is easier to accumulate.",
+        "Use these rules to keep training productive while recovery can be more constrained and fatigue can accumulate more easily.",
       topics: [
         {
           id: "rir",
           title: "RIR: train hard without burning recovery",
           paragraphs: [
             "RIR means reps in reserve.",
-            "It tells you how many clean reps you probably had left at the end of a set. RIR 2 means you stop with about 2 clean reps left. RIR 1 means you stop with about 1 clean rep left.",
+            "It tells you how many clean reps you estimate you had left at the end of a set. RIR 2 means roughly 2 clean reps left. RIR 1 means roughly 1 clean rep left. RIR is an estimate, not an exact measurement.",
             "On a cut, this matters even more. The goal is to send a strong training signal without creating more fatigue than you can recover from.",
           ],
           bullets: [
@@ -130,13 +131,13 @@ export const cutProGuide = {
           paragraphs: [
             "Progression on a cut should stay honest.",
             "Your first goal is to hold useful strength and keep clean reps inside the target range. If performance is there, add a rep. If you are stable near the top of the range with the right RIR, a small load increase can make sense.",
-            "Keeping strength in a deficit is already a strong result. Do not force load jumps just to make the log look more aggressive.",
+            "Maintaining useful strength is a reasonable goal during a deficit. Do not force load jumps just to make the log look more aggressive.",
           ],
           bullets: [
             "Hold useful strength first.",
             "Add reps before adding weight.",
             "Add weight only when performance is clearly there.",
-            "Stable strength in a deficit is progress.",
+            "Maintaining useful strength is a reasonable goal during a deficit.",
             "Do not chase fake progression with ugly reps.",
           ],
         },
@@ -178,14 +179,14 @@ export const cutProGuide = {
       id: "plan-structure",
       title: "Plan structure",
       intro:
-        "Understand why the cut plan is tighter, how top-up work preserves useful signals, and where core and warm-up fit.",
+        "Understand why the cut plan is tighter, how top-up work maintains useful training signals, and where core and warm-up fit.",
       topics: [
         {
           id: "bulk-vs-cut",
           title: "Cut is not easy, just more controlled",
           paragraphs: [
             "Bulk Pro and Cut Pro use the same cycle logic, but they do not use the same amount of training stress.",
-            "Cut Pro reduces volume, removes most advanced intensity work, and keeps a tighter grip on recovery. The goal is to preserve strength, muscle, and technique while bodyweight drops.",
+            "Cut Pro reduces volume, removes most advanced intensity work, and keeps a tighter grip on fatigue. The goal is to support strength retention and training quality during a cut.",
             "Do not worry if the cut plan looks smaller than the bulk plan. In a deficit, you need enough hard, clean work to keep the signal strong, not endless extra fatigue.",
           ],
           bullets: [
@@ -193,7 +194,7 @@ export const cutProGuide = {
             "Cut Pro avoids unnecessary fatigue.",
             "Most advanced techniques are removed on purpose.",
             "The goal is to preserve performance, not show off effort.",
-            "The structure is stricter because recovery is more limited.",
+            "The structure is tighter because recovery can be more constrained during an energy deficit.",
           ],
         },
         {
@@ -201,16 +202,16 @@ export const cutProGuide = {
           title: "Every training day still has a role",
           paragraphs: [
             "Each day in the cut cycle still has a job.",
-            "The plan is built around primary work, bridge work, and smaller top-up signals. On a cut, this matters even more because the goal is to preserve useful muscle signals without adding unnecessary fatigue.",
-            "Some exercises carry the main signal of the day. Others support frequency, balance, joints, posture, or the next important lift in the cycle.",
+            "The plan is built around primary work, bridge work, and smaller top-up signals. On a cut, this matters even more because the goal is to maintain useful training signals without adding unnecessary fatigue.",
+            "Some exercises carry the main signal of the day. Others support frequency, balance, movement quality, or the next important lift in the cycle.",
           ],
           bullets: [
-            "D1 — Chest Strength: main chest signal, triceps support, and shoulder health.",
+            "D1 — Chest Strength: main chest signal, triceps support, and shoulder accessory work.",
             "D2 — Back Width: vertical pull for lats, main biceps block, traps, forearms, lower back, and Core A.",
             "D3 — Quad Heavy: main squat/quad work, hamstring spark, calves, and hip stability.",
             "D4 — Shoulders: main shoulder work, traps, light arms, and Core B.",
             "D5 — Back Depth + Chest Pump: horizontal rows for thickness, a small lat primer, chest pump bridge, light triceps, and Core C.",
-            "D6 — Posterior Chain: RDL/hamstring/glute focus, calves, quad lunge top-up, biceps, forearms, hips, and low-back health.",
+            "D6 — Posterior Chain: RDL/hamstring/glute focus, calves, quad lunge top-up, biceps, forearms, hips, and lower-back accessory work.",
           ],
         },
         {
@@ -218,14 +219,14 @@ export const cutProGuide = {
           title: "Top-up work keeps the signal alive",
           paragraphs: [
             "Top-up work on a cut is not random extra work.",
-            "A primary focus is the main reason a day exists. A bridge signal connects one part of the cycle to another. A top-up is a smaller dose used to preserve frequency, balance, joint health, posture, or movement quality without creating a second full main session.",
+            "A primary focus is the main reason a day exists. A bridge signal connects one part of the cycle to another. A top-up is a smaller dose used to maintain frequency, balance, or movement quality without creating a second full main session.",
             "Small does not mean unimportant. On a cut, smaller signals are often useful because they keep the cycle connected while total fatigue stays controlled.",
             "This is also why the cycle can handle small schedule changes. The plan has overlap, but it still works best when the order stays stable.",
           ],
           bullets: [
             "Primary work keeps the main training signal strong.",
             "Bridge work connects important muscle signals across the cycle.",
-            "Top-up work preserves frequency without forcing extra fatigue.",
+            "Top-up work maintains frequency without forcing extra fatigue.",
             "Do the top-up work where the plan includes it.",
             "Do not add extra intensity just because the cut plan has lower volume.",
           ],
@@ -235,7 +236,7 @@ export const cutProGuide = {
           title: "Core work supports the main lifts",
           paragraphs: [
             "Core work is included to support the rest of the plan.",
-            "The goal is better bracing, trunk control, and stability for presses, rows, squats, and RDLs. On a cut, clean core work also helps keep movement quality when recovery is less forgiving.",
+            "Use core work to practice bracing, trunk control, and stability that are relevant to compound lifting. On a cut, keep it controlled when fatigue is higher.",
             "Core should stay controlled and technical. If fatigue is high or the session needs to stay shorter, core can move to a rest or LISS day while the main training order stays stable.",
           ],
           bullets: [
@@ -276,7 +277,7 @@ export const cutProGuide = {
           paragraphs: [
             "Cut Pro is not the place to stack extra intensity just because motivation is high or the session feels shorter.",
             "Most advanced techniques from Bulk Pro are removed on purpose. The deficit already adds stress, so the plan protects performance by keeping the training signal strong but controlled.",
-            "If the plan does not prescribe extra intensity, do not invent more. The goal is to preserve strength, muscle, and technique while recovery is lower.",
+            "If the plan does not prescribe extra intensity, do not invent more. The goal is to support training quality and strength retention while fatigue is managed more carefully.",
           ],
           bullets: [
             "Do not add extra dropsets or rest-pause work on your own.",
@@ -288,21 +289,21 @@ export const cutProGuide = {
         },
         {
           id: "recovery-and-deload",
-          title: "Recovery is part of keeping muscle",
+          title: "Recovery supports training quality",
           paragraphs: [
-            "You do not keep muscle on a cut by grinding yourself into the floor.",
-            "You keep it by sending a strong enough training signal and recovering well enough to repeat it. Training still depends on nutrition, protein, sleep, and recovery, especially when calories are lower.",
-            "After training, use a short cooldown and gentle stretching for the muscle groups you trained. Keep it calm and pain-free. The goal is to reduce stiffness, maintain range of motion, and help the body settle after the session.",
+            "More work is not automatically better during a cut.",
+            "Training is only one part of a cut. Nutrition, protein intake, sleep, recovery, and individual factors also matter when calories are lower.",
+            "An easy cooldown or gentle stretching after training is optional. Use it if it feels comfortable and helps you finish the session gradually. Do not rely on post-workout stretching to prevent soreness or injury.",
             "If strength drops across multiple sessions, joints feel worse, sleep is poor, or every workout feels unusually heavy, reduce stress before the plan breaks down.",
             "A deload is not failure. It is a short reset that keeps movement patterns alive while fatigue comes down.",
-            "A simple deload starting point is about a week of easier training: lighter loads, fewer total sets, and more reps in reserve. On a cut, this may be needed earlier than in a bulk because recovery is more limited.",
+            "A simple deload starting point is about a week of easier training: lighter loads, fewer total sets, and more reps in reserve. During a deficit, recovery can become more constrained, so use your actual performance and fatigue signals rather than assuming a fixed schedule.",
           ],
           bullets: [
-            "Nutrition, protein, sleep, and recovery matter more when calories are lower.",
-            "Stretch the trained muscle groups gently after the session.",
-            "Repeated strength drops are a warning sign.",
+            "Nutrition, protein intake, sleep, and recovery remain important when calories are lower.",
+            "Cooldown or gentle stretching is optional after training.",
+            "Repeated strength drops can signal rising fatigue.",
             "Joint discomfort should not be ignored.",
-            "Cut recovery can fall faster than bulk recovery.",
+            "Recovery can become more constrained during an energy deficit.",
             "A deload is lighter training, not stopping completely.",
             "Use recovery signals, not only the calendar.",
           ],
@@ -311,10 +312,10 @@ export const cutProGuide = {
           id: "liss-and-cardio",
           title: "LISS is a tool, not punishment",
           paragraphs: [
-            "LISS is low-intensity cardio used to support the deficit.",
-            "In practice, this usually means easy walking, incline treadmill work, or cycling at a calm pace you can recover from. It should help energy expenditure without ruining the next lifting day.",
-            "Start with the minimum useful amount. Add more only when progress slows and recovery can handle it.",
-            "The goal is not to prove work ethic with cardio. The goal is to support fat loss while keeping strength and recovery as stable as possible.",
+            "LISS is low-intensity cardio that can be used to increase activity during a cut.",
+            "In practice, this usually means easy walking, incline treadmill work, or cycling at a calm pace you can recover from. The aim is to add low-intensity activity without interfering with the next lifting day.",
+            "Start with the minimum useful amount. Add more only when it fits your overall cut strategy and recovery can handle it.",
+            "The goal is not to prove work ethic with cardio. The goal is to support the overall cut strategy without unnecessarily compromising lifting performance or recovery.",
           ],
           bullets: [
             "Use LISS as a tool, not punishment.",
@@ -329,9 +330,9 @@ export const cutProGuide = {
           id: "variations-pain-and-form",
           title: "Variations, pain, and form breakdown",
           paragraphs: [
-            "Some exercises include approved variations because equipment, joints, and recovery can change how a movement feels.",
+            "Some exercises include listed variations because equipment, joints, and recovery can change how a movement feels.",
             "A variation is not a random swap. It should keep the same job inside the day. For example, an assisted pull-up still keeps the vertical pulling role, and a lighter dip or decline press option can still keep the pressing role.",
-            "If pain changes the movement, do not force it. Reduce load, adjust range, or use the listed variation. On a cut, ugly reps are expensive because recovery is already tighter.",
+            "If pain changes the movement, do not force it. Reduce load, adjust range, or use the listed variation. On a cut, avoid forcing ugly reps when fatigue is already high.",
           ],
           bullets: [
             "Use listed variations when they fit better.",

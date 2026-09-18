@@ -162,7 +162,7 @@ export const cutProExercises = [
   {
     id: "face-pull",
     name: "Face Pull",
-    subtitle: "Rear-delt and scap health support",
+    subtitle: "Rear-delt and scapular-control accessory work",
     prescription: "2 x 12-15",
     setCount: 2,
     cue: "Pull high, rotate out at the top, and finish with clean scap control",
@@ -289,7 +289,7 @@ export const cutProExercises = [
   {
     id: "back-extension-d2",
     name: "Back Extension",
-    subtitle: "Lower-back health support",
+    subtitle: "Lower-back accessory work",
     prescription: "1 x 12-15",
     setCount: 1,
     cue: "Move from the hips, pause briefly at the top, and stop before the low back takes over",
@@ -993,7 +993,7 @@ export const cutProExercises = [
   {
     id: "back-extension-d6",
     name: "Back Extension",
-    subtitle: "Lower-back health support",
+    subtitle: "Lower-back accessory work",
     prescription: "1 x 12-15",
     setCount: 1,
     cue: "Move from the hips, let the glutes lead, and stop before the low back takes over",

@@ -30,7 +30,7 @@ export default function GuideTopicBlock({
 
         <div className="min-w-0">
           <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">
-            Coach topic
+            Guide topic
           </p>
 
           <h2

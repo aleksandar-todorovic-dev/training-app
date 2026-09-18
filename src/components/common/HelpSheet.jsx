@@ -37,7 +37,7 @@ export default function HelpSheet({
               <div className="flex items-center gap-2 text-[#F1B864]">
                 <BookOpenText className="h-4 w-4" aria-hidden="true" />
                 <p className="text-[0.67rem] font-semibold uppercase tracking-[0.13em]">
-                  Quick coaching
+                  Quick guidance
                 </p>
               </div>
 

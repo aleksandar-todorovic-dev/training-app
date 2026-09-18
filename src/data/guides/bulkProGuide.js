@@ -114,7 +114,7 @@ export const bulkProGuide = {
           title: "RIR: stop with clean reps left",
           paragraphs: [
             "RIR means reps in reserve.",
-            "It tells you how many clean reps you probably had left at the end of a set. RIR 2 means you stop with about 2 clean reps left. RIR 1 means you stop with about 1 clean rep left.",
+            "It tells you how many clean reps you estimate you had left at the end of a set. RIR 2 means roughly 2 clean reps left. RIR 1 means roughly 1 clean rep left. RIR is an estimate, not an exact measurement.",
             "Bulk Pro is built for hard, repeatable work. You should train with intent, but not turn every set into a grind. If your form breaks down, you already went too far.",
           ],
           bullets: [
@@ -186,7 +186,7 @@ export const bulkProGuide = {
           title: "Bulk and Cut are not trained the same way",
           paragraphs: [
             "Bulk Pro and Cut Pro use the same cycle logic, but they do not use the same training stress.",
-            "Bulk Pro gives you more total work, more growth stimulus, and selected advanced techniques where they are written. Cut Pro is more controlled because recovery is lower during a deficit.",
+            "Bulk Pro gives you more total work, more growth-focused volume, and selected advanced techniques where they are written. Cut Pro uses lower volume and tighter fatigue control because recovery can be more constrained during an energy deficit.",
             "That does not make one plan smarter than the other. It means each plan is matched to a different goal.",
           ],
           bullets: [
@@ -203,15 +203,15 @@ export const bulkProGuide = {
           paragraphs: [
             "Each day in the cycle has a job.",
             "The plan is built around primary work, bridge work, and smaller top-up signals. This keeps the cycle connected without turning every session into a full main day for every muscle.",
-            "Some exercises are there to drive the main signal of the day. Others support frequency, balance, joints, posture, or the next big lift in the cycle.",
+            "Some exercises are there to drive the main signal of the day. Others support frequency, balance, movement quality, or the next big lift in the cycle.",
           ],
           bullets: [
-            "D1 — Chest Strength: main chest tension, triceps support, and shoulder health.",
+            "D1 — Chest Strength: main chest tension, triceps support, and shoulder accessory work.",
             "D2 — Back Width: vertical pull for lats, main biceps block, traps, forearms, lower back, and Core A.",
             "D3 — Quad Heavy: main squat/quad work, hamstring spark, calves, and hip stability.",
             "D4 — Shoulders: main shoulder work, traps, light arms, and Core B.",
             "D5 — Back Depth + Chest Pump: horizontal rows for thickness, a small lat primer, chest pump bridge, light triceps, and Core C.",
-            "D6 — Posterior Chain: RDL/hamstring/glute focus, calves, quad lunge top-up, biceps, forearms, hips, and low-back health.",
+            "D6 — Posterior Chain: RDL/hamstring/glute focus, calves, quad lunge top-up, biceps, forearms, hips, and lower-back accessory work.",
           ],
         },
         {
@@ -219,7 +219,7 @@ export const bulkProGuide = {
           title: "Top-up work keeps the cycle balanced",
           paragraphs: [
             "Top-up work is not random extra volume.",
-            "A primary focus is the main reason a day exists. A bridge signal connects one part of the cycle to another. A top-up is a smaller dose used for frequency, balance, joint health, posture, or keeping a muscle involved without making it another full main session.",
+            "A primary focus is the main reason a day exists. A bridge signal connects one part of the cycle to another. A top-up is a smaller dose used for frequency, balance, movement quality, or keeping a muscle involved without making it another full main session.",
             "Small does not mean useless. Top-up work is smaller because it has a smaller job, not because it has no job.",
             "This is one reason the cycle can handle small schedule changes. The plan has overlap, but the order still matters.",
           ],
@@ -236,7 +236,7 @@ export const bulkProGuide = {
           title: "Core work supports the main lifts",
           paragraphs: [
             "Core work is included to support the rest of the plan.",
-            "The goal is better bracing, trunk control, and stability for bigger lifts like squats, presses, rows, and RDLs. It should be controlled and technical, not rushed or treated like a conditioning finisher.",
+            "Use core work to practice bracing, trunk control, and stability that are relevant to compound lifting. Keep it controlled and technical rather than treating it like a conditioning finisher.",
             "Core is useful, but it stays separate from main day progress. If you are short on time or fatigue is high, core can move to a rest or LISS day while the main training order stays stable.",
           ],
           bullets: [
@@ -293,14 +293,14 @@ export const bulkProGuide = {
           paragraphs: [
             "You do not grow just by doing more work. You grow from work you can recover from and repeat.",
             "Training gives the signal, but nutrition and sleep decide how well you can use that signal. Bulk Pro tracks training, but results still depend on eating enough, getting enough protein, and recovering consistently.",
-            "After training, use a short cooldown and gentle stretching for the muscle groups you trained. Keep it calm and pain-free. The goal is to reduce stiffness, maintain range of motion, and help the body settle after the session.",
+            "An easy cooldown or gentle stretching after training is optional. Use it if it feels comfortable and helps you finish the session gradually. Do not rely on post-workout stretching to prevent soreness or injury.",
             "If strength drops across multiple sessions, joints start feeling worse, sleep is poor, or every workout feels unusually heavy, the plan may need a short stress reduction.",
             "A deload is not quitting. It is a short reset that keeps the movement patterns alive while fatigue comes down.",
             "A simple deload starting point is about a week of easier training: lighter loads, fewer total sets, and more reps in reserve. The exact numbers matter less than the goal - reduce stress enough to come back stronger.",
           ],
           bullets: [
             "Training needs food, protein, sleep, and recovery to produce results.",
-            "Stretch the trained muscle groups gently after the session.",
+            "Cooldown or gentle stretching is optional after training.",
             "Repeated strength drops are a warning sign.",
             "Joint discomfort should not be ignored.",
             "Reduce load, sets, or intensity before the plan breaks down.",
@@ -329,7 +329,7 @@ export const bulkProGuide = {
           id: "variations-pain-and-form",
           title: "Variations, pain, and form breakdown",
           paragraphs: [
-            "Some exercises include approved variations because equipment, joints, and body structure are not the same for everyone.",
+            "Some exercises include listed variations because equipment, joints, and body structure are not the same for everyone.",
             "A variation is not a random replacement. It should keep the same purpose inside the day. For example, an assisted pull-up still keeps the vertical pulling role, and a decline press option still keeps the pressing role.",
             "If pain changes the movement, do not force it. Reduce load, adjust range, or use the listed variation. If form breaks down, the set is no longer giving the signal the plan wants.",
           ],

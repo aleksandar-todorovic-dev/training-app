@@ -40,7 +40,7 @@ const HOME_VALUE_CHIPS = [
     icon: Dumbbell,
     title: "Know what to do next",
     description:
-      "Each session gives you the next exercise, targets, cues, warm-up guidance, coach notes, and a clear finish flow so you can focus on execution instead of piecing the workout together.",
+      "Each session gives you the next exercise, targets, cues, warm-up guidance, training notes, and a clear finish flow so you can focus on execution instead of piecing the workout together.",
   },
   {
     id: "previous-values",

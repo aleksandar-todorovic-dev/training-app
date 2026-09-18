@@ -26,7 +26,7 @@ export const exerciseHelp = {
       title: "RIR",
       paragraphs: [
         "RIR means reps in reserve.",
-        "RIR 2 means you stop with about 2 clean reps left. RIR 1 means you stop with about 1 clean rep left.",
+        "RIR is your estimate of how many clean repetitions you could probably have completed before reaching failure. RIR 2 means roughly 2 clean reps left; RIR 1 means roughly 1 clean rep left. It is an estimate, not an exact measurement.",
         "This helps you train hard without turning every set into failure. Recovery has to support the next exercise, the next day, and the whole cycle.",
       ],
       bullets: [
@@ -40,7 +40,7 @@ export const exerciseHelp = {
       paragraphs: [
         "Use the progression note above for the specific exercise you are doing.",
         "In general, add clean reps first. Add weight only when the top of the rep range is clean and the target RIR is still honest.",
-        "On a cut, holding strength and clean reps is already a strong result.",
+        "On a cut, maintaining useful strength and clean reps is a reasonable goal.",
       ],
     },
   ],
