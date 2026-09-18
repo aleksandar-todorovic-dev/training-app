@@ -300,7 +300,7 @@ Education is split by context:
 - **Home** explains the product value quickly.
 - **Guide** explains the larger training system.
 - **Exercise help** explains working rules such as tempo, rest, RIR, and progression.
-- **Coach Notes and cues** provide short execution reminders near the current exercise.
+- **Training notes and cues** provide short execution reminders near the current exercise.
 - **Advanced technique help** explains methods such as dropsets, rest-pause, cluster work, mechanical sets, and stretch-focused work.
 - **Warm-up sheets** provide short day-specific preparation guidance.
 
@@ -742,7 +742,7 @@ The screenshots below show the main MVP flow using the mobile-first app layout. 
 <p>
   <a href="docs/screenshots/exercise-logging.png"><img src="docs/screenshots/thumbs/exercise-logging.png" alt="Exercise logging screen" width="180" /></a>
   <a href="docs/screenshots/core-workflow.png"><img src="docs/screenshots/thumbs/core-workflow.png" alt="Core workflow screen" width="180" /></a>
-  <a href="docs/screenshots/guide.png"><img src="docs/screenshots/thumbs/guide.png" alt="Guide / Coach Library screen" width="180" /></a>
+  <a href="docs/screenshots/guide.png"><img src="docs/screenshots/thumbs/guide.png" alt="Guide / Training guide screen" width="180" /></a>
   <a href="docs/screenshots/end-cycle.png"><img src="docs/screenshots/thumbs/end-cycle.png" alt="End Cycle recap screen" width="180" /></a>
 </p>
 

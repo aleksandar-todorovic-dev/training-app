@@ -47,7 +47,7 @@ function scrollToPageTop() {
 }
 
 /**
- * Page-level coach library for one predefined plan.
+ * Page-level training guide for one predefined plan.
  *
  * Runtime boundary:
  * GuidePage reads static educational content and uses local UI state for
