@@ -1,5 +1,5 @@
 import { createElement, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion } from "motion/react";
 import {
   ArrowUpRight,
@@ -24,9 +24,14 @@ import { useAppState } from "../state/useAppState";
 import AppShell from "../components/layout/AppShell";
 import BackControl from "../components/common/BackControl";
 import GuardState from "../components/common/GuardState";
+import FirstStartSafetySheet from "../components/system/FirstStartSafetySheet";
 import { getPlanById } from "../data/plans";
 import { getDaysByPlanId } from "../data/days";
 import { revealPanelVariants } from "../styles/motion";
+import {
+  hasStoredSafetyAcknowledgement,
+  saveSafetyAcknowledgement,
+} from "../storage/safetyAcknowledgementStorage";
 
 const MotionSection = motion.section;
 
@@ -213,8 +218,10 @@ function CycleProgress({ value, total, meta }) {
  */
 export default function PlanOverviewPage() {
   const { planId } = useParams();
+  const navigate = useNavigate();
   const { state, dispatch } = useAppState();
   const [pendingPrimaryCta, setPendingPrimaryCta] = useState(null);
+  const [isSafetyNoticeOpen, setIsSafetyNoticeOpen] = useState(false);
 
   const plan = getPlanById(planId);
   const days = getDaysByPlanId(planId);
@@ -274,11 +281,7 @@ export default function PlanOverviewPage() {
     rhythmItems.slice(6, 9),
   ];
 
-  function handlePrimaryCtaClick() {
-    if (primaryCta.mode !== "start") {
-      return;
-    }
-
+  function startCycle() {
     setPendingPrimaryCta(primaryCta);
 
     dispatch({
@@ -288,6 +291,27 @@ export default function PlanOverviewPage() {
         startedAt: new Date().toISOString(),
       },
     });
+  }
+
+  function handlePrimaryCtaClick(event) {
+    if (primaryCta.mode !== "start") {
+      return;
+    }
+
+    if (!hasStoredSafetyAcknowledgement()) {
+      event.preventDefault();
+      setIsSafetyNoticeOpen(true);
+      return;
+    }
+
+    startCycle();
+  }
+
+  function handleSafetyConfirm() {
+    saveSafetyAcknowledgement();
+    setIsSafetyNoticeOpen(false);
+    startCycle();
+    navigate(primaryCta.to);
   }
 
   return (
@@ -529,6 +553,12 @@ export default function PlanOverviewPage() {
             aria-hidden="true"
           />
         </Link>
+
+        <FirstStartSafetySheet
+          isOpen={isSafetyNoticeOpen}
+          onClose={() => setIsSafetyNoticeOpen(false)}
+          onConfirm={handleSafetyConfirm}
+        />
       </div>
     </AppShell>
   );

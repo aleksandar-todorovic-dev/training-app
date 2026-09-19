@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import { UI_CONTAINER, UI_PAGE_PERFORMANCE } from "../../styles/ui";
 import { pageContentVariants } from "../../styles/motion";
 import PersistenceNotice from "../system/PersistenceNotice";
+import PublicInfoNav from "../system/PublicInfoNav";
 
 const MotionDiv = motion.div;
 
@@ -25,6 +26,7 @@ export default function AppShell({ children }) {
         >
           <PersistenceNotice />
           {children}
+          <PublicInfoNav />
         </MotionDiv>
       </main>
     </MotionConfig>

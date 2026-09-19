@@ -222,6 +222,13 @@ export default function ExerciseWorkflowCard({
                     {advancedTechnique}
                   </p>
 
+                  <p className="mt-3 border-l-2 border-[#F1B864]/45 pl-3 text-xs leading-5 text-[#AAB2BA]">
+                    Advanced intensity methods are optional. Skip them when
+                    normal working sets are not controlled, form is breaking
+                    down, fatigue is too high, or pain or joint irritation is
+                    present.
+                  </p>
+
                   {advancedTechniqueHelp ? (
                     <button
                       type="button"
