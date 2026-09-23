@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - phase-2-static-content
   pull_request:
     branches:
       - main
