@@ -395,7 +395,7 @@ export default function HomePage() {
         <div className="border-t border-[#232A31] pt-3">
           <button
             type="button"
-            className="mx-auto flex min-h-9 items-center justify-center gap-2 rounded-lg px-3 text-xs font-medium text-[#59646E] transition-colors hover:text-[#98A2AC]"
+            className="mx-auto flex min-h-9 items-center justify-center gap-2 rounded-lg px-3 text-xs font-medium text-[#7E8994] transition-colors hover:text-[#98A2AC]"
             onClick={handleResetLocalProgress}
           >
             <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />

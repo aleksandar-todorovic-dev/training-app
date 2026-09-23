@@ -10,7 +10,7 @@ const PUBLIC_INFO_LINKS = [
 export default function PublicInfoNav() {
   return (
     <nav className="mt-auto pt-6" aria-label="Public preview information">
-      <p className="text-[0.64rem] font-semibold uppercase tracking-[0.13em] text-[#59646E]">
+      <p className="text-[0.64rem] font-semibold uppercase tracking-[0.13em] text-[#7E8994]">
         Cycle Coach · Free preview · 18+
       </p>
 

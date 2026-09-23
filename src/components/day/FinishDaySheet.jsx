@@ -68,7 +68,9 @@ export default function FinishDaySheet({
     <BottomSheet
       onClose={onClose}
       labelledBy="finish-day-sheet-title"
-      describedBy="finish-day-sheet-description"
+      describedBy={`finish-day-sheet-description${
+        hasWarnings ? " finish-day-sheet-warning" : ""
+      }`}
       closeLabel="Keep logging"
     >
       <header className={UI_SHEET_HEADER}>
@@ -134,6 +136,7 @@ export default function FinishDaySheet({
         </section>
 
         <section
+          id={hasWarnings ? "finish-day-sheet-warning" : undefined}
           className={`mt-5 border-l-2 px-4 py-3.5 ${
             hasWarnings
               ? "border-[#F1B864] bg-[#F1B864]/[0.055]"

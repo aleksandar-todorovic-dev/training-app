@@ -111,7 +111,7 @@ export default function PublicInfoPage({ pageKey }) {
           ))}
         </div>
 
-        <p className="text-xs leading-5 text-[#66717C]">
+        <p className="text-xs leading-5 text-[#7E8994]">
           Effective date: {PUBLIC_INFO_EFFECTIVE_DATE}. These pages describe the
           current free public preview and should be updated if the product's
           data flows, business model, or release scope materially change.

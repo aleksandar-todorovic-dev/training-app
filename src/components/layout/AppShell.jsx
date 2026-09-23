@@ -16,7 +16,11 @@ export default function AppShell({ children }) {
 
   return (
     <MotionConfig reducedMotion="user">
-      <main className={`${UI_PAGE_PERFORMANCE} relative isolate w-full max-w-full`}>
+      <main
+        className={`${UI_PAGE_PERFORMANCE} relative isolate w-full max-w-full focus:outline-none`}
+        tabIndex={-1}
+        data-route-focus-target
+      >
         <MotionDiv
           key={location.pathname}
           className={`${UI_CONTAINER} w-full max-w-full`}
