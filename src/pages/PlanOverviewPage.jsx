@@ -1,5 +1,5 @@
 import { createElement, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion } from "motion/react";
 import {
   ArrowUpRight,
@@ -24,9 +24,14 @@ import { useAppState } from "../state/useAppState";
 import AppShell from "../components/layout/AppShell";
 import BackControl from "../components/common/BackControl";
 import GuardState from "../components/common/GuardState";
+import FirstStartSafetySheet from "../components/system/FirstStartSafetySheet";
 import { getPlanById } from "../data/plans";
 import { getDaysByPlanId } from "../data/days";
 import { revealPanelVariants } from "../styles/motion";
+import {
+  hasStoredSafetyAcknowledgement,
+  saveSafetyAcknowledgement,
+} from "../storage/safetyAcknowledgementStorage";
 
 const MotionSection = motion.section;
 
@@ -36,7 +41,7 @@ const PLAN_OVERVIEW_META = {
   "bulk-pro": {
     eyebrow: "Build phase",
     title: "Bulk Pro",
-    lead: "Build muscle through repeatable volume.",
+    lead: "Train for muscle growth through repeatable volume.",
     description:
       "A progression-focused bulk built for repeatable volume, productive workload, and clear next steps.",
     chips: [
@@ -85,9 +90,9 @@ const PLAN_OVERVIEW_META = {
   "cut-pro": {
     eyebrow: "Cut phase",
     title: "Cut Pro",
-    lead: "Preserve strength while managing fatigue.",
+    lead: "Train to maintain strength while managing fatigue.",
     description:
-      "A recovery-aware cut built to preserve strength, control fatigue, and keep momentum through real-life scheduling.",
+      "A recovery-aware cut structured around strength retention, fatigue control, and real-life scheduling.",
     chips: [
       { label: "Recovery aware", icon: Leaf },
       { label: "Fast logging", icon: Zap },
@@ -113,8 +118,8 @@ const PLAN_OVERVIEW_META = {
         icon: CalendarClock,
       },
       {
-        title: "Maintaining strength is already a win.",
-        body: "Protect what you have built.",
+        title: "Maintaining strength is a valid goal during a cut.",
+        body: "Keep training quality high.",
         icon: ShieldCheck,
       },
     ],
@@ -213,8 +218,10 @@ function CycleProgress({ value, total, meta }) {
  */
 export default function PlanOverviewPage() {
   const { planId } = useParams();
+  const navigate = useNavigate();
   const { state, dispatch } = useAppState();
   const [pendingPrimaryCta, setPendingPrimaryCta] = useState(null);
+  const [isSafetyNoticeOpen, setIsSafetyNoticeOpen] = useState(false);
 
   const plan = getPlanById(planId);
   const days = getDaysByPlanId(planId);
@@ -274,11 +281,7 @@ export default function PlanOverviewPage() {
     rhythmItems.slice(6, 9),
   ];
 
-  function handlePrimaryCtaClick() {
-    if (primaryCta.mode !== "start") {
-      return;
-    }
-
+  function startCycle() {
     setPendingPrimaryCta(primaryCta);
 
     dispatch({
@@ -288,6 +291,27 @@ export default function PlanOverviewPage() {
         startedAt: new Date().toISOString(),
       },
     });
+  }
+
+  function handlePrimaryCtaClick(event) {
+    if (primaryCta.mode !== "start") {
+      return;
+    }
+
+    if (!hasStoredSafetyAcknowledgement()) {
+      event.preventDefault();
+      setIsSafetyNoticeOpen(true);
+      return;
+    }
+
+    startCycle();
+  }
+
+  function handleSafetyConfirm() {
+    saveSafetyAcknowledgement();
+    setIsSafetyNoticeOpen(false);
+    startCycle();
+    navigate(primaryCta.to);
   }
 
   return (
@@ -518,7 +542,7 @@ export default function PlanOverviewPage() {
           </div>
 
           <div className="min-w-0 flex-1">
-            <h2 className="text-base font-semibold text-[#E5E8E3]">Coach guide</h2>
+            <h2 className="text-base font-semibold text-[#E5E8E3]">Training guide</h2>
             <p className="mt-0.5 text-sm leading-5 text-[#929CA6]">
               Learn how RIR, progression, recovery, and cycle structure work.
             </p>
@@ -529,6 +553,12 @@ export default function PlanOverviewPage() {
             aria-hidden="true"
           />
         </Link>
+
+        <FirstStartSafetySheet
+          isOpen={isSafetyNoticeOpen}
+          onClose={() => setIsSafetyNoticeOpen(false)}
+          onConfirm={handleSafetyConfirm}
+        />
       </div>
     </AppShell>
   );

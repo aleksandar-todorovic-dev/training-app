@@ -40,7 +40,7 @@ const HOME_VALUE_CHIPS = [
     icon: Dumbbell,
     title: "Know what to do next",
     description:
-      "Each session gives you the next exercise, targets, cues, warm-up guidance, coach notes, and a clear finish flow so you can focus on execution instead of piecing the workout together.",
+      "Each session gives you the next exercise, targets, cues, warm-up guidance, training notes, and a clear finish flow so you can focus on execution instead of piecing the workout together.",
   },
   {
     id: "previous-values",
@@ -395,7 +395,7 @@ export default function HomePage() {
         <div className="border-t border-[#232A31] pt-3">
           <button
             type="button"
-            className="mx-auto flex min-h-9 items-center justify-center gap-2 rounded-lg px-3 text-xs font-medium text-[#59646E] transition-colors hover:text-[#98A2AC]"
+            className="mx-auto flex min-h-9 items-center justify-center gap-2 rounded-lg px-3 text-xs font-medium text-[#7E8994] transition-colors hover:text-[#98A2AC]"
             onClick={handleResetLocalProgress}
           >
             <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />

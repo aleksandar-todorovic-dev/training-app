@@ -128,6 +128,7 @@ export default function CorePage() {
       !plan ||
       !dayDetails ||
       !coreBlock ||
+      !isCoreBlockForDay ||
       isUpcomingPreview ||
       !dayLog ||
       coreBlockLog
@@ -152,6 +153,7 @@ export default function CorePage() {
     dayDetails,
     coreBlock,
     coreExercises,
+    isCoreBlockForDay,
     isUpcomingPreview,
     dayLog,
     coreBlockLog,

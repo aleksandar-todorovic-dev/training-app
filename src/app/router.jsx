@@ -11,6 +11,7 @@ import CorePage from "../pages/CorePage";
 import GuidePage from "../pages/GuidePage";
 import EndCyclePage from "../pages/EndCyclePage";
 import NotFoundPage from "../pages/NotFoundPage";
+import PublicInfoPage from "../pages/PublicInfoPage";
 
 // Active MVP route map.
 // Warm-up and Finish day are sheet flows opened from DayPage, not standalone routes.
@@ -49,6 +50,22 @@ const router = createBrowserRouter([
       {
         path: "/plan/:planId/end-cycle",
         element: <EndCyclePage />,
+      },
+      {
+        path: "/privacy",
+        element: <PublicInfoPage pageKey="privacy" />,
+      },
+      {
+        path: "/preview-terms",
+        element: <PublicInfoPage pageKey="preview-terms" />,
+      },
+      {
+        path: "/fitness-safety",
+        element: <PublicInfoPage pageKey="fitness-safety" />,
+      },
+      {
+        path: "/contact",
+        element: <PublicInfoPage pageKey="contact" />,
       },
       {
         path: "*",

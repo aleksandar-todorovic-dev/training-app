@@ -3,6 +3,8 @@ import { useLocation } from "react-router-dom";
 
 import { UI_CONTAINER, UI_PAGE_PERFORMANCE } from "../../styles/ui";
 import { pageContentVariants } from "../../styles/motion";
+import PersistenceNotice from "../system/PersistenceNotice";
+import PublicInfoNav from "../system/PublicInfoNav";
 
 const MotionDiv = motion.div;
 
@@ -14,7 +16,11 @@ export default function AppShell({ children }) {
 
   return (
     <MotionConfig reducedMotion="user">
-      <main className={`${UI_PAGE_PERFORMANCE} relative isolate w-full max-w-full`}>
+      <main
+        className={`${UI_PAGE_PERFORMANCE} relative isolate w-full max-w-full focus:outline-none`}
+        tabIndex={-1}
+        data-route-focus-target
+      >
         <MotionDiv
           key={location.pathname}
           className={`${UI_CONTAINER} w-full max-w-full`}
@@ -22,7 +28,9 @@ export default function AppShell({ children }) {
           initial="hidden"
           animate="visible"
         >
+          <PersistenceNotice />
           {children}
+          <PublicInfoNav />
         </MotionDiv>
       </main>
     </MotionConfig>

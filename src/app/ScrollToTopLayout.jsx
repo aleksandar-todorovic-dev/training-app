@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Outlet, useLocation } from "react-router-dom";
 
 /**
@@ -10,14 +10,28 @@ import { Outlet, useLocation } from "react-router-dom";
  */
 export default function ScrollToTopLayout() {
   const { pathname } = useLocation();
+  const previousPathnameRef = useRef(pathname);
 
   useEffect(() => {
+    const isRouteChange = previousPathnameRef.current !== pathname;
+    previousPathnameRef.current = pathname;
+
     const frameId = window.requestAnimationFrame(() => {
       window.scrollTo({
         top: 0,
         left: 0,
         behavior: "auto",
       });
+
+      const hasOpenModal = document.querySelector(
+        '[role="dialog"][aria-modal="true"]',
+      );
+
+      if (isRouteChange && !hasOpenModal) {
+        document
+          .querySelector("[data-route-focus-target]")
+          ?.focus({ preventScroll: true });
+      }
     });
 
     return () => {

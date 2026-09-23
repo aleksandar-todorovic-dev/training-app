@@ -7,7 +7,7 @@ const PLAN_CARD_META = {
   "bulk-pro": {
     code: "BUILD / 01",
     badge: "Growth phase",
-    promise: "Build muscle through repeatable volume and clear progression.",
+    promise: "Train for muscle growth with repeatable volume and clear progression.",
     chips: ["Growth", "Progression", "Volume"],
     icon: TrendingUp,
     accentBar: "bg-[#B8F36B]",
@@ -18,7 +18,7 @@ const PLAN_CARD_META = {
   "cut-pro": {
     code: "PRESERVE / 02",
     badge: "Cut phase",
-    promise: "Preserve strength while keeping fatigue under control.",
+    promise: "Train to maintain strength while keeping fatigue under control.",
     chips: ["Retention", "Fatigue control", "Recovery aware"],
     icon: TrendingDown,
     accentBar: "bg-[#F1B864]",

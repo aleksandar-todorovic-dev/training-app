@@ -74,7 +74,7 @@ export default function DayCard({
         </p>
 
         {meta ? (
-          <p className="mt-0.5 line-clamp-1 text-xs text-[#68737D]">{meta}</p>
+          <p className="mt-0.5 line-clamp-1 text-xs text-[#7E8994]">{meta}</p>
         ) : null}
       </div>
 

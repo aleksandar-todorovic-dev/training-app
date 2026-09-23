@@ -45,7 +45,7 @@ export default function SessionInfoCard({ sessionInfo, dayGoal, coreBlock }) {
         aria-controls={contentId}
       >
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-[#DCE1E2]">Coach notes</p>
+          <p className="text-sm font-semibold text-[#DCE1E2]">Training notes</p>
           <p className="mt-0.5 text-xs leading-5 text-[#77818B]">
             {helperText}
           </p>

@@ -47,7 +47,7 @@ function scrollToPageTop() {
 }
 
 /**
- * Page-level coach library for one predefined plan.
+ * Page-level training guide for one predefined plan.
  *
  * Runtime boundary:
  * GuidePage reads static educational content and uses local UI state for
@@ -93,10 +93,10 @@ export default function GuidePage() {
 
     return (
       <GuardState
-        eyebrow="Coach library"
+        eyebrow="Training guide"
         context={plan?.name}
         title="This guide could not be loaded."
-        description="Return to a valid plan and reopen its coaching library from the plan overview."
+        description="Return to a valid plan and reopen its training guide from the plan overview."
         primaryTo={fallbackTo}
         primaryLabel={fallbackLabel}
       />
@@ -122,7 +122,7 @@ export default function GuidePage() {
                 <p
                   className={`text-[0.68rem] font-semibold uppercase tracking-[0.14em] ${tone.accentText}`}
                 >
-                  Coach library
+                  Training guide
                 </p>
 
                 <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#77818B]">
