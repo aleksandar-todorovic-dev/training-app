@@ -13,7 +13,7 @@ Continuity across the cycle.
 
 Users can see what to do, how to approach it, what they logged previously, and what comes next. The cycle-based structure keeps training order stable when real-life schedules change without turning flexibility into random workout selection.
 
-The current release is intentionally local-first and MVP-scoped. It focuses on validating the product flow, training-state model, persistence logic, educational layer, and mobile workout experience before adding accounts, cloud sync, payments, or broader customization.
+Version 0.6.0 is the current **Limited Public Preview** release. The MVP remains intentionally local-first and focused on validating the product flow, training-state model, persistence logic, educational layer, and mobile workout experience before accounts, cloud sync, payments, or broader customization are introduced.
 
 ---
 
@@ -21,9 +21,7 @@ The current release is intentionally local-first and MVP-scoped. It focuses on v
 
 Firebase Hosting:
 
-```text
-https://training-app-mvp.web.app
-```
+[Open Cycle Coach](https://training-app-mvp.web.app/)
 
 Current application version:
 
@@ -46,6 +44,7 @@ Workout progress is stored locally in the browser. Normal Firebase Hosting reque
 ## Table of Contents
 
 - [Overview](#overview)
+- [Screenshots](#screenshots)
 - [Core Features](#core-features)
 - [App Flow](#app-flow)
 - [Public Preview Surfaces](#public-preview-surfaces)
@@ -59,7 +58,6 @@ Workout progress is stored locally in the browser. Normal Firebase Hosting reque
 - [Tech Stack](#tech-stack)
 - [Running Locally](#running-locally)
 - [Verification](#verification)
-- [Screenshots](#screenshots)
 - [Current Status](#current-status)
 - [MVP Scope](#mvp-scope)
 - [Known MVP Limitations](#known-mvp-limitations)
@@ -115,6 +113,31 @@ Know what to do.
 Know how to approach it.
 Know what comes next.
 ```
+
+---
+
+## Screenshots
+
+Real **v0.6.0 — Limited Public Preview** production screens in the **Cold Performance / Structured Coaching** interface, using isolated demonstration progress.
+
+Follow the flow from plan selection through an active Bulk Pro cycle, exercise and Core logging, training guidance, and a completed-cycle recap. Each full image is captured at **390 × 844 CSS pixels, DPR 2** (780 × 1688 PNG). Select a thumbnail to open the full-resolution image.
+
+<p align="center">
+   <a href="docs/screenshots/home.png"><img src="docs/screenshots/thumbs/home.png" alt="Cycle Coach home with four training benefits and plan selection" width="230" /></a>
+   <a href="docs/screenshots/plan-overview.png"><img src="docs/screenshots/thumbs/plan-overview.png" alt="Bulk Pro overview with Cycle 2 progress and the plan contract" width="230" /></a>
+   <a href="docs/screenshots/cycle-dashboard.png"><img src="docs/screenshots/thumbs/cycle-dashboard.png" alt="Bulk Pro Cycle 2 dashboard with 3 of 6 days closed and D4 current" width="230" /></a>
+</p>
+
+<p align="center">
+   <a href="docs/screenshots/day-screen.png"><img src="docs/screenshots/thumbs/day-screen.png" alt="D4 Shoulders and Arms Light with the next exercise and workout sequence" width="230" /></a>
+   <a href="docs/screenshots/exercise-logging.png"><img src="docs/screenshots/thumbs/exercise-logging.png" alt="Standing Overhead Press logging with two performed sets and previous values" width="230" /></a>
+   <a href="docs/screenshots/core-workflow.png"><img src="docs/screenshots/thumbs/core-workflow.png" alt="D4 Core B support work with Hanging Knee Raise instructions and logged sets" width="230" /></a>
+</p>
+
+<p align="center">
+   <a href="docs/screenshots/guide.png"><img src="docs/screenshots/thumbs/guide.png" alt="Bulk Pro Guide explaining progression and practical training rules" width="230" /></a>
+   <a href="docs/screenshots/end-cycle.png"><img src="docs/screenshots/thumbs/end-cycle.png" alt="Completed Cycle 2 recap with 52 logged exercises, two partial days, and three Core blocks" width="230" /></a>
+</p>
 
 ---
 
@@ -433,8 +456,8 @@ High-level state shape:
 
 ```js
 {
-  selectedPlanId: null,
-  progressByPlan: {}
+   selectedPlanId: null,
+   progressByPlan: {}
 }
 ```
 
@@ -482,12 +505,12 @@ Stored wrapper:
 
 ```js
 {
-  version: 1,
-  savedAt: "ISO timestamp",
-  state: {
-    selectedPlanId: null,
-    progressByPlan: {}
-  }
+   version: 1,
+   savedAt: "ISO timestamp",
+   state: {
+     selectedPlanId: null,
+     progressByPlan: {}
+   }
 }
 ```
 
@@ -531,14 +554,14 @@ High-level structure:
 
 ```text
 src/data/
-  plans/
-  days/
-  dayDetails/
-  exercises/
-  core/
-  warmups/
-  guides/
-  contextualHelp/
+   plans/
+   days/
+   dayDetails/
+   exercises/
+   core/
+   warmups/
+   guides/
+   contextualHelp/
 ```
 
 Static data owns:
@@ -571,9 +594,9 @@ Example:
 
 ```js
 {
-  id: "smith-bench-press",
-  prescription: "4 x 5-7",
-  setCount: 4
+   id: "smith-bench-press",
+   prescription: "4 x 5-7",
+   setCount: 4
 }
 ```
 
@@ -581,8 +604,8 @@ Core exercises also use metadata such as:
 
 ```js
 {
-  logType: "reps" | "time",
-  tracksLoad: true | false
+   logType: "reps" | "time",
+   tracksLoad: true | false
 }
 ```
 
@@ -686,14 +709,14 @@ Desktop intentionally uses a centered mobile-first app shell rather than a full 
 
 ```text
 src/
-  app/
-  components/
-  data/
-  pages/
-  state/
-  storage/
-  styles/
-  utils/
+   app/
+   components/
+   data/
+   pages/
+   state/
+   storage/
+   styles/
+   utils/
 ```
 
 Key areas:
@@ -740,14 +763,14 @@ This project uses npm and includes a committed `package-lock.json`.
 Recommended environment:
 
 ```text
-Node.js 20+
+Node.js 22 recommended (matches CI)
 npm
 ```
 
-Install dependencies:
+Install the locked dependency tree:
 
 ```bash
-npm install
+npm ci
 ```
 
 Start development server:
@@ -778,38 +801,41 @@ npm run preview
 
 ## Verification
 
-The current limited-public-preview release gate includes:
+The v0.6.0 release was verified across the approved release candidate, merged `main`, Firebase Hosting production, and a final browser smoke test.
 
-```bash
-git diff --check
-npm run lint
-npm run build
-npm audit
-npm audit --omit=dev
-```
-
-Current pre-merge verification status:
+Release checkpoint:
 
 ```text
-git diff check passed
-lint passed
-production build passed
-npm audit passed with 0 vulnerabilities
-npm audit --omit=dev passed with 0 vulnerabilities
-final whole-app release audit passed
-targeted Core-route blocker regression passed
-QA Firebase Hosting preview refreshed from the approved candidate
-published QA assets matched the local production build
-expected Firebase Hosting security headers verified
+main commit: a2af280392be3ef091dd492cc2a595da1a8337c2
+tag: v0.6.0
+release: v0.6.0 — Limited Public Preview
 ```
+
+Verified release gates:
+
+- final whole-app release audit -> PASS
+- targeted invalid-Core-route regression for Bulk Pro and Cut Pro -> PASS
+- GitHub Actions CI on merged `main` -> PASS
+- `npm ci` -> PASS
+- `git diff --check` -> PASS
+- `npm run lint` -> PASS
+- `npm run build` -> PASS
+- `npm audit` -> 0 vulnerabilities
+- `npm audit --omit=dev` -> 0 vulnerabilities
+- Firebase Hosting production deploy -> PASS
+- production JS/CSS asset identity -> matched the approved build
+- production Hosting security headers -> verified
+- production browser smoke -> PASS
+- Git tag `v0.6.0` -> published
+- GitHub Release `v0.6.0 — Limited Public Preview` -> published
 
 The final release audit initially found one persistent-state blocker involving an invalid Core deep link. The issue was fixed with a minimal route-guard change and then rechecked for both Bulk Pro and Cut Pro before the release gate was marked PASS.
 
-Production deployment and a final production smoke check are the remaining environment-level closeout steps before external preview use.
+The final production smoke covered the live app load, public-info routes and direct refresh, first-start safety acknowledgement, set logging with refresh persistence, partial-day close behavior, and a final console/network/mobile-layout sanity check.
 
 ### Hosting hardening
 
-Firebase Hosting currently sends:
+Production Firebase Hosting currently sends:
 
 - Content-Security-Policy
 - `X-Content-Type-Options: nosniff`
@@ -817,31 +843,11 @@ Firebase Hosting currently sends:
 - `Referrer-Policy: strict-origin-when-cross-origin`
 - Permissions Policy disabling geolocation, camera, and microphone
 
-Firebase preview channels also carry the expected `noindex` behavior.
+Firebase preview channels also carry the expected `noindex` behavior. The production host was verified without the preview-only `x-robots-tag`.
 
 ### Build note
 
 Vite may report a chunk-size warning above 500 kB after production build. This is currently accepted as a non-blocking MVP limitation and can be revisited post-MVP with route-level code splitting if needed.
-
----
-
-## Screenshots
-
-The screenshot slots below represent the main mobile-first product flow. The image files should be refreshed with the current Cold Performance / Structured Coaching redesign before the repository is presented publicly.
-
-<p>
-  <a href="docs/screenshots/home.png"><img src="docs/screenshots/thumbs/home.png" alt="Cycle Coach home screen" width="180" /></a>
-  <a href="docs/screenshots/plan-overview.png"><img src="docs/screenshots/thumbs/plan-overview.png" alt="Cycle Coach plan overview screen" width="180" /></a>
-  <a href="docs/screenshots/cycle-dashboard.png"><img src="docs/screenshots/thumbs/cycle-dashboard.png" alt="Cycle Coach cycle dashboard screen" width="180" /></a>
-  <a href="docs/screenshots/day-screen.png"><img src="docs/screenshots/thumbs/day-screen.png" alt="Cycle Coach day screen" width="180" /></a>
-</p>
-
-<p>
-  <a href="docs/screenshots/exercise-logging.png"><img src="docs/screenshots/thumbs/exercise-logging.png" alt="Cycle Coach exercise logging screen" width="180" /></a>
-  <a href="docs/screenshots/core-workflow.png"><img src="docs/screenshots/thumbs/core-workflow.png" alt="Cycle Coach Core workflow screen" width="180" /></a>
-  <a href="docs/screenshots/guide.png"><img src="docs/screenshots/thumbs/guide.png" alt="Cycle Coach training guide screen" width="180" /></a>
-  <a href="docs/screenshots/end-cycle.png"><img src="docs/screenshots/thumbs/end-cycle.png" alt="Cycle Coach end-cycle recap screen" width="180" /></a>
-</p>
 
 ---
 
@@ -851,9 +857,9 @@ The screenshot slots below represent the main mobile-first product flow. The ima
 0.6.0 — Limited Public Preview
 ```
 
-The local-first MVP is implemented and has passed the final pre-merge release gate.
+The local-first MVP is now merged into `main`, deployed to production Firebase Hosting, production-smoke verified, tagged, and published as **v0.6.0 — Limited Public Preview**.
 
-Completed release-readiness work includes:
+Completed release work includes:
 
 - structured Bulk Pro / Cut Pro runtime
 - cycle-based workout flow
@@ -866,20 +872,19 @@ Completed release-readiness work includes:
 - Firebase Hosting security headers
 - targeted accessibility smoke and fixes
 - final whole-app read-only release audit
-- confirmed Core-route blocker fix
+- confirmed invalid-Core-route blocker fix
 - final targeted blocker re-check with PASS
+- merge of the approved release candidate into `main`
+- merged-main CI, lint, build, and dependency-audit verification
+- production Firebase Hosting deployment
+- production asset and security-header verification
+- production browser smoke
+- `v0.6.0` tag
+- published GitHub Release
 
-Remaining release-closeout work:
+**v0.6.0 — Limited Public Preview** is released. The source-of-truth documentation is synchronized, and the redesigned screenshot gallery is complete. Targeted real-user validation is the next product stage; observed usage and feedback will inform future product decisions.
 
-```text
-merge approved release candidate -> main
-run main-branch verification
-deploy main to production Firebase Hosting
-run production smoke / network / storage / header checks
-begin limited external validation
-```
-
-The repository contains an older private-preview history, but the current README describes the present limited-public-preview candidate and current MVP behavior.
+The repository still preserves older private-preview history, but the current code, README, live deployment, and release metadata describe the present v0.6.0 Limited Public Preview.
 
 ---
 
@@ -957,7 +962,6 @@ Possible post-MVP directions:
 - machine setup guidance
 - rest/LISS module
 - improved desktop layout
-- refreshed portfolio screenshot gallery and case study
 - automated test coverage
 
 These are intentionally outside the current local-first MVP scope.
@@ -981,7 +985,7 @@ This project was built as a complete product-style MVP, not only as a UI prototy
 - using contextual guidance and progressive disclosure
 - modeling honest partial completion instead of forcing perfect states
 - maintaining a clear MVP boundary around local-first behavior
-- preparing a real product for limited external validation
+- shipping a real product into limited external validation
 
 ### Frontend architecture
 
@@ -1005,8 +1009,9 @@ This project was built as a complete product-style MVP, not only as a UI prototy
 - dependency and Hosting security review
 - accessibility regression smoke
 - lint, build, and audit verification
-- Firebase Hosting preview validation
+- Firebase Hosting preview and production validation
 - GitHub Actions CI
+- production release tagging and GitHub Release workflow
 - explicit scope decisions, accepted limitations, and post-MVP boundaries
 
 ---
