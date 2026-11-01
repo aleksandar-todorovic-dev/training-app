@@ -1,12 +1,16 @@
 import { Link } from "react-router-dom";
 import { Check, ChevronRight, ShieldCheck } from "lucide-react";
 
-function getStatusLabel(status) {
-  if (status === "Logged") {
-    return "Logged";
+function getStatusLabel(status, isClosed) {
+  if (status === "complete") {
+    return "Complete";
   }
 
-  if (status === "Partial") {
+  if (isClosed) {
+    return status === "partial" ? "Closed partial" : "Closed";
+  }
+
+  if (status === "partial") {
     return "Partial";
   }
 
@@ -25,11 +29,12 @@ export default function CoreBlockCard({
   dayId,
   coreBlock,
   status,
+  isClosed = false,
   coreExerciseCount = 3,
 }) {
-  const isLogged = status === "Logged";
-  const isPartial = status === "Partial";
-  const statusLabel = getStatusLabel(status);
+  const isComplete = status === "complete";
+  const isPartial = status === "partial";
+  const statusLabel = getStatusLabel(status, isClosed);
 
   return (
     <Link
@@ -39,14 +44,14 @@ export default function CoreBlockCard({
       <div
         className={[
           "flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border",
-          isLogged
+          isComplete
             ? "border-[#79C89A]/24 bg-[#79C89A]/8 text-[#9BD8B2]"
             : isPartial
               ? "border-[#F1B864]/24 bg-[#F1B864]/8 text-[#F4C87F]"
               : "border-[#A7A2D8]/24 bg-[#A7A2D8]/8 text-[#C2BEE7]",
         ].join(" ")}
       >
-        {isLogged ? (
+        {isComplete ? (
           <Check className="h-4 w-4" strokeWidth={2.25} aria-hidden="true" />
         ) : (
           <ShieldCheck className="h-4 w-4" aria-hidden="true" />
@@ -62,7 +67,7 @@ export default function CoreBlockCard({
           <span
             className={[
               "shrink-0 pt-0.5 text-[0.62rem] font-semibold uppercase tracking-[0.11em]",
-              isLogged
+              isComplete
                 ? "text-[#8FD0A8]"
                 : isPartial
                   ? "text-[#F4C87F]"

@@ -6,13 +6,14 @@ export default function DayCard({
   day,
   status,
   statusDetail,
+  coreDetail,
   meta,
   mode = "upcoming",
   evidenceState = "upcoming",
 }) {
   const isFinished = mode === "finished";
   const isPartial = evidenceState === "partial";
-  const isLogged = evidenceState === "logged";
+  const isComplete = evidenceState === "complete";
   const compactStatus = statusDetail ? `${status} · ${statusDetail}` : status;
   const title = isFinished ? `${day.label} ${day.name}` : day.name;
 
@@ -24,13 +25,13 @@ export default function DayCard({
       <div
         className={[
           "relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-sm font-bold",
-          isLogged
+          isComplete
             ? "border-[#79C89A]/28 bg-[#79C89A]/[0.08] text-[#9BD8B1]"
             : "",
           isPartial
             ? "border-[#F1B864]/30 bg-[#F1B864]/[0.08] text-[#F4C87F]"
             : "",
-          isFinished && !isLogged && !isPartial
+          isFinished && !isComplete && !isPartial
             ? "border-[#3A434C] bg-[#171D22] text-[#8D969E]"
             : "",
           !isFinished
@@ -62,16 +63,20 @@ export default function DayCard({
         </h3>
 
         <p
-          className={`mt-0.5 line-clamp-1 text-xs font-semibold ${
+          className={`mt-0.5 text-xs font-semibold leading-5 ${
             isPartial
               ? "text-[#D9B06F]"
-              : isLogged
+              : isComplete
                 ? "text-[#8FCDA6]"
                 : "text-[#8D969E]"
           }`}
         >
           {compactStatus}
         </p>
+
+        {coreDetail ? (
+          <p className="mt-0.5 text-xs leading-5 text-[#C5C1E7]">{coreDetail}</p>
+        ) : null}
 
         {meta ? (
           <p className="mt-0.5 line-clamp-1 text-xs text-[#7E8994]">{meta}</p>

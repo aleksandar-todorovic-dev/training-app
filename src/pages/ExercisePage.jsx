@@ -12,6 +12,7 @@ import ExerciseWorkflowCard from "../components/exercise/ExerciseWorkflowCard";
 import { sanitizeSetInputValue } from "../utils/runtime/setInputHelpers";
 import { hasCarryOverValuesForExercise } from "../utils/runtime/carryOverHelpers";
 import { getDayMode } from "../utils/runtime/dayModeHelpers";
+import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
 
 /**
  * Builds display-only rows for upcoming exercise previews.
@@ -35,7 +36,7 @@ function buildStaticExerciseRows(exercise) {
   }));
 }
 
-function getExerciseState({ dayMode, sets }) {
+function getExerciseState({ dayMode, exerciseLog }) {
   if (dayMode === "upcoming") {
     return {
       label: "Preview",
@@ -50,16 +51,23 @@ function getExerciseState({ dayMode, sets }) {
     };
   }
 
-  const completedSetCount = sets.filter((set) => set.isDone).length;
+  const status = getExerciseStatus(exerciseLog);
 
-  if (sets.length > 0 && completedSetCount === sets.length) {
+  if (status === "complete") {
     return {
-      label: "Logged",
+      label: "Complete",
       className: "text-[#79C89A]",
     };
   }
 
-  if (completedSetCount > 0) {
+  if (exerciseLog?.closedAt) {
+    return {
+      label: status === "partial" ? "Closed partial" : "Closed",
+      className: status === "partial" ? "text-[#F1B864]" : "text-[#AAB2BA]",
+    };
+  }
+
+  if (status === "partial") {
     return {
       label: "In progress",
       className: "text-[#F1B864]",
@@ -190,22 +198,23 @@ export default function ExercisePage() {
     });
   }
 
-  // Close intent is stored on the exercise log; set completion remains derived
-  // from set rows.
+  // Edits are autosaved. Reviewing a closed workflow only navigates back.
   function handleCloseExercise() {
     if (isUpcomingPreview) {
       return;
     }
 
-    dispatch({
-      type: APP_ACTIONS.MARK_EXERCISE_CLOSED,
-      payload: {
-        planId,
-        dayId,
-        exerciseId,
-        closedAt: new Date().toISOString(),
-      },
-    });
+    if (dayMode !== "finished" && !exerciseLog?.closedAt) {
+      dispatch({
+        type: APP_ACTIONS.MARK_EXERCISE_CLOSED,
+        payload: {
+          planId,
+          dayId,
+          exerciseId,
+          closedAt: new Date().toISOString(),
+        },
+      });
+    }
 
     navigate(`/plan/${planId}/day/${dayId}`);
   }
@@ -261,7 +270,7 @@ export default function ExercisePage() {
 
   const exerciseState = getExerciseState({
     dayMode,
-    sets: displaySets,
+    exerciseLog,
   });
 
   return (
@@ -301,6 +310,7 @@ export default function ExercisePage() {
           isReadOnly={isUpcomingPreview}
           hasPreviousValues={hasPreviousValues}
           dayMode={dayMode}
+          isClosed={Boolean(exerciseLog?.closedAt)}
           onToggleSetDone={handleToggleSetDone}
           onUpdateSetField={handleUpdateSetField}
           onCloseExercise={handleCloseExercise}

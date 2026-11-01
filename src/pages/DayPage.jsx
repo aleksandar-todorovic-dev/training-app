@@ -13,6 +13,10 @@ import { useAppState } from "../state/useAppState";
 import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
 import { getCoreBlockStatus } from "../utils/runtime/coreStatusHelpers";
 import { getDayMode } from "../utils/runtime/dayModeHelpers";
+import {
+  getWorkoutProgress,
+  getPerformedSetLabel,
+} from "../utils/runtime/workoutProgressHelpers";
 
 import AppShell from "../components/layout/AppShell";
 import BackControl from "../components/common/BackControl";
@@ -32,16 +36,6 @@ import { getWarmupById } from "../data/warmups";
 
 // DayPage display helpers derive labels and next-action data from existing
 // content and runtime logs without mutating workout state.
-function getDoneMainExerciseCount(dayLog) {
-  if (!dayLog) {
-    return 0;
-  }
-
-  return Object.values(dayLog.mainExerciseLogs).filter(
-    (exerciseLog) => getExerciseStatus(exerciseLog) === "complete",
-  ).length;
-}
-
 function getNextActionableExercise({ exercises, dayLog }) {
   if (!exercises.length) {
     return null;
@@ -130,45 +124,16 @@ function getModeCopy(dayMode) {
   return null;
 }
 
-function getExerciseStatusLabel(exercise, dayLog) {
-  const exerciseLog = dayLog?.mainExerciseLogs?.[exercise.id];
-  const status = getExerciseStatus(exerciseLog);
-
-  if (status === "complete") {
-    return "Logged";
-  }
-
-  if (status === "partial") {
-    return "Partial";
-  }
-
-  return "Not started";
-}
-
-function getCoreStatusLabel(coreBlockLog) {
-  const status = getCoreBlockStatus(coreBlockLog);
-
-  if (status === "complete") {
-    return "Logged";
-  }
-
-  if (status === "partial") {
-    return "Partial";
-  }
-
-  return "Not started";
-}
-
 function getProgressSegmentClass(status, isNext) {
   if (isNext) {
     return "bg-[#B8F36B]";
   }
 
-  if (status === "Logged") {
+  if (status === "complete") {
     return "bg-[#79C89A]";
   }
 
-  if (status === "Partial") {
+  if (status === "partial") {
     return "bg-[#F1B864]";
   }
 
@@ -257,12 +222,9 @@ export default function DayPage() {
     });
   }, [dispatch, plan, planId, dayDetails, exercises, dayMode]);
 
-  const totalExerciseCount = dayLog
-    ? Object.keys(dayLog.mainExerciseLogs).length
-    : (dayDetails?.exerciseIds.length ?? 0);
-
-  const completedExerciseCount = getDoneMainExerciseCount(dayLog);
-  const progressText = `${completedExerciseCount}/${totalExerciseCount} exercises logged`;
+  const progress = getWorkoutProgress(dayLog, dayDetails?.exerciseIds);
+  const { totalExerciseCount, completedExerciseCount, performedMainSetCount } =
+    progress;
 
   const nextAction = getNextActionableExercise({
     exercises,
@@ -278,10 +240,10 @@ export default function DayPage() {
 
   const exerciseStatuses = exercises.map((exercise) => ({
     exerciseId: exercise.id,
-    status: getExerciseStatusLabel(exercise, dayLog),
+    status: getExerciseStatus(dayLog?.mainExerciseLogs?.[exercise.id]),
   }));
 
-  const coreStatusLabel = getCoreStatusLabel(coreBlockLog);
+  const coreStatus = getCoreBlockStatus(coreBlockLog);
   const modeCopy = getModeCopy(dayMode);
   const isActiveDay = dayMode === "active";
 
@@ -369,9 +331,14 @@ export default function DayPage() {
 
         <section aria-label="Main exercise progress">
           <div className="flex items-baseline justify-between gap-3">
-            <p className="text-sm font-semibold text-[#E1E5E5]">
-              {completedExerciseCount}/{totalExerciseCount} main exercises logged
-            </p>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-[#E1E5E5]">
+                {getPerformedSetLabel(performedMainSetCount, "main")}
+              </p>
+              <p className="mt-1 text-xs text-[#AAB2BA]">
+                {completedExerciseCount}/{totalExerciseCount} exercises complete
+              </p>
+            </div>
             <p
               className={[
                 "shrink-0 text-[0.65rem] font-semibold uppercase tracking-[0.11em]",
@@ -499,14 +466,14 @@ export default function DayPage() {
           ) : (
             <section className="rounded-[1.25rem] border border-[#B8F36B]/24 bg-[#B8F36B]/[0.045] p-4 shadow-[0_18px_38px_rgba(0,0,0,0.22)]">
               <p className="text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-[#C8F78F]">
-                Main work closed
+                Day checkpoint
               </p>
               <h2 className="mt-3 text-[1.45rem] font-semibold leading-tight tracking-tight text-[#F3F5F1]">
                 Ready to finish day
               </h2>
               <p className="mt-2 text-sm leading-6 text-[#AAB2BA]">
-                All main exercise workflows are closed. Review anything you need,
-                then move the cycle forward when ready.
+                All main exercises are complete or closed. Review anything you
+                need, then move the cycle forward when ready.
               </p>
               <button
                 type="button"
@@ -549,7 +516,12 @@ export default function DayPage() {
                 planId={planId}
                 dayId={dayId}
                 exercise={exercise}
-                status={getExerciseStatusLabel(exercise, dayLog)}
+                status={getExerciseStatus(
+                  dayLog?.mainExerciseLogs?.[exercise.id],
+                )}
+                isClosed={Boolean(
+                  dayLog?.mainExerciseLogs?.[exercise.id]?.closedAt,
+                )}
                 orderNumber={index + 1}
                 isNext={nextExercise?.id === exercise.id && isActiveDay}
                 isLast={!coreBlock && index === exercises.length - 1}
@@ -561,7 +533,8 @@ export default function DayPage() {
                 planId={planId}
                 dayId={dayId}
                 coreBlock={coreBlock}
-                status={coreStatusLabel}
+                status={coreStatus}
+                isClosed={Boolean(coreBlockLog?.closedAt)}
                 coreExerciseCount={coreExerciseCount}
               />
             ) : null}
@@ -599,7 +572,7 @@ export default function DayPage() {
           <FinishDaySheet
             key="finish-day-sheet"
             dayDetails={dayDetails}
-            progressText={progressText}
+            progress={progress}
             hasCoreBlock={Boolean(coreBlock)}
             missingValueWarningSummary={missingValueWarningSummary}
             onClose={() => setIsFinishDayOpen(false)}

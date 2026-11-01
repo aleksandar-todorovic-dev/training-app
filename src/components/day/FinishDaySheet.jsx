@@ -8,6 +8,7 @@ import {
 import BottomSheet from "../common/BottomSheet";
 import PrimaryButton from "../common/PrimaryButton";
 import SecondaryButton from "../common/SecondaryButton";
+import { getPerformedSetLabel } from "../../utils/runtime/workoutProgressHelpers";
 import {
   UI_SHEET_BODY,
   UI_SHEET_FOOTER,
@@ -24,7 +25,7 @@ import {
  */
 export default function FinishDaySheet({
   dayDetails,
-  progressText,
+  progress,
   hasCoreBlock = false,
   missingValueWarningSummary,
   onClose,
@@ -34,16 +35,16 @@ export default function FinishDaySheet({
 
   const warningSummary = missingValueWarningSummary ?? {};
   const hasWarnings = Boolean(warningSummary.hasWarnings);
-  const hasNoLoggedValues = Boolean(warningSummary.hasNoCompletedSetsWarning);
+  const hasNoPerformedSets = Boolean(warningSummary.hasNoCompletedSetsWarning);
   const isBaselineWarning = warningSummary.warningType === "baseline";
 
-  const warningTitle = hasNoLoggedValues
+  const warningTitle = hasNoPerformedSets
     ? "No performed sets yet"
     : isBaselineWarning
       ? "Baseline heads-up"
       : "Carry-over heads-up";
 
-  const warningText = hasNoLoggedValues
+  const warningText = hasNoPerformedSets
     ? "You can still close the day. Unchecked work stays unperformed and the cycle continues."
     : isBaselineWarning
       ? "Some performed sets have empty fields. Reps, time, and RIR create a more useful baseline for future cycles."
@@ -99,8 +100,17 @@ export default function FinishDaySheet({
           className="mt-4 border-t border-[#2A3138] pt-4"
         >
           <p className="text-sm font-semibold text-[#E4E8E3]">
-            {progressText}
+            {getPerformedSetLabel(progress.performedMainSetCount, "main")}
           </p>
+          <p className="mt-1 text-xs text-[#AAB2BA]">
+            {progress.completedExerciseCount}/{progress.totalExerciseCount} main
+            exercises complete
+          </p>
+          {hasCoreBlock && progress.performedCoreSetCount > 0 ? (
+            <p className="mt-1 text-xs font-semibold text-[#C5C1E7]">
+              {getPerformedSetLabel(progress.performedCoreSetCount, "Core")}
+            </p>
+          ) : null}
           <p className="mt-1 text-sm leading-6 text-[#AAB2BA]">
             Closing records this day as finished and moves the cycle to the next
             planned workout.
@@ -173,7 +183,7 @@ export default function FinishDaySheet({
                   : "Your performed work is saved for this day."}
               </p>
 
-              {!hasNoLoggedValues && warningDetails.length ? (
+              {!hasNoPerformedSets && warningDetails.length ? (
                 <ul className="mt-2 space-y-1 text-xs leading-5 text-[#AAB2BA]">
                   {warningDetails.map((detail) => (
                     <li key={detail}>{detail}</li>

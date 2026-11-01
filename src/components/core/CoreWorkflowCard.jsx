@@ -96,7 +96,7 @@ function getExerciseState(coreExerciseLog) {
 
   if (status === "complete") {
     return {
-      label: "Logged",
+      label: "Complete",
       className: "text-[#79C89A]",
     };
   }
@@ -299,11 +299,8 @@ export default function CoreWorkflowCard({
   const showDoneControls = !isReadOnly;
   const isSavedLog = dayMode === "finished";
   const isClosedLog = Boolean(coreBlockLog?.closedAt);
-  const finishButtonLabel = isSavedLog
-    ? "Save changes"
-    : isClosedLog
-      ? "Save core changes"
-      : "Finish core block";
+  const finishButtonLabel =
+    isSavedLog || isClosedLog ? "Return to day" : "Finish core block";
 
   const totalSetCount = exercises.reduce(
     (total, exercise) => total + (exercise.setCount ?? 0),
