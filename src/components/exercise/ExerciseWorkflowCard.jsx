@@ -89,6 +89,7 @@ export default function ExerciseWorkflowCard({
   isReadOnly = false,
   hasPreviousValues = false,
   dayMode = "inactive",
+  isClosed = false,
   onToggleSetDone,
   onUpdateSetField,
   onCloseExercise,
@@ -129,7 +130,8 @@ export default function ExerciseWorkflowCard({
   const hasCoachNotes = Boolean(progression) || extraCues.length > 0;
 
   const isClosedLog = dayMode === "finished";
-  const finishButtonLabel = isClosedLog ? "Save changes" : "Finish exercise";
+  const finishButtonLabel =
+    isClosedLog || isClosed ? "Return to day" : "Finish exercise";
   const completedSetCount = sets.filter((set) => set.isDone).length;
   const setProgressLabel = `${completedSetCount} of ${sets.length} performed`;
 

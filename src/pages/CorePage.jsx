@@ -34,7 +34,7 @@ function getCorePageState({ dayMode, coreBlockLog }) {
   if (coreBlockLog?.closedAt) {
     if (coreStatus === "complete") {
       return {
-        label: "Logged",
+        label: "Complete",
         className: "text-[#79C89A]",
       };
     }
@@ -54,7 +54,7 @@ function getCorePageState({ dayMode, coreBlockLog }) {
 
   if (coreStatus === "complete") {
     return {
-      label: "Logged",
+      label: "Complete",
       className: "text-[#79C89A]",
     };
   }
@@ -204,14 +204,16 @@ export default function CorePage() {
       return;
     }
 
-    dispatch({
-      type: APP_ACTIONS.MARK_CORE_BLOCK_CLOSED,
-      payload: {
-        planId,
-        dayId,
-        closedAt: new Date().toISOString(),
-      },
-    });
+    if (dayMode !== "finished" && !coreBlockLog?.closedAt) {
+      dispatch({
+        type: APP_ACTIONS.MARK_CORE_BLOCK_CLOSED,
+        payload: {
+          planId,
+          dayId,
+          closedAt: new Date().toISOString(),
+        },
+      });
+    }
 
     navigate(`/plan/${planId}/day/${dayId}`);
   }

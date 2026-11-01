@@ -9,13 +9,17 @@ function formatTargetRir(targetRir) {
   return targetRir.replace("≈", "").trim();
 }
 
-function getStateLabel({ isNext, isComplete, isPartial }) {
-  if (isNext) {
-    return "Next";
+function getStateLabel({ isNext, isComplete, isPartial, isClosed }) {
+  if (isComplete) {
+    return "Complete";
   }
 
-  if (isComplete) {
-    return "Logged";
+  if (isClosed) {
+    return isPartial ? "Closed partial" : "Closed";
+  }
+
+  if (isNext) {
+    return isPartial ? "Next · Partial" : "Next";
   }
 
   if (isPartial) {
@@ -39,12 +43,13 @@ export default function ExerciseListCard({
   status,
   orderNumber,
   isNext = false,
+  isClosed = false,
   isLast = false,
 }) {
   const targetRir = formatTargetRir(exercise.details?.targetRir);
-  const isComplete = status === "Logged";
-  const isPartial = status === "Partial";
-  const stateLabel = getStateLabel({ isNext, isComplete, isPartial });
+  const isComplete = status === "complete";
+  const isPartial = status === "partial";
+  const stateLabel = getStateLabel({ isNext, isComplete, isPartial, isClosed });
 
   return (
     <Link
@@ -102,7 +107,9 @@ export default function ExerciseListCard({
                   ? "text-[#C8F78F]"
                   : isComplete
                     ? "text-[#8FD0A8]"
-                    : "text-[#F4C87F]",
+                    : isPartial
+                      ? "text-[#F4C87F]"
+                      : "text-[#77818B]",
               ].join(" ")}
             >
               {stateLabel}

@@ -21,6 +21,11 @@ import { getDayDetails } from "../data/dayDetails";
 import { getExercisesForDay } from "../data/exercises";
 import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
 import { getDayMode, getDayModeLabel } from "../utils/runtime/dayModeHelpers";
+import {
+  getWorkoutProgress,
+  getPerformedSetLabel,
+  getClosedDayPresentation,
+} from "../utils/runtime/workoutProgressHelpers";
 
 // Screen-specific display hints for Cycle rows.
 // These values do not affect day completion or core runtime state.
@@ -50,76 +55,26 @@ const STATIC_DAY_DETAIL_HINT_MAP = {
   },
 };
 
-function getDoneSetCount(dayLog) {
-  if (!dayLog) {
-    return 0;
-  }
-
-  return Object.values(dayLog.mainExerciseLogs).reduce(
-    (doneSetTotal, exerciseLog) => {
-      const doneSets =
-        exerciseLog.sets?.filter((set) => set.isDone).length ?? 0;
-
-      return doneSetTotal + doneSets;
-    },
-    0,
-  );
-}
-
-function getLoggedSetLabel(doneSetCount) {
-  return doneSetCount === 1 ? "1 set logged" : `${doneSetCount} sets logged`;
-}
-
-function getClosedStatusLabels({
-  completedExerciseCount,
-  totalExerciseCount,
-  doneSetCount,
-}) {
-  if (completedExerciseCount === totalExerciseCount && totalExerciseCount > 0) {
-    return {
-      evidenceState: "logged",
-      statusLabel: "Closed",
-      statusDetail: `${completedExerciseCount}/${totalExerciseCount} logged`,
-    };
-  }
-
-  if (completedExerciseCount > 0) {
-    return {
-      evidenceState: "partial",
-      statusLabel: "Closed partial",
-      statusDetail: `${completedExerciseCount}/${totalExerciseCount} logged`,
-    };
-  }
-
-  if (doneSetCount > 0) {
-    return {
-      evidenceState: "partial",
-      statusLabel: "Closed partial",
-      statusDetail: getLoggedSetLabel(doneSetCount),
-    };
-  }
-
-  return {
-    evidenceState: "empty",
-    statusLabel: "Closed",
-    statusDetail: "No sets logged",
-  };
-}
-
 function hasDayActivity(dayLog) {
   if (!dayLog) {
     return false;
   }
 
-  return Object.values(dayLog.mainExerciseLogs).some((exerciseLog) => {
-    const hasClosedExercise = Boolean(exerciseLog.closedAt);
-    const hasDoneSet = exerciseLog.sets?.some((set) => set.isDone) ?? false;
+  return (
+    Boolean(dayLog.coreBlockLog?.closedAt) ||
+    [
+      ...Object.values(dayLog.mainExerciseLogs),
+      ...Object.values(dayLog.coreBlockLog?.coreExerciseLogs ?? {}),
+    ].some((exerciseLog) => {
+      const hasClosedExercise = Boolean(exerciseLog.closedAt);
+      const hasDoneSet = exerciseLog.sets?.some((set) => set.isDone) ?? false;
 
-    return hasClosedExercise || hasDoneSet;
-  });
+      return hasClosedExercise || hasDoneSet;
+    })
+  );
 }
 
-function areAllMainExercisesClosed(dayDetails, dayLog) {
+function areAllMainExercisesCompleteOrClosed(dayDetails, dayLog) {
   if (!dayDetails?.exerciseIds?.length || !dayLog) {
     return false;
   }
@@ -127,7 +82,10 @@ function areAllMainExercisesClosed(dayDetails, dayLog) {
   return dayDetails.exerciseIds.every((exerciseId) => {
     const exerciseLog = dayLog.mainExerciseLogs?.[exerciseId];
 
-    return Boolean(exerciseLog?.closedAt);
+    return (
+      Boolean(exerciseLog?.closedAt) ||
+      getExerciseStatus(exerciseLog) === "complete"
+    );
   });
 }
 
@@ -140,7 +98,7 @@ function getHeroCtaLabel({
     return "Review cycle";
   }
 
-  if (areAllMainExercisesClosed(currentDayDetails, currentDayLog)) {
+  if (areAllMainExercisesCompleteOrClosed(currentDayDetails, currentDayLog)) {
     return "Review day";
   }
 
@@ -170,31 +128,16 @@ function getDayRuntimeSummary({
     dayOrder,
   });
 
-  const totalExerciseCount = dayLog
-    ? Object.keys(dayLog.mainExerciseLogs).length
-    : (dayDetails?.exerciseIds.length ?? 0);
-
-  const completedExerciseCount = dayLog
-    ? Object.values(dayLog.mainExerciseLogs).filter(
-        (exerciseLog) => getExerciseStatus(exerciseLog) === "complete",
-      ).length
-    : 0;
-
-  const doneSetCount = getDoneSetCount(dayLog);
-  const progressLabel = `${completedExerciseCount}/${totalExerciseCount} logged`;
+  const progress = getWorkoutProgress(dayLog, dayDetails?.exerciseIds);
+  const { completedExerciseCount, totalExerciseCount } = progress;
+  const progressLabel = `${completedExerciseCount}/${totalExerciseCount} exercises complete`;
   const dayModeLabel = getDayModeLabel(dayMode);
 
   if (dayMode === "finished") {
     return {
       dayMode,
-      completedExerciseCount,
-      totalExerciseCount,
-      doneSetCount,
-      ...getClosedStatusLabels({
-        completedExerciseCount,
-        totalExerciseCount,
-        doneSetCount,
-      }),
+      ...progress,
+      ...getClosedDayPresentation(progress),
     };
   }
 
@@ -202,9 +145,7 @@ function getDayRuntimeSummary({
     return {
       dayMode,
       evidenceState: "current",
-      completedExerciseCount,
-      totalExerciseCount,
-      doneSetCount,
+      ...progress,
       statusLabel: `Current · ${progressLabel}`,
       statusDetail: null,
     };
@@ -214,9 +155,7 @@ function getDayRuntimeSummary({
     return {
       dayMode,
       evidenceState: "upcoming",
-      completedExerciseCount,
-      totalExerciseCount,
-      doneSetCount,
+      ...progress,
       statusLabel: `${totalExerciseCount} exercises`,
       statusDetail: null,
     };
@@ -226,9 +165,7 @@ function getDayRuntimeSummary({
     return {
       dayMode,
       evidenceState: "partial",
-      completedExerciseCount,
-      totalExerciseCount,
-      doneSetCount,
+      ...progress,
       statusLabel: `In progress · ${progressLabel}`,
       statusDetail: null,
     };
@@ -237,9 +174,7 @@ function getDayRuntimeSummary({
   return {
     dayMode,
     evidenceState: "upcoming",
-    completedExerciseCount,
-    totalExerciseCount,
-    doneSetCount,
+    ...progress,
     statusLabel: dayModeLabel,
     statusDetail: null,
   };
@@ -307,7 +242,7 @@ function getRhythmDayClassName(summary) {
     return "border-[#B8F36B] bg-[#B8F36B] text-[#0B0E11] shadow-[0_8px_22px_rgba(184,243,107,0.12)]";
   }
 
-  if (summary?.evidenceState === "logged") {
+  if (summary?.evidenceState === "complete") {
     return "border-[#79C89A]/32 bg-[#79C89A]/[0.08] text-[#A6DDB8]";
   }
 
@@ -327,16 +262,15 @@ function getRhythmDayAriaLabel(day, summary) {
     return `${day.label} ${day.name}, current day`;
   }
 
-  if (summary?.evidenceState === "logged") {
-    return `${day.label} ${day.name}, closed with all exercises logged`;
-  }
-
-  if (summary?.evidenceState === "partial") {
-    return `${day.label} ${day.name}, closed partial`;
-  }
-
   if (summary?.dayMode === "finished") {
-    return `${day.label} ${day.name}, closed with no sets logged`;
+    return [
+      `${day.label} ${day.name}`,
+      summary.statusLabel,
+      summary.statusDetail,
+      summary.coreDetail,
+    ]
+      .filter(Boolean)
+      .join(", ");
   }
 
   return `${day.label} ${day.name}, upcoming preview`;
@@ -643,13 +577,30 @@ export default function CyclePage() {
 
                     <div className="border-l border-[#2A3138] py-3 pl-3">
                       <p className="text-[0.6rem] font-bold uppercase tracking-[0.13em] text-[#68737D]">
-                        Logged
+                        Exercises complete
                       </p>
                       <p className="mt-1 text-sm font-semibold text-[#DDE1DD] tabular-nums">
                         {currentDaySummary?.completedExerciseCount ?? 0} /{" "}
                         {currentDaySummary?.totalExerciseCount ?? 0}
                       </p>
                     </div>
+                  </div>
+
+                  <div className="mt-2 text-xs leading-5 text-[#AAB2BA]">
+                    <p>
+                      {getPerformedSetLabel(
+                        currentDaySummary?.performedMainSetCount ?? 0,
+                        "main",
+                      )}
+                    </p>
+                    {currentDaySummary?.performedCoreSetCount > 0 ? (
+                      <p className="text-[#C5C1E7]">
+                        {getPerformedSetLabel(
+                          currentDaySummary.performedCoreSetCount,
+                          "Core",
+                        )}
+                      </p>
+                    ) : null}
                   </div>
 
                   <div className="mt-4 flex items-start gap-3">
@@ -704,13 +655,14 @@ export default function CyclePage() {
 
             <div className="mt-2.5 overflow-hidden rounded-[1.1rem] border border-[#2A3138] bg-[#13181D]">
               {upcomingDays.map(
-                ({ day, statusLabel, statusDetail, evidenceState }) => (
+                ({ day, statusLabel, statusDetail, coreDetail, evidenceState }) => (
                   <DayCard
                     key={day.id}
                     planId={planId}
                     day={day}
                     status={statusLabel}
                     statusDetail={statusDetail}
+                    coreDetail={coreDetail}
                     meta={getDayMeta(planId, day.id)}
                     mode="upcoming"
                     evidenceState={evidenceState}
@@ -737,13 +689,14 @@ export default function CyclePage() {
 
             <div className="mt-2.5 overflow-hidden rounded-[1.1rem] border border-[#2A3138] bg-[#13181D]">
               {completedDays.map(
-                ({ day, statusLabel, statusDetail, evidenceState }) => (
+                ({ day, statusLabel, statusDetail, coreDetail, evidenceState }) => (
                   <DayCard
                     key={day.id}
                     planId={planId}
                     day={day}
                     status={statusLabel}
                     statusDetail={statusDetail}
+                    coreDetail={coreDetail}
                     meta={getDayMeta(planId, day.id)}
                     mode="finished"
                     evidenceState={evidenceState}
