@@ -1,5 +1,6 @@
 import AppRouter from "./app/router";
 import { AppStateProvider } from "./state/AppStateProvider";
+import { LocaleProvider } from "./i18n/LocaleProvider";
 
 /**
  * Root app composition.
@@ -10,8 +11,10 @@ import { AppStateProvider } from "./state/AppStateProvider";
  */
 export default function App() {
   return (
-    <AppStateProvider>
-      <AppRouter />
-    </AppStateProvider>
+    <LocaleProvider>
+      <AppStateProvider>
+        <AppRouter />
+      </AppStateProvider>
+    </LocaleProvider>
   );
 }

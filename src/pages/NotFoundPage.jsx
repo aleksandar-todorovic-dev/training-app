@@ -1,3 +1,4 @@
+import { useTranslation } from "../i18n/useTranslation";
 import { MapPinned } from "lucide-react";
 
 import GuardState from "../components/common/GuardState";
@@ -9,14 +10,15 @@ import GuardState from "../components/common/GuardState";
  * This page is static and never reads, creates, or mutates training progress.
  */
 export default function NotFoundPage() {
+  const { t } = useTranslation();
   return (
     <GuardState
-      eyebrow="Route unavailable"
-      title="This training screen does not exist."
-      description="The address does not match a current plan, workout, or guide route. Return home and continue from a valid training entry point."
+      eyebrow={t("Route unavailable")}
+      title={t("This training screen does not exist.")}
+      description={t("The address does not match a current plan, workout, or guide route. Return home and continue from a valid training entry point.")}
       icon={MapPinned}
       primaryTo="/"
-      primaryLabel="Back to home"
+      primaryLabel={t("Back to home")}
     />
   );
 }

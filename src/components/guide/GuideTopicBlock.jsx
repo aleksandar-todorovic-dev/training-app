@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n/useTranslation";
 /**
  * Displays one guide topic in a full-width reading flow.
  *
@@ -12,6 +13,7 @@ export default function GuideTopicBlock({
   accentTextClassName,
   accentBorderClassName,
 }) {
+  const { t } = useTranslation();
   const [leadParagraph, ...bodyParagraphs] = topic.paragraphs ?? [];
   const hasBullets = Boolean(topic.bullets?.length);
 
@@ -29,15 +31,13 @@ export default function GuideTopicBlock({
         </p>
 
         <div className="min-w-0">
-          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">
-            Guide topic
-          </p>
+          <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">{t("Guide topic")}</p>
 
           <h2
             id={`${anchorId}-title`}
             className="mt-1.5 text-xl font-semibold leading-snug tracking-[-0.025em] text-[#F3F5F1]"
           >
-            {topic.title}
+            {t(topic.title)}
           </h2>
         </div>
       </div>
@@ -47,7 +47,7 @@ export default function GuideTopicBlock({
           <p
             className={`border-l-2 ${accentBorderClassName} pl-4 text-[0.95rem] font-medium leading-7 text-[#D8DDD8]`}
           >
-            {leadParagraph}
+            {t(leadParagraph)}
           </p>
         ) : null}
 
@@ -58,7 +58,7 @@ export default function GuideTopicBlock({
                 key={`${topic.id}-paragraph-${paragraphIndex}`}
                 className="text-sm leading-7 text-[#AAB2BA]"
               >
-                {paragraph}
+                {t(paragraph)}
               </p>
             ))}
           </div>
@@ -66,9 +66,7 @@ export default function GuideTopicBlock({
 
         {hasBullets ? (
           <div className="mt-6">
-            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">
-              Practical rules
-            </p>
+            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">{t("Practical rules")}</p>
 
             <ul className="mt-3 border-y border-[#2A3138]">
               {topic.bullets.map((bullet, bulletIndex) => (
@@ -82,7 +80,7 @@ export default function GuideTopicBlock({
                     {String(bulletIndex + 1).padStart(2, "0")}
                   </span>
                   <span className="text-sm font-medium leading-6 text-[#D1D7D1]">
-                    {bullet}
+                    {t(bullet)}
                   </span>
                 </li>
               ))}

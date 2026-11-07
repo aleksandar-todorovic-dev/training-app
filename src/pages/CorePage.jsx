@@ -1,3 +1,4 @@
+import { useTranslation } from "../i18n/useTranslation";
 import { useEffect, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -81,6 +82,7 @@ function getCorePageState({ dayMode, coreBlockLog }) {
  * reducer through intent handlers.
  */
 export default function CorePage() {
+  const { t } = useTranslation();
   const { planId, dayId, coreId } = useParams();
   const navigate = useNavigate();
   const { state, dispatch } = useAppState();
@@ -227,12 +229,12 @@ export default function CorePage() {
 
     return (
       <GuardState
-        eyebrow="Core unavailable"
+        eyebrow={t("Core unavailable")}
         context={context}
-        title="This Core block could not be loaded."
-        description="The support block does not belong to this training day, or its source data is unavailable. Return to a valid workout position."
+        title={t("This Core block could not be loaded.")}
+        description={t("The support block does not belong to this training day, or its source data is unavailable. Return to a valid workout position.")}
         primaryTo={fallbackTo}
-        primaryLabel={fallbackLabel}
+        primaryLabel={t(fallbackLabel)}
       />
     );
   }
@@ -241,13 +243,13 @@ export default function CorePage() {
     return (
       <GuardState
         backTo="/"
-        backLabel="Back to home"
-        eyebrow="Core checkpoint"
+        backLabel={t("Back to home")}
+        eyebrow={t("Core checkpoint")}
         context={`${plan.name} · ${dayDetails.label}`}
-        title="Start a cycle first."
-        description="Core logging becomes available after you explicitly start the plan cycle from Plan Overview."
+        title={t("Start a cycle first.")}
+        description={t("Core logging becomes available after you explicitly start the plan cycle from Plan Overview.")}
         primaryTo={`/plan/${planId}`}
-        primaryLabel="Go to plan overview"
+        primaryLabel={t("Go to plan overview")}
       />
     );
   }
@@ -255,14 +257,14 @@ export default function CorePage() {
   if (needsDayEntryFirst) {
     return (
       <GuardState
-        eyebrow="Core checkpoint"
+        eyebrow={t("Core checkpoint")}
         context={`${plan.name} · ${dayDetails.label}`}
-        title="Open the day first."
-        description="Enter the current day before opening its Core log. This keeps runtime creation inside the valid workout flow."
+        title={t("Open the day first.")}
+        description={t("Enter the current day before opening its Core log. This keeps runtime creation inside the valid workout flow.")}
         backTo={`/plan/${planId}/cycle`}
-        backLabel="Back to cycle"
+        backLabel={t("Back to cycle")}
         primaryTo={`/plan/${planId}/day/${dayId}`}
-        primaryLabel="Go to day"
+        primaryLabel={t("Go to day")}
       />
     );
   }
@@ -277,13 +279,9 @@ export default function CorePage() {
       <div className="space-y-5">
         <header className="space-y-4">
           <div className="flex items-center justify-between gap-4">
-            <BackControl to={`/plan/${planId}/day/${dayId}`} className="shrink-0">
-              Back to day
-            </BackControl>
+            <BackControl to={`/plan/${planId}/day/${dayId}`} className="shrink-0">{t("Back to day")}</BackControl>
 
-            <p className="min-w-0 truncate text-right text-xs font-medium text-[#77818B]">
-              {plan.name} · Cycle {currentCycleNumber ?? 1} · {dayDetails.label}
-            </p>
+            <p className="min-w-0 truncate text-right text-xs font-medium text-[#77818B]">{t("{plan} · Cycle {cycle} · {day}", { plan: plan.name, cycle: currentCycleNumber ?? 1, day: dayDetails.label })}</p>
           </div>
 
           <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-3">
@@ -296,13 +294,13 @@ export default function CorePage() {
               <p
                 className={`text-[0.68rem] font-semibold uppercase tracking-[0.14em] ${corePageState.className}`}
               >
-                {corePageState.label}
+                {t(corePageState.label)}
               </p>
               <h1 className="mt-2 text-[2rem] font-semibold leading-[1.02] tracking-[-0.045em] text-[#F3F5F1]">
-                {coreBlock.name}
+                {t(coreBlock.name)}
               </h1>
               <p className="mt-2 text-sm leading-6 text-[#AAB2BA]">
-                {coreBlock.focus}
+                {t(coreBlock.focus)}
               </p>
             </div>
           </div>
@@ -310,13 +308,8 @@ export default function CorePage() {
 
         {isUpcomingPreview ? (
           <section className="border-y border-[#2A3138] py-4">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#A7A2D8]">
-              Read-only preview
-            </p>
-            <p className="mt-2 text-sm leading-6 text-[#AAB2BA]">
-              Review the block structure now. Logging and Done controls unlock
-              when this day becomes current.
-            </p>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#A7A2D8]">{t("Read-only preview")}</p>
+            <p className="mt-2 text-sm leading-6 text-[#AAB2BA]">{t("Review the block structure now. Logging and Done controls unlock when this day becomes current.")}</p>
           </section>
         ) : null}
 

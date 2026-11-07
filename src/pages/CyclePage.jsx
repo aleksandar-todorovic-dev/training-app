@@ -1,3 +1,5 @@
+import { performedSetLabel, closedDayCopy } from "../i18n/translate.js";
+import { useTranslation } from "../i18n/useTranslation";
 import { useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useReducedMotion } from "motion/react";
@@ -23,7 +25,6 @@ import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
 import { getDayMode, getDayModeLabel } from "../utils/runtime/dayModeHelpers";
 import {
   getWorkoutProgress,
-  getPerformedSetLabel,
   getClosedDayPresentation,
 } from "../utils/runtime/workoutProgressHelpers";
 
@@ -112,6 +113,7 @@ function getHeroCtaLabel({
 // Builds presentation state from existing runtime logs.
 // It never creates or mutates a day, exercise, or core log.
 function getDayRuntimeSummary({
+  t,
   planId,
   day,
   currentCycle,
@@ -130,14 +132,14 @@ function getDayRuntimeSummary({
 
   const progress = getWorkoutProgress(dayLog, dayDetails?.exerciseIds);
   const { completedExerciseCount, totalExerciseCount } = progress;
-  const progressLabel = `${completedExerciseCount}/${totalExerciseCount} exercises complete`;
+  const progressLabel = t("{value0}/{value1} exercises complete", { value0: completedExerciseCount, value1: totalExerciseCount });
   const dayModeLabel = getDayModeLabel(dayMode);
 
   if (dayMode === "finished") {
     return {
       dayMode,
       ...progress,
-      ...getClosedDayPresentation(progress),
+      ...closedDayCopy(t, progress, getClosedDayPresentation(progress)),
     };
   }
 
@@ -146,7 +148,7 @@ function getDayRuntimeSummary({
       dayMode,
       evidenceState: "current",
       ...progress,
-      statusLabel: `Current · ${progressLabel}`,
+      statusLabel: t("Current · {value0}", { value0: progressLabel }),
       statusDetail: null,
     };
   }
@@ -156,7 +158,7 @@ function getDayRuntimeSummary({
       dayMode,
       evidenceState: "upcoming",
       ...progress,
-      statusLabel: `${totalExerciseCount} exercises`,
+      statusLabel: t("{count} exercises", { count: totalExerciseCount }),
       statusDetail: null,
     };
   }
@@ -166,7 +168,7 @@ function getDayRuntimeSummary({
       dayMode,
       evidenceState: "partial",
       ...progress,
-      statusLabel: `In progress · ${progressLabel}`,
+      statusLabel: t("In progress · {value0}", { value0: progressLabel }),
       statusDetail: null,
     };
   }
@@ -257,31 +259,33 @@ function getRhythmDayClassName(summary) {
   return "border-[#2A3138] bg-[#13181D] text-[#77818B] hover:border-[#46515B] hover:text-[#AAB2BA]";
 }
 
-function getRhythmDayAriaLabel(day, summary) {
+function getRhythmDayAriaLabel(day, summary, t) {
   if (summary?.dayMode === "active") {
-    return `${day.label} ${day.name}, current day`;
+    return t("{value0} {value1}, current day", { value0: day.label, value1: day.name });
   }
 
   if (summary?.dayMode === "finished") {
     return [
-      `${day.label} ${day.name}`,
+      t("{label} {name}", { label: day.label, name: day.name }),
       summary.statusLabel,
       summary.statusDetail,
       summary.coreDetail,
     ]
       .filter(Boolean)
+      .map((value) => t(value))
       .join(", ");
   }
 
-  return `${day.label} ${day.name}, upcoming preview`;
+  return t("{value0} {value1}, upcoming preview", { value0: day.label, value1: day.name });
 }
 
-function getDayMeta(planId, dayId) {
+function getDayMeta(planId, dayId, t) {
   return [
     STATIC_CORE_HINT_MAP[dayId],
     STATIC_DAY_DETAIL_HINT_MAP[planId]?.[dayId],
   ]
     .filter(Boolean)
+    .map((value) => t(value))
     .join(" · ");
 }
 
@@ -294,6 +298,7 @@ function getDayMeta(planId, dayId) {
  * upcoming preview days and does not mutate cycle state.
  */
 export default function CyclePage() {
+  const { t } = useTranslation();
   const { planId } = useParams();
   const currentRhythmItemRef = useRef(null);
   const shouldReduceMotion = useReducedMotion();
@@ -321,6 +326,7 @@ export default function CyclePage() {
   const daySummaries = days.map((day) => ({
     day,
     ...getDayRuntimeSummary({
+      t,
       planId,
       day,
       currentCycle,
@@ -374,11 +380,11 @@ export default function CyclePage() {
   if (!plan) {
     return (
       <GuardState
-        eyebrow="Cycle unavailable"
-        title="This cycle does not belong to a current plan."
-        description="Return home and choose a valid training plan before opening its cycle dashboard."
+        eyebrow={t("Cycle unavailable")}
+        title={t("This cycle does not belong to a current plan.")}
+        description={t("Return home and choose a valid training plan before opening its cycle dashboard.")}
         primaryTo="/"
-        primaryLabel="Back to home"
+        primaryLabel={t("Back to home")}
       />
     );
   }
@@ -387,14 +393,14 @@ export default function CyclePage() {
   if (!currentCycle) {
     return (
       <GuardState
-        eyebrow="Cycle not started"
+        eyebrow={t("Cycle not started")}
         context={plan.name}
-        title="Start this plan cycle first."
-        description="The dashboard becomes active after you explicitly start the cycle from Plan Overview."
+        title={t("Start this plan cycle first.")}
+        description={t("The dashboard becomes active after you explicitly start the cycle from Plan Overview.")}
         primaryTo={`/plan/${planId}`}
-        primaryLabel="Go to plan overview"
+        primaryLabel={t("Go to plan overview")}
         secondaryTo="/"
-        secondaryLabel="Back to home"
+        secondaryLabel={t("Back to home")}
       />
     );
   }
@@ -402,11 +408,11 @@ export default function CyclePage() {
   return (
     <AppShell>
       <div className="flex flex-col gap-6 pb-2">
-        <BackControl to={`/plan/${planId}`}>Back to plan</BackControl>
+        <BackControl to={`/plan/${planId}`}>{t("Back to plan")}</BackControl>
 
         <CycleHeader
           planName={plan.name}
-          cycleLabel={`Cycle ${currentCycleNumber}`}
+          cycleLabel={t("Cycle {value0}", { value0: currentCycleNumber })}
           closedCount={completedDayCount}
           totalCount={totalTrainingDays}
           phaseAccent={isCutPlan ? "cut" : "neutral"}
@@ -415,18 +421,14 @@ export default function CyclePage() {
         <section aria-labelledby="cycle-rhythm-title">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-[0.66rem] font-bold uppercase tracking-[0.16em] text-[#77818B]">
-                System map
-              </p>
+              <p className="text-[0.66rem] font-bold uppercase tracking-[0.16em] text-[#77818B]">{t("System map")}</p>
               <h2
                 id="cycle-rhythm-title"
                 className="mt-1 text-lg font-semibold tracking-[-0.03em] text-[#DDE1DD]"
-              >
-                9-day rhythm
-              </h2>
+              >{t("9-day rhythm")}</h2>
             </div>
 
-            <p className="pb-0.5 text-xs text-[#68737D]">Swipe to inspect</p>
+            <p className="pb-0.5 text-xs text-[#68737D]">{t("Swipe to inspect")}</p>
           </div>
 
           <div className="relative mt-3 max-w-full overflow-hidden rounded-[1.1rem] border border-[#2A3138] bg-[#11161A]">
@@ -449,12 +451,10 @@ export default function CyclePage() {
                       <div key={slot.id} className="flex items-center">
                         <div
                           className="flex h-13 w-12 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border border-[#2A3138] bg-[#13181D] text-[#68737D]"
-                          aria-label="Rest and recovery position"
+                          aria-label={t("Rest and recovery position")}
                         >
                           <Moon className="h-3.5 w-3.5" aria-hidden="true" />
-                          <span className="text-[0.58rem] font-bold uppercase tracking-[0.08em]">
-                            Rest
-                          </span>
+                          <span className="text-[0.58rem] font-bold uppercase tracking-[0.08em]">{t("Rest")}</span>
                         </div>
 
                         {!isLastSlot ? (
@@ -478,7 +478,7 @@ export default function CyclePage() {
                       <Link
                         ref={isCurrent ? currentRhythmItemRef : null}
                         to={`/plan/${planId}/day/${slot.day.id}`}
-                        aria-label={getRhythmDayAriaLabel(slot.day, summary)}
+                        aria-label={t(getRhythmDayAriaLabel(slot.day, summary, t))}
                         aria-current={isCurrent ? "step" : undefined}
                         className={`flex h-13 w-13 shrink-0 flex-col items-center justify-center gap-1 rounded-xl border text-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#11161A] ${getRhythmDayClassName(summary)}`}
                       >
@@ -493,9 +493,7 @@ export default function CyclePage() {
                             aria-hidden="true"
                           />
                         ) : isCurrent ? (
-                          <span className="text-[0.55rem] font-extrabold uppercase tracking-[0.08em]">
-                            Now
-                          </span>
+                          <span className="text-[0.55rem] font-extrabold uppercase tracking-[0.08em]">{t("Now")}</span>
                         ) : (
                           <span
                             className="h-1.5 w-1.5 rounded-full bg-current opacity-45"
@@ -537,48 +535,38 @@ export default function CyclePage() {
                   isCycleComplete ? "text-[#8FCDA6]" : "text-[#C8F78F]"
                 }`}
               >
-                {isCycleComplete ? "Cycle closed" : "Current day"}
+                {t(isCycleComplete ? "Cycle closed" : "Current day")}
               </p>
 
               <h2 className="mt-2 text-[1.8rem] font-semibold leading-[1.08] tracking-[-0.055em] text-[#F3F5F1]">
-                {isCycleComplete
+                {t(isCycleComplete
                   ? "Cycle complete"
-                  : `${currentDay.label} ${currentDay.name}`}
+                  : t("{label} {name}", { label: currentDay.label, name: currentDay.name }))}
               </h2>
 
               <p className="mt-2.5 text-sm leading-6 text-[#AAB2BA]">
-                {isCycleComplete
-                  ? `All ${totalTrainingDays} training days are closed. Review the evidence before starting the next cycle.`
+                {t(isCycleComplete
+                  ? t("All {value0} training days are closed. Review the evidence before starting the next cycle.", { value0: totalTrainingDays })
                   : (currentDayDetails?.goal ??
-                    "Open the current training day and keep the cycle moving.")}
+                    "Open the current training day and keep the cycle moving."))}
               </p>
 
               {isCycleComplete ? (
                 <div className="mt-4 border-y border-[#2A3138] py-3">
-                  <p className="text-xs font-semibold text-[#8FCDA6]">
-                    {completedDayCount}/{totalTrainingDays} training days closed
-                  </p>
-                  <p className="mt-1 text-xs leading-5 text-[#77818B]">
-                    Closed days preserve what was actually logged, including
-                    partial work.
-                  </p>
+                  <p className="text-xs font-semibold text-[#8FCDA6]">{t("{value0}/{value1} training days closed", { value0: completedDayCount, value1: totalTrainingDays })}</p>
+                  <p className="mt-1 text-xs leading-5 text-[#77818B]">{t("Closed days preserve what was actually logged, including partial work.")}</p>
                 </div>
               ) : (
                 <>
                   <div className="mt-4 grid grid-cols-2 border-y border-[#2A3138]">
                     <div className="py-3 pr-3">
-                      <p className="text-[0.6rem] font-bold uppercase tracking-[0.13em] text-[#68737D]">
-                        Workload
-                      </p>
+                      <p className="text-[0.6rem] font-bold uppercase tracking-[0.13em] text-[#68737D]">{t("Workload")}</p>
                       <p className="mt-1 text-sm font-semibold text-[#DDE1DD] tabular-nums">
-                        {currentDaySummary?.totalExerciseCount ?? 0} exercises
-                      </p>
+                        {t("{count} exercises", { count: currentDaySummary?.totalExerciseCount ?? 0 })}</p>
                     </div>
 
                     <div className="border-l border-[#2A3138] py-3 pl-3">
-                      <p className="text-[0.6rem] font-bold uppercase tracking-[0.13em] text-[#68737D]">
-                        Exercises complete
-                      </p>
+                      <p className="text-[0.6rem] font-bold uppercase tracking-[0.13em] text-[#68737D]">{t("Exercises complete")}</p>
                       <p className="mt-1 text-sm font-semibold text-[#DDE1DD] tabular-nums">
                         {currentDaySummary?.completedExerciseCount ?? 0} /{" "}
                         {currentDaySummary?.totalExerciseCount ?? 0}
@@ -588,17 +576,17 @@ export default function CyclePage() {
 
                   <div className="mt-2 text-xs leading-5 text-[#AAB2BA]">
                     <p>
-                      {getPerformedSetLabel(
+                      {t(performedSetLabel(t,
                         currentDaySummary?.performedMainSetCount ?? 0,
                         "main",
-                      )}
+                      ))}
                     </p>
                     {currentDaySummary?.performedCoreSetCount > 0 ? (
                       <p className="text-[#C5C1E7]">
-                        {getPerformedSetLabel(
+                        {t(performedSetLabel(t,
                           currentDaySummary.performedCoreSetCount,
                           "Core",
-                        )}
+                        ))}
                       </p>
                     ) : null}
                   </div>
@@ -609,16 +597,14 @@ export default function CyclePage() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-[0.6rem] font-bold uppercase tracking-[0.13em] text-[#77818B]">
-                        {nextExerciseName === "Ready to finish day"
+                        {t(nextExerciseName === "Ready to finish day"
                           ? "Next step"
-                          : "Next exercise"}
+                          : "Next exercise")}
                       </p>
                       <p className="mt-1 text-sm font-semibold leading-5 text-[#F3F5F1]">
-                        {nextExerciseName}
+                        {t(nextExerciseName)}
                       </p>
-                      <p className="mt-1 text-xs leading-5 text-[#77818B]">
-                        Warm-up guidance is available inside the day.
-                      </p>
+                      <p className="mt-1 text-xs leading-5 text-[#77818B]">{t("Warm-up guidance is available inside the day.")}</p>
                     </div>
                   </div>
                 </>
@@ -632,7 +618,7 @@ export default function CyclePage() {
                 }
                 className="mt-4 inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#B8F36B] px-4 text-sm font-bold text-[#0B0E11] transition duration-150 ease-out hover:bg-[#C8F78F] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#171D22] motion-reduce:transition-none motion-reduce:active:scale-100"
               >
-                {heroCtaLabel}
+                {t(heroCtaLabel)}
                 <ChevronRight className="h-4 w-4" aria-hidden="true" />
               </Link>
             </div>
@@ -645,12 +631,8 @@ export default function CyclePage() {
               <h2
                 id="upcoming-days-title"
                 className="text-base font-semibold tracking-[-0.025em] text-[#DDE1DD]"
-              >
-                Up next
-              </h2>
-              <p className="text-xs font-semibold text-[#68737D] tabular-nums">
-                {upcomingDays.length} remaining
-              </p>
+              >{t("Up next")}</h2>
+              <p className="text-xs font-semibold text-[#68737D] tabular-nums">{t("{value0} remaining", { value0: upcomingDays.length })}</p>
             </div>
 
             <div className="mt-2.5 overflow-hidden rounded-[1.1rem] border border-[#2A3138] bg-[#13181D]">
@@ -663,7 +645,7 @@ export default function CyclePage() {
                     status={statusLabel}
                     statusDetail={statusDetail}
                     coreDetail={coreDetail}
-                    meta={getDayMeta(planId, day.id)}
+                    meta={getDayMeta(planId, day.id, t)}
                     mode="upcoming"
                     evidenceState={evidenceState}
                   />
@@ -679,12 +661,8 @@ export default function CyclePage() {
               <h2
                 id="closed-days-title"
                 className="text-base font-semibold tracking-[-0.025em] text-[#DDE1DD]"
-              >
-                Closed days
-              </h2>
-              <p className="text-xs font-semibold text-[#68737D] tabular-nums">
-                {completedDays.length} saved
-              </p>
+              >{t("Closed days")}</h2>
+              <p className="text-xs font-semibold text-[#68737D] tabular-nums">{t("{value0} saved", { value0: completedDays.length })}</p>
             </div>
 
             <div className="mt-2.5 overflow-hidden rounded-[1.1rem] border border-[#2A3138] bg-[#13181D]">
@@ -697,7 +675,7 @@ export default function CyclePage() {
                     status={statusLabel}
                     statusDetail={statusDetail}
                     coreDetail={coreDetail}
-                    meta={getDayMeta(planId, day.id)}
+                    meta={getDayMeta(planId, day.id, t)}
                     mode="finished"
                     evidenceState={evidenceState}
                   />
@@ -711,10 +689,7 @@ export default function CyclePage() {
           <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[#F1B864]/[0.08] text-[#D9B06F]">
             <Moon className="h-4 w-4" aria-hidden="true" />
           </div>
-          <p className="pt-0.5 text-xs leading-5 text-[#77818B]">
-            Rest positions belong to the system. The calendar can move while
-            the training order stays clear.
-          </p>
+          <p className="pt-0.5 text-xs leading-5 text-[#77818B]">{t("Rest positions belong to the system. The calendar can move while the training order stays clear.")}</p>
         </aside>
       </div>
     </AppShell>

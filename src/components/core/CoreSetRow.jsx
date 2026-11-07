@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n/useTranslation";
 import { Check } from "lucide-react";
 import { motion } from "motion/react";
 
@@ -14,6 +15,7 @@ function MetricField({
   isReadOnly = false,
   isTarget = false,
 }) {
+  const { t } = useTranslation();
   const displayValue = value || "—";
   const inputValue = value === "—" ? "" : value;
 
@@ -27,7 +29,7 @@ function MetricField({
               : "text-sm text-[#F3F5F1]"
           }`}
         >
-          {displayValue}
+          {t(displayValue)}
         </span>
       </div>
     );
@@ -35,17 +37,15 @@ function MetricField({
 
   return (
     <label className="flex min-h-11 min-w-0 items-center justify-center px-1">
-      <span className="sr-only">
-        Set {setNumber} {label}
-      </span>
+      <span className="sr-only">{t("Set {value0} {value1}", { value0: setNumber, value1: label })}</span>
       <input
-        aria-label={`Set ${setNumber} ${label}`}
+        aria-label={t("Set {value0} {value1}", { value0: setNumber, value1: label })}
         name={name}
         value={inputValue}
         onChange={(event) => onChange?.(event.target.value)}
         inputMode="decimal"
         autoComplete="off"
-        placeholder="—"
+        placeholder={t("—")}
         className="h-9 w-full min-w-0 rounded-lg bg-transparent px-1 text-center text-sm font-semibold tabular-nums text-[#F3F5F1] outline-none transition-colors placeholder:text-[#59636B] focus:bg-[#1C2329] focus:text-[#C8F78F] focus-visible:ring-1 focus-visible:ring-inset focus-visible:ring-[#B8F36B]/55"
       />
     </label>
@@ -74,6 +74,7 @@ export default function CoreSetRow({
   onToggleDone,
   onSetFieldChange,
 }) {
+  const { t } = useTranslation();
   const loggedField = valueLabel === "Time" ? "time" : "reps";
 
   const rowGridClass = showDoneControl
@@ -130,7 +131,7 @@ export default function CoreSetRow({
       {showDoneControl ? (
         <MotionButton
           type="button"
-          aria-label={`Mark core set ${setNumber} ${isDone ? "not performed" : "performed"}`}
+          aria-label={t("Mark core set {value0} {value1}", { value0: setNumber, value1: isDone ? "not performed" : "performed" })}
           aria-pressed={isDone}
           disabled={isReadOnly}
           onClick={isReadOnly ? undefined : onToggleDone}

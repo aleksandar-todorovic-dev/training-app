@@ -72,10 +72,13 @@ export const cutProGuide = {
           paragraphs: [
             "The log should record what you actually did, not what the plan hoped you would do.",
             "A set counts as performed only when you check it as done. Weight, reps, and RIR describe the set, but input values alone do not complete it.",
+
+            '"Closed partial" means work was intentionally closed while incomplete; unchecked sets stay unperformed. "Return to day" goes back without repeating the close action. Closed-day logs can still be reviewed and edited.',
             "You can finish a day even if every set was not completed. A partial day is still a valid training log. On a cut, honest logging is more useful than pretending every session was perfect.",
-            "Core and warm-up have their own purpose. Core is separate from main day progress, and warm-up is guidance only.",
+            "Core work is recorded separately from main progress; warm-up is guidance only.",
           ],
           bullets: [
+            '"Main sets performed" counts only sets marked Done. "Exercises complete" counts main exercises with every prescribed set Done.',
             "Checkbox = the set was performed.",
             "Inputs describe the set; they do not complete it.",
             "Unchecked sets are not missing data. They are simply not performed.",

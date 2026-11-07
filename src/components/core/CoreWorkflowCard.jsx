@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n/useTranslation";
 import { ArrowRight, ChevronDown, ShieldCheck } from "lucide-react";
 import { useId, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
@@ -79,13 +80,14 @@ function getCoreSetSummary(exercise, tracksLoad) {
 }
 
 function SummaryMetric({ label, value }) {
+  const { t } = useTranslation();
   return (
     <div className="min-w-0 px-2 py-2 text-center">
       <p className="text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-[#77818B]">
-        {label}
+        {t(label)}
       </p>
       <p className="mt-1 text-sm font-semibold leading-none tracking-tight text-[#F3F5F1]">
-        {value}
+        {t(value)}
       </p>
     </div>
   );
@@ -115,6 +117,7 @@ function getExerciseState(coreExerciseLog) {
 }
 
 function ColumnHeaders({ tracksLoad, valueLabel, showDoneControl }) {
+  const { t } = useTranslation();
   const gridClass = showDoneControl
     ? "grid-cols-[1.9rem_minmax(0,1fr)_2.75rem]"
     : "grid-cols-[1.9rem_minmax(0,1fr)]";
@@ -124,13 +127,13 @@ function ColumnHeaders({ tracksLoad, valueLabel, showDoneControl }) {
       className={`grid ${gridClass} items-center gap-1 px-2 pb-1.5 text-[0.6rem] font-semibold uppercase tracking-[0.08em] text-[#77818B]`}
       aria-hidden="true"
     >
-      <span className="text-center">Set</span>
+      <span className="text-center">{t("Set")}</span>
       <div className="grid min-w-0 grid-cols-3 text-center">
-        <span>{tracksLoad ? "Kg" : "Target"}</span>
-        <span>{valueLabel}</span>
-        <span>RIR</span>
+        <span>{t(tracksLoad ? "Kg" : "Target")}</span>
+        <span>{t(valueLabel)}</span>
+        <span>{t("RIR")}</span>
       </div>
-      {showDoneControl ? <span className="text-center">Done</span> : null}
+      {showDoneControl ? <span className="text-center">{t("Done")}</span> : null}
     </div>
   );
 }
@@ -147,6 +150,7 @@ function CoreExerciseSection({
   onToggleCoreSetDone,
   onUpdateCoreSetField,
 }) {
+  const { t } = useTranslation();
   const setSummary = getCoreSetSummary(exercise, tracksLoad);
   const tempo = cleanSummaryValue(exercise.details?.tempo);
   const rest = cleanSummaryValue(exercise.details?.rest);
@@ -163,11 +167,11 @@ function CoreExerciseSection({
 
           <div className="min-w-0">
             <h2 className="text-lg font-semibold leading-tight tracking-[-0.025em] text-[#F3F5F1]">
-              {exercise.name}
+              {t(exercise.name)}
             </h2>
             {exercise.subtitle ? (
               <p className="mt-1.5 text-sm leading-5 text-[#AAB2BA]">
-                {exercise.subtitle}
+                {t(exercise.subtitle)}
               </p>
             ) : null}
           </div>
@@ -175,17 +179,15 @@ function CoreExerciseSection({
           <span
             className={`pt-1 text-xs font-semibold ${exerciseState.className}`}
           >
-            {isReadOnly ? "Preview" : exerciseState.label}
+            {t(isReadOnly ? "Preview" : exerciseState.label)}
           </span>
         </div>
 
         {exercise.cue ? (
           <div className="border-l-2 border-[#A7A2D8]/55 pl-3">
-            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#A7A2D8]">
-              Today&apos;s cue
-            </p>
+            <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#A7A2D8]">{t("Today's cue")}</p>
             <p className="mt-1.5 text-sm leading-6 text-[#D7DBD6]">
-              {exercise.cue}
+              {t(exercise.cue)}
             </p>
           </div>
         ) : null}
@@ -233,17 +235,13 @@ function CoreExerciseSection({
           </div>
 
           {!isReadOnly ? (
-            <p className="mt-2 text-right text-xs font-semibold tabular-nums text-[#77818B]">
-              {completedSetCount}/{rows.length} performed
-            </p>
+            <p className="mt-2 text-right text-xs font-semibold tabular-nums text-[#77818B]">{t("{value0}/{value1} performed", { value0: completedSetCount, value1: rows.length })}</p>
           ) : null}
         </div>
 
         {exercise.details?.extraCues?.length > 0 ? (
           <details className="group border-t border-[#2A3138] pt-3">
-            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-[#D7DBD6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#B8F36B]/65 [&::-webkit-details-marker]:hidden">
-              Extra cues
-              <ChevronDown
+            <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-[#D7DBD6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#B8F36B]/65 [&::-webkit-details-marker]:hidden">{t("Extra cues")}<ChevronDown
                 className="h-4 w-4 text-[#77818B] transition-transform group-open:rotate-180 motion-reduce:transition-none"
                 aria-hidden="true"
               />
@@ -256,7 +254,7 @@ function CoreExerciseSection({
                   className="flex gap-2 text-sm leading-6 text-[#AAB2BA]"
                 >
                   <span className="mt-[0.65rem] h-1 w-1 shrink-0 rounded-full bg-[#77818B]" />
-                  <span>{item}</span>
+                  <span>{t(item)}</span>
                 </li>
               ))}
             </ul>
@@ -284,6 +282,7 @@ export default function CoreWorkflowCard({
   onUpdateCoreSetField,
   onCloseCoreBlock,
 }) {
+  const { t } = useTranslation();
   const [isCoachNotesOpen, setIsCoachNotesOpen] = useState(false);
   const coachNotesPanelId = useId();
 
@@ -324,23 +323,17 @@ export default function CoreWorkflowCard({
           </span>
 
           <div className="min-w-0 flex-1">
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#A7A2D8]">
-              Support block
-            </p>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#A7A2D8]">{t("Support block")}</p>
             <p className="mt-2 text-sm leading-6 text-[#AAB2BA]">
-              {coreBlock.details?.purpose ?? "Flexible core support work."}
+              {t(coreBlock.details?.purpose ?? "Flexible core support work.")}
             </p>
           </div>
         </div>
 
         {isSavedLog ? (
           <div className="mt-4 border-y border-[#2A3138] py-3">
-            <p className="text-xs font-semibold text-[#79C89A]">
-              Saved day log
-            </p>
-            <p className="mt-1 text-sm leading-5 text-[#AAB2BA]">
-              Review or adjust the values already stored for this block.
-            </p>
+            <p className="text-xs font-semibold text-[#79C89A]">{t("Saved day log")}</p>
+            <p className="mt-1 text-sm leading-5 text-[#AAB2BA]">{t("Review or adjust the values already stored for this block.")}</p>
           </div>
         ) : null}
 
@@ -360,9 +353,7 @@ export default function CoreWorkflowCard({
         </div>
 
         <div className="mt-3 flex items-center justify-between gap-3 text-xs">
-          <span className="text-[#77818B]">
-            Core remains separate from main-day progress.
-          </span>
+          <span className="text-[#77818B]">{t("Core remains separate from main-day progress.")}</span>
           <span
             className={`shrink-0 font-semibold tabular-nums ${
               coreBlockStatus === "complete"
@@ -372,9 +363,9 @@ export default function CoreWorkflowCard({
                   : "text-[#AAB2BA]"
             }`}
           >
-            {isReadOnly
-              ? `${totalSetCount} prescribed sets`
-              : `${completedSetCount}/${totalSetCount} performed`}
+            {t(isReadOnly
+              ? t("{count} prescribed sets", { count: totalSetCount })
+              : t("{value0}/{value1} performed", { value0: completedSetCount, value1: totalSetCount }))}
           </span>
         </div>
       </section>
@@ -383,16 +374,14 @@ export default function CoreWorkflowCard({
         <div className="mb-5 flex items-end justify-between gap-4">
           <div>
             <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#77818B]">
-              {isReadOnly ? "Block structure" : "Core workbench"}
+              {t(isReadOnly ? "Block structure" : "Core workbench")}
             </p>
             <h2 className="mt-1.5 text-xl font-semibold tracking-[-0.03em] text-[#F3F5F1]">
-              {isReadOnly ? "Set preview" : "Log the block"}
+              {t(isReadOnly ? "Set preview" : "Log the block")}
             </h2>
           </div>
 
-          <span className="text-xs font-semibold text-[#A7A2D8]">
-            {exercises.length} exercises
-          </span>
+          <span className="text-xs font-semibold text-[#A7A2D8]">{t("{count} exercises", { count: exercises.length })}</span>
         </div>
 
         <div className="space-y-5">
@@ -431,12 +420,8 @@ export default function CoreWorkflowCard({
         {!isReadOnly ? (
           <div className="mt-5 border-t border-[#2A3138] pt-4">
             <div className="mb-3 flex items-center justify-between gap-3 text-xs">
-              <span className="text-[#77818B]">
-                Done marks what was actually performed.
-              </span>
-              <span className="shrink-0 font-semibold tabular-nums text-[#AAB2BA]">
-                {completedSetCount}/{totalSetCount} sets
-              </span>
+              <span className="text-[#77818B]">{t("Done marks what was actually performed.")}</span>
+              <span className="shrink-0 font-semibold tabular-nums text-[#AAB2BA]">{t("{value0}/{value1} sets", { value0: completedSetCount, value1: totalSetCount })}</span>
             </div>
 
             <button
@@ -444,7 +429,7 @@ export default function CoreWorkflowCard({
               onClick={onCloseCoreBlock}
               className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#B8F36B] px-5 text-sm font-semibold text-[#0B0E11] transition-colors hover:bg-[#C8F78F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8F78F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101419]"
             >
-              {finishButtonLabel}
+              {t(finishButtonLabel)}
               <ArrowRight className="h-4 w-4" aria-hidden="true" />
             </button>
           </div>
@@ -461,16 +446,12 @@ export default function CoreWorkflowCard({
             className="flex min-h-16 w-full items-center justify-between gap-4 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#B8F36B]/65"
           >
             <div>
-              <h2 className="text-base font-semibold text-[#E4E8E3]">
-                Core notes
-              </h2>
-              <p className="mt-1 text-sm leading-5 text-[#77818B]">
-                Progression and reminders for this support block.
-              </p>
+              <h2 className="text-base font-semibold text-[#E4E8E3]">{t("Core notes")}</h2>
+              <p className="mt-1 text-sm leading-5 text-[#77818B]">{t("Progression and reminders for this support block.")}</p>
             </div>
 
             <span className="flex shrink-0 items-center gap-1.5 text-sm font-semibold text-[#A7A2D8]">
-              {isCoachNotesOpen ? "Hide" : "View"}
+              {t(isCoachNotesOpen ? "Hide" : "View")}
               <ChevronDown
                 className={`h-4 w-4 transition-transform motion-reduce:transition-none ${
                   isCoachNotesOpen ? "rotate-180" : ""
@@ -496,11 +477,9 @@ export default function CoreWorkflowCard({
                       01
                     </span>
                     <div>
-                      <h3 className="text-sm font-semibold text-[#E4E8E3]">
-                        Progression
-                      </h3>
+                      <h3 className="text-sm font-semibold text-[#E4E8E3]">{t("Progression")}</h3>
                       <p className="mt-1 text-sm leading-6 text-[#AAB2BA]">
-                        {coreBlock.details.progression}
+                        {t(coreBlock.details.progression)}
                       </p>
                     </div>
                   </div>
@@ -509,12 +488,10 @@ export default function CoreWorkflowCard({
                 {coreBlock.details?.notes?.length > 0 ? (
                   <div className="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-3 border-t border-[#2A3138] pt-4">
                     <span className="text-sm font-semibold tabular-nums text-[#77818B]">
-                      {coreBlock.details?.progression ? "02" : "01"}
+                      {t(coreBlock.details?.progression ? "02" : "01")}
                     </span>
                     <div>
-                      <h3 className="text-sm font-semibold text-[#E4E8E3]">
-                        Key reminders
-                      </h3>
+                      <h3 className="text-sm font-semibold text-[#E4E8E3]">{t("Key reminders")}</h3>
                       <ul className="mt-2 space-y-2">
                         {coreBlock.details.notes.map((note) => (
                           <li
@@ -522,7 +499,7 @@ export default function CoreWorkflowCard({
                             className="flex gap-2 text-sm leading-6 text-[#AAB2BA]"
                           >
                             <span className="mt-[0.65rem] h-1 w-1 shrink-0 rounded-full bg-[#77818B]" />
-                            <span>{note}</span>
+                            <span>{t(note)}</span>
                           </li>
                         ))}
                       </ul>
@@ -533,17 +510,15 @@ export default function CoreWorkflowCard({
                 {coreBlock.note ? (
                   <div className="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-3 border-t border-[#2A3138] pt-4">
                     <span className="text-sm font-semibold tabular-nums text-[#77818B]">
-                      {coreBlock.details?.progression &&
+                      {t(coreBlock.details?.progression &&
                       coreBlock.details?.notes?.length > 0
                         ? "03"
-                        : "02"}
+                        : "02")}
                     </span>
                     <div>
-                      <h3 className="text-sm font-semibold text-[#E4E8E3]">
-                        Scheduling
-                      </h3>
+                      <h3 className="text-sm font-semibold text-[#E4E8E3]">{t("Scheduling")}</h3>
                       <p className="mt-1 text-sm leading-6 text-[#AAB2BA]">
-                        {coreBlock.note}
+                        {t(coreBlock.note)}
                       </p>
                     </div>
                   </div>

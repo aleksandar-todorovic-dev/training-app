@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n/useTranslation";
 import { useId, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
@@ -53,13 +54,14 @@ function getMethodSummary(advancedTechniqueType) {
 }
 
 function TargetItem({ label, value }) {
+  const { t } = useTranslation();
   return (
     <div className="min-w-0 px-1.5 text-center">
       <p className="text-[0.62rem] font-semibold uppercase tracking-[0.1em] text-[#77818B]">
-        {label}
+        {t(label)}
       </p>
       <p className="mt-1 whitespace-nowrap text-xs font-semibold tabular-nums text-[#F3F5F1] min-[360px]:text-sm">
-        {value}
+        {t(value)}
       </p>
     </div>
   );
@@ -94,6 +96,7 @@ export default function ExerciseWorkflowCard({
   onUpdateSetField,
   onCloseExercise,
 }) {
+  const { t } = useTranslation();
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const [isAdvancedHelpOpen, setIsAdvancedHelpOpen] = useState(false);
   const [isMethodOpen, setIsMethodOpen] = useState(false);
@@ -133,7 +136,7 @@ export default function ExerciseWorkflowCard({
   const finishButtonLabel =
     isClosedLog || isClosed ? "Return to day" : "Finish exercise";
   const completedSetCount = sets.filter((set) => set.isDone).length;
-  const setProgressLabel = `${completedSetCount} of ${sets.length} performed`;
+  const setProgressLabel = t("{value0} of {value1} performed", { value0: completedSetCount, value1: sets.length });
 
   return (
     <>
@@ -143,13 +146,8 @@ export default function ExerciseWorkflowCard({
             role="note"
             className="border-l-2 border-[#77818B] bg-[#13181D]/55 px-4 py-3"
           >
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#AAB2BA]">
-              Read-only preview
-            </p>
-            <p className="mt-1 text-sm leading-6 text-[#AAB2BA]">
-              Review the prescription now. Logging opens when this day becomes
-              current.
-            </p>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#AAB2BA]">{t("Read-only preview")}</p>
+            <p className="mt-1 text-sm leading-6 text-[#AAB2BA]">{t("Review the prescription now. Logging opens when this day becomes current.")}</p>
           </section>
         ) : null}
 
@@ -158,12 +156,8 @@ export default function ExerciseWorkflowCard({
             role="note"
             className="border-l-2 border-[#79C89A] bg-[#79C89A]/[0.05] px-4 py-3"
           >
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#A7DDB9]">
-              Saved log
-            </p>
-            <p className="mt-1 text-sm leading-6 text-[#AAB2BA]">
-              Review or adjust the values already stored for this closed day.
-            </p>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#A7DDB9]">{t("Saved log")}</p>
+            <p className="mt-1 text-sm leading-6 text-[#AAB2BA]">{t("Review or adjust the values already stored for this closed day.")}</p>
           </section>
         ) : null}
 
@@ -171,13 +165,13 @@ export default function ExerciseWorkflowCard({
           <div className="flex items-center gap-2">
             <Crosshair className="h-4 w-4 text-[#B8F36B]" aria-hidden="true" />
             <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">
-              {isReadOnly ? "Exercise focus" : "Today's focus"}
+              {t(isReadOnly ? "Exercise focus" : "Today's focus")}
             </p>
           </div>
 
           <p className="mt-2 text-base font-medium leading-6 text-[#E4E8E3]">
-            {exercise.cue ??
-              "Keep the movement controlled and log the work you actually perform."}
+            {t(exercise.cue ??
+              "Keep the movement controlled and log the work you actually perform.")}
           </p>
         </section>
 
@@ -193,14 +187,12 @@ export default function ExerciseWorkflowCard({
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <Zap className="h-4 w-4 text-[#F1B864]" aria-hidden="true" />
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#F4C87F]">
-                    Prescribed method
-                  </p>
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#F4C87F]">{t("Prescribed method")}</p>
                 </div>
                 <p className="mt-1 text-sm leading-5 text-[#AAB2BA]">
-                  {isMethodOpen
+                  {t(isMethodOpen
                     ? "Use the sequence below before logging the working set."
-                    : methodSummary}
+                    : methodSummary)}
                 </p>
               </div>
 
@@ -221,24 +213,17 @@ export default function ExerciseWorkflowCard({
                   exit="exit"
                 >
                   <p className="text-sm leading-6 text-[#D8D0C1]">
-                    {advancedTechnique}
+                    {t(advancedTechnique)}
                   </p>
 
-                  <p className="mt-3 border-l-2 border-[#F1B864]/45 pl-3 text-xs leading-5 text-[#AAB2BA]">
-                    Advanced intensity methods are optional. Skip them when
-                    normal working sets are not controlled, form is breaking
-                    down, fatigue is too high, or pain or joint irritation is
-                    present.
-                  </p>
+                  <p className="mt-3 border-l-2 border-[#F1B864]/45 pl-3 text-xs leading-5 text-[#AAB2BA]">{t("Advanced intensity methods are optional. Skip them when normal working sets are not controlled, form is breaking down, fatigue is too high, or pain or joint irritation is present.")}</p>
 
                   {advancedTechniqueHelp ? (
                     <button
                       type="button"
                       onClick={() => setIsAdvancedHelpOpen(true)}
                       className="mt-3 inline-flex min-h-11 items-center rounded-lg border border-[#F1B864]/28 px-3 text-sm font-semibold text-[#F4C87F] transition-colors hover:bg-[#F1B864]/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F1B864]"
-                    >
-                      Open method help
-                    </button>
+                    >{t("Open method help")}</button>
                   ) : null}
                 </MotionDiv>
               ) : null}
@@ -251,18 +236,14 @@ export default function ExerciseWorkflowCard({
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <ListChecks className="h-4 w-4 text-[#AAB2BA]" aria-hidden="true" />
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">
-                  Working targets
-                </p>
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">{t("Working targets")}</p>
               </div>
 
               <button
                 type="button"
                 onClick={() => setIsHelpOpen(true)}
                 className="inline-flex min-h-11 items-center px-2 text-sm font-semibold text-[#AAB2BA] transition-colors hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]"
-              >
-                Help
-              </button>
+              >{t("Help")}</button>
             </div>
 
             <div className="mt-3 grid grid-cols-4 divide-x divide-[#2A3138] py-1">
@@ -276,16 +257,14 @@ export default function ExerciseWorkflowCard({
           <div className="border-t border-[#2A3138] bg-[#101419]/62">
             <div className="flex items-end justify-between gap-4 px-3.5 pb-3 pt-4">
               <div>
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">
-                  Workbench
-                </p>
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">{t("Workbench")}</p>
                 <h2 className="mt-1 text-xl font-semibold tracking-[-0.03em] text-[#F3F5F1]">
-                  {isReadOnly ? "Set preview" : "Today's work"}
+                  {t(isReadOnly ? "Set preview" : "Today's work")}
                 </h2>
               </div>
 
               <p className="shrink-0 text-xs font-semibold tabular-nums text-[#AAB2BA]">
-                {isReadOnly ? `${sets.length} sets` : setProgressLabel}
+                {t(isReadOnly ? `${sets.length} sets` : setProgressLabel)}
               </p>
             </div>
 
@@ -294,14 +273,14 @@ export default function ExerciseWorkflowCard({
                 <History className="mt-0.5 h-4 w-4 shrink-0 text-[#77818B]" aria-hidden="true" />
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-[#D7DDD7]">
-                    {hasPreviousValues
+                    {t(hasPreviousValues
                       ? "Previous values loaded"
-                      : "No previous values yet"}
+                      : "No previous values yet")}
                   </p>
                   <p className="mt-0.5 text-xs leading-5 text-[#77818B]">
-                    {hasPreviousValues
+                    {t(hasPreviousValues
                       ? "Use them as a reference. Performed sets still begin unchecked."
-                      : "Today's performed work will become a next-cycle reference."}
+                      : "Today's performed work will become a next-cycle reference.")}
                   </p>
                 </div>
               </div>
@@ -315,13 +294,13 @@ export default function ExerciseWorkflowCard({
               }`}
               aria-hidden="true"
             >
-              <span className="text-center">Set</span>
+              <span className="text-center">{t("Set")}</span>
               <span className="grid grid-cols-3 text-center">
-                <span>Kg</span>
-                <span>Reps</span>
-                <span>RIR</span>
+                <span>{t("Kg")}</span>
+                <span>{t("Reps")}</span>
+                <span>{t("RIR")}</span>
               </span>
-              {!isReadOnly ? <span className="text-center">Done</span> : null}
+              {!isReadOnly ? <span className="text-center">{t("Done")}</span> : null}
             </div>
 
             <div>
@@ -346,11 +325,9 @@ export default function ExerciseWorkflowCard({
             {!isReadOnly ? (
               <div className="border-t border-[#2A3138] px-3.5 pb-4 pt-3">
                 <div className="mb-3 flex items-center justify-between gap-3 text-xs">
-                  <span className="text-[#77818B]">
-                    Done marks what was actually performed.
-                  </span>
+                  <span className="text-[#77818B]">{t("Done marks what was actually performed.")}</span>
                   <span className="shrink-0 font-semibold tabular-nums text-[#AAB2BA]">
-                    {setProgressLabel}
+                    {t(setProgressLabel)}
                   </span>
                 </div>
 
@@ -359,7 +336,7 @@ export default function ExerciseWorkflowCard({
                   onClick={onCloseExercise}
                   className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-[#B8F36B] px-5 text-sm font-semibold text-[#0B0E11] transition-colors hover:bg-[#C8F78F] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8F78F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101419]"
                 >
-                  {finishButtonLabel}
+                  {t(finishButtonLabel)}
                   <ArrowRight className="h-4 w-4" aria-hidden="true" />
                 </button>
               </div>
@@ -377,12 +354,8 @@ export default function ExerciseWorkflowCard({
               className="flex min-h-16 w-full items-center justify-between gap-4 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#B8F36B]/65"
             >
               <div>
-                <h2 className="text-base font-semibold text-[#E4E8E3]">
-                  Training notes
-                </h2>
-                <p className="mt-1 text-sm leading-5 text-[#77818B]">
-                  Progression and extra execution cues.
-                </p>
+                <h2 className="text-base font-semibold text-[#E4E8E3]">{t("Training notes")}</h2>
+                <p className="mt-1 text-sm leading-5 text-[#77818B]">{t("Progression and extra execution cues.")}</p>
               </div>
 
               <DisclosureChevron isOpen={isCoachNotesOpen} />
@@ -404,11 +377,9 @@ export default function ExerciseWorkflowCard({
                         01
                       </span>
                       <div>
-                        <h3 className="text-sm font-semibold text-[#E4E8E3]">
-                          Progression
-                        </h3>
+                        <h3 className="text-sm font-semibold text-[#E4E8E3]">{t("Progression")}</h3>
                         <p className="mt-1 text-sm leading-6 text-[#AAB2BA]">
-                          {progression}
+                          {t(progression)}
                         </p>
                       </div>
                     </div>
@@ -417,12 +388,10 @@ export default function ExerciseWorkflowCard({
                   {extraCues.length > 0 ? (
                     <div className="grid grid-cols-[1.75rem_minmax(0,1fr)] gap-3 border-t border-[#2A3138] pt-4">
                       <span className="text-sm font-semibold tabular-nums text-[#77818B]">
-                        {progression ? "02" : "01"}
+                        {t(progression ? "02" : "01")}
                       </span>
                       <div>
-                        <h3 className="text-sm font-semibold text-[#E4E8E3]">
-                          Extra cues
-                        </h3>
+                        <h3 className="text-sm font-semibold text-[#E4E8E3]">{t("Extra cues")}</h3>
                         <ul className="mt-2 space-y-2">
                           {extraCues.map((cue) => (
                             <li
@@ -430,7 +399,7 @@ export default function ExerciseWorkflowCard({
                               className="flex gap-2 text-sm leading-6 text-[#AAB2BA]"
                             >
                               <span className="mt-[0.65rem] h-1 w-1 shrink-0 rounded-full bg-[#77818B]" />
-                              <span>{cue}</span>
+                              <span>{t(cue)}</span>
                             </li>
                           ))}
                         </ul>
@@ -446,8 +415,8 @@ export default function ExerciseWorkflowCard({
 
       <HelpSheet
         isOpen={isHelpOpen}
-        title={exerciseHelp.title}
-        intro={exerciseHelp.intro}
+        title={t(exerciseHelp.title)}
+        intro={t(exerciseHelp.intro)}
         sections={exerciseHelp.sections}
         onClose={() => setIsHelpOpen(false)}
       />
@@ -455,8 +424,8 @@ export default function ExerciseWorkflowCard({
       {advancedTechniqueHelp ? (
         <HelpSheet
           isOpen={isAdvancedHelpOpen}
-          title={advancedTechniqueHelp.title}
-          intro={advancedTechniqueHelp.intro}
+          title={t(advancedTechniqueHelp.title)}
+          intro={t(advancedTechniqueHelp.intro)}
           sections={advancedTechniqueHelp.sections}
           onClose={() => setIsAdvancedHelpOpen(false)}
         />

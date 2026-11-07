@@ -1,8 +1,10 @@
+import { useTranslation } from "../../i18n/useTranslation";
 import { AlertTriangle } from "lucide-react";
 
 import { useAppState } from "../../state/useAppState";
 
 export default function PersistenceNotice() {
+  const { t } = useTranslation();
   const { isPersistenceAvailable } = useAppState();
 
   if (isPersistenceAvailable) {
@@ -20,12 +22,8 @@ export default function PersistenceNotice() {
       </span>
 
       <div className="min-w-0">
-        <p className="text-sm font-semibold text-[#F4C87F]">
-          Progress isn't being saved
-        </p>
-        <p className="mt-1 text-sm leading-6 text-[#AAB2BA]">
-          Avoid refreshing or closing this tab until saving succeeds again.
-        </p>
+        <p className="text-sm font-semibold text-[#F4C87F]">{t("Progress isn't being saved")}</p>
+        <p className="mt-1 text-sm leading-6 text-[#AAB2BA]">{t("Avoid refreshing or closing this tab until saving succeeds again.")}</p>
       </div>
     </div>
   );

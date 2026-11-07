@@ -1,3 +1,4 @@
+import { useTranslation } from "../i18n/useTranslation";
 import { ExternalLink } from "lucide-react";
 
 import AppShell from "../components/layout/AppShell";
@@ -9,16 +10,17 @@ import {
 } from "../data/publicInfo";
 
 export default function PublicInfoPage({ pageKey }) {
+  const { t } = useTranslation();
   const page = publicInfoPages[pageKey];
 
   if (!page) {
     return (
       <GuardState
-        eyebrow="Public information"
-        title="This page could not be loaded."
-        description="Return home and reopen the public-preview information from the app."
+        eyebrow={t("Public information")}
+        title={t("This page could not be loaded.")}
+        description={t("Return home and reopen the public-preview information from the app.")}
         primaryTo="/"
-        primaryLabel="Back to home"
+        primaryLabel={t("Back to home")}
       />
     );
   }
@@ -27,18 +29,18 @@ export default function PublicInfoPage({ pageKey }) {
     <AppShell>
       <div className="flex flex-col gap-7 pb-1">
         <header>
-          <BackControl to="/">Back to home</BackControl>
+          <BackControl to="/">{t("Back to home")}</BackControl>
 
           <p className="mt-5 text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#F4C87F]">
-            {page.eyebrow}
+            {t(page.eyebrow)}
           </p>
 
           <h1 className="mt-2 text-[2.65rem] font-semibold leading-none tracking-[-0.06em] text-[#F3F5F1]">
-            {page.title}
+            {t(page.title)}
           </h1>
 
           <p className="mt-4 max-w-sm text-[0.96rem] leading-6 text-[#AAB2BA]">
-            {page.lead}
+            {t(page.lead)}
           </p>
         </header>
 
@@ -55,7 +57,7 @@ export default function PublicInfoPage({ pageKey }) {
 
                 <div className="min-w-0">
                   <h2 className="text-base font-semibold tracking-[-0.02em] text-[#E5E8E3]">
-                    {section.title}
+                    {t(section.title)}
                   </h2>
 
                   {section.paragraphs?.length ? (
@@ -65,7 +67,7 @@ export default function PublicInfoPage({ pageKey }) {
                           key={paragraph}
                           className="text-sm leading-6 text-[#AAB2BA]"
                         >
-                          {paragraph}
+                          {t(paragraph)}
                         </p>
                       ))}
                     </div>
@@ -82,7 +84,7 @@ export default function PublicInfoPage({ pageKey }) {
                             className="mt-[0.68rem] h-1 w-1 shrink-0 rounded-full bg-[#F1B864]"
                             aria-hidden="true"
                           />
-                          <span>{bullet}</span>
+                          <span>{t(bullet)}</span>
                         </li>
                       ))}
                     </ul>
@@ -96,7 +98,7 @@ export default function PublicInfoPage({ pageKey }) {
                           href={link.href}
                           className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-[#3A434C] bg-[#151A1F] px-3 text-sm font-semibold text-[#DDE1DD] transition-colors hover:border-[#56616B] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/60"
                         >
-                          {link.label}
+                          {t(link.label)}
                           <ExternalLink
                             className="h-3.5 w-3.5 text-[#7E8994]"
                             aria-hidden="true"
@@ -111,11 +113,7 @@ export default function PublicInfoPage({ pageKey }) {
           ))}
         </div>
 
-        <p className="text-xs leading-5 text-[#7E8994]">
-          Effective date: {PUBLIC_INFO_EFFECTIVE_DATE}. These pages describe the
-          current free public preview and should be updated if the product's
-          data flows, business model, or release scope materially change.
-        </p>
+        <p className="text-xs leading-5 text-[#7E8994]">{t("Effective date: {value0}. These pages describe the current free public preview and should be updated if the product's data flows, business model, or release scope materially change.", { value0: PUBLIC_INFO_EFFECTIVE_DATE })}</p>
       </div>
     </AppShell>
   );

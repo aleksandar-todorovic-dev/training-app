@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Outlet, useLocation } from "react-router-dom";
+import DocumentMetadata from "../i18n/DocumentMetadata";
 
 /**
  * Resets document scroll on major route changes.
@@ -39,5 +40,5 @@ export default function ScrollToTopLayout() {
     };
   }, [pathname]);
 
-  return <Outlet />;
+  return <><DocumentMetadata /><Outlet /></>;
 }

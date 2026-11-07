@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n/useTranslation";
 import { Link } from "react-router-dom";
 import { Check, ChevronRight } from "lucide-react";
 
@@ -46,6 +47,7 @@ export default function ExerciseListCard({
   isClosed = false,
   isLast = false,
 }) {
+  const { t } = useTranslation();
   const targetRir = formatTargetRir(exercise.details?.targetRir);
   const isComplete = status === "complete";
   const isPartial = status === "partial";
@@ -96,7 +98,7 @@ export default function ExerciseListCard({
               isNext ? "text-[#F3F5F1]" : "text-[#D7DCDE]",
             ].join(" ")}
           >
-            {exercise.name}
+            {t(exercise.name)}
           </h3>
 
           {stateLabel ? (
@@ -112,14 +114,14 @@ export default function ExerciseListCard({
                       : "text-[#77818B]",
               ].join(" ")}
             >
-              {stateLabel}
+              {t(stateLabel)}
             </span>
           ) : null}
         </div>
 
         <p className="mt-1 line-clamp-1 text-xs font-medium leading-5 text-[#77818B]">
-          {exercise.prescription}
-          {targetRir ? ` · RIR ${targetRir}` : ""}
+          {t(exercise.prescription)}
+          {t(targetRir ? ` · RIR ${targetRir}` : "")}
         </p>
       </div>
 

@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n/useTranslation";
 import { AnimatePresence } from "motion/react";
 import { BookOpenText } from "lucide-react";
 
@@ -22,6 +23,7 @@ export default function HelpSheet({
   sections = [],
   onClose,
 }) {
+  const { t } = useTranslation();
   return (
     <AnimatePresence>
       {isOpen ? (
@@ -30,22 +32,20 @@ export default function HelpSheet({
           onClose={onClose}
           labelledBy="help-sheet-title"
           describedBy={intro ? "help-sheet-description" : undefined}
-          closeLabel="Close help"
+          closeLabel={t("Close help")}
         >
           <header className={UI_SHEET_HEADER}>
             <div className="pr-12">
               <div className="flex items-center gap-2 text-[#F1B864]">
                 <BookOpenText className="h-4 w-4" aria-hidden="true" />
-                <p className="text-[0.67rem] font-semibold uppercase tracking-[0.13em]">
-                  Quick guidance
-                </p>
+                <p className="text-[0.67rem] font-semibold uppercase tracking-[0.13em]">{t("Quick guidance")}</p>
               </div>
 
               <h2
                 id="help-sheet-title"
                 className="mt-3 text-[1.65rem] font-semibold leading-[1.08] tracking-[-0.025em] text-[#F3F5F1]"
               >
-                {title}
+                {t(title)}
               </h2>
 
               {intro ? (
@@ -53,7 +53,7 @@ export default function HelpSheet({
                   id="help-sheet-description"
                   className="mt-3 max-w-[34rem] text-sm leading-6 text-[#AAB2BA]"
                 >
-                  {intro}
+                  {t(intro)}
                 </p>
               ) : null}
             </div>
@@ -74,7 +74,7 @@ export default function HelpSheet({
 
                   <div className="min-w-0">
                     <h3 className="text-sm font-semibold text-[#E4E8E3]">
-                      {section.title}
+                      {t(section.title)}
                     </h3>
 
                     {section.paragraphs?.length ? (
@@ -88,7 +88,7 @@ export default function HelpSheet({
                                 : "text-[#AAB2BA]"
                             }`}
                           >
-                            {paragraph}
+                            {t(paragraph)}
                           </p>
                         ))}
                       </div>
@@ -102,7 +102,7 @@ export default function HelpSheet({
                             className="flex gap-2.5 text-sm leading-6 text-[#AAB2BA]"
                           >
                             <span className="mt-[0.68rem] h-1 w-1 shrink-0 rounded-full bg-[#F1B864]" />
-                            <span>{bullet}</span>
+                            <span>{t(bullet)}</span>
                           </li>
                         ))}
                       </ul>
@@ -117,9 +117,7 @@ export default function HelpSheet({
             <SecondaryButton
               onClick={onClose}
               className="w-full"
-            >
-              Close help
-            </SecondaryButton>
+            >{t("Close help")}</SecondaryButton>
           </footer>
         </BottomSheet>
       ) : null}

@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n/useTranslation";
 import { useId, useState } from "react";
 import { ChevronDown } from "lucide-react";
 
@@ -8,6 +9,7 @@ import { ChevronDown } from "lucide-react";
  * Session information is guidance only and does not affect workout state.
  */
 export default function SessionInfoCard({ sessionInfo, dayGoal, coreBlock }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const contentId = useId();
 
@@ -27,7 +29,7 @@ export default function SessionInfoCard({ sessionInfo, dayGoal, coreBlock }) {
   if (coreBlock) {
     notes.push({
       label: "Support",
-      value: `${coreBlock.name} is a flexible block and stays separate from main-day completion.`,
+      value: t("{value0} is a flexible block and stays separate from main-day completion.", { value0: coreBlock.name }),
     });
   }
 
@@ -45,14 +47,14 @@ export default function SessionInfoCard({ sessionInfo, dayGoal, coreBlock }) {
         aria-controls={contentId}
       >
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-[#DCE1E2]">Training notes</p>
+          <p className="text-sm font-semibold text-[#DCE1E2]">{t("Training notes")}</p>
           <p className="mt-0.5 text-xs leading-5 text-[#77818B]">
-            {helperText}
+            {t(helperText)}
           </p>
         </div>
 
         <span className="flex shrink-0 items-center gap-1.5 text-xs font-semibold text-[#AAB2BA] transition-colors group-hover:text-[#F3F5F1]">
-          {isOpen ? "Hide" : "View"}
+          {t(isOpen ? "Hide" : "View")}
           <ChevronDown
             className={[
               "h-4 w-4 text-[#68727B] transition-transform",
@@ -74,9 +76,9 @@ export default function SessionInfoCard({ sessionInfo, dayGoal, coreBlock }) {
               ].join(" ")}
             >
               <p className="pt-0.5 text-[0.64rem] font-semibold uppercase tracking-[0.11em] text-[#77818B]">
-                {note.label}
+                {t(note.label)}
               </p>
-              <p className="text-sm leading-5 text-[#AAB2BA]">{note.value}</p>
+              <p className="text-sm leading-5 text-[#AAB2BA]">{t(note.value)}</p>
             </div>
           ))}
         </div>

@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n/useTranslation";
 import { createElement } from "react";
 import { ShieldAlert } from "lucide-react";
 
@@ -27,11 +28,12 @@ export default function GuardState({
   secondaryTo,
   secondaryLabel,
 }) {
+  const { t } = useTranslation();
   return (
     <AppShell>
       <div className="flex min-h-[calc(100dvh-3rem)] flex-col">
         {backTo && backLabel ? (
-          <BackControl to={backTo}>{backLabel}</BackControl>
+          <BackControl to={backTo}>{t(backLabel)}</BackControl>
         ) : null}
 
         <div className="flex flex-1 flex-col justify-center py-10">
@@ -46,23 +48,23 @@ export default function GuardState({
 
               <div className="min-w-0">
                 <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#8B949D]">
-                  {eyebrow}
+                  {t(eyebrow)}
                 </p>
 
                 {context ? (
                   <p className="mt-1 truncate text-xs font-medium text-[#AAB2BA]">
-                    {context}
+                    {t(context)}
                   </p>
                 ) : null}
               </div>
             </div>
 
             <h1 className="mt-6 max-w-sm text-[2.35rem] font-semibold leading-[1.02] tracking-[-0.035em] text-[#F3F5F1]">
-              {title}
+              {t(title)}
             </h1>
 
             <p className="mt-4 max-w-sm text-[0.95rem] leading-7 text-[#AAB2BA]">
-              {description}
+              {t(description)}
             </p>
           </header>
 
@@ -70,12 +72,12 @@ export default function GuardState({
 
           <div className="mt-8 flex flex-col gap-3">
             <PrimaryButton to={primaryTo} className="w-full">
-              {primaryLabel}
+              {t(primaryLabel)}
             </PrimaryButton>
 
             {secondaryTo && secondaryLabel ? (
               <SecondaryButton to={secondaryTo} className="w-full">
-                {secondaryLabel}
+                {t(secondaryLabel)}
               </SecondaryButton>
             ) : null}
           </div>

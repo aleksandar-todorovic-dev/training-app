@@ -1,3 +1,4 @@
+import { useTranslation } from "../i18n/useTranslation";
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Link } from "react-router-dom";
@@ -113,6 +114,7 @@ function getActiveCycleEntries(state) {
 }
 
 function ActiveCycleEntry({ entry }) {
+  const { t } = useTranslation();
   const { plan, currentCycleNumber, currentDay, currentDayRoute, cycleRoute } =
     entry;
   const accent = PLAN_ACCENTS[plan.id] ?? PLAN_ACCENTS["bulk-pro"];
@@ -125,24 +127,18 @@ function ActiveCycleEntry({ entry }) {
             className={`h-2 w-2 rounded-full ${accent.dot}`}
             aria-hidden="true"
           />
-          <p className={`text-[0.68rem] font-bold uppercase tracking-[0.16em] ${accent.text}`}>
-            Active cycle
-          </p>
+          <p className={`text-[0.68rem] font-bold uppercase tracking-[0.16em] ${accent.text}`}>{t("Active cycle")}</p>
         </div>
 
-        <p className="text-xs font-semibold text-[#7E8994]">
-          Cycle {currentCycleNumber}
-        </p>
+        <p className="text-xs font-semibold text-[#7E8994]">{t("Cycle {value0}", { value0: currentCycleNumber })}</p>
       </div>
 
       <div className="mt-3 flex items-end justify-between gap-4">
         <div className="min-w-0">
           <h3 className="text-xl font-semibold tracking-[-0.025em] text-[#F3F5F1]">
-            {plan.name}
+            {t(plan.name)}
           </h3>
-          <p className="mt-1 truncate text-sm leading-5 text-[#AAB2BA]">
-            {currentDay.label} · {currentDay.name}
-          </p>
+          <p className="mt-1 truncate text-sm leading-5 text-[#AAB2BA]">{t("{value0} · {value1}", { value0: currentDay.label, value1: currentDay.name })}</p>
         </div>
 
         <span className="shrink-0 text-3xl font-semibold tracking-[-0.07em] text-[#4A545E]">
@@ -154,17 +150,13 @@ function ActiveCycleEntry({ entry }) {
         <Link
           to={currentDayRoute}
           className="inline-flex min-h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-[#F1F4ED] px-4 text-sm font-bold text-[#0A0D10] transition duration-150 ease-out hover:bg-white active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#F1F4ED] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101419] motion-reduce:transition-none motion-reduce:active:scale-100"
-        >
-          Continue training
-          <ChevronRight className="h-4 w-4" aria-hidden="true" />
+        >{t("Continue training")}<ChevronRight className="h-4 w-4" aria-hidden="true" />
         </Link>
 
         <Link
           to={cycleRoute}
           className={`inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border bg-transparent px-4 text-sm font-semibold text-[#C7CDD2] transition-colors hover:bg-white/[0.035] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8E99A4] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101419] ${accent.border}`}
-        >
-          View cycle
-        </Link>
+        >{t("View cycle")}</Link>
       </div>
     </article>
   );
@@ -183,6 +175,7 @@ function ActiveCycleEntry({ entry }) {
  * source data remains unchanged because it ships with the app.
  */
 export default function HomePage() {
+  const { t } = useTranslation();
   const { state, dispatch } = useAppState();
   const [activeValueChipId, setActiveValueChipId] = useState(null);
 
@@ -194,7 +187,7 @@ export default function HomePage() {
 
   function handleResetLocalProgress() {
     const shouldReset = window.confirm(
-      "This will clear all local training progress on this device. Continue?",
+      t("This will clear all local training progress on this device. Continue?"),
     );
 
     if (!shouldReset) {
@@ -221,16 +214,12 @@ export default function HomePage() {
           <div className="inline-flex min-w-0 items-center gap-3">
             <AppMark
               className="h-11 w-11 shrink-0"
-              title="Cycle Coach"
+              title={t("Cycle Coach")}
             />
 
             <div className="min-w-0">
-              <p className="text-base font-semibold tracking-[-0.025em] text-[#F3F5F1]">
-                Cycle Coach
-              </p>
-              <p className="mt-0.5 text-xs font-medium text-[#7E8994]">
-                Structured training companion
-              </p>
+              <p className="text-base font-semibold tracking-[-0.025em] text-[#F3F5F1]">{t("Cycle Coach")}</p>
+              <p className="mt-0.5 text-xs font-medium text-[#7E8994]">{t("Structured training companion")}</p>
             </div>
           </div>
 
@@ -239,16 +228,12 @@ export default function HomePage() {
         {hasActiveCycles ? (
           <section
             className="flex flex-col gap-3"
-            aria-label="Active training cycles"
+            aria-label={t("Active training cycles")}
           >
             <div className="flex items-end justify-between gap-4">
               <div>
-                <p className="text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#7E8994]">
-                  Continue
-                </p>
-                <h2 className="mt-1 text-[1.7rem] font-semibold leading-none tracking-[-0.045em] text-[#F3F5F1]">
-                  Pick up where you stopped.
-                </h2>
+                <p className="text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#7E8994]">{t("Continue")}</p>
+                <h2 className="mt-1 text-[1.7rem] font-semibold leading-none tracking-[-0.045em] text-[#F3F5F1]">{t("Pick up where you stopped.")}</h2>
               </div>
             </div>
 
@@ -267,19 +252,12 @@ export default function HomePage() {
 
         <section className="flex flex-col gap-4">
           <div>
-            <p className="text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#8C97A2]">
-              Training that keeps its order
-            </p>
+            <p className="text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#8C97A2]">{t("Training that keeps its order")}</p>
 
-            <h1 className="mt-2 max-w-sm text-[2.55rem] font-semibold leading-[0.98] tracking-[-0.065em] text-[#F3F5F1]">
-              Your training cycle, organized
-              <span className="text-[#B8F36B]">.</span>
+            <h1 className="mt-2 max-w-sm text-[2.55rem] font-semibold leading-[0.98] tracking-[-0.065em] text-[#F3F5F1]">{t("Your training cycle, organized")}<span className="text-[#B8F36B]">.</span>
             </h1>
 
-            <p className="mt-4 max-w-sm text-[0.96rem] leading-6 text-[#AAB2BA]">
-              Follow Bulk or Cut cycles with guided workouts, previous values,
-              and flexible progress when real life changes the schedule.
-            </p>
+            <p className="mt-4 max-w-sm text-[0.96rem] leading-6 text-[#AAB2BA]">{t("Follow Bulk or Cut cycles with guided workouts, previous values, and flexible progress when real life changes the schedule.")}</p>
           </div>
 
           <div className="border-y border-[#2A3138]">
@@ -311,7 +289,7 @@ export default function HomePage() {
                   </span>
 
                   <span className="min-w-0 flex-1 text-sm font-semibold text-[#DDE1DD]">
-                    {label}
+                    {t(label)}
                   </span>
 
                   <ChevronDown
@@ -343,11 +321,9 @@ export default function HomePage() {
 
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
-                    <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[#9BA5AF]">
-                      Why it matters
-                    </p>
+                    <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-[#9BA5AF]">{t("Why it matters")}</p>
                     <h2 className="mt-1.5 text-lg font-semibold tracking-[-0.025em] text-[#F3F5F1]">
-                      {activeValueChip.title}
+                      {t(activeValueChip.title)}
                     </h2>
                   </div>
 
@@ -355,14 +331,14 @@ export default function HomePage() {
                     type="button"
                     onClick={() => setActiveValueChipId(null)}
                     className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-[#303841] text-[#8C97A2] transition-colors hover:bg-white/[0.035] hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#14191E]"
-                    aria-label="Close explanation"
+                    aria-label={t("Close explanation")}
                   >
                     <X className="h-4 w-4" aria-hidden="true" />
                   </button>
                 </div>
 
                 <p className="mt-3 text-sm leading-6 text-[#AAB2BA]">
-                  {activeValueChip.description}
+                  {t(activeValueChip.description)}
                 </p>
               </MotionDiv>
             ) : null}
@@ -372,17 +348,11 @@ export default function HomePage() {
         <section className="flex flex-col gap-3">
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#7E8994]">
-                Choose your phase
-              </p>
-              <h2 className="mt-1 text-2xl font-semibold tracking-[-0.04em] text-[#F3F5F1]">
-                One system. Two goals.
-              </h2>
+              <p className="text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#7E8994]">{t("Choose your phase")}</p>
+              <h2 className="mt-1 text-2xl font-semibold tracking-[-0.04em] text-[#F3F5F1]">{t("One system. Two goals.")}</h2>
             </div>
 
-            <p className="max-w-[8rem] text-right text-xs leading-4 text-[#6F7A85]">
-              Pick the phase that matches your current goal.
-            </p>
+            <p className="max-w-[8rem] text-right text-xs leading-4 text-[#6F7A85]">{t("Pick the phase that matches your current goal.")}</p>
           </div>
 
           <div className="flex flex-col gap-3">
@@ -398,9 +368,7 @@ export default function HomePage() {
             className="mx-auto flex min-h-9 items-center justify-center gap-2 rounded-lg px-3 text-xs font-medium text-[#7E8994] transition-colors hover:text-[#98A2AC]"
             onClick={handleResetLocalProgress}
           >
-            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
-            Reset local progress
-          </button>
+            <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />{t("Reset local progress")}</button>
         </div>
       </div>
     </AppShell>

@@ -1,3 +1,5 @@
+import { performedSetLabel } from "../i18n/translate.js";
+import { useTranslation } from "../i18n/useTranslation";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence } from "motion/react";
@@ -15,7 +17,6 @@ import { getCoreBlockStatus } from "../utils/runtime/coreStatusHelpers";
 import { getDayMode } from "../utils/runtime/dayModeHelpers";
 import {
   getWorkoutProgress,
-  getPerformedSetLabel,
 } from "../utils/runtime/workoutProgressHelpers";
 
 import AppShell from "../components/layout/AppShell";
@@ -150,6 +151,7 @@ function getProgressSegmentClass(status, isNext) {
  * new day logs from this page.
  */
 export default function DayPage() {
+  const { t } = useTranslation();
   const { planId, dayId } = useParams();
   const navigate = useNavigate();
   const { state, dispatch } = useAppState();
@@ -275,12 +277,12 @@ export default function DayPage() {
 
     return (
       <GuardState
-        eyebrow="Day unavailable"
+        eyebrow={t("Day unavailable")}
         context={plan?.name}
-        title="This training day could not be loaded."
-        description="Return to a valid cycle position and continue from the current planned workout."
+        title={t("This training day could not be loaded.")}
+        description={t("Return to a valid cycle position and continue from the current planned workout.")}
         primaryTo={fallbackTo}
-        primaryLabel={fallbackLabel}
+        primaryLabel={t(fallbackLabel)}
       />
     );
   }
@@ -289,13 +291,13 @@ export default function DayPage() {
     return (
       <GuardState
         backTo="/"
-        backLabel="Back to home"
-        eyebrow="Day checkpoint"
+        backLabel={t("Back to home")}
+        eyebrow={t("Day checkpoint")}
         context={plan.name}
-        title="Start a cycle first."
-        description="This training day becomes active after you explicitly start the plan cycle from Plan Overview."
+        title={t("Start a cycle first.")}
+        description={t("This training day becomes active after you explicitly start the plan cycle from Plan Overview.")}
         primaryTo={`/plan/${planId}`}
-        primaryLabel="Go to plan overview"
+        primaryLabel={t("Go to plan overview")}
       />
     );
   }
@@ -303,14 +305,12 @@ export default function DayPage() {
   return (
     <AppShell>
       <div className="flex flex-col gap-5">
-        <BackControl to={`/plan/${planId}/cycle`}>
-          Back to cycle
-        </BackControl>
+        <BackControl to={`/plan/${planId}/cycle`}>{t("Back to cycle")}</BackControl>
 
         <header>
           <p className="text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-[#77818B]">
-            {plan.name}
-            {currentCycleNumber ? ` · Cycle ${currentCycleNumber}` : ""}
+            {t(plan.name)}
+            {t(currentCycleNumber ? t(" · Cycle {value0}", { value0: currentCycleNumber }) : "")}
           </p>
 
           <div className="mt-3 flex items-start gap-3">
@@ -320,24 +320,22 @@ export default function DayPage() {
 
             <div className="min-w-0 border-l border-[#3A434C] pl-3">
               <h1 className="text-[1.65rem] font-semibold leading-[1.08] tracking-tight text-[#F3F5F1]">
-                {dayDetails.name}
+                {t(dayDetails.name)}
               </h1>
               <p className="mt-2 text-sm leading-6 text-[#AAB2BA]">
-                {dayDetails.goal}
+                {t(dayDetails.goal)}
               </p>
             </div>
           </div>
         </header>
 
-        <section aria-label="Main exercise progress">
+        <section aria-label={t("Main exercise progress")}>
           <div className="flex items-baseline justify-between gap-3">
             <div className="min-w-0">
               <p className="text-sm font-semibold text-[#E1E5E5]">
-                {getPerformedSetLabel(performedMainSetCount, "main")}
+                {performedSetLabel(t, performedMainSetCount, "main")}
               </p>
-              <p className="mt-1 text-xs text-[#AAB2BA]">
-                {completedExerciseCount}/{totalExerciseCount} exercises complete
-              </p>
+              <p className="mt-1 text-xs text-[#AAB2BA]">{t("{value0}/{value1} exercises complete", { value0: completedExerciseCount, value1: totalExerciseCount })}</p>
             </div>
             <p
               className={[
@@ -349,13 +347,13 @@ export default function DayPage() {
                     : "text-[#77818B]",
               ].join(" ")}
             >
-              {dayMode === "active"
+              {t(dayMode === "active"
                 ? "Current day"
                 : dayMode === "finished"
                   ? "Saved log"
                   : dayMode === "upcoming"
                     ? "Preview"
-                    : "Inactive"}
+                    : "Inactive")}
             </p>
           </div>
 
@@ -388,13 +386,13 @@ export default function DayPage() {
             <p
               className={`text-[0.66rem] font-semibold uppercase tracking-[0.13em] ${modeCopy.labelClassName}`}
             >
-              {modeCopy.label}
+              {t(modeCopy.label)}
             </p>
             <h2 className="mt-2 text-lg font-semibold tracking-tight text-[#E9ECEB]">
-              {modeCopy.title}
+              {t(modeCopy.title)}
             </h2>
             <p className="mt-1.5 text-sm leading-6 text-[#AAB2BA]">
-              {modeCopy.body}
+              {t(modeCopy.body)}
             </p>
           </section>
         ) : null}
@@ -403,17 +401,15 @@ export default function DayPage() {
           nextExercise ? (
             <section className="overflow-hidden rounded-[1.25rem] border border-[#3A434C] bg-[#171D22] shadow-[0_18px_38px_rgba(0,0,0,0.24)]">
               <div className="px-4 pb-4 pt-4">
-                <p className="text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-[#C8F78F]">
-                  Next exercise
-                </p>
+                <p className="text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-[#C8F78F]">{t("Next exercise")}</p>
 
                 <h2 className="mt-3 text-[1.55rem] font-semibold leading-tight tracking-tight text-[#F3F5F1]">
-                  {nextExercise.name}
+                  {t(nextExercise.name)}
                 </h2>
 
                 {nextExercise.subtitle ? (
                   <p className="mt-2 text-sm leading-6 text-[#AAB2BA]">
-                    {nextExercise.subtitle}
+                    {t(nextExercise.subtitle)}
                   </p>
                 ) : null}
 
@@ -424,11 +420,11 @@ export default function DayPage() {
                   />
                   <p>
                     <span className="text-[#E1E5E5]">
-                      {nextExercise.prescription}
+                      {t(nextExercise.prescription)}
                     </span>
-                    {nextExerciseTargetRir
+                    {t(nextExerciseTargetRir
                       ? ` · RIR ${nextExerciseTargetRir}`
-                      : ""}
+                      : "")}
                   </p>
                 </div>
 
@@ -436,7 +432,7 @@ export default function DayPage() {
                   to={`/plan/${planId}/day/${dayId}/exercise/${nextExercise.id}`}
                   className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#B8F36B] px-5 text-sm font-semibold text-[#0B0E11] transition duration-150 ease-out hover:bg-[#C8F78F] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8F78F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#171D22] motion-reduce:transition-none motion-reduce:active:scale-100"
                 >
-                  {nextExerciseCtaLabel}
+                  {t(nextExerciseCtaLabel)}
                   <ChevronRight className="ml-2 h-4 w-4" aria-hidden="true" />
                 </Link>
               </div>
@@ -452,12 +448,8 @@ export default function DayPage() {
                     aria-hidden="true"
                   />
                   <span>
-                    <span className="block text-sm font-semibold text-[#E1E5E5]">
-                      View warm-up
-                    </span>
-                    <span className="mt-0.5 block text-xs text-[#77818B]">
-                      Short preparation for this session
-                    </span>
+                    <span className="block text-sm font-semibold text-[#E1E5E5]">{t("View warm-up")}</span>
+                    <span className="mt-0.5 block text-xs text-[#77818B]">{t("Short preparation for this session")}</span>
                   </span>
                 </span>
                 <ChevronRight className="h-4 w-4 text-[#8B7450]" aria-hidden="true" />
@@ -465,23 +457,14 @@ export default function DayPage() {
             </section>
           ) : (
             <section className="rounded-[1.25rem] border border-[#B8F36B]/24 bg-[#B8F36B]/[0.045] p-4 shadow-[0_18px_38px_rgba(0,0,0,0.22)]">
-              <p className="text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-[#C8F78F]">
-                Day checkpoint
-              </p>
-              <h2 className="mt-3 text-[1.45rem] font-semibold leading-tight tracking-tight text-[#F3F5F1]">
-                Ready to finish day
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-[#AAB2BA]">
-                All main exercises are complete or closed. Review anything you
-                need, then move the cycle forward when ready.
-              </p>
+              <p className="text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-[#C8F78F]">{t("Day checkpoint")}</p>
+              <h2 className="mt-3 text-[1.45rem] font-semibold leading-tight tracking-tight text-[#F3F5F1]">{t("Ready to finish day")}</h2>
+              <p className="mt-2 text-sm leading-6 text-[#AAB2BA]">{t("All main exercises are complete or closed. Review anything you need, then move the cycle forward when ready.")}</p>
               <button
                 type="button"
                 onClick={() => setIsFinishDayOpen(true)}
                 className="mt-4 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-[#B8F36B] px-5 text-sm font-semibold text-[#0B0E11] transition duration-150 ease-out hover:bg-[#C8F78F] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#C8F78F] focus-visible:ring-offset-2 focus-visible:ring-offset-[#151B19] motion-reduce:transition-none motion-reduce:active:scale-100"
-              >
-                Finish day
-                <CheckCircle2 className="ml-2 h-4 w-4" aria-hidden="true" />
+              >{t("Finish day")}<CheckCircle2 className="ml-2 h-4 w-4" aria-hidden="true" />
               </button>
             </section>
           )
@@ -496,16 +479,11 @@ export default function DayPage() {
         <section>
           <div className="flex items-end justify-between gap-3">
             <div>
-              <p className="text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-[#77818B]">
-                Workout flow
-              </p>
-              <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-[#F3F5F1]">
-                Main work
-              </h2>
+              <p className="text-[0.66rem] font-semibold uppercase tracking-[0.14em] text-[#77818B]">{t("Workout flow")}</p>
+              <h2 className="mt-1.5 text-xl font-semibold tracking-tight text-[#F3F5F1]">{t("Main work")}</h2>
             </div>
 
-            <p className="pb-0.5 text-xs font-medium text-[#77818B]">
-              {exercises.length} exercises{coreBlock ? " + Core" : ""}
+            <p className="pb-0.5 text-xs font-medium text-[#77818B]">{t("{count} exercises", { count: exercises.length })}{t(coreBlock ? " + Core" : "")}
             </p>
           </div>
 
@@ -548,12 +526,8 @@ export default function DayPage() {
               onClick={() => setIsFinishDayOpen(true)}
               className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-[#3A434C] bg-[#13181D]/65 px-5 text-sm font-semibold text-[#AAB2BA] transition duration-150 ease-out hover:border-[#56616B] hover:bg-[#171D22] hover:text-[#F3F5F1] active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#070A0C] motion-reduce:transition-none motion-reduce:active:scale-100"
             >
-              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-              Finish day
-            </button>
-            <p className="mt-2 text-center text-xs leading-5 text-[#77818B]">
-              Partial and empty days can still be closed honestly.
-            </p>
+              <CheckCircle2 className="h-4 w-4" aria-hidden="true" />{t("Finish day")}</button>
+            <p className="mt-2 text-center text-xs leading-5 text-[#77818B]">{t("Partial and empty days can still be closed honestly.")}</p>
           </section>
         ) : null}
       </div>

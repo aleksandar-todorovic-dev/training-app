@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n/useTranslation";
 import { Link } from "react-router-dom";
 import { Check, ChevronRight, ShieldCheck } from "lucide-react";
 
@@ -32,6 +33,7 @@ export default function CoreBlockCard({
   isClosed = false,
   coreExerciseCount = 3,
 }) {
+  const { t } = useTranslation();
   const isComplete = status === "complete";
   const isPartial = status === "partial";
   const statusLabel = getStatusLabel(status, isClosed);
@@ -61,7 +63,7 @@ export default function CoreBlockCard({
       <div className="min-w-0 flex-1">
         <div className="flex min-w-0 items-start justify-between gap-2">
           <h3 className="min-w-0 text-[0.94rem] font-semibold leading-snug text-[#D7DCDE]">
-            {coreBlock.name}
+            {t(coreBlock.name)}
           </h3>
 
           <span
@@ -74,13 +76,11 @@ export default function CoreBlockCard({
                   : "text-[#C2BEE7]",
             ].join(" ")}
           >
-            {statusLabel}
+            {t(statusLabel)}
           </span>
         </div>
 
-        <p className="mt-1 line-clamp-1 text-xs font-medium leading-5 text-[#77818B]">
-          {coreExerciseCount} core exercises · Movable support block
-        </p>
+        <p className="mt-1 line-clamp-1 text-xs font-medium leading-5 text-[#77818B]">{t("{count} core exercises · Movable support block", { count: coreExerciseCount })}</p>
       </div>
 
       <ChevronRight

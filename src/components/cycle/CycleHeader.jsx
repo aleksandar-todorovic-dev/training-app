@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n/useTranslation";
 export default function CycleHeader({
   planName,
   cycleLabel,
@@ -5,6 +6,7 @@ export default function CycleHeader({
   totalCount = 6,
   phaseAccent = "neutral",
 }) {
+  const { t } = useTranslation();
   const safeTotalCount = totalCount > 0 ? totalCount : 6;
   const isCutPhase = phaseAccent === "cut";
   const safeClosedCount = Math.min(
@@ -21,31 +23,27 @@ export default function CycleHeader({
               isCutPhase ? "text-[#F4C87F]" : "text-[#77818B]"
             }`}
           >
-            {planName}
+            {t(planName)}
           </p>
 
           <h1 className="mt-1.5 text-[2.45rem] font-semibold leading-none tracking-[-0.065em] text-[#F3F5F1]">
-            {cycleLabel}
+            {t(cycleLabel)}
           </h1>
         </div>
 
         <div className="shrink-0 text-right">
           <p className="text-[1.85rem] font-semibold leading-none tracking-[-0.06em] text-[#DDE1DD] tabular-nums">
             {safeClosedCount}
-            <span className="text-base font-medium tracking-normal text-[#77818B]">
-              /{safeTotalCount}
-            </span>
+            <span className="text-base font-medium tracking-normal text-[#77818B]">{t("/{value0}", { value0: safeTotalCount })}</span>
           </p>
-          <p className="mt-1 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-[#77818B]">
-            Days closed
-          </p>
+          <p className="mt-1 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-[#77818B]">{t("Days closed")}</p>
         </div>
       </div>
 
       <div
         className="grid grid-cols-6 gap-1.5"
         role="progressbar"
-        aria-label="Training days closed"
+        aria-label={t("Training days closed")}
         aria-valuemin={0}
         aria-valuemax={safeTotalCount}
         aria-valuenow={safeClosedCount}

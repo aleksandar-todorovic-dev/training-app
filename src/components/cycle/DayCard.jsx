@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n/useTranslation";
 import { Link } from "react-router-dom";
 import { Check, ChevronRight } from "lucide-react";
 
@@ -11,11 +12,12 @@ export default function DayCard({
   mode = "upcoming",
   evidenceState = "upcoming",
 }) {
+  const { t } = useTranslation();
   const isFinished = mode === "finished";
   const isPartial = evidenceState === "partial";
   const isComplete = evidenceState === "complete";
-  const compactStatus = statusDetail ? `${status} · ${statusDetail}` : status;
-  const title = isFinished ? `${day.label} ${day.name}` : day.name;
+  const compactStatus = statusDetail ? t("{status} · {detail}", { status, detail: statusDetail }) : status;
+  const title = isFinished ? t("{label} {name}", { label: day.label, name: day.name }) : day.name;
 
   return (
     <Link
@@ -59,7 +61,7 @@ export default function DayCard({
             isFinished ? "text-[#D3D8D3]" : "text-[#F3F5F1]"
           }`}
         >
-          {title}
+          {t(title)}
         </h3>
 
         <p
@@ -71,15 +73,15 @@ export default function DayCard({
                 : "text-[#8D969E]"
           }`}
         >
-          {compactStatus}
+          {t(compactStatus)}
         </p>
 
         {coreDetail ? (
-          <p className="mt-0.5 text-xs leading-5 text-[#C5C1E7]">{coreDetail}</p>
+          <p className="mt-0.5 text-xs leading-5 text-[#C5C1E7]">{t(coreDetail)}</p>
         ) : null}
 
         {meta ? (
-          <p className="mt-0.5 line-clamp-1 text-xs text-[#7E8994]">{meta}</p>
+          <p className="mt-0.5 line-clamp-1 text-xs text-[#7E8994]">{t(meta)}</p>
         ) : null}
       </div>
 

@@ -5,6 +5,7 @@ import { UI_CONTAINER, UI_PAGE_PERFORMANCE } from "../../styles/ui";
 import { pageContentVariants } from "../../styles/motion";
 import PersistenceNotice from "../system/PersistenceNotice";
 import PublicInfoNav from "../system/PublicInfoNav";
+import LanguageSelector from "../system/LanguageSelector";
 
 const MotionDiv = motion.div;
 
@@ -29,6 +30,7 @@ export default function AppShell({ children }) {
           animate="visible"
         >
           <PersistenceNotice />
+          <LanguageSelector />
           {children}
           <PublicInfoNav />
         </MotionDiv>

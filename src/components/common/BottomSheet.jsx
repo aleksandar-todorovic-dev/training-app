@@ -1,3 +1,4 @@
+import { useTranslation } from "../../i18n/useTranslation";
 import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { motion, useReducedMotion } from "motion/react";
@@ -55,6 +56,7 @@ export default function BottomSheet({
   closeLabel = "Close sheet",
   panelClassName = "",
 }) {
+  const { t } = useTranslation();
   const panelRef = useRef(null);
   const closeButtonRef = useRef(null);
   const restoreFocusRef = useRef(null);
@@ -163,7 +165,7 @@ export default function BottomSheet({
             type="button"
             onClick={() => onCloseRef.current?.()}
             className="absolute right-3 top-3 inline-flex h-10 w-10 items-center justify-center rounded-full text-[#77818B] transition-colors hover:bg-[#1C2329] hover:text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]/65 motion-reduce:transition-none"
-            aria-label={closeLabel}
+            aria-label={t(closeLabel)}
           >
             <X className="h-4.5 w-4.5" aria-hidden="true" />
           </button>

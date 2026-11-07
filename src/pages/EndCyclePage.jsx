@@ -1,3 +1,4 @@
+import { useTranslation } from "../i18n/useTranslation";
 import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
@@ -49,6 +50,7 @@ const EVIDENCE_TONES = {
 };
 
 function ClosedDayProgress({ value, total }) {
+  const { t } = useTranslation();
   const safeTotal = total > 0 ? total : 6;
   const clampedValue = Math.min(Math.max(value, 0), safeTotal);
 
@@ -56,16 +58,14 @@ function ClosedDayProgress({ value, total }) {
     <div
       className="mt-5"
       role="progressbar"
-      aria-label="Closed training days"
+      aria-label={t("Closed training days")}
       aria-valuemin={0}
       aria-valuemax={safeTotal}
       aria-valuenow={clampedValue}
     >
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-medium text-[#8B949D]">Training days closed</p>
-        <p className="text-xs font-bold tabular-nums text-[#DDE1DD]">
-          {clampedValue}/{safeTotal}
-        </p>
+        <p className="text-xs font-medium text-[#8B949D]">{t("Training days closed")}</p>
+        <p className="text-xs font-bold tabular-nums text-[#DDE1DD]">{t("{value0}/{value1}", { value0: clampedValue, value1: safeTotal })}</p>
       </div>
 
       <div className="mt-2 grid grid-cols-6 gap-1.5" aria-hidden="true">
@@ -83,6 +83,7 @@ function ClosedDayProgress({ value, total }) {
 }
 
 function CycleEvidenceRow({ index, label, helper, value, tone = "neutral" }) {
+  const { t } = useTranslation();
   const toneClasses = EVIDENCE_TONES[tone] ?? EVIDENCE_TONES.neutral;
 
   return (
@@ -95,20 +96,21 @@ function CycleEvidenceRow({ index, label, helper, value, tone = "neutral" }) {
       </div>
 
       <div className="min-w-0">
-        <p className="text-sm font-semibold text-[#E4E8E4]">{label}</p>
-        <p className="mt-1 text-xs leading-5 text-[#7F8993]">{helper}</p>
+        <p className="text-sm font-semibold text-[#E4E8E4]">{t(label)}</p>
+        <p className="mt-1 text-xs leading-5 text-[#7F8993]">{t(helper)}</p>
       </div>
 
       <p
         className={`shrink-0 text-base font-semibold tabular-nums tracking-tight ${toneClasses.value}`}
       >
-        {value}
+        {t(value)}
       </p>
     </div>
   );
 }
 
 function ContinuityRow({ index, title, children }) {
+  const { t } = useTranslation();
   return (
     <div className="grid grid-cols-[2rem_minmax(0,1fr)] gap-3 border-b border-[#2A3138] py-4 last:border-b-0">
       <span className="pt-0.5 text-[0.65rem] font-semibold tabular-nums text-[#66717B]">
@@ -116,7 +118,7 @@ function ContinuityRow({ index, title, children }) {
       </span>
 
       <div>
-        <h3 className="text-sm font-semibold text-[#E4E8E4]">{title}</h3>
+        <h3 className="text-sm font-semibold text-[#E4E8E4]">{t(title)}</h3>
         <p className="mt-1.5 text-sm leading-6 text-[#98A2AC]">{children}</p>
       </div>
     </div>
@@ -131,6 +133,7 @@ function ContinuityRow({ index, title, children }) {
  * after the user explicitly chooses to start the next cycle.
  */
 export default function EndCyclePage() {
+  const { t } = useTranslation();
   const { planId } = useParams();
   const navigate = useNavigate();
   const { state, dispatch } = useAppState();
@@ -196,11 +199,11 @@ export default function EndCyclePage() {
   if (!plan) {
     return (
       <GuardState
-        eyebrow="Cycle review"
-        title="This plan is unavailable."
-        description="The requested cycle does not belong to a current training plan. Return home and choose a valid plan to continue."
+        eyebrow={t("Cycle review")}
+        title={t("This plan is unavailable.")}
+        description={t("The requested cycle does not belong to a current training plan. Return home and choose a valid plan to continue.")}
         primaryTo="/"
-        primaryLabel="Back to home"
+        primaryLabel={t("Back to home")}
       />
     );
   }
@@ -208,31 +211,24 @@ export default function EndCyclePage() {
   if (!isCycleComplete) {
     return (
       <GuardState
-        eyebrow="Cycle checkpoint"
-        context={`${plan.name} · Cycle ${currentCycleNumber}`}
-        title="Finish the current cycle first."
-        description="A new cycle becomes available after all six training days are intentionally closed. Your logged work can stay partial and honest."
+        eyebrow={t("Cycle checkpoint")}
+        context={t("{value0} · Cycle {value1}", { value0: plan.name, value1: currentCycleNumber })}
+        title={t("Finish the current cycle first.")}
+        description={t("A new cycle becomes available after all six training days are intentionally closed. Your logged work can stay partial and honest.")}
         icon={RotateCcw}
         primaryTo={`/plan/${planId}/cycle`}
-        primaryLabel="Back to cycle"
+        primaryLabel={t("Back to cycle")}
         secondaryTo={`/plan/${planId}`}
-        secondaryLabel="View plan"
+        secondaryLabel={t("View plan")}
       >
         <section className="rounded-[1.15rem] border border-[#2A3138] bg-[#13181D] px-4 py-4">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.13em] text-[#8B949D]">
-                Current progress
-              </p>
-              <p className="mt-2 text-sm leading-6 text-[#AAB2BA]">
-                Close the remaining training days from the Cycle Dashboard.
-              </p>
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.13em] text-[#8B949D]">{t("Current progress")}</p>
+              <p className="mt-2 text-sm leading-6 text-[#AAB2BA]">{t("Close the remaining training days from the Cycle Dashboard.")}</p>
             </div>
 
-            <p className="shrink-0 text-lg font-semibold tabular-nums text-[#F4C87F]">
-              {cycleSummary.finishedTrainingDaysCount}/
-              {cycleSummary.totalTrainingDaysCount}
-            </p>
+            <p className="shrink-0 text-lg font-semibold tabular-nums text-[#F4C87F]">{t("{value0}/{value1}", { value0: cycleSummary.finishedTrainingDaysCount, value1: cycleSummary.totalTrainingDaysCount })}</p>
           </div>
 
           <ClosedDayProgress
@@ -247,9 +243,7 @@ export default function EndCyclePage() {
   return (
     <AppShell>
       <div className="flex flex-col gap-8 pb-3">
-        <BackControl to={`/plan/${planId}/cycle`}>
-          Back to cycle
-        </BackControl>
+        <BackControl to={`/plan/${planId}/cycle`}>{t("Back to cycle")}</BackControl>
 
         <header>
           <div className="flex items-center justify-between gap-4">
@@ -259,26 +253,19 @@ export default function EndCyclePage() {
               </span>
 
               <div>
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#9FD9B6]">
-                  Cycle complete
-                </p>
+                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#9FD9B6]">{t("Cycle complete")}</p>
                 <p className={`mt-1 text-xs font-semibold ${meta.phaseText}`}>
-                  {meta.phaseCode}
+                  {t(meta.phaseCode)}
                 </p>
               </div>
             </div>
 
-            <p className="text-xs font-medium text-[#8B949D]">{plan.name}</p>
+            <p className="text-xs font-medium text-[#8B949D]">{t(plan.name)}</p>
           </div>
 
-          <h1 className="mt-6 text-[2.65rem] font-semibold leading-[0.98] tracking-[-0.04em] text-[#F3F5F1]">
-            Cycle {currentCycleNumber} closed.
-          </h1>
+          <h1 className="mt-6 text-[2.65rem] font-semibold leading-[0.98] tracking-[-0.04em] text-[#F3F5F1]">{t("Cycle {value0} closed.", { value0: currentCycleNumber })}</h1>
 
-          <p className="mt-4 max-w-sm text-[0.95rem] leading-7 text-[#AAB2BA]">
-            All training days are closed. This recap reflects what you actually
-            logged, including partial work and separate Core support.
-          </p>
+          <p className="mt-4 max-w-sm text-[0.95rem] leading-7 text-[#AAB2BA]">{t("All training days are closed. This recap reflects what you actually logged, including partial work and separate Core support.")}</p>
 
           <ClosedDayProgress
             value={cycleSummary.finishedTrainingDaysCount}
@@ -288,22 +275,18 @@ export default function EndCyclePage() {
 
         <section aria-labelledby="cycle-evidence-title">
           <div>
-            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.13em] text-[#8B949D]">
-              Cycle evidence
-            </p>
+            <p className="text-[0.68rem] font-semibold uppercase tracking-[0.13em] text-[#8B949D]">{t("Cycle evidence")}</p>
             <h2
               id="cycle-evidence-title"
               className="mt-2 text-xl font-semibold tracking-[-0.02em] text-[#F3F5F1]"
-            >
-              What happened this cycle
-            </h2>
+            >{t("What happened this cycle")}</h2>
           </div>
 
           <div className="mt-4 rounded-[1.15rem] border border-[#2A3138] bg-[#13181D] px-4">
             <CycleEvidenceRow
               index={1}
               label="Training days"
-              helper="Lifecycle progress"
+              helper={t("Lifecycle progress")}
               value={`${cycleSummary.finishedTrainingDaysCount}/${cycleSummary.totalTrainingDaysCount}`}
               tone="mint"
             />
@@ -311,7 +294,7 @@ export default function EndCyclePage() {
             <CycleEvidenceRow
               index={2}
               label="Main exercises"
-              helper="Exercises with useful performed values"
+              helper={t("Exercises with useful performed values")}
               value={`${cycleSummary.loggedMainExercisesCount}/${cycleSummary.totalMainExercisesCount}`}
               tone={mainWorkTone}
             />
@@ -320,11 +303,11 @@ export default function EndCyclePage() {
               index={3}
               label="Partial days"
               helper={
-                isEmptyClosedCycle
+                t(isEmptyClosedCycle
                   ? "No workout values were logged"
                   : hasPartialDays
                     ? "Closed with some prescribed work unfinished"
-                    : "No partial days"
+                    : "No partial days")
               }
               value={cycleSummary.partialDaysCount}
               tone={hasPartialDays ? "amber" : "neutral"}
@@ -334,9 +317,9 @@ export default function EndCyclePage() {
               index={4}
               label="Core blocks"
               helper={
-                hasCoreBlocks
+                t(hasCoreBlocks
                   ? "Separate support work with useful logged values"
-                  : "No Core blocks in this plan"
+                  : "No Core blocks in this plan")
               }
               value={`${cycleSummary.loggedCoreBlocksCount}/${cycleSummary.totalCoreBlocksCount}`}
               tone={coreWorkTone}
@@ -345,41 +328,30 @@ export default function EndCyclePage() {
         </section>
 
         <section aria-labelledby="continuity-title">
-          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.13em] text-[#8B949D]">
-            Continuity
-          </p>
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.13em] text-[#8B949D]">{t("Continuity")}</p>
           <h2
             id="continuity-title"
             className="mt-2 text-xl font-semibold tracking-[-0.02em] text-[#F3F5F1]"
-          >
-            What carries forward
-          </h2>
+          >{t("What carries forward")}</h2>
 
           <div className="mt-3 border-y border-[#2A3138]">
-            <ContinuityRow index={1} title="Logged work stays useful">
-              {isEmptyClosedCycle
+            <ContinuityRow index={1} title={t("Logged work stays useful")}>
+              {t(isEmptyClosedCycle
                 ? "This cycle is closed without new workout values. Earlier valid references can still remain available."
                 : hasPartialLoggedWork
                   ? "The next cycle uses the performed values it can trust. Partial work remains honest instead of being treated as perfect completion."
-                  : "Your performed set values provide useful reference points for the next pass through the plan."}
+                  : "Your performed set values provide useful reference points for the next pass through the plan.")}
             </ContinuityRow>
 
-            <ContinuityRow index={2} title="The next cycle waits for you">
-              Nothing new starts automatically. Cycle {nextCycleNumber} is
-              created only when you choose to begin it.
-            </ContinuityRow>
+            <ContinuityRow index={2} title={t("The next cycle waits for you")}>{t("Nothing new starts automatically. Cycle {value0} is created only when you choose to begin it.", { value0: nextCycleNumber })}</ContinuityRow>
           </div>
         </section>
 
         <section className="rounded-[1.35rem] border border-[#3A434C] bg-[#171D22] p-5 shadow-[0_18px_40px_rgba(0,0,0,0.24)]">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.13em] text-[#C8F78F]">
-                Next cycle
-              </p>
-              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.025em] text-[#F3F5F1]">
-                Cycle {nextCycleNumber} is ready.
-              </h2>
+              <p className="text-[0.68rem] font-semibold uppercase tracking-[0.13em] text-[#C8F78F]">{t("Next cycle")}</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-[-0.025em] text-[#F3F5F1]">{t("Cycle {value0} is ready.", { value0: nextCycleNumber })}</h2>
             </div>
 
             <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-[#B8F36B]/28 bg-[#B8F36B]/[0.08] text-[#C8F78F]">
@@ -387,30 +359,21 @@ export default function EndCyclePage() {
             </span>
           </div>
 
-          <p className="mt-3 text-sm leading-6 text-[#AAB2BA]">
-            Begin again at D1 while keeping this completed cycle available as
-            training context.
-          </p>
+          <p className="mt-3 text-sm leading-6 text-[#AAB2BA]">{t("Begin again at D1 while keeping this completed cycle available as training context.")}</p>
 
           <div className="mt-5 flex items-center gap-2 text-xs font-medium text-[#8F9A91]">
-            <Check className="h-3.5 w-3.5 text-[#79C89A]" aria-hidden="true" />
-            Previous cycle preserved
-          </div>
+            <Check className="h-3.5 w-3.5 text-[#79C89A]" aria-hidden="true" />{t("Previous cycle preserved")}</div>
 
           <div className="mt-5 flex flex-col gap-3">
             <PrimaryButton
               className="w-full"
               onClick={handleStartNewCycle}
-            >
-              Start Cycle {nextCycleNumber}
-            </PrimaryButton>
+            >{t("Start Cycle {value0}", { value0: nextCycleNumber })}</PrimaryButton>
 
             <SecondaryButton
               to={`/plan/${planId}/cycle`}
               className="w-full"
-            >
-              Review days
-            </SecondaryButton>
+            >{t("Review days")}</SecondaryButton>
           </div>
         </section>
       </div>

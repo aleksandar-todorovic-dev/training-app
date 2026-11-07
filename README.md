@@ -51,6 +51,7 @@ Workout progress is stored locally in the browser. Normal Firebase Hosting reque
 - [Technical Architecture](#technical-architecture)
 - [Runtime State Model](#runtime-state-model)
 - [Persistence Model](#persistence-model)
+- [Localization](#localization)
 - [Static Data Structure](#static-data-structure)
 - [Important Runtime Rules](#important-runtime-rules)
 - [UI / UX Direction](#ui--ux-direction)
@@ -485,7 +486,7 @@ The reducer owns state transitions. Persistence stays outside the reducer.
 
 ## Persistence Model
 
-The MVP uses two localStorage concerns with separate responsibilities.
+The MVP uses three localStorage concerns with separate responsibilities: workout state, safety acknowledgement, and language preference.
 
 ### Workout state
 
@@ -543,6 +544,28 @@ This key stores only whether the first-start safety acknowledgement has already 
 It is intentionally separate from workout state. `Reset local progress` clears workout progress but does not clear this acknowledgement.
 
 Static source data is not copied into localStorage.
+
+---
+
+## Localization
+
+The app supports English (`en`, the default) and Serbian Latin (`sr-Latn`). The shared language selector is available on every page, including before a cycle starts. It updates the current screen without navigation or recreating workout state.
+
+English copy in `src/data` and the UI is the reference message key. `src/i18n/sr-Latn/` centralizes Serbian translations by content area. `useTranslation()` supplies `t(source, values)` for display text; `translate.js` supports named interpolation and CLDR singular/few/other count forms through `Intl.PluralRules`. Add or update the corresponding catalog entry whenever English copy changes. Identifiers, route segments, source metadata, input fields, reducer actions, and persisted logs must never use translated values.
+
+`LocaleProvider` stores preference separately under `training-app:v1:locale`. Missing, unsupported, malformed, or unreadable preferences fall back to English. Failed writes keep the selected language for the current visit and show a localized notice. Resetting workout progress does not remove language preference or safety acknowledgement. Clearing site storage removes them.
+
+`DocumentMetadata` updates the HTML language, page title, and description for the current locale and route. The static HTML remains English for the default initial document.
+
+Localization adds no dependencies. It does not change workout prescriptions, D1–D6 order, completion/closure semantics, carry-over, workout storage schema, or public URLs. Both guides clarify existing logging semantics; Privacy discloses the functional local language setting.
+
+Run the source-coverage, interpolation/pluralization, preference/fallback, metadata, rendered-content, and workout-preservation regressions with:
+
+```bash
+node --test tests/*.test.js
+```
+
+See [localization coverage and manual QA](docs/audits/localization-coverage-and-qa.md) for the screen inventory, verification limits, and browser checklist.
 
 ---
 
@@ -942,7 +965,7 @@ Accepted current limitations:
 - Phone landscape is usable but not a primary optimization target.
 - The app is not a PWA yet.
 - Vite may show a non-blocking chunk-size warning.
-- No automated test suite is included yet.
+- Automated tests cover workout progress and localization; live browser interactions and visual accessibility still require manual checks.
 - Accessibility work is a targeted limited-preview smoke, not formal WCAG certification or an exhaustive assistive-technology matrix.
 - The limited preview is intentionally being used to validate real-user comprehension, repeat use, and workout-flow usefulness.
 
@@ -962,7 +985,7 @@ Possible post-MVP directions:
 - machine setup guidance
 - rest/LISS module
 - improved desktop layout
-- automated test coverage
+- broader automated browser coverage
 
 These are intentionally outside the current local-first MVP scope.
 

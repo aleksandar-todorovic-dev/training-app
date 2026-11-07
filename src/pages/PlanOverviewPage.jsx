@@ -1,3 +1,4 @@
+import { useTranslation } from "../i18n/useTranslation";
 import { createElement, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion } from "motion/react";
@@ -141,7 +142,7 @@ const RHYTHM_DAY_LABELS = {
   d6: "Posterior",
 };
 
-function getPrimaryCta({ currentCycle, currentCycleNumber, plan, planId }) {
+function getPrimaryCta({ t, currentCycle, currentCycleNumber, plan, planId }) {
   if (!currentCycle) {
     return {
       mode: "start",
@@ -157,7 +158,7 @@ function getPrimaryCta({ currentCycle, currentCycleNumber, plan, planId }) {
     return {
       mode: "review",
       eyebrow: "Current status",
-      title: `Cycle ${currentCycleNumber} complete`,
+      title: t("Cycle {value0} complete", { value0: currentCycleNumber }),
       body: "Review your completed cycle before starting the next one.",
       label: "Review cycle",
       to: plan ? `/plan/${plan.id}/end-cycle` : `/plan/${planId}/end-cycle`,
@@ -167,7 +168,7 @@ function getPrimaryCta({ currentCycle, currentCycleNumber, plan, planId }) {
   return {
     mode: "continue",
     eyebrow: "Current status",
-    title: `Cycle ${currentCycleNumber} in progress`,
+    title: t("Cycle {value0} in progress", { value0: currentCycleNumber }),
     body: "Continue from your current training day and keep the cycle moving.",
     label: "Continue cycle",
     to: plan ? `/plan/${plan.id}/cycle` : `/plan/${planId}/cycle`,
@@ -175,6 +176,7 @@ function getPrimaryCta({ currentCycle, currentCycleNumber, plan, planId }) {
 }
 
 function CycleProgress({ value, total, meta }) {
+  const { t } = useTranslation();
   const safeTotal = total > 0 ? total : 6;
   const clampedValue = Math.min(Math.max(value, 0), safeTotal);
 
@@ -182,16 +184,14 @@ function CycleProgress({ value, total, meta }) {
     <div
       className="mt-4"
       role="progressbar"
-      aria-label="Cycle progress"
+      aria-label={t("Cycle progress")}
       aria-valuemin={0}
       aria-valuemax={safeTotal}
       aria-valuenow={clampedValue}
     >
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs font-medium text-[#7E8994]">Training days closed</p>
-        <p className="text-xs font-bold tabular-nums text-[#DDE1DD]">
-          {clampedValue}/{safeTotal}
-        </p>
+        <p className="text-xs font-medium text-[#7E8994]">{t("Training days closed")}</p>
+        <p className="text-xs font-bold tabular-nums text-[#DDE1DD]">{t("{value0}/{value1}", { value0: clampedValue, value1: safeTotal })}</p>
       </div>
 
       <div className="mt-2 grid grid-cols-6 gap-1.5" aria-hidden="true">
@@ -217,6 +217,7 @@ function CycleProgress({ value, total, meta }) {
  * state.
  */
 export default function PlanOverviewPage() {
+  const { t } = useTranslation();
   const { planId } = useParams();
   const navigate = useNavigate();
   const { state, dispatch } = useAppState();
@@ -240,11 +241,11 @@ export default function PlanOverviewPage() {
   if (!plan) {
     return (
       <GuardState
-        eyebrow="Plan unavailable"
-        title="This training plan could not be loaded."
-        description="Return home and choose one of the current structured plans to continue."
+        eyebrow={t("Plan unavailable")}
+        title={t("This training plan could not be loaded.")}
+        description={t("Return home and choose one of the current structured plans to continue.")}
         primaryTo="/"
-        primaryLabel="Back to home"
+        primaryLabel={t("Back to home")}
       />
     );
   }
@@ -252,6 +253,7 @@ export default function PlanOverviewPage() {
   const meta = PLAN_OVERVIEW_META[plan.id] ?? PLAN_OVERVIEW_META["bulk-pro"];
 
   const primaryCta = getPrimaryCta({
+    t,
     currentCycle,
     currentCycleNumber,
     plan,
@@ -318,22 +320,22 @@ export default function PlanOverviewPage() {
     <AppShell>
       <div className="flex flex-col gap-7 pb-1">
         <header>
-          <BackControl to="/">Back to home</BackControl>
+          <BackControl to="/">{t("Back to home")}</BackControl>
 
           <div className="mt-4">
             <p className={`text-[0.68rem] font-bold uppercase tracking-[0.18em] ${meta.accentText}`}>
-              {meta.eyebrow}
+              {t(meta.eyebrow)}
             </p>
 
             <h1 className="mt-2 text-[2.8rem] font-semibold leading-none tracking-[-0.075em] text-[#F3F5F1]">
-              {meta.title}
+              {t(meta.title)}
             </h1>
 
             <p className="mt-3 text-base font-semibold leading-6 text-[#DDE1DD]">
-              {meta.lead}
+              {t(meta.lead)}
             </p>
             <p className="mt-1.5 max-w-sm text-sm leading-6 text-[#AAB2BA]">
-              {meta.description}
+              {t(meta.description)}
             </p>
 
             <div className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1.5">
@@ -343,7 +345,7 @@ export default function PlanOverviewPage() {
                     <span className="h-1 w-1 rounded-full bg-[#46515B]" aria-hidden="true" />
                   ) : null}
                   <span className="text-[0.65rem] font-bold uppercase tracking-[0.12em] text-[#7E8994]">
-                    {label}
+                    {t(label)}
                   </span>
                 </span>
               ))}
@@ -366,23 +368,21 @@ export default function PlanOverviewPage() {
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-[0.65rem] font-bold uppercase tracking-[0.17em] text-[#7E8994]">
-                  {displayedPrimaryCta.eyebrow}
+                  {t(displayedPrimaryCta.eyebrow)}
                 </p>
                 <h2 className="mt-1.5 text-2xl font-semibold tracking-[-0.045em] text-[#F3F5F1]">
-                  {displayedPrimaryCta.title}
+                  {t(displayedPrimaryCta.title)}
                 </h2>
                 <p className="mt-1.5 text-sm leading-5 text-[#AAB2BA]">
-                  {displayedPrimaryCta.body}
+                  {t(displayedPrimaryCta.body)}
                 </p>
               </div>
 
               <div className={`shrink-0 rounded-xl border px-3 py-2 text-center ${meta.accentBorder} ${meta.accentSoft}`}>
                 <p className={`text-2xl font-semibold leading-none tracking-[-0.06em] ${meta.accentText}`}>
-                  {closedTrainingDays}
+                  {t(closedTrainingDays)}
                 </p>
-                <p className="mt-1 text-[0.58rem] font-bold uppercase tracking-[0.14em] text-[#74808A]">
-                  of {totalTrainingDays}
-                </p>
+                <p className="mt-1 text-[0.58rem] font-bold uppercase tracking-[0.14em] text-[#74808A]">{t("of {value0}", { value0: totalTrainingDays })}</p>
               </div>
             </div>
 
@@ -397,7 +397,7 @@ export default function PlanOverviewPage() {
               onClick={handlePrimaryCtaClick}
               className={`mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold text-[#0A0D10] transition duration-150 ease-out hover:brightness-105 active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[#13181D] motion-reduce:transition-none motion-reduce:active:scale-100 ${meta.accentBg} ${meta.focusRing}`}
             >
-              {displayedPrimaryCta.label}
+              {t(displayedPrimaryCta.label)}
               <ChevronRight className="h-4 w-4" aria-hidden="true" />
             </Link>
           </div>
@@ -406,12 +406,8 @@ export default function PlanOverviewPage() {
         <section>
           <div className="flex items-end justify-between gap-4">
             <div>
-              <p className="text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#7E8994]">
-                Plan contract
-              </p>
-              <h2 className="mt-1 text-xl font-semibold tracking-[-0.035em] text-[#F3F5F1]">
-                What this phase asks from you.
-              </h2>
+              <p className="text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#7E8994]">{t("Plan contract")}</p>
+              <h2 className="mt-1 text-xl font-semibold tracking-[-0.035em] text-[#F3F5F1]">{t("What this phase asks from you.")}</h2>
             </div>
           </div>
 
@@ -424,38 +420,28 @@ export default function PlanOverviewPage() {
                 } ${index > 1 ? "border-t border-[#2A3138]" : ""}`}
               >
                 <div className={`flex h-8 w-8 items-center justify-center rounded-lg border ${meta.accentBorder} ${meta.accentSoft} ${meta.accentMutedText}`}>
-                  {createElement(icon, {
+                  {t(createElement(icon, {
                     className: "h-3.5 w-3.5",
                     "aria-hidden": "true",
-                  })}
+                  }))}
                 </div>
-                <dt className="mt-3 text-xs font-medium text-[#7E8994]">{label}</dt>
-                <dd className="mt-0.5 text-sm font-semibold text-[#E2E6E1]">{value}</dd>
+                <dt className="mt-3 text-xs font-medium text-[#7E8994]">{t(label)}</dt>
+                <dd className="mt-0.5 text-sm font-semibold text-[#E2E6E1]">{t(value)}</dd>
               </div>
             ))}
           </dl>
         </section>
 
         <section>
-          <p className="text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#7E8994]">
-            Cycle rhythm
-          </p>
-          <h2 className="mt-1 text-xl font-semibold tracking-[-0.035em] text-[#F3F5F1]">
-            Two sessions. One recovery slot. Repeat.
-          </h2>
-          <p className="mt-2 text-sm leading-6 text-[#AAB2BA]">
-            Your 9-day rhythm keeps the order stable while your schedule stays
-            flexible. D1-D6 show the workout order, not days of the week. If
-            your schedule shifts, continue with the next planned workout.
-          </p>
+          <p className="text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#7E8994]">{t("Cycle rhythm")}</p>
+          <h2 className="mt-1 text-xl font-semibold tracking-[-0.035em] text-[#F3F5F1]">{t("Two sessions. One recovery slot. Repeat.")}</h2>
+          <p className="mt-2 text-sm leading-6 text-[#AAB2BA]">{t("Your 9-day rhythm keeps the order stable while your schedule stays flexible. D1-D6 show the workout order, not days of the week. If your schedule shifts, continue with the next planned workout.")}</p>
 
           <div className="mt-4 flex flex-col gap-2.5">
             {rhythmGroups.map((group, groupIndex) => (
               <div key={groupIndex} className="grid grid-cols-[3.4rem_1fr] items-stretch gap-2">
                 <div className="flex items-center justify-center border-r border-[#2A3138] pr-2">
-                  <span className="text-[0.62rem] font-bold uppercase tracking-[0.14em] text-[#59646E]">
-                    Block {groupIndex + 1}
-                  </span>
+                  <span className="text-[0.62rem] font-bold uppercase tracking-[0.14em] text-[#59646E]">{t("Block {value0}", { value0: groupIndex + 1 })}</span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-1.5">
@@ -476,7 +462,7 @@ export default function PlanOverviewPage() {
                       >
                         <div className="flex items-center justify-between gap-1.5">
                           <p className={`text-xs font-bold ${isRest ? "text-[#69747E]" : meta.accentText}`}>
-                            {item.label}
+                            {t(item.label)}
                           </p>
                           {isRest ? (
                             <Moon className="h-3 w-3 text-[#59646E]" aria-hidden="true" />
@@ -485,7 +471,7 @@ export default function PlanOverviewPage() {
                           )}
                         </div>
                         <p className={`mt-1.5 truncate text-[0.68rem] font-semibold leading-tight ${isRest ? "text-[#69747E]" : "text-[#DDE1DD]"}`}>
-                          {rhythmLabel}
+                          {t(rhythmLabel)}
                         </p>
                       </div>
                     );
@@ -497,11 +483,9 @@ export default function PlanOverviewPage() {
         </section>
 
         <section>
-          <p className="text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#7E8994]">
-            Operating rules
-          </p>
+          <p className="text-[0.68rem] font-bold uppercase tracking-[0.17em] text-[#7E8994]">{t("Operating rules")}</p>
           <h2 className="mt-1 text-xl font-semibold tracking-[-0.035em] text-[#F3F5F1]">
-            {meta.principlesTitle}
+            {t(meta.principlesTitle)}
           </h2>
 
           <div className="mt-3 border-y border-[#2A3138]">
@@ -515,18 +499,18 @@ export default function PlanOverviewPage() {
                     {String(index + 1).padStart(2, "0")}
                   </span>
                   <span className="flex h-8 w-8 items-center justify-center rounded-lg border border-[#2A3138] text-[#8E99A4]">
-                    {createElement(icon, {
+                    {t(createElement(icon, {
                       className: "h-3.5 w-3.5",
                       "aria-hidden": "true",
-                    })}
+                    }))}
                   </span>
                 </div>
 
                 <div className="min-w-0 pt-0.5">
                   <h3 className="text-base font-semibold tracking-[-0.02em] text-[#E5E8E3]">
-                    {title}
+                    {t(title)}
                   </h3>
-                  <p className="mt-1 text-sm leading-5 text-[#929CA6]">{body}</p>
+                  <p className="mt-1 text-sm leading-5 text-[#929CA6]">{t(body)}</p>
                 </div>
               </div>
             ))}
@@ -542,10 +526,8 @@ export default function PlanOverviewPage() {
           </div>
 
           <div className="min-w-0 flex-1">
-            <h2 className="text-base font-semibold text-[#E5E8E3]">Training guide</h2>
-            <p className="mt-0.5 text-sm leading-5 text-[#929CA6]">
-              Learn how RIR, progression, recovery, and cycle structure work.
-            </p>
+            <h2 className="text-base font-semibold text-[#E5E8E3]">{t("Training guide")}</h2>
+            <p className="mt-0.5 text-sm leading-5 text-[#929CA6]">{t("Learn how RIR, progression, recovery, and cycle structure work.")}</p>
           </div>
 
           <ChevronRight

@@ -1,3 +1,4 @@
+import { useTranslation } from "../i18n/useTranslation";
 import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
@@ -54,6 +55,7 @@ function scrollToPageTop() {
  * section navigation. It does not read or mutate workout progress.
  */
 export default function GuidePage() {
+  const { t } = useTranslation();
   const { planId } = useParams();
 
   const plan = getPlanById(planId);
@@ -93,12 +95,12 @@ export default function GuidePage() {
 
     return (
       <GuardState
-        eyebrow="Training guide"
+        eyebrow={t("Training guide")}
         context={plan?.name}
-        title="This guide could not be loaded."
-        description="Return to a valid plan and reopen its training guide from the plan overview."
+        title={t("This guide could not be loaded.")}
+        description={t("Return to a valid plan and reopen its training guide from the plan overview.")}
         primaryTo={fallbackTo}
-        primaryLabel={fallbackLabel}
+        primaryLabel={t(fallbackLabel)}
       />
     );
   }
@@ -115,18 +117,16 @@ export default function GuidePage() {
             animate="visible"
             exit="exit"
           >
-            <BackControl to={`/plan/${planId}`}>Back to plan</BackControl>
+            <BackControl to={`/plan/${planId}`}>{t("Back to plan")}</BackControl>
 
             <header>
               <div className="flex items-center justify-between gap-4">
                 <p
                   className={`text-[0.68rem] font-semibold uppercase tracking-[0.14em] ${tone.accentText}`}
-                >
-                  Training guide
-                </p>
+                >{t("Training guide")}</p>
 
                 <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#77818B]">
-                  {tone.phaseCode}
+                  {t(tone.phaseCode)}
                 </p>
               </div>
 
@@ -139,33 +139,29 @@ export default function GuidePage() {
 
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-[#AAB2BA]">
-                    {plan.name}
+                    {t(plan.name)}
                   </p>
 
                   <h1 className="mt-1 text-[2.45rem] font-semibold leading-[0.98] tracking-[-0.045em] text-[#F3F5F1]">
-                    {guide.title.replace(`${plan.name} `, "")}
+                    {t(guide.title.replace(`${plan.name} `, ""))}
                   </h1>
                 </div>
               </div>
 
               <p className="mt-5 max-w-[25rem] text-[0.95rem] leading-7 text-[#AAB2BA]">
-                {guide.intro}
+                {t(guide.intro)}
               </p>
 
               <div className="mt-5 grid grid-cols-2 border-y border-[#2A3138] py-3">
                 <div>
-                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">
-                    Sections
-                  </p>
+                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">{t("Sections")}</p>
                   <p className="mt-1 text-lg font-semibold tabular-nums text-[#F3F5F1]">
                     {guide.groups.length}
                   </p>
                 </div>
 
                 <div className="border-l border-[#2A3138] pl-4">
-                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">
-                    Topics
-                  </p>
+                  <p className="text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">{t("Topics")}</p>
                   <p className="mt-1 text-lg font-semibold tabular-nums text-[#F3F5F1]">
                     {totalTopicCount}
                   </p>
@@ -174,27 +170,18 @@ export default function GuidePage() {
             </header>
 
             <aside className="border-l-2 border-[#F1B864]/58 pl-4">
-              <p className="text-sm font-semibold text-[#F4C87F]">
-                Read only what helps the next decision.
-              </p>
-              <p className="mt-1 text-sm leading-6 text-[#8E98A2]">
-                Training screens stay action-first. Deeper cycle, progression,
-                logging, and recovery guidance lives here when you need it.
-              </p>
+              <p className="text-sm font-semibold text-[#F4C87F]">{t("Read only what helps the next decision.")}</p>
+              <p className="mt-1 text-sm leading-6 text-[#8E98A2]">{t("Training screens stay action-first. Deeper cycle, progression, logging, and recovery guidance lives here when you need it.")}</p>
             </aside>
 
             <section aria-labelledby="guide-section-index-title">
               <div className="flex items-end justify-between gap-4">
                 <div>
-                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#77818B]">
-                    Section index
-                  </p>
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-[#77818B]">{t("Section index")}</p>
                   <h2
                     id="guide-section-index-title"
                     className="mt-1.5 text-xl font-semibold tracking-[-0.025em] text-[#F3F5F1]"
-                  >
-                    Choose the question you are solving
-                  </h2>
+                  >{t("Choose the question you are solving")}</h2>
                 </div>
               </div>
 
@@ -217,16 +204,14 @@ export default function GuidePage() {
                       <span
                         className={`block text-base font-semibold leading-snug tracking-[-0.015em] text-[#E8ECE8] transition-colors ${tone.hoverText}`}
                       >
-                        {group.title}
+                        {t(group.title)}
                       </span>
 
                       <span className="mt-1.5 block text-sm leading-5 text-[#8E98A2]">
-                        {group.intro}
+                        {t(group.intro)}
                       </span>
 
-                      <span className="mt-2 block text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">
-                        {group.topics.length} topics
-                      </span>
+                      <span className="mt-2 block text-[0.65rem] font-semibold uppercase tracking-[0.12em] text-[#77818B]">{t("{count} topics", { count: group.topics.length })}</span>
                     </span>
 
                     <ChevronRight
@@ -247,9 +232,7 @@ export default function GuidePage() {
             animate="visible"
             exit="exit"
           >
-            <BackControl onClick={handleBackToSections}>
-              Guide sections
-            </BackControl>
+            <BackControl onClick={handleBackToSections}>{t("Guide sections")}</BackControl>
 
             <GuideGroupCard
               group={activeGroup}
@@ -260,9 +243,7 @@ export default function GuidePage() {
             />
 
             <div className="border-t border-[#2A3138] pt-5">
-              <BackControl onClick={handleBackToSections}>
-                Back to all guide sections
-              </BackControl>
+              <BackControl onClick={handleBackToSections}>{t("Back to all guide sections")}</BackControl>
             </div>
           </MotionSection>
         )}

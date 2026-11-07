@@ -28,6 +28,7 @@ export const publicInfoPages = {
         paragraphs: [
           "The current preview stores workout progress locally in your browser. This includes plan and cycle progress, set completion, weights, reps, RIR values, and related training-log state.",
           "A one-time safety acknowledgement is also stored locally so the first-start notice does not need to appear every time.",
+          "Your language preference is stored locally as a functional setting, separately from workout progress. Reset local progress does not remove it; clearing site storage does.",
           "There is currently no Cycle Coach account, workout database, or cloud backup. Clearing browser or site storage can remove locally saved progress.",
         ],
       },
