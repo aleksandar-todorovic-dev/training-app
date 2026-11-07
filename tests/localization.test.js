@@ -136,7 +136,7 @@ test("document language, description and route metadata update in both languages
     updateDocumentMetadata("sr-Latn", path, document);
     assert.equal(document.documentElement.lang, "sr-Latn");
     assert.match(document.title, /^Cycle Coach · /);
-    assert.match(description, /pomoćnik za trening/);
+    assert.match(description, /pomoćnik za strukturisan trening/);
     updateDocumentMetadata("en", path, document);
     assert.equal(document.documentElement.lang, "en");
     assert.match(description, /structured training companion/);
@@ -202,9 +202,27 @@ function render(name, state, locale, path = "/", url = "/", props = {}) {
 }
 function localized(html) {
   assert.doesNotMatch(html.replace(/<[^>]*>/g, " "), /\b(?:Done|Read-only preview|Closed partial|exercises complete|Next exercise|Smith Bench Press|Cycle \d+)\b/);
+  assert.doesNotMatch(html, /\{(?:count|value\d+|plan|cycle|day|label|name)\}/);
 }
 
 for (const planId of ["bulk-pro", "cut-pro"]) {
+  test(`${planId}: Serbian read-only Exercise previews translate set counts`, () => {
+    const w = workout(planId);
+    const snapshot = JSON.stringify(w.state());
+    const day = getDayDetails(planId, "d2");
+    const expectedCounts = { 1: "1 serija", 2: "2 serije", 3: "3 serije", 4: "4 serije" };
+
+    for (const exercise of getExercisesForDay(planId, day.exerciseIds)) {
+      const html = render("ExercisePage", w.state(), "sr-Latn",
+        "/plan/:planId/day/:dayId/exercise/:exerciseId", `/plan/${planId}/day/d2/exercise/${exercise.id}`);
+      assert.ok(html.includes(`>${expectedCounts[exercise.setCount]}</p>`), exercise.id);
+      assert.doesNotMatch(html, /\b\d+ sets?\b|<input|aria-pressed=/);
+    }
+
+    assert.equal(JSON.stringify(w.state()), snapshot);
+    assert.equal(w.cycle().dayLogs.d2, undefined);
+  });
+
   test(`${planId}: both languages cover every day, exercise, Core block, guide group and warm-up`, () => {
     const w = workout(planId);
     const snapshot = JSON.stringify(w.state());
@@ -341,8 +359,8 @@ for (const planId of ["bulk-pro", "cut-pro"]) {
     w.send(actions.TOGGLE_EXERCISE_SET_DONE, { dayId: "d1", exerciseId, setIndex: 1 });
     w.send(actions.MARK_EXERCISE_CLOSED, { dayId: "d1", exerciseId, closedAt: "closed-exercise" });
     html = render("ExercisePage", w.state(), "sr-Latn", "/plan/:planId/day/:dayId/exercise/:exerciseId", `/plan/${planId}/day/d1/exercise/${exerciseId}`);
-    assert.match(html, /Zatvoreno delimično/);
-    assert.match(html, /Vrati se na dan/);
+    assert.match(html, /Zatvoreno · Deo odrađen/);
+    assert.match(html, /Nazad na pregled dana/);
     assert.match(html, /Označi seriju 1 kao neodrađenu/);
     assert.match(html, /Serija 1: težina/);
     assert.match(html, /value="60"/);
@@ -362,7 +380,7 @@ for (const planId of ["bulk-pro", "cut-pro"]) {
     assert.equal(JSON.stringify(w.state()), snapshot);
     w.send(actions.FINISH_DAY, { dayId: "d2", finishedAt: "core-only-day" });
     html = render("CyclePage", w.state(), "sr-Latn", "/plan/:planId/cycle", `/plan/${planId}/cycle`);
-    assert.match(html, /Zatvoreno delimično · Odrađena 1 glavna serija/);
+    assert.match(html, /Zatvoreno · Deo odrađen · Odrađena 1 glavna serija/);
     assert.match(html, /Zatvoreno · Odrađeno 0 glavnih serija/);
     assert.match(html, /Odrađena 1 Core serija/);
   });

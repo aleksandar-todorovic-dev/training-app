@@ -264,7 +264,7 @@ export default function ExerciseWorkflowCard({
               </div>
 
               <p className="shrink-0 text-xs font-semibold tabular-nums text-[#AAB2BA]">
-                {t(isReadOnly ? `${sets.length} sets` : setProgressLabel)}
+                {isReadOnly ? t("{count} sets", { count: sets.length }) : setProgressLabel}
               </p>
             </div>
 

@@ -58,6 +58,66 @@ Rendered checks cover every day and exercise, all Core entries, warm-ups, guide 
 
 These are unit and server-rendering tests using existing React/Vite/ESLint tooling. They do not execute browser effects, click native controls, or establish visual/accessibility conformance. Metadata effects call a separately tested document updater. The browser runtime reported no connected browser during implementation, so the checklist below remains pending. The production build's chunk-size warning remains a known limitation; the bundled translation catalogs increase asset size.
 
+## Serbian editorial standard — November 7, 2026
+
+The complete editorial pass reviewed all 1,611 original entries against the English source and their presentation context, followed by a cross-catalog consistency review. Counts refer to message keys; plural variants belong to one entry. Clear existing translations were retained.
+
+| Catalog | Reviewed | Changed |
+| --- | ---: | ---: |
+| `support.js` | 164 | 67 |
+| `exercises.js` | 493 | 224 |
+| `guides.js` | 294 | 174 |
+| `plans.js` | 17 | 9 |
+| `warmups.js` | 98 | 35 |
+| `public.js` | 89 | 37 |
+| `ui.js` | 456 | 139 |
+| **Total** | **1,611** | **685** |
+
+### Voice and translation rules
+
+- Preserve the calm, knowledgeable, disciplined and practical English voice, including its respect for recovery and real-life interruptions. Address the user as `ti`; use natural gender-neutral phrasing where available.
+- Keep workout actions brief and concrete. Preserve the explanatory depth and memorable formulations in Guides. Home must communicate structure, guided execution, continuity and realistic logging without generic fitness hype.
+- Translate complete meanings in context. Interpret `clean`, `honest`, `strict` and `grindy` according to technique, range, RIR estimation or effort; avoid automatic word substitutions.
+- Preserve numbers, ranges, percentages, timing, movement directions, muscle focus, optionality and progression conditions. `Near 7` stays approximate; a prerequisite for increasing load must not become an unconditional instruction to increase it.
+- Preserve every legal/safety qualifier, risk statement, data-flow disclosure and limitation. The first-start acknowledgement confirms an opportunity to review the linked guidance and terms, not that the user has read or accepted additional obligations.
+- Keep English keys and source copy unchanged. Check linked fragments and interpolated messages as complete rendered sentences. Retain Serbian `one` / `few` / `other` forms and their existing placeholders.
+
+### Terminology
+
+| Concept | Serbian expression and context |
+| --- | --- |
+| Working / ramp sets | `radne serije` / `uvodne serije` |
+| Performed sets | `odrađene serije`; only Done confirms performance, independently of entered values |
+| Exercise completion | `Završeno` for all prescribed sets performed; closing remains a separate workflow action |
+| Closed / closed partial | `Zatvoreno` / `Zatvoreno · Deo odrađen`; partial requires some performed work, while an empty closed log remains distinct |
+| Active partial work | `Delimično odrađeno`; this does not imply closure |
+| Progression / progress | `napredovanje` for the process and rules; `napredak` for the result |
+| Previous values / carry-over | `prethodne vrednosti`, `polazne vrednosti`, `prenos vrednosti`; loaded references do not mark new sets Done and may come from an earlier valid cycle |
+| Logging / inputs / record | `beleženje` / `unos` / `dnevnik treninga` or an individual `zapis` |
+| Recovery / rest | `oporavak` / `odmor` |
+| Training stimulus / mechanical tension | `trenažni stimulans` / `mehanička napetost`; keep load (`opterećenje`) distinct |
+| Main / support / top-up work | `glavni rad` / `pomoćni rad` / smaller planned `dodatni rad`; top-ups are not automatically optional bonuses |
+| Bridge work | `povezujući rad` or work that `povezuje delove ciklusa`; this role is within the training cycle, distinct from carrying values into the next cycle |
+| Useful strength | Contextual `snaga u vežbama`; no new strength metric or numerical target is implied |
+| RIR | `RIR`, explained as estimated `ponavljanja u rezervi`, with proper repetitions still possible |
+| Advanced methods | `dropset`, `rest-pause`, `klaster serija`, `mehanička serija`, `mehanički dropset`, `izometrijsko istezanje pod opterećenjem`; keep distinct methods distinct |
+| Deload | `rasterećenje`, explained as lighter training |
+| Core / hollow body | Keep `Core` as the product section; use `trup` in execution cues and `Hollow body izdržaj` as the recognizable exercise name |
+
+### Context and verification boundaries
+
+Static plan descriptions and active Plan Overview presentation metadata were both reviewed. The former are retained even where the current UI does not display them. Source `cluster` is translated as a generic `niz` in the push-up mechanical-dropset sequence, and as `klaster` for the defined short-rest method; the actual sequences remain unchanged.
+
+No new component changes or contextual message keys were necessary. The existing read-only Exercise set-count interpolation fix and its regression tests remain intact. Existing wording assertions were updated to the reviewed labels, and rendered Serbian checks now also reject unresolved named placeholders. Training numbers, placeholder sets and all English keys remain unchanged.
+
+The current direct `t()` template/accessible-attribute audit found no constructed English template strings. The source-coverage test still primarily inspects literals and JSX text; it is not proof against every future dynamically constructed message. Review new dynamic copy explicitly and pass values through the existing interpolation system.
+
+English warm-up percentage instructions do not explicitly state their percentage base; this editorial pass preserves those instructions without assuming a base. `Useful strength` and `hollow body` wording remain terminology choices for product-owner review, without changed training instructions.
+
+The browser matrix below remains pending. Longer Serbian labels and the known `ODRAĐENO` set-table header spacing belong to the separate UI polish pass; no layout changes are included here.
+
+Verification for this editorial pass passed: `node --test tests/*.test.js` (localization and workout regression files), `npm run lint`, `npm run build`, and `git diff --check`. The production JavaScript asset is 912.68 kB (259.47 kB gzip); the existing chunk-size warning remains. The pre-existing Exercise component fix and the complete read-only preview regression test were compared with their starting contents and preserved unchanged.
+
 ## Manual browser QA — perform together
 
 Use an isolated browser profile or a copy of saved logs. Run each applicable item in **English and Srpski**, for **Bulk Pro and Cut Pro**, at **375 × 812** and **390 × 844** CSS pixels, then spot-check desktop.
