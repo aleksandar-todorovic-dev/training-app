@@ -89,7 +89,7 @@ The complete editorial pass reviewed all 1,611 original entries against the Engl
 | Working / ramp sets | `radne serije` / `uvodne serije` |
 | Performed sets | `odrađene serije`; only Done confirms performance, independently of entered values |
 | Exercise completion | `Završeno` for all prescribed sets performed; closing remains a separate workflow action |
-| Closed / closed partial | `Zatvoreno` / `Zatvoreno · Deo odrađen`; partial requires some performed work, while an empty closed log remains distinct |
+| Closed / closed partial | `Zatvoreno` / `Zatvoreno · Delimično odrađeno`; partial requires some performed work, while an empty closed log remains distinct |
 | Active partial work | `Delimično odrađeno`; this does not imply closure |
 | Progression / progress | `napredovanje` for the process and rules; `napredak` for the result |
 | Previous values / carry-over | `prethodne vrednosti`, `polazne vrednosti`, `prenos vrednosti`; loaded references do not mark new sets Done and may come from an earlier valid cycle |
@@ -117,6 +117,35 @@ English warm-up percentage instructions do not explicitly state their percentage
 The browser matrix below remains pending. Longer Serbian labels and the known `ODRAĐENO` set-table header spacing belong to the separate UI polish pass; no layout changes are included here.
 
 Verification for this editorial pass passed: `node --test tests/*.test.js` (localization and workout regression files), `npm run lint`, `npm run build`, and `git diff --check`. The production JavaScript asset is 912.68 kB (259.47 kB gzip); the existing chunk-size warning remains. The pre-existing Exercise component fix and the complete read-only preview regression test were compared with their starting contents and preserved unchanged.
+
+## Final Serbian language QA — November 10, 2026
+
+All 1,611 current entries were reviewed again against the English copy, related messages and their source/rendering context, independently of the earlier change count. A second review checked the resulting corrections for grammar, meaning, terminology, counts and interpolation. The following are **additional** corrections relative to commit `c11e5277d2866958c10769309dd144728d8611c5`; the November 7 counts above remain the record of the earlier pass.
+
+| Catalog | Reviewed | Additionally corrected |
+| --- | ---: | ---: |
+| `support.js` | 164 | 19 |
+| `exercises.js` | 493 | 24 |
+| `guides.js` | 294 | 29 |
+| `plans.js` | 17 | 0 |
+| `warmups.js` | 98 | 6 |
+| `public.js` | 89 | 4 |
+| `ui.js` | 456 | 20 |
+| **Total** | **1,611** | **102** |
+
+Missed problems corrected in this pass include incompatible grammar in the hip-position cue, mixed adjective/clause predicates, an omitted modal verb, awkward numerical-range wording, a lost `may` qualifier, and rest wording that suggested resting after the whole heavy exercise rather than between its sets. Bench leg drive is expressed as steady foot pressure against the floor; chest tension refers clearly to muscles. The decline sit-up and plank step-out names are more precise, and the Hollow body cue now distinguishes raised ribs from the low back lifting off the floor. Recognizable `Hollow body` and `hamstring sweep` names avoid inventing new execution instructions.
+
+Home and Bulk copy retain organization, useful work, repeatable volume, progression and clear next steps without repeating near-synonyms. The more natural partial-closure label is used consistently in its explanation. The first-start acknowledgement reads naturally across both links and still confirms an opportunity to review the information, not that it has been read. Public copy retains the original retention purposes, reasonable-necessity limitation, intentional-use qualifier and medical boundaries.
+
+English keys, placeholders, plural variants, numerical prescriptions, IDs, routes, workout logic and persistence are unchanged. No components or layouts were changed. The read-only set-count fix and its original regression block remain intact. Existing tests were updated for the intentional wording changes and extended to check the complete linked acknowledgement and empty versus partial closed Core states in both plans.
+
+Remaining limitations and follow-up:
+
+- Author clarification is still needed for `Keep the single set long and controlled before increasing load.`: `long` could describe duration or range. The existing range interpretation was retained rather than silently changing the instruction. The previously recorded unspecified warm-up percentage base also remains unchanged.
+- An existing general presentation issue affects both languages: `METHOD_SUMMARY_BY_TYPE` uses camelCase names for several methods while source types use hyphens (`rest-pause`, `iso-stretch`, `mechanical-set`, `mechanical-dropset`). These methods fall back to the generic summary; their detailed instructions/help remain available. This mapping was left unchanged during the language-only corrections.
+- Automated coverage and server rendering do not establish perfect language quality or complete browser validation. The browser matrix below and the separate layout pass, including `ODRAĐENO` spacing, remain pending.
+
+Verification passed for this final pass: `node --test tests/*.test.js` (both localization and workout regression files), `npm run lint`, `npm run build`, and `git diff --check`. Independent comparisons also confirmed all English keys, placeholders and non-date numerical tokens are preserved, as are the prior set-count component fix and its original regression block. The build retains the existing chunk-size warning (913.01 kB JavaScript, 259.53 kB gzip).
 
 ## Manual browser QA — perform together
 

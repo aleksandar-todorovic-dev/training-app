@@ -323,6 +323,10 @@ test("public pages, contextual help, first-start safety and guard screens render
     }
     const safety = render("FirstStartSafetySheet", appInitialState, locale, "/", "/", { isOpen: true });
     assert.ok(safety.includes(escape(t("Train with control."))));
+    if (locale === "sr-Latn") {
+      const safetyText = safety.replace(/<[^>]*>/g, "").replace(/\s+/g, " ");
+      assert.match(safetyText, /Nastavkom potvrđuješ da imaš najmanje 18 godina i da ti je pružena prilika da pregledaš sadržaj stranica Vežbanje i bezbednost i Uslovi probne verzije\s*\./);
+    }
     const guard = render("NotFoundPage", appInitialState, locale);
     assert.ok(guard.includes(escape(t("This training screen does not exist."))));
   }
@@ -359,7 +363,7 @@ for (const planId of ["bulk-pro", "cut-pro"]) {
     w.send(actions.TOGGLE_EXERCISE_SET_DONE, { dayId: "d1", exerciseId, setIndex: 1 });
     w.send(actions.MARK_EXERCISE_CLOSED, { dayId: "d1", exerciseId, closedAt: "closed-exercise" });
     html = render("ExercisePage", w.state(), "sr-Latn", "/plan/:planId/day/:dayId/exercise/:exerciseId", `/plan/${planId}/day/d1/exercise/${exerciseId}`);
-    assert.match(html, /Zatvoreno · Deo odrađen/);
+    assert.match(html, /Zatvoreno · Delimično odrađeno/);
     assert.match(html, /Nazad na pregled dana/);
     assert.match(html, /Označi seriju 1 kao neodrađenu/);
     assert.match(html, /Serija 1: težina/);
@@ -370,7 +374,14 @@ for (const planId of ["bulk-pro", "cut-pro"]) {
     const block = getCoreBlockById(day.coreBlockId);
     const exercises = getCoreExercisesByIds(block.exerciseIds);
     w.send(actions.ENSURE_CORE_BLOCK_LOG, { dayId: "d2", coreBlock: block, coreExercises: exercises });
+    w.send(actions.MARK_CORE_BLOCK_CLOSED, { dayId: "d2", closedAt: "closed-core" });
+    html = render("CorePage", w.state(), "sr-Latn", "/plan/:planId/day/:dayId/core/:coreId", `/plan/${planId}/day/d2/core/${block.id}`);
+    assert.match(html, />Zatvoreno</);
+    assert.doesNotMatch(html, /Zatvoreno · Delimično odrađeno/);
     w.send(actions.TOGGLE_CORE_SET_DONE, { dayId: "d2", coreExerciseId: exercises[0].id, setIndex: 1 });
+    html = render("CorePage", w.state(), "sr-Latn", "/plan/:planId/day/:dayId/core/:coreId", `/plan/${planId}/day/d2/core/${block.id}`);
+    assert.match(html, /Zatvoreno · Delimično odrađeno/);
+    assert.match(html, /Nazad na pregled dana/);
     const snapshot = JSON.stringify(w.state());
     html = render("FinishDaySheet", w.state(), "sr-Latn", "/", "/", { dayDetails: day,
       hasCoreBlock: true, progress: { performedMainSetCount: 0, performedCoreSetCount: 1, completedExerciseCount: 0, totalExerciseCount: day.exerciseIds.length } });
@@ -380,7 +391,7 @@ for (const planId of ["bulk-pro", "cut-pro"]) {
     assert.equal(JSON.stringify(w.state()), snapshot);
     w.send(actions.FINISH_DAY, { dayId: "d2", finishedAt: "core-only-day" });
     html = render("CyclePage", w.state(), "sr-Latn", "/plan/:planId/cycle", `/plan/${planId}/cycle`);
-    assert.match(html, /Zatvoreno · Deo odrađen · Odrađena 1 glavna serija/);
+    assert.match(html, /Zatvoreno · Delimično odrađeno · Odrađena 1 glavna serija/);
     assert.match(html, /Zatvoreno · Odrađeno 0 glavnih serija/);
     assert.match(html, /Odrađena 1 Core serija/);
   });
