@@ -359,10 +359,10 @@ export default function EndCyclePage() {
             </span>
           </div>
 
-          <p className="mt-3 text-sm leading-6 text-[#AAB2BA]">{t("Begin again at D1 while keeping this completed cycle available as training context.")}</p>
+          <p className="mt-3 text-sm leading-6 text-[#AAB2BA]">{t("Start again at D1. Your previous logged values remain available as references for the new cycle.")}</p>
 
           <div className="mt-5 flex items-center gap-2 text-xs font-medium text-[#8F9A91]">
-            <Check className="h-3.5 w-3.5 text-[#79C89A]" aria-hidden="true" />{t("Previous cycle preserved")}</div>
+            <Check className="h-3.5 w-3.5 text-[#79C89A]" aria-hidden="true" />{t("Previous values as references")}</div>
 
           <div className="mt-5 flex flex-col gap-3">
             <PrimaryButton

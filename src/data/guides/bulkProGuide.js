@@ -72,7 +72,7 @@ export const bulkProGuide = {
             "The log should record what you actually did, not what the plan hoped you would do.",
             "A set counts as performed only when you check it as done. Weight, reps, and RIR describe the set, but input values alone do not complete it.",
 
-            '"Closed partial" means work was intentionally closed while incomplete; unchecked sets stay unperformed. "Return to day" goes back without repeating the close action. Closed-day logs can still be reviewed and edited.',
+            '"Closed partial" means work was intentionally closed while incomplete; unchecked sets stay unperformed. "Return to day" goes back without repeating the close action. Closed-day logs in the current cycle can still be reviewed and edited.',
             "Some prescribed methods may combine positions or leverage inside one continuous effort. In the MVP, log that sequence as one set row instead of trying to split every part into separate inputs.",
             "You can finish a day even if every set was not completed. A partial day is still a valid training log. The app does not fake completion just to make the day look perfect.",
             "Core work is recorded separately from main progress; warm-up is guidance only.",
@@ -213,7 +213,7 @@ export const bulkProGuide = {
             "D2 — Back Width: vertical pull for lats, main biceps block, traps, forearms, lower back, and Core A.",
             "D3 — Quad Heavy: main squat/quad work, hamstring spark, calves, and hip stability.",
             "D4 — Shoulders: main shoulder work, traps, light arms, and Core B.",
-            "D5 — Back Depth + Chest Pump: horizontal rows for thickness, a small lat primer, chest pump bridge, light triceps, and Core C.",
+            "D5 — Chest Pump & Rows: horizontal rows for thickness, a small lat primer, chest pump bridge, light triceps, and Core C.",
             "D6 — Posterior Chain: RDL/hamstring/glute focus, calves, quad lunge top-up, biceps, forearms, hips, and lower-back accessory work.",
           ],
         },

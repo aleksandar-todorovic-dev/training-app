@@ -20,7 +20,7 @@ export const cutPro = {
   coreSystem: [
     "6 training days in a 9-day cycle",
     "Train 2 days, rest 1 day, repeat",
-    "Each major muscle group is trained twice per cycle",
+    "Muscle groups receive repeated training stimuli through main, support, and top-up work across the cycle",
     "Core work is integrated into the cycle",
   ],
   keyRules: [

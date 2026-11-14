@@ -26,9 +26,9 @@ export const bulkProWarmups = [
       {
         title: "Ramp sets for bench",
         items: [
-          "8 reps with about 40%. Smooth reps and stable setup.",
-          "5 reps with about 60%. Start bracing like working sets.",
-          "3 reps with about 75%. Fast and clean, no grind.",
+          "8 reps with about 40% of the planned working weight for this exercise. Smooth reps and stable setup.",
+          "5 reps with about 60% of the planned working weight for this exercise. Start bracing like working sets.",
+          "3 reps with about 75% of the planned working weight for this exercise. Fast and clean, no grind.",
           "No fatigue before working sets.",
         ],
       },
@@ -48,7 +48,7 @@ export const bulkProWarmups = [
         items: [
           "Scapular pull-up, 6-8 reps. Hang and move only the shoulder blades.",
           "Band face pull, 12-15 reps. Pull high and keep neck relaxed.",
-          "Band straight-arm pulldown, 10-12 reps. Feel lats before bending elbows.",
+          "Band straight-arm pulldown, 10-12 reps. Keep the elbows nearly extended with a small, fixed bend and pull with the lats.",
         ],
       },
       {
@@ -82,9 +82,9 @@ export const bulkProWarmups = [
       {
         title: "Ramp sets for squat",
         items: [
-          "8 reps with about 40%. Smooth depth and clean brace.",
-          "5 reps with about 60%. Same pattern as working sets.",
-          "3 reps with about 75%. Fast, stable, and confident.",
+          "8 reps with about 40% of the planned working weight for this exercise. Smooth depth and clean brace.",
+          "5 reps with about 60% of the planned working weight for this exercise. Same pattern as working sets.",
+          "3 reps with about 75% of the planned working weight for this exercise. Fast, stable, and confident.",
           "No fatigue before working sets.",
         ],
       },
@@ -139,7 +139,7 @@ export const bulkProWarmups = [
         title: "Light ramp for first block",
         items: [
           "1 light set for Decline DB Press or Dips. Feel the press pattern.",
-          "1 easy assisted pull-up or light row if needed. Wake up lats.",
+          "1 easy introductory set of assisted pull-ups or light rows if needed. Wake up lats.",
           "Keep everything smooth.",
         ],
       },

@@ -250,7 +250,7 @@ export const cutProExercises = [
     subtitle: "Lat isolation with constant tension",
     prescription: "1 x 12-15",
     setCount: 1,
-    cue: "Keep a soft elbow bend, keep the ribs down, and pull with the lats instead of the triceps",
+    cue: "Keep the elbows nearly extended with a small, fixed bend, keep the ribs down, and pull with the lats",
     details: {
       tempo: "2-0-2",
       targetRir: "≈1-2",
@@ -463,7 +463,7 @@ export const cutProExercises = [
     subtitle: "Hamstring spark work",
     prescription: "2 x 10-12",
     setCount: 2,
-    cue: "Keep the setup stable, lower slowly, and squeeze the hamstrings hard at the top",
+    cue: "Keep the setup stable, squeeze the hamstrings hard with the knees bent, and return slowly under control",
     details: {
       tempo: "3-1-2",
       targetRir: "≈1-2",
@@ -474,7 +474,7 @@ export const cutProExercises = [
       extraCues: [
         "Keep the hips glued to the setup",
         "Make the 3-second lowering honest",
-        "Do not rush the top squeeze",
+        "Do not rush the contraction in the bent-knee position",
       ],
     },
   },
@@ -511,7 +511,7 @@ export const cutProExercises = [
       targetRir: "≈1-2",
       rest: "45 s",
       progression:
-        "Keep the single set long and controlled before increasing load.",
+        "Use a full, controlled range of motion throughout the single set before increasing load.",
       advancedTechnique: null,
       extraCues: [
         "Hold tension instead of rushing reps",
@@ -536,7 +536,7 @@ export const cutProExercises = [
       advancedTechnique: null,
       extraCues: [
         "One round = abductor reps + adductor reps",
-        "Switch sides without rushing",
+        "Switch between abduction and adduction without rushing",
         "Keep both directions even and smooth",
         "Treat it like support work, not ego work",
       ],
@@ -931,7 +931,7 @@ export const cutProExercises = [
     subtitle: "Hamstring contraction work",
     prescription: "2 x 10-12",
     setCount: 2,
-    cue: "Stay pinned into the seat, squeeze hard at the top, and lower under control",
+    cue: "Stay pinned into the seat, squeeze the hamstrings hard with the knees bent, and control the return",
     details: {
       tempo: "2-1-1",
       targetRir: "≈1-2",
@@ -941,8 +941,8 @@ export const cutProExercises = [
       advancedTechnique: null,
       extraCues: [
         "Do not lift the hips off the seat",
-        "Hold the top squeeze for one second",
-        "Keep the lowering controlled all the way down",
+        "Hold the hamstring contraction with the knees bent for one second",
+        "Control the return to the starting position",
       ],
     },
   },
@@ -1092,7 +1092,7 @@ export const cutProExercises = [
         "Keep the shoulders down",
         "Use a shoulder-width grip",
         "Do not yank the bar up",
-        "Optional bonus: if forearms feel fresh, add 1 easy wrist-roller rotation after this exercise.",
+        "Optional bonus: if forearms feel fresh, add 1 easy wrist-roller round after this exercise. Each round means winding the weight to the top, then lowering it back down under control.",
       ],
     },
   },
@@ -1112,7 +1112,7 @@ export const cutProExercises = [
       extraCues: [
         "One round = abductor reps + adductor reps",
         "Switch directions without rushing",
-        "Keep both sides even and controlled",
+        "Keep abduction and adduction even and controlled",
         "Treat it like support work, not ego work",
       ],
     },

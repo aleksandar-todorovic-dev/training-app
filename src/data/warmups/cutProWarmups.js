@@ -26,9 +26,9 @@ export const cutProWarmups = [
       {
         title: "Ramp sets for bench",
         items: [
-          "8 reps with about 40%. Smooth reps and stable setup.",
-          "5 reps with about 60%. Brace like working sets.",
-          "3 reps with about 75%. Fast and clean, no grind.",
+          "8 reps with about 40% of the planned working weight for this exercise. Smooth reps and stable setup.",
+          "5 reps with about 60% of the planned working weight for this exercise. Brace like working sets.",
+          "3 reps with about 75% of the planned working weight for this exercise. Fast and clean, no grind.",
           "Keep it easy.",
         ],
       },
@@ -82,9 +82,9 @@ export const cutProWarmups = [
       {
         title: "Ramp sets for squat",
         items: [
-          "8 reps with about 40%. Smooth depth and clean brace.",
-          "5 reps with about 60%. Same pattern as working sets.",
-          "3 reps with about 75%. Fast and stable.",
+          "8 reps with about 40% of the planned working weight for this exercise. Smooth depth and clean brace.",
+          "5 reps with about 60% of the planned working weight for this exercise. Same pattern as working sets.",
+          "3 reps with about 75% of the planned working weight for this exercise. Fast and stable.",
           "Keep it easy.",
         ],
       },
@@ -110,9 +110,9 @@ export const cutProWarmups = [
       {
         title: "Ramp sets for overhead press",
         items: [
-          "8 reps with about 40%. Clean vertical path.",
-          "5 reps with about 60%. Brace and keep ribs down.",
-          "3 reps with about 75%. Fast and stable.",
+          "8 reps with about 40% of the planned working weight for this exercise. Clean vertical path.",
+          "5 reps with about 60% of the planned working weight for this exercise. Brace and keep ribs down.",
+          "3 reps with about 75% of the planned working weight for this exercise. Fast and stable.",
           "No grind.",
         ],
       },
@@ -139,7 +139,7 @@ export const cutProWarmups = [
         title: "Light ramp for first movements",
         items: [
           "1 light set for Decline DB Press or Dips. Feel the press pattern.",
-          "1 easy assisted pull-up if needed. Wake up lats.",
+          "1 easy introductory set of assisted pull-ups if needed. Wake up lats.",
           "Stay fresh for the working sets.",
         ],
       },
@@ -167,9 +167,9 @@ export const cutProWarmups = [
       {
         title: "Ramp sets for RDL",
         items: [
-          "8 reps with about 40%. Groove the hinge.",
-          "5 reps with about 60%. Lats tight, bar close.",
-          "3 reps with about 75%. Clean brace, no strain.",
+          "8 reps with about 40% of the planned working weight for this exercise. Groove the hinge.",
+          "5 reps with about 60% of the planned working weight for this exercise. Lats tight, bar close.",
+          "3 reps with about 75% of the planned working weight for this exercise. Clean brace, no strain.",
           "No lower-back fatigue.",
         ],
       },

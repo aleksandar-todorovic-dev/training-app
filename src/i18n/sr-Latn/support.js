@@ -148,7 +148,7 @@ export default {
   "Shoulders & Arms Light": "Ramena i ruke — lakši trening",
   "Shoulder focus, trap work, and arm top-up": "Naglasak na ramenima, rad za trapez i dodatni rad za ruke",
   "Lateral Raise last set optional dropset -20%; Face-away Cable Curl rest-pause 15 s (+5-6 reps)": "Bočno podizanje: opcioni dropset -20% u poslednjoj seriji; pregib na sajli leđima okrenutim spravi: rest-pause 15 s (+5-6 ponavljanja)",
-  "Chest Pump & Rows": "Grudi — pumpa i veslanja",
+  "Chest Pump & Rows": "Pumpa grudi i veslanja",
   "Chest pump, row bridge, and triceps lock-out": "Pumpa za grudi, veslanja za kontinuitet rada kroz ciklus i naglasak na završnom opružanju tricepsa",
   "Push-up Mechanical Dropset": "Mehanički dropset sklekova",
   "Posterior Chain": "Zadnji mišićni lanac",

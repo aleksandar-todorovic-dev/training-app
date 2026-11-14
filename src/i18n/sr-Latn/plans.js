@@ -6,7 +6,7 @@ export default {
   "Higher-volume plan for size, strength, and long-term progression.": "Plan većeg volumena za mišićnu masu, snagu i dugoročno napredovanje.",
   "6 training days in a 9-day cycle": "6 dana treninga u ciklusu od 9 dana",
   "Train 2 days, rest 1 day, repeat": "Treniraj 2 dana, odmaraj 1 dan i ponovi",
-  "Each major muscle group is trained twice per cycle": "Svaka velika mišićna grupa trenira se dva puta po ciklusu",
+  "Muscle groups receive repeated training stimuli through main, support, and top-up work across the cycle": "Mišićne grupe tokom ciklusa dobijaju ponovljene trenažne stimulanse kroz glavni, pomoćni i dodatni rad",
   "Core work is integrated into the cycle": "Core je uključen u ciklus",
   "Log weight, reps, and RIR": "Beleži težinu, ponavljanja i RIR",
   "Focus on quality sets and progressive overload": "Usmeri se na kvalitetne serije i progresivno opterećenje",

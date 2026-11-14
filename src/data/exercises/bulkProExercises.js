@@ -257,7 +257,7 @@ export const bulkProExercises = [
     subtitle: "Lat isolation with constant tension",
     prescription: "2 x 12-15",
     setCount: 2,
-    cue: "Keep a soft elbow bend, keep the ribs down, and pull with the lats instead of the triceps",
+    cue: "Keep the elbows nearly extended with a small, fixed bend, keep the ribs down, and pull with the lats",
     details: {
       tempo: "2-0-2",
       targetRir: "≈1-2",
@@ -472,13 +472,13 @@ export const bulkProExercises = [
     subtitle: "Hamstring control and tension",
     prescription: "3 x 10-12",
     setCount: 3,
-    cue: "Keep the back on the pad, lower slowly, and squeeze the hamstrings hard at the top",
+    cue: "Keep the back on the pad, squeeze the hamstrings hard with the knees bent, and return slowly under control",
     details: {
       tempo: "3-1-2",
       targetRir: "≈1-2",
       rest: "75-90 s",
       progression:
-        "Stay in the 10-12 range with full control and a clear top squeeze before increasing load.",
+        "Stay in the 10-12 range with a clear hamstring contraction in the bent-knee position and a controlled return before increasing load.",
       advancedTechnique: null,
       extraCues: [
         "Keep the ribs down",
@@ -545,7 +545,7 @@ export const bulkProExercises = [
       extraCues: [
         "Each round = 15 abductor reps + 15 adductor reps",
         "Do not rush the switch between directions",
-        "Keep both sides even and controlled",
+        "Keep abduction and adduction even and controlled",
         "Treat it like support work, not ego work",
       ],
     },
@@ -590,9 +590,9 @@ export const bulkProExercises = [
         "Optional last set dropset: reduce the load by about 20% and continue with controlled reps.",
       advancedTechniqueType: "dropset",
       extraCues: [
-        "Start slightly below shoulder level with control",
+        "Use your full comfortable range of motion with control",
         "Do not shrug into the rep",
-        "Stop around a clean parallel range",
+        "Stop before the movement becomes painful or forced",
       ],
     },
   },
@@ -967,7 +967,7 @@ export const bulkProExercises = [
     subtitle: "Hamstring contraction work",
     prescription: "3 x 10-12",
     setCount: 3,
-    cue: "Stay pinned into the seat, squeeze hard at the top, and lower under control",
+    cue: "Stay pinned into the seat, squeeze the hamstrings hard with the knees bent, and control the return",
     details: {
       tempo: "2-0-2",
       targetRir: "≈1-2",
@@ -977,8 +977,8 @@ export const bulkProExercises = [
       advancedTechnique: null,
       extraCues: [
         "Do not lift the hips off the seat",
-        "Hold the top squeeze for one second",
-        "Keep the lowering controlled all the way down",
+        "Hold the hamstring contraction with the knees bent for one second",
+        "Control the return to the starting position",
       ],
     },
   },
@@ -1064,7 +1064,7 @@ export const bulkProExercises = [
       extraCues: [
         "One round = 15 abductor reps + 15 adductor reps",
         "Switch directions without rushing",
-        "Keep both sides even and controlled",
+        "Keep abduction and adduction even and controlled",
         "Treat it like support work, not ego work",
       ],
     },
@@ -1175,7 +1175,7 @@ export const bulkProExercises = [
         "Keep the shoulders down",
         "Use a shoulder-width grip",
         "Do not yank the bar up",
-        "Optional bonus: if grip feels fresh, add 1-2 easy wrist-roller rotations after this exercise.",
+        "Optional bonus: if grip feels fresh, add 1-2 easy wrist-roller rounds after this exercise. Each round means winding the weight to the top, then lowering it back down under control.",
       ],
     },
   },
