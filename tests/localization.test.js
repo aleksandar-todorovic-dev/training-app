@@ -26,11 +26,13 @@ function storage(initial = {}) {
     getItem: (key) => values.get(key) ?? null,
     setItem: (key, value) => values.set(key, value),
     removeItem: (key) => values.delete(key),
+    get length() { return values.size; },
+    key: (index) => [...values.keys()][index] ?? null,
   };
 }
 
 let vite, appReducer, actions, appInitialState, AppStateContext, LocaleContext;
-let loadStoredAppState, saveStoredAppState, clearStoredAppState;
+let createAppStatePersistence;
 let getPlanById, getDayDetails, getDayDetailsByPlanId, getExercisesForDay;
 let getCoreBlockById, getCoreExercisesByIds, getGuideByPlanId, getWarmupById;
 const components = {};
@@ -42,7 +44,7 @@ before(async () => {
   const load = (path) => vite.ssrLoadModule(`/src/${path}`);
   [
     { appReducer }, { APP_ACTIONS: actions }, { appInitialState }, { AppStateContext }, { LocaleContext },
-    { loadStoredAppState, saveStoredAppState, clearStoredAppState },
+    { createAppStatePersistence },
     { getPlanById }, { getDayDetails, getDayDetailsByPlanId }, { getExercisesForDay },
     { getCoreBlockById, getCoreExercisesByIds }, { getGuideByPlanId }, { getWarmupById },
   ] = await Promise.all([
@@ -205,6 +207,23 @@ function localized(html) {
   assert.doesNotMatch(html, /\{(?:count|value\d+|plan|cycle|day|label|name)\}/);
 }
 
+test("finish-day copy does not claim a current save from the previous persistence status in EN/SR", () => {
+  for (const locale of ["en", "sr-Latn"]) {
+    const t = createTranslator(locale);
+    for (const isPersistenceAvailable of [true, false]) {
+      const html = render("FinishDaySheet", appInitialState, locale, "/", "/", {
+        dayDetails: getDayDetails("bulk-pro", "d1"),
+        progress: { performedMainSetCount: 3, completedExerciseCount: 1, totalExerciseCount: 9 },
+        isPersistenceAvailable,
+      });
+      assert.ok(html.includes(escape(t(isPersistenceAvailable
+        ? "You can close the day and continue the cycle."
+        : "Your latest changes are not saved yet."))));
+      assert.ok(!html.includes(escape(t("Your performed work is saved for this day."))));
+    }
+  }
+});
+
 for (const planId of ["bulk-pro", "cut-pro"]) {
   test(`${planId}: Serbian read-only Exercise previews translate set counts`, () => {
     const w = workout(planId);
@@ -265,14 +284,16 @@ for (const planId of ["bulk-pro", "cut-pro"]) {
     const oldWindow = globalThis.window;
     globalThis.window = { localStorage: store, addEventListener() {}, removeEventListener() {} };
     try {
+      const persistence = createAppStatePersistence();
       const verify = () => {
-        assert.equal(saveStoredAppState(w.state()), true);
-        const bytes = store.getItem("training-app:v1:app-state");
+        assert.equal(persistence.save(w.state()), true);
+        const bytes = store.getItem("training-app:v2:app-state");
+        assert.equal(typeof bytes, "string");
         for (const locale of ["sr-Latn", "en", "sr-Latn"]) {
           saveLocale(locale, store);
           render("CyclePage", w.state(), locale, "/plan/:planId/cycle", `/plan/${planId}/cycle`);
-          assert.equal(store.getItem("training-app:v1:app-state"), bytes);
-          assert.deepEqual(loadStoredAppState(), w.state());
+          assert.equal(store.getItem("training-app:v2:app-state"), bytes);
+          assert.deepEqual(createAppStatePersistence().getSnapshot().state, w.state());
         }
       };
       verify();
@@ -299,7 +320,7 @@ for (const planId of ["bulk-pro", "cut-pro"]) {
       assert.equal(log.sets[0].weight, "55");
       assert.equal(log.sets[0].isDone, false);
       assert.equal(log.closedAt, null);
-      clearStoredAppState();
+      assert.equal(persistence.resetProgress().mode, "ready");
       assert.equal(store.getItem(LOCALE_STORAGE_KEY), "sr-Latn");
     } finally { globalThis.window = oldWindow; }
   });

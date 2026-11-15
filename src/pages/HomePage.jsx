@@ -18,9 +18,7 @@ import AppMark from "../components/brand/AppMark";
 import PlanCard from "../components/plans/PlanCard";
 import { plans } from "../data/plans";
 import { getDaysByPlanId } from "../data/days";
-import { APP_ACTIONS } from "../state/appActions";
 import { useAppState } from "../state/useAppState";
-import { clearStoredAppState } from "../storage/appStateStorage";
 import { pressableTap, revealPanelVariants } from "../styles/motion";
 
 const MotionButton = motion.button;
@@ -176,7 +174,7 @@ function ActiveCycleEntry({ entry }) {
  */
 export default function HomePage() {
   const { t } = useTranslation();
-  const { state, dispatch } = useAppState();
+  const { state, resetProgress } = useAppState();
   const [activeValueChipId, setActiveValueChipId] = useState(null);
 
   const activeValueChip = HOME_VALUE_CHIPS.find(
@@ -187,18 +185,14 @@ export default function HomePage() {
 
   function handleResetLocalProgress() {
     const shouldReset = window.confirm(
-      t("This will clear all local training progress on this device. Continue?"),
+      t("Permanently delete all local workout progress, the original record and recovery copies? Export the original first if you want to keep it. This cannot be undone. Your language and safety preferences will be kept."),
     );
 
     if (!shouldReset) {
       return;
     }
 
-    clearStoredAppState();
-
-    dispatch({
-      type: APP_ACTIONS.RESET_APP_STATE,
-    });
+    resetProgress();
   }
 
   function handleValueChipClick(chipId) {

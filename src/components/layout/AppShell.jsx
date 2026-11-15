@@ -6,6 +6,7 @@ import { pageContentVariants } from "../../styles/motion";
 import PersistenceNotice from "../system/PersistenceNotice";
 import PublicInfoNav from "../system/PublicInfoNav";
 import LanguageSelector from "../system/LanguageSelector";
+import { useAppState } from "../../state/useAppState";
 
 const MotionDiv = motion.div;
 
@@ -14,6 +15,8 @@ const MotionDiv = motion.div;
  */
 export default function AppShell({ children }) {
   const location = useLocation();
+  const { isWorkoutBlocked } = useAppState();
+  const isPublicPage = ["/privacy", "/preview-terms", "/fitness-safety", "/contact"].includes(location.pathname);
 
   return (
     <MotionConfig reducedMotion="user">
@@ -31,7 +34,7 @@ export default function AppShell({ children }) {
         >
           <PersistenceNotice />
           <LanguageSelector />
-          {children}
+          {!isWorkoutBlocked || isPublicPage ? children : null}
           <PublicInfoNav />
         </MotionDiv>
       </main>

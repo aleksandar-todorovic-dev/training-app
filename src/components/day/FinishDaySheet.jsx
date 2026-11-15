@@ -29,6 +29,7 @@ export default function FinishDaySheet({
   progress,
   hasCoreBlock = false,
   missingValueWarningSummary,
+  isPersistenceAvailable = true,
   onClose,
   onConfirmFinish,
 }) {
@@ -168,7 +169,9 @@ export default function FinishDaySheet({
               <p className="mt-1 text-sm leading-6 text-[#C1C7C2]">
                 {t(hasWarnings
                   ? warningText
-                  : "Your performed work is saved for this day.")}
+                  : isPersistenceAvailable
+                    ? "You can close the day and continue the cycle."
+                    : "Your latest changes are not saved yet.")}
               </p>
 
               {!hasNoPerformedSets && warningDetails.length ? (

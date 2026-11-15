@@ -154,7 +154,7 @@ export default function DayPage() {
   const { t } = useTranslation();
   const { planId, dayId } = useParams();
   const navigate = useNavigate();
-  const { state, dispatch } = useAppState();
+  const { state, dispatch, isPersistenceAvailable } = useAppState();
 
   const [isWarmupOpen, setIsWarmupOpen] = useState(false);
   const [isFinishDayOpen, setIsFinishDayOpen] = useState(false);
@@ -544,6 +544,7 @@ export default function DayPage() {
 
         {isFinishDayOpen ? (
           <FinishDaySheet
+            isPersistenceAvailable={isPersistenceAvailable}
             key="finish-day-sheet"
             dayDetails={dayDetails}
             progress={progress}
