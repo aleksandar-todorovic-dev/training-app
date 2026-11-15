@@ -1,0 +1,91 @@
+/**
+ * @typedef {{min: number, max: number}} MethodTarget
+ * @typedef {{phaseId: string, metrics: string[], requiredMetrics: string[],
+ *   targets: Object<string, MethodTarget>, loadRule: 'same-as-base'}} MethodPhase
+ * @typedef {{definitionId: string, revision: number, planId: string,
+ *   exerciseId: string, type: 'rest-pause'|'iso-stretch',
+ *   prescribedSetCount: number, appliesTo: 'last'|'all',
+ *   base: {semantics: 'pre-extension', loadKind: 'external', loadUnit: 'kg'},
+ *   phases: MethodPhase[]}} MethodDefinition
+ */
+
+function freezeDefinition(value) {
+  if (value !== null && typeof value === "object") {
+    Object.values(value).forEach(freezeDefinition);
+    Object.freeze(value);
+  }
+  return value;
+}
+
+/**
+ * Immutable pilot protocols. Targets describe prescriptions, never measurements.
+ * Retain old revisions when protocols change. No UI text is parsed at runtime.
+ * @type {ReadonlyArray<MethodDefinition>}
+ */
+export const advancedMethodDefinitions = freezeDefinition([
+  {
+    definitionId: "bulk-pro/incline-db-press/rest-pause",
+    revision: 1,
+    planId: "bulk-pro",
+    exerciseId: "incline-db-press",
+    type: "rest-pause",
+    prescribedSetCount: 3,
+    appliesTo: "last",
+    base: { semantics: "pre-extension", loadKind: "external", loadUnit: "kg" },
+    phases: [{
+      phaseId: "extra-reps",
+      metrics: ["reps", "restSeconds"],
+      requiredMetrics: ["reps"],
+      targets: { reps: { min: 2, max: 3 }, restSeconds: { min: 15, max: 15 } },
+      loadRule: "same-as-base",
+    }],
+  },
+  {
+    definitionId: "bulk-pro/face-away-cable-curl/rest-pause",
+    revision: 1,
+    planId: "bulk-pro",
+    exerciseId: "face-away-cable-curl",
+    type: "rest-pause",
+    prescribedSetCount: 1,
+    appliesTo: "last",
+    base: { semantics: "pre-extension", loadKind: "external", loadUnit: "kg" },
+    phases: [{
+      phaseId: "extra-reps",
+      metrics: ["reps", "restSeconds"],
+      requiredMetrics: ["reps"],
+      targets: { reps: { min: 5, max: 6 }, restSeconds: { min: 15, max: 15 } },
+      loadRule: "same-as-base",
+    }],
+  },
+  {
+    definitionId: "bulk-pro/cable-stretch-fly/iso-stretch",
+    revision: 1,
+    planId: "bulk-pro",
+    exerciseId: "cable-stretch-fly",
+    type: "iso-stretch",
+    prescribedSetCount: 1,
+    appliesTo: "last",
+    base: { semantics: "pre-extension", loadKind: "external", loadUnit: "kg" },
+    phases: [{
+      phaseId: "loaded-stretch",
+      metrics: ["durationSeconds"],
+      requiredMetrics: ["durationSeconds"],
+      targets: { durationSeconds: { min: 15, max: 15 } },
+      loadRule: "same-as-base",
+    }],
+  },
+]);
+
+/**
+ * Exact, plan-scoped lookup. Missing identity/revision never selects a default.
+ * @param {{planId: string, exerciseId: string, definitionId: string, revision: number}} ref
+ * @returns {MethodDefinition|null}
+ */
+export function getMethodDefinition(ref) {
+  return advancedMethodDefinitions.find((definition) =>
+    definition.planId === ref?.planId &&
+    definition.exerciseId === ref?.exerciseId &&
+    definition.definitionId === ref?.definitionId &&
+    definition.revision === ref?.revision,
+  ) ?? null;
+}
