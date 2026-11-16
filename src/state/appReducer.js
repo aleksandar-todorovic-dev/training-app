@@ -3,6 +3,7 @@ import { appInitialState } from "./appInitialState";
 import { buildInitialDayLog } from "../utils/runtime/dayLogHelpers";
 import { buildInitialCoreBlockLog } from "../utils/runtime/coreLogHelpers";
 import { areAllTrainingDaysFinished } from "../utils/runtime/cycleStatusHelpers";
+import { buildCycleMethodBindings } from "../utils/runtime/advancedMethodContextHelpers.js";
 
 const TRAINING_DAY_ORDER = ["d1", "d2", "d3", "d4", "d5", "d6"];
 
@@ -78,6 +79,8 @@ export function appReducer(state, action) {
 
     case APP_ACTIONS.START_PLAN_CYCLE: {
       const { planId, startedAt } = action.payload;
+      const snapshot = buildCycleMethodBindings({ planId });
+      if (snapshot.status !== "ready") return state;
       const progressByPlan = isRuntimeRecord(state.progressByPlan)
         ? state.progressByPlan
         : {};
@@ -111,6 +114,7 @@ export function appReducer(state, action) {
                 dayLogs: {},
                 startedAt,
                 completedAt: null,
+                methodBindings: snapshot.bindings,
               },
             },
           },
@@ -145,6 +149,7 @@ export function appReducer(state, action) {
       }
 
       const dayLog = buildInitialDayLog(dayDetails, exercises, {
+        planId,
         cycles: planProgress.cycles,
         currentCycleNumber,
       });

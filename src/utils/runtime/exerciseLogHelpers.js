@@ -1,4 +1,5 @@
 import { buildCarryOverSetValues } from "./carryOverHelpers";
+import { resolveCycleMethodBinding } from "./advancedMethodContextHelpers.js";
 
 /**
  * Builds the prescribed runtime set rows for a main exercise.
@@ -14,7 +15,14 @@ export function buildInitialSetRows(exercise, carryOverContext = {}) {
   const hasValidSetCount =
     Number.isInteger(exercise?.setCount) && exercise.setCount > 0;
 
-  const setCount = hasValidSetCount ? exercise.setCount : 0;
+  const cycle = carryOverContext.cycles?.[carryOverContext.currentCycleNumber];
+  const resolved = cycle?.cycleNumber === carryOverContext.currentCycleNumber
+    ? resolveCycleMethodBinding({ planId: carryOverContext.planId, cycle,
+      dayId: carryOverContext.dayId, exerciseId: exercise?.id }) : null;
+  // Only an exact owned definition may override today's scaffold. Existing logs
+  // never reach this constructor; opaque bindings fall back to ordinary rows.
+  const setCount = resolved?.status === "resolved"
+    ? resolved.binding.setCount : hasValidSetCount ? exercise.setCount : 0;
 
   return Array.from({ length: setCount }, (_, index) => {
     const setIndex = index + 1;
