@@ -55,6 +55,7 @@ before(async () => {
   await Promise.all([
     ...["HomePage", "PlanOverviewPage", "CyclePage", "DayPage", "ExercisePage", "CorePage", "GuidePage", "EndCyclePage", "PublicInfoPage", "NotFoundPage"].map((name) => [name, `pages/${name}.jsx`]),
     ["GuideGroupCard", "components/guide/GuideGroupCard.jsx"],
+    ["ExerciseWorkflowCard", "components/exercise/ExerciseWorkflowCard.jsx"],
     ["WarmupSheet", "components/warmup/WarmupSheet.jsx"],
     ["HelpSheet", "components/common/HelpSheet.jsx"],
     ["FirstStartSafetySheet", "components/system/FirstStartSafetySheet.jsx"],
@@ -510,3 +511,79 @@ for (const [exerciseId, phaseId, field] of [
     }
   });
 }
+
+test("all six educational method summaries match source types without activating additional editors", () => {
+  const summaries = {
+    'rest-pause':'Rest-pause · exact method available', 'iso-stretch':'Iso stretch · exact timing available',
+    dropset:'Dropset · exact method available', cluster:'Cluster set · exact structure available',
+    'mechanical-set':'Mechanical set · exact sequence available', 'mechanical-dropset':'Mechanical dropset · exact sequence available',
+  };
+  const pilots = new Set(['incline-db-press','cable-stretch-fly','face-away-cable-curl']);
+  const w = workout('bulk-pro'); const seen = new Set();
+  for (const day of getDayDetailsByPlanId('bulk-pro')) {
+    w.cycle().currentDayId = day.id; w.ensure(day.id);
+    for (const exercise of getExercisesForDay('bulk-pro',day.exerciseIds)) {
+      const type = exercise.details?.advancedTechniqueType;
+      if (!type) continue;
+      seen.add(type);
+      for (const locale of ['en','sr-Latn']) {
+        const t = createTranslator(locale);
+        const html = render('ExercisePage',w.state(),locale,'/plan/:planId/day/:dayId/exercise/:exerciseId',`/plan/bulk-pro/day/${day.id}/exercise/${exercise.id}`);
+        assert.ok(html.includes(escape(t(summaries[type]))),type);
+        assert.ok(html.includes(escape(t('Prescribed method'))));
+        assert.equal(html.includes('data-method-set='),pilots.has(exercise.id));
+      }
+    }
+  }
+  assert.deepEqual([...seen].sort(),Object.keys(summaries).sort());
+  const exercise = getExercisesForDay('bulk-pro',getDayDetails('bulk-pro','d1').exerciseIds)[1];
+  for (const type of ['future-method','toString','__proto__']) for (const locale of ['en','sr-Latn']) {
+    const html = render('ExerciseWorkflowCard',w.state(),locale,'/','/',{exercise:{...exercise,details:{...exercise.details,advancedTechniqueType:type}}});
+    assert.ok(html.includes(escape(createTranslator(locale)('Advanced method · exact sequence available'))));
+    assert.doesNotMatch(html,/data-method-set=/);
+  }
+});
+
+test("guides explain separate field references and limit structured method logging to supported panels", () => {
+  for (const planId of ['bulk-pro','cut-pro']) {
+    const guide = getGuideByPlanId(planId);
+    const topics = guide.groups.flatMap((group)=>group.topics);
+    const previous = topics.find((topic)=>topic.id==='previous-workouts');
+    const logging = topics.find((topic)=>topic.id==='logging-basics');
+    assert.match(previous.paragraphs.join(' '),/earlier performed sets.*Each field is carried forward separately and may come from a different cycle/);
+    assert.doesNotMatch(previous.paragraphs.join(' '),/Use your last logged/);
+    if (planId==='bulk-pro') assert.match(logging.paragraphs.join(' '),/supported rest-pause or iso-stretch panel.*Other advanced methods remain educational guidance/);
+    for (const locale of ['en','sr-Latn']) {
+      const html = render('GuideGroupCard',appInitialState,locale,'/','/',{group:guide.groups.find((group)=>group.topics.includes(previous)),groupIndex:0,groupCount:guide.groups.length});
+      assert.ok(html.includes(escape(createTranslator(locale)(previous.paragraphs[1]))));
+      const loggingHtml = render('GuideGroupCard',appInitialState,locale,'/','/',{group:guide.groups.find((group)=>group.topics.includes(logging)),groupIndex:0,groupCount:guide.groups.length});
+      for (const paragraph of logging.paragraphs) assert.ok(loggingHtml.includes(escape(createTranslator(locale)(paragraph))));
+    }
+  }
+});
+
+test("method-only closed cycle scopes the EN/SR recap to main/Core evidence", async () => {
+  const w = workout('bulk-pro');
+  const method = {choice:'record',phases:{'extra-reps':{execution:'performed',reps:'0',restSeconds:''}}};
+  w.cycle().dayLogs.d1.mainExerciseLogs['incline-db-press'].sets[2].methodLog = method;
+  for (const dayId of ['d1','d2','d3','d4','d5','d6']) {
+    w.ensure(dayId); w.send(actions.FINISH_DAY,{dayId,finishedAt:`closed-${dayId}`});
+  }
+  const {getCycleSummary} = await vite.ssrLoadModule('/src/utils/runtime/cycleSummaryHelpers.js');
+  const summary = getCycleSummary({cycle:w.cycle(),dayDetailsList:getDayDetailsByPlanId('bulk-pro')});
+  assert.equal(summary.finishedTrainingDaysCount,6);
+  assert.equal(summary.loggedMainExercisesCount,0); assert.equal(summary.loggedCoreBlocksCount,0);
+  const before = JSON.stringify(w.state());
+  for (const locale of ['en','sr-Latn']) {
+    const html = render('EndCyclePage',w.state(),locale,'/plan/:planId/end-cycle','/plan/bulk-pro/end-cycle');
+    const t=createTranslator(locale);
+    assert.ok(html.includes(escape(t('No performed main/Core values in this recap'))));
+    assert.ok(html.includes(escape(t('This recap has no values from performed main or Core sets. Earlier valid main-set references may still be available.'))));
+    assert.ok(!html.includes('No workout values were logged') && !html.includes('without new workout values'));
+  }
+  assert.equal(JSON.stringify(w.state()),before);
+  w.send(actions.START_PLAN_CYCLE,{startedAt:'next-cycle'});w.ensure('d1');
+  const row=w.cycle().dayLogs.d1.mainExerciseLogs['incline-db-press'].sets[2];
+  assert.equal(row.methodLog,undefined);assert.equal(row.isDone,false);
+  assert.equal(w.state().progressByPlan['bulk-pro'].cycles[1].dayLogs.d1.mainExerciseLogs['incline-db-press'].sets[2].methodLog,method);
+});

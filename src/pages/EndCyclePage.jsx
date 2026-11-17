@@ -265,7 +265,7 @@ export default function EndCyclePage() {
 
           <h1 className="mt-6 text-[2.65rem] font-semibold leading-[0.98] tracking-[-0.04em] text-[#F3F5F1]">{t("Cycle {value0} closed.", { value0: currentCycleNumber })}</h1>
 
-          <p className="mt-4 max-w-sm text-[0.95rem] leading-7 text-[#AAB2BA]">{t("All training days are closed. This recap reflects what you actually logged, including partial work and separate Core support.")}</p>
+          <p className="mt-4 max-w-sm text-[0.95rem] leading-7 text-[#AAB2BA]">{t("All training days are closed. This recap summarizes performed main-set and Core values, including partial work.")}</p>
 
           <ClosedDayProgress
             value={cycleSummary.finishedTrainingDaysCount}
@@ -304,7 +304,7 @@ export default function EndCyclePage() {
               label="Partial days"
               helper={
                 t(isEmptyClosedCycle
-                  ? "No workout values were logged"
+                  ? "No performed main/Core values in this recap"
                   : hasPartialDays
                     ? "Closed with some prescribed work unfinished"
                     : "No partial days")
@@ -337,9 +337,9 @@ export default function EndCyclePage() {
           <div className="mt-3 border-y border-[#2A3138]">
             <ContinuityRow index={1} title={t("Logged work stays useful")}>
               {t(isEmptyClosedCycle
-                ? "This cycle is closed without new workout values. Earlier valid references can still remain available."
+                ? "This recap has no values from performed main or Core sets. Earlier valid main-set references may still be available."
                 : hasPartialLoggedWork
-                  ? "The next cycle uses the performed values it can trust. Partial work remains honest instead of being treated as perfect completion."
+                  ? "The next cycle uses the latest available values from performed sets, separately for each field. Partial work stays partial."
                   : "Your performed set values provide useful reference points for the next pass through the plan.")}
             </ContinuityRow>
 
@@ -359,7 +359,7 @@ export default function EndCyclePage() {
             </span>
           </div>
 
-          <p className="mt-3 text-sm leading-6 text-[#AAB2BA]">{t("Start again at D1. Your previous logged values remain available as references for the new cycle.")}</p>
+          <p className="mt-3 text-sm leading-6 text-[#AAB2BA]">{t("Start again at D1. The latest available main-set values remain references for the new cycle.")}</p>
 
           <div className="mt-5 flex items-center gap-2 text-xs font-medium text-[#8F9A91]">
             <Check className="h-3.5 w-3.5 text-[#79C89A]" aria-hidden="true" />{t("Previous values as references")}</div>

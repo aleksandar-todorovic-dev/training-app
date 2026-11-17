@@ -149,7 +149,7 @@ export const cutProGuide = {
           title: "Use previous workouts as a guide, not pressure",
           paragraphs: [
             "Previous values are there to help you make calm decisions.",
-            "Use your last logged weight, reps, and RIR as a starting point. If recovery is good, you may repeat the same performance cleanly or add a rep. If recovery is lower, it is okay to hold steady or take a small step back.",
+            "Use the latest available weight, reps, and RIR from earlier performed sets as references. Each field is carried forward separately and may come from a different cycle. If recovery is good, you may repeat the same performance cleanly or add a rep. If recovery is lower, it is okay to hold steady or take a small step back.",
             "On a cut, the trend matters more than winning every single workout.",
           ],
           bullets: [

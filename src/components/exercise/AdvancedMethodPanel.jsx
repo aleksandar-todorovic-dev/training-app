@@ -12,7 +12,7 @@ const metricLabels = {
   reps: "Extra reps", restSeconds: "Actual rest (s, optional)", durationSeconds: "Actual stretch duration (s)",
 };
 const recordedMetricLabels = {
-  reps: "Recorded extra reps", restSeconds: "Recorded rest", durationSeconds: "Recorded stretch duration",
+  reps: "Recorded extra reps", restSeconds: "Recorded rest (optional)", durationSeconds: "Recorded stretch duration",
 };
 const confirmationOptions = [
   ["unconfirmed", "Not confirmed"], ["partial", "Partially performed"], ["performed", "Performed"],
@@ -87,6 +87,7 @@ export default function AdvancedMethodPanel({ definition, record, derived, setIn
                 const inputId = `${id}-${field}`;
                 const rejected = errorField === field;
                 const targetComparison = derived.targetComparisons[phase.phaseId]?.[field] ?? "unrecorded";
+                const optionalBlank = !phase.requiredMetrics.includes(field) && targetComparison === "unrecorded";
                 return (
                   <div key={field}>
                     <label htmlFor={inputId} className="flex min-h-11 items-center justify-between gap-3 text-sm text-[#D7DDD7]">
@@ -97,8 +98,8 @@ export default function AdvancedMethodPanel({ definition, record, derived, setIn
                         onChange={(event) => updateMetric(field, event.target.value)}
                         className="h-11 w-20 shrink-0 rounded-lg border border-[#3A434C] bg-[#13181D] px-2 text-center text-base font-semibold tabular-nums text-[#F3F5F1] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B]" />
                     </label>
-                    <p id={`${inputId}-feedback`} className="mt-1 text-xs leading-5 text-[#AAB2BA]">
-                      {rejected ? t("Use a whole number from 0 to {max}, or leave blank.", { max: field === "reps" ? 30 : 999 }) : t(comparisonLabels[targetComparison])}
+                    <p id={`${inputId}-feedback`} hidden={optionalBlank && !rejected} className="mt-1 text-xs leading-5 text-[#AAB2BA]">
+                      {rejected ? t("Use a whole number from 0 to {max}, or leave blank.", { max: field === "reps" ? 30 : 999 }) : optionalBlank ? null : t(comparisonLabels[targetComparison])}
                     </p>
                   </div>
                 );
@@ -148,11 +149,12 @@ export default function AdvancedMethodPanel({ definition, record, derived, setIn
                     {phase.metrics.map((field) => {
                       const value = previousAttempt.methodLog.phases[phase.phaseId]?.[field] ?? "";
                       const recorded = value !== "";
+                      const optionalBlank = !recorded && !phase.requiredMetrics.includes(field);
                       const targetComparison = previousAttempt.derived.targetComparisons[phase.phaseId][field];
                       return (
-                        <div key={field}>
+                        <div key={field} className={optionalBlank ? "flex flex-wrap justify-between gap-x-3" : undefined}>
                           <dt>{t(recordedMetricLabels[field])}</dt>
-                          <dd className="font-semibold text-[#D7DDD7]">{!recorded ? t("Measurement not recorded")
+                          <dd className={optionalBlank ? undefined : "font-semibold text-[#D7DDD7]"}>{!recorded ? t(optionalBlank ? "Not recorded" : "Measurement not recorded")
                             : field === "reps" ? value : t("{value} s", { value })}</dd>
                           {recorded ? <dd>{t(comparisonLabels[targetComparison])}{" · "}{t("Target: {target}", {
                             target: field === "reps" ? formatTarget(phase.targets[field]) : t("{value} s", { value: formatTarget(phase.targets[field]) }),
@@ -169,8 +171,8 @@ export default function AdvancedMethodPanel({ definition, record, derived, setIn
                     <dl className="mt-1 space-y-1">
                       {[["weight", "Kg"], ["reps", "Reps"], ["rir", "RIR"]].map(([field, label]) => (
                         <div key={field} className="flex flex-wrap justify-between gap-x-3">
-                          <dt>{t(label)}</dt><dd className="font-semibold text-[#D7DDD7]">{previousAttempt.baseSet[field] === ""
-                            ? t("Measurement not recorded") : previousAttempt.baseSet[field]}</dd>
+                          <dt>{t(label)}</dt><dd className={previousAttempt.baseSet[field] === "" ? undefined : "font-semibold text-[#D7DDD7]"}>{previousAttempt.baseSet[field] === ""
+                            ? t("Not recorded") : previousAttempt.baseSet[field]}</dd>
                         </div>
                       ))}
                     </dl>

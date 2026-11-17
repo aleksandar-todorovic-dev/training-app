@@ -7,6 +7,7 @@ import { mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createServer } from "vite";
+import { createTranslator } from "../src/i18n/translate.js";
 
 const chrome = ["/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser"].find(existsSync);
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -24,12 +25,16 @@ import { AppStateContext } from '/src/state/AppStateContext.js';
 import { useAppState } from '/src/state/useAppState.js';
 import { LocaleProvider } from '/src/i18n/LocaleProvider.jsx';
 import ExercisePage from '/src/pages/ExercisePage.jsx';
+import GuidePage from '/src/pages/GuidePage.jsx';
+import EndCyclePage from '/src/pages/EndCyclePage.jsx';
 import '/src/index.css';
 function Probe() {
   const context = useAppState(); const navigate = useNavigate();
   useEffect(() => { window.__qa = context; window.__navigate = navigate; });
   return React.createElement(AppStateContext.Provider, { value: {...context, dispatch(action) { window.__actions.push(action); context.dispatch(action); }} },
-    React.createElement(Routes, null, React.createElement(Route, {path:'/plan/:planId/day/:dayId/exercise/:exerciseId', element:React.createElement(ExercisePage)})));
+    React.createElement(Routes, null, React.createElement(Route, {path:'/plan/:planId/day/:dayId/exercise/:exerciseId', element:React.createElement(ExercisePage)}),
+      React.createElement(Route, {path:'/plan/:planId/guide',element:React.createElement(GuidePage)}),
+      React.createElement(Route, {path:'/plan/:planId/end-cycle',element:React.createElement(EndCyclePage)})));
 }
 createRoot(document.getElementById('root')).render(React.createElement(React.StrictMode, null,
   React.createElement(LocaleProvider, null, React.createElement(AppStateProvider, null,
@@ -299,7 +304,7 @@ test("isolated Chrome: pilot Exercise UI interactions, lifecycle guards and mobi
       assert.match(await historyText(), /Cycle 1/);
       assert.match(await historyText(), /Method: Performed/);
       assert.match(await historyText(), /Recorded extra reps\s+0\s+Below target/);
-      assert.match(await historyText(), /Recorded rest\s+Measurement not recorded/);
+      assert.match(await historyText(), /Recorded rest \(optional\)\s+Not recorded/);
       assert.match(await historyText(), /Base set not marked performed/);
       assert.doesNotMatch(await historyText(), /Required measurement missing/);
       assert.equal(await evaluate(`document.querySelector('${historySelector} input, ${historySelector} select, ${historySelector} textarea')===null`), true);
@@ -324,7 +329,7 @@ test("isolated Chrome: pilot Exercise UI interactions, lifecycle guards and mobi
       assert.match(await historyText(), /Cycle 3/);
       assert.match(await historyText(), /Method: Performed/);
       assert.match(await historyText(), /Recorded extra reps\s+Measurement not recorded/);
-      assert.match(await historyText(), /Recorded rest\s+0 s\s+Below target/);
+      assert.match(await historyText(), /Recorded rest \(optional\)\s+0 s\s+Below target/);
       assert.match(await historyText(), /Required measurement missing/);
       const original = await read();
       await historyToggle(); await historyToggle(); assert.equal(await read(), original);
@@ -401,6 +406,99 @@ test("isolated Chrome: pilot Exercise UI interactions, lifecycle guards and mobi
         await writeFile(join(directory,`history-rest-pause-${locale}-${width}.png`),Buffer.from(image.data,'base64'));
       }
       t.diagnostic(`Synthetic history screenshots: ${directory}`);
+    });
+    await t.test("polished empty values, zero, invalid feedback and history fit every mobile width in both languages", async () => {
+      const directory='/tmp/cycle-coach-3c-visual';await mkdir(directory,{recursive:true});
+      for (const [width,height] of [[320,568],[360,800],[375,812],[390,844],[430,932]]) for (const locale of ['en','sr-Latn']) {
+        const t=createTranslator(locale);
+        await call('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:true});
+        const state=historyFixture();
+        await seed(state,route(),locale);await open();
+        const rest=selector('input[name="restSeconds"]');
+        assert.equal(await evaluate(`(()=>{const i=document.querySelector(${rest});return document.getElementById(i.getAttribute('aria-describedby')).hidden})()`),true);
+        await fill('reps','0');await click(`${panel} input[value="performed"]`);
+        assert.ok((await summary()).includes(t('Attempt confirmed')));
+        assert.ok((await summary()).includes(t('Below target')));
+        const value=await read();
+        await evaluate(`window.__typed=document.querySelector(${selector('input[name="reps"]')});void 0`);
+        await fill('reps','31');
+        assert.equal(await evaluate(`window.__typed===document.querySelector(${selector('input[name="reps"]')}) && document.activeElement===window.__typed`),true);
+        assert.equal(await read(),value);
+        await fill('reps','');
+        assert.ok((await summary()).includes(t('Performed')));
+        assert.ok((await summary()).includes(t('Measurement not recorded')));
+        await fill('restSeconds','1000');
+        assert.equal(await evaluate(`(()=>{const i=document.querySelector(${rest});return document.getElementById(i.getAttribute('aria-describedby')).hidden})()`),false);
+        await fill('restSeconds','0');
+        assert.equal(await evaluate(`document.querySelector(${rest}).value`),'0');
+        await fill('restSeconds','');
+        assert.equal(await evaluate(`(()=>{const i=document.querySelector(${rest});return document.getElementById(i.getAttribute('aria-describedby')).hidden})()`),true);
+        await fill('reps','2');await historyToggle();
+        assert.ok((await historyText()).includes(t('Not recorded')));
+        assert.ok((await historyText()).includes(t('Base set not marked performed')));
+        assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);
+        assert.equal(await evaluate(`Array.from(document.querySelectorAll('${panel} input')).filter(i=>i.offsetParent!==null).every(i=>{const r=i.getBoundingClientRect();return r.left>=0 && r.right<=innerWidth})`),true);
+        if ((width===320 && locale==='sr-Latn') || (width===390 && locale==='en')) {
+          await evaluate(`document.querySelector('${panel}').scrollIntoView({block:'start'})`);
+          let shot=await call('Page.captureScreenshot',{format:'png'});
+          await writeFile(join(directory,`method-${locale}-${width}.png`),Buffer.from(shot.data,'base64'));
+          await evaluate(`document.querySelector('${historySelector}').scrollIntoView({block:'start'})`);
+          shot=await call('Page.captureScreenshot',{format:'png'});
+          await writeFile(join(directory,`history-${locale}-${width}.png`),Buffer.from(shot.data,'base64'));
+        }
+      }
+    });
+    await t.test("educational summaries and help remain available without granting extra method editors", async () => {
+      for (const [id,day,title] of [['incline-db-press','d1','Rest-pause · exact method available'],['assisted-pull-up-cluster','d5','Cluster set · exact structure available']]) {
+        for (const locale of ['en','sr-Latn']) {
+          const t=createTranslator(locale);
+          await seed(fixture(),route(id,day),locale);
+          assert.ok((await evaluate('document.body.innerText')).includes(t(title)));
+          const before=await read();
+          await click('button[aria-controls]:not([data-method-set] button)');
+          // Locate the rendered help control by its accessible text, then use a real pointer click.
+          const point=await evaluate(`(()=>{const b=Array.from(document.querySelectorAll('button')).find(b=>b.textContent===${JSON.stringify(t('Open method help'))});b.scrollIntoView({block:'nearest'});const r=b.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()`);
+          await call('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,...point});
+          await call('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,...point});await settle();
+          assert.equal(await evaluate("Boolean(document.querySelector('[role=dialog]'))"),true);
+          assert.equal(await read(),before);
+          if (day==='d5') assert.equal(await evaluate(`document.querySelector('${panel}')===null`),true);
+        }
+      }
+    });
+    await t.test("Guide and method-only End Cycle copy stay readable at narrow widths without changing progress", async () => {
+      const directory='/tmp/cycle-coach-3c-visual';await mkdir(directory,{recursive:true});
+      for (const width of [320,390]) for (const locale of ['en','sr-Latn']) for (const planId of ['bulk-pro','cut-pro']) {
+        await call('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:true});
+        await seed(fixture(planId),`/plan/${planId}/guide`,locale);
+        const before=await read();await click('button');
+        await wait("(()=>{const article=document.querySelector('article');return article && getComputedStyle(article.parentElement).opacity==='1'})()");
+        assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);
+        assert.equal(await read(),before);
+        if (planId==='bulk-pro' && width===320 && locale==='sr-Latn') {
+          await evaluate("document.querySelector('[id$=logging-basics]').scrollIntoView({block:'start'})");
+          const shot=await call('Page.captureScreenshot',{format:'png'});
+          await writeFile(join(directory,'guide-sr-Latn-320.png'),Buffer.from(shot.data,'base64'));
+        }
+        let state=fixture(planId);
+        if (planId==='bulk-pro') state.progressByPlan[planId].cycles[1].dayLogs.d1.mainExerciseLogs['incline-db-press'].sets[2].methodLog={choice:'record',phases:{'extra-reps':{execution:'performed',reps:'0'}}};
+        for (const dayId of ['d1','d2','d3','d4','d5','d6']) {
+          const dayDetails=getDayDetails(planId,dayId);
+          state=appReducer(state,{type:actions.ENSURE_DAY_LOG,payload:{planId,dayDetails,exercises:getExercisesForDay(planId,dayDetails.exerciseIds)}});
+          state=appReducer(state,{type:actions.FINISH_DAY,payload:{planId,dayId,finishedAt:`closed-${dayId}`}});
+        }
+        await seed(state,`/plan/${planId}/end-cycle`,locale);
+        const original=await read();const t=createTranslator(locale);
+        assert.ok((await evaluate('document.body.innerText')).includes(t('No performed main/Core values in this recap')));
+        assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);
+        assert.equal(await read(),original);assert.deepEqual(await evaluate('window.__writes'),[]);
+        if (planId==='bulk-pro' && ((width===320 && locale==='sr-Latn')||(width===390 && locale==='en'))) {
+          await evaluate("document.querySelector('#continuity-title').scrollIntoView({block:'start'})");
+          const shot=await call('Page.captureScreenshot',{format:'png'});
+          await writeFile(join(directory,`end-cycle-${locale}-${width}.png`),Buffer.from(shot.data,'base64'));
+        }
+      }
+      t.diagnostic(`Synthetic Phase 3c screenshots: ${directory}`);
     });
     await t.test("all mobile sizes, keyboard focus and reduced motion; synthetic review screenshots", async () => {
       await mkdir(screenshots, { recursive: true });

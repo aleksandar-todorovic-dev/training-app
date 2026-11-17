@@ -298,7 +298,7 @@ for (const planId of ["bulk-pro", "cut-pro"]) {
     assert.equal(w.progress().performedMainSetCount, 0);
     assert.equal(w.progress().performedCoreSetCount, 0);
     assert.equal(w.day().finishedAt, null);
-    assert.match(w.renderExercise(), /Previous values loaded/);
+    assert.match(w.renderExercise(), /Previous main-set values/);
   });
 }
 
@@ -369,5 +369,24 @@ test("history never grants editing or changes current main/Core progress in an u
     const before = JSON.stringify(w.state());
     assert.doesNotMatch(w.renderExercise("d1", "incline-db-press"), /data-method-history|type="radio"/);
     assert.equal(JSON.stringify(w.state()), before);
+  }
+});
+
+test("ordinary references still combine Cycle 2 KG with Cycle 1 reps/RIR field by field", () => {
+  for (const planId of ['bulk-pro','cut-pro']) {
+    const w=workout(planId);const id=w.exerciseId;
+    const first=w.day().mainExerciseLogs[id].sets[0];
+    Object.assign(first,{weight:'20',reps:'10',rir:'2',isDone:true});
+    w.send(actions.START_PLAN_CYCLE,{startedAt:'second'});w.ensureDay('d1');
+    Object.assign(w.day().mainExerciseLogs[id].sets[0],{weight:'25',reps:'',rir:'',isDone:true});
+    const prior=JSON.stringify(w.state().progressByPlan[planId].cycles);
+    w.send(actions.START_PLAN_CYCLE,{startedAt:'third'});w.ensureDay('d1');
+    const row=w.day().mainExerciseLogs[id].sets[0];
+    assert.deepEqual(row,{setIndex:1,weight:'25',reps:'10',rir:'2',isDone:false});
+    assert.equal(w.progress().performedMainSetCount,0);
+    assert.match(w.renderExercise(),/Previous main-set values/);
+    assert.match(w.renderExercise(),/Reference values may come from different earlier cycles/);
+    const cycles=w.state().progressByPlan[planId].cycles;
+    assert.deepEqual(JSON.parse(prior),{1:cycles[1],2:cycles[2]});
   }
 });

@@ -73,7 +73,7 @@ export const bulkProGuide = {
             "A set counts as performed only when you check it as done. Weight, reps, and RIR describe the set, but input values alone do not complete it.",
 
             '"Closed partial" means work was intentionally closed while incomplete; unchecked sets stay unperformed. "Return to day" goes back without repeating the close action. Closed-day logs in the current cycle can still be reviewed and edited.',
-            "Some prescribed methods may combine positions or leverage inside one continuous effort. In the MVP, log that sequence as one set row instead of trying to split every part into separate inputs.",
+            "One prescribed main set remains one main set. Where a supported rest-pause or iso-stretch panel is available, log the base work in the set row and the optional extension below it. Other advanced methods remain educational guidance without separate method inputs.",
             "You can finish a day even if every set was not completed. A partial day is still a valid training log. The app does not fake completion just to make the day look perfect.",
             "Core work is recorded separately from main progress; warm-up is guidance only.",
           ],
@@ -81,7 +81,7 @@ export const bulkProGuide = {
             '"Main sets performed" counts only sets marked Done. "Exercises complete" counts main exercises with every prescribed set Done.',
             "Checkbox = the set was performed.",
             "Inputs describe the set; they do not complete it.",
-            "Log continuous methods as one set row when the plan treats them as one effort.",
+            "Optional method extensions do not add prescribed main sets.",
             "Unchecked sets are not missing data. They are simply not performed.",
             "Finish day means closing the day, not proving it was perfect.",
             "Partial days are valid.",
@@ -149,7 +149,7 @@ export const bulkProGuide = {
           title: "Use previous workouts as a guide, not pressure",
           paragraphs: [
             "Previous values are there to help you make better decisions.",
-            "Use your last logged weight, reps, and RIR as a starting point. If the last session was strong and clean, try to add a rep or make a small load increase when it makes sense.",
+            "Use the latest available weight, reps, and RIR from earlier performed sets as references. Each field is carried forward separately and may come from a different cycle. If your recent training has been strong and clean, try to add a rep or make a small load increase when it makes sense.",
             "If recovery is lower, repeating the same result can still be useful. The log should guide you, not push your ego into bad reps.",
           ],
           bullets: [

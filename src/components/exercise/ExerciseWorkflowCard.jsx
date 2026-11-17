@@ -22,13 +22,12 @@ import { revealPanelVariants } from "../../styles/motion";
 const MotionDiv = motion.div;
 
 const METHOD_SUMMARY_BY_TYPE = {
-  mechanicalDropset: "Mechanical dropset · exact sequence available",
-  mechanicalSet: "Mechanical set · exact sequence available",
-  restPause: "Rest-pause · exact method available",
+  "mechanical-dropset": "Mechanical dropset · exact sequence available",
+  "mechanical-set": "Mechanical set · exact sequence available",
+  "rest-pause": "Rest-pause · exact method available",
   dropset: "Dropset · exact method available",
   cluster: "Cluster set · exact structure available",
-  isoHold: "Iso hold · exact timing available",
-  isoStretch: "Iso stretch · exact timing available",
+  "iso-stretch": "Iso stretch · exact timing available",
 };
 
 function cleanSummaryValue(value) {
@@ -48,10 +47,9 @@ function compactSummaryValue(value) {
 }
 
 function getMethodSummary(advancedTechniqueType) {
-  return (
-    METHOD_SUMMARY_BY_TYPE[advancedTechniqueType] ??
-    "Advanced method · exact sequence available"
-  );
+  return Object.hasOwn(METHOD_SUMMARY_BY_TYPE, advancedTechniqueType)
+    ? METHOD_SUMMARY_BY_TYPE[advancedTechniqueType]
+    : "Advanced method · exact sequence available";
 }
 
 function TargetItem({ label, value }) {
@@ -277,12 +275,12 @@ export default function ExerciseWorkflowCard({
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-[#D7DDD7]">
                     {t(hasPreviousValues
-                      ? "Previous values loaded"
-                      : "No previous values yet")}
+                      ? "Previous main-set values"
+                      : "No earlier main-set values")}
                   </p>
                   <p className="mt-0.5 text-xs leading-5 text-[#77818B]">
                     {t(hasPreviousValues
-                      ? "Use them as a reference. Performed sets still begin unchecked."
+                      ? "Reference values may come from different earlier cycles. New sets start unchecked."
                       : "Today's performed work will become a next-cycle reference.")}
                   </p>
                 </div>
