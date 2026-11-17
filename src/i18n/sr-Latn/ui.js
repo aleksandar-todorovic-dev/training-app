@@ -538,5 +538,16 @@ export default {
   "Resume restores your entries and their previous confirmation.": "Nastavak beleženja vraća prethodni unos i njegovu potvrdu.",
   "Resume recording": "Nastavi beleženje",
   "Skip method": "Preskoči metodu",
-  "Invalid measurement. The previous value was kept.": "Nevažeće merenje. Prethodna vrednost je zadržana."
+  "Invalid measurement. The previous value was kept.": "Nevažeće merenje. Prethodna vrednost je zadržana.",
+  "Previous comparable attempt · Cycle {cycle}": "Prethodni uporedivi pokušaj · Ciklus {cycle}",
+  "Read-only reference": "Referenca samo za pregled",
+  "Method: {status}": "Metoda: {status}",
+  "Recorded extra reps": "Zabeležena dodatna ponavljanja",
+  "Recorded rest": "Zabeleženi odmor",
+  "Recorded stretch duration": "Zabeleženo trajanje istezanja",
+  "{value} s": "{value} s",
+  "Target: {target}": "Cilj: {target}",
+  "Base set": "Osnovna serija",
+  "Base set marked performed": "Osnovna serija označena kao odrađena",
+  "Base set not marked performed": "Osnovna serija nije označena kao odrađena"
 };

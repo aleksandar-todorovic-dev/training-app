@@ -346,3 +346,28 @@ test("precreated future finished logs cannot expose any Exercise editing control
   assert.doesNotMatch(html, /<input|aria-pressed=|Finish exercise|Return to day/);
   assert.equal(JSON.stringify(w.state()), before);
 });
+
+test("history never grants editing or changes current main/Core progress in an unsupported context", () => {
+  const w = workout("bulk-pro");
+  w.cycle().dayLogs.d1.mainExerciseLogs['incline-db-press'].sets[2].methodLog = {
+    choice:"record", phases:{'extra-reps':{execution:"performed",reps:"3"}},
+  };
+  w.send(actions.START_PLAN_CYCLE, {startedAt:"current-history-cycle"}); w.ensureDay("d1");
+  const current = w.cycle();
+  const progress = w.progress();
+  assert.match(w.renderExercise("d1", "incline-db-press"), /data-method-history/);
+  assert.deepEqual(w.progress(), progress);
+  const original = structuredClone(current);
+  for (const alter of [
+    () => { delete current.methodBindings; },
+    () => { current.methodBindings.version = 99; },
+    () => { current.methodBindings.exercises['incline-db-press'].revision = 99; },
+    () => { current.dayLogs.d1.mainExerciseLogs['incline-db-press'].sets.pop(); },
+    () => { current.dayLogs.d1.mainExerciseLogs['incline-db-press'].sets[2].methodLog = {choice:'record',phases:{'extra-reps':{execution:'performed',reps:'31'}}}; },
+  ]) {
+    Object.assign(current, structuredClone(original)); alter();
+    const before = JSON.stringify(w.state());
+    assert.doesNotMatch(w.renderExercise("d1", "incline-db-press"), /data-method-history|type="radio"/);
+    assert.equal(JSON.stringify(w.state()), before);
+  }
+});

@@ -466,3 +466,47 @@ for (const [exerciseId, dayId, setIndex, phaseId, field] of [
     }
   });
 }
+
+for (const [exerciseId, phaseId, field] of [
+  ["incline-db-press", "extra-reps", "reps"],
+  ["cable-stretch-fly", "loaded-stretch", "durationSeconds"],
+]) {
+  test(`${exerciseId}: historical reference localizes one whole attempt independently of today's evidence`, () => {
+    const w = workout("bulk-pro");
+    const previous = w.cycle().dayLogs.d1.mainExerciseLogs[exerciseId].sets.at(-1);
+    Object.assign(previous, { weight: "24", reps: "10", rir: "", isDone: false,
+      methodLog: { choice: "record", phases: { [phaseId]: { execution: "performed", [field]: "0" } } } });
+    w.send(actions.START_PLAN_CYCLE, { startedAt: "second-cycle" }); w.ensure("d1");
+    const current = w.cycle().dayLogs.d1.mainExerciseLogs[exerciseId].sets.at(-1);
+    current.weight = "30";
+    for (const record of [undefined, {choice:"skip",phases:{}}, ...["unconfirmed", "partial", "performed"].map((execution) => ({choice:"record",phases:{[phaseId]:{execution,[field]:"8"}}}))]) {
+      if (record === undefined) delete current.methodLog; else current.methodLog = record;
+      const before = JSON.stringify(w.state());
+      for (const locale of ["en", "sr-Latn"]) {
+        const t = createTranslator(locale);
+        const html = render("ExercisePage", w.state(), locale, "/plan/:planId/day/:dayId/exercise/:exerciseId", `/plan/bulk-pro/day/d1/exercise/${exerciseId}`);
+        const history = html.slice(html.indexOf('data-method-history'));
+        assert.ok(history.includes(escape(t("Previous comparable attempt · Cycle {cycle}", {cycle:1}))));
+        assert.ok(history.includes(escape(t("Base set not marked performed"))));
+        assert.ok(history.includes(escape(t("Method: {status}", {status:"Performed"}))));
+        assert.ok(history.includes(escape(t("Below target"))));
+        assert.ok(history.includes(field === "reps" ? '>0</dd>' : '>0 s</dd>'));
+        assert.ok(!history.includes(escape(t("Required measurement missing"))));
+        assert.doesNotMatch(history, /<input|<select|<textarea/);
+        assert.ok(!history.includes("{cycle}"));
+      }
+      assert.equal(JSON.stringify(w.state()), before);
+    }
+    previous.methodLog.phases[phaseId][field] = "";
+    previous.methodLog.phases[phaseId].execution = "partial";
+    previous.isDone = true;
+    for (const locale of ["en", "sr-Latn"]) {
+      const t = createTranslator(locale);
+      const html = render("ExercisePage", w.state(), locale, "/plan/:planId/day/:dayId/exercise/:exerciseId", `/plan/bulk-pro/day/d1/exercise/${exerciseId}`);
+      const history = html.slice(html.indexOf('data-method-history'));
+      assert.ok(history.includes(escape(t("Method: {status}", {status:"Partially performed"}))));
+      assert.ok(history.includes(escape(t("Required measurement missing"))));
+      assert.ok(history.includes(escape(t("Base set marked performed"))));
+    }
+  });
+}

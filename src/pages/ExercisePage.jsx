@@ -17,6 +17,7 @@ import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
 import { resolveCycleMethodBinding } from "../utils/runtime/advancedMethodContextHelpers.js";
 import { deriveMethodState, getApplicableSetIndexes } from "../utils/runtime/advancedMethodHelpers.js";
 import { validateMethodLog, isValidMethodMetricValue } from "../utils/runtime/advancedMethodValidation.js";
+import { findPreviousCompatibleMethodAttempt } from "../utils/runtime/advancedMethodHistoryHelpers.js";
 
 /**
  * Builds display-only rows for upcoming exercise previews.
@@ -169,6 +170,9 @@ export default function ExercisePage() {
         record: row.methodLog,
         derived: deriveMethodState(resolvedMethod.definition, row.methodLog),
         editable: canEditMethod && valid,
+        previousAttempt: canEditMethod && valid ? findPreviousCompatibleMethodAttempt({
+          cycles: planProgress.cycles, currentCycleNumber, planId, dayId, exerciseId, setIndex,
+        }) : null,
       };
     }
   } else if (!isUpcomingPreview) {

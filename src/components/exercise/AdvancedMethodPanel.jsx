@@ -11,6 +11,9 @@ const comparisonLabels = { below: "Below target", within: "Within target", above
 const metricLabels = {
   reps: "Extra reps", restSeconds: "Actual rest (s, optional)", durationSeconds: "Actual stretch duration (s)",
 };
+const recordedMetricLabels = {
+  reps: "Recorded extra reps", restSeconds: "Recorded rest", durationSeconds: "Recorded stretch duration",
+};
 const confirmationOptions = [
   ["unconfirmed", "Not confirmed"], ["partial", "Partially performed"], ["performed", "Performed"],
 ];
@@ -20,11 +23,12 @@ function formatTarget(target) {
 }
 
 /** A controlled evidence form. Only disclosure and rejected-input feedback are local. */
-export default function AdvancedMethodPanel({ definition, record, derived, setIndex, editable, onChange }) {
+export default function AdvancedMethodPanel({ definition, record, derived, setIndex, editable, onChange, previousAttempt }) {
   const { t } = useTranslation();
   const id = useId();
   const [open, setOpen] = useState(false);
   const [errorField, setErrorField] = useState(null);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const phase = definition.phases[0];
   const isRestPause = definition.type === "rest-pause";
   const phaseLog = record?.phases?.[phase.phaseId];
@@ -129,6 +133,52 @@ export default function AdvancedMethodPanel({ definition, record, derived, setIn
               {t(skipped ? "Resume recording" : "Skip method")}
             </button>
             <p role="status" className="sr-only">{status}{errorField ? `. ${t("Invalid measurement. The previous value was kept.")}` : ""}</p>
+            {previousAttempt ? (
+              <div className="border-t border-[#2A3138] pt-1" data-method-history>
+                <button type="button" aria-expanded={historyOpen} aria-controls={`${id}-history`}
+                  onClick={() => setHistoryOpen((value) => !value)}
+                  className="flex min-h-11 w-full items-center justify-between gap-3 py-2 text-left text-xs font-semibold leading-5 text-[#D7DDD7] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#B8F36B]">
+                  <span className="min-w-0">{t("Previous comparable attempt · Cycle {cycle}", { cycle: previousAttempt.cycleNumber })}</span>
+                  <ChevronDown aria-hidden="true" className={`h-4 w-4 shrink-0 text-[#AAB2BA] transition-transform motion-reduce:transition-none ${historyOpen ? "rotate-180" : ""}`} />
+                </button>
+                <div id={`${id}-history`} hidden={!historyOpen} className="space-y-3 border-l border-[#3A434C] py-2 pl-3 text-xs leading-5 text-[#AAB2BA]">
+                  <p>{t("Read-only reference")}</p>
+                  <p className="font-semibold text-[#D7DDD7]">{t("Method: {status}", { status: statusLabels[previousAttempt.derived.status] })}</p>
+                  <dl className="space-y-2">
+                    {phase.metrics.map((field) => {
+                      const value = previousAttempt.methodLog.phases[phase.phaseId]?.[field] ?? "";
+                      const recorded = value !== "";
+                      const targetComparison = previousAttempt.derived.targetComparisons[phase.phaseId][field];
+                      return (
+                        <div key={field}>
+                          <dt>{t(recordedMetricLabels[field])}</dt>
+                          <dd className="font-semibold text-[#D7DDD7]">{!recorded ? t("Measurement not recorded")
+                            : field === "reps" ? value : t("{value} s", { value })}</dd>
+                          {recorded ? <dd>{t(comparisonLabels[targetComparison])}{" · "}{t("Target: {target}", {
+                            target: field === "reps" ? formatTarget(phase.targets[field]) : t("{value} s", { value: formatTarget(phase.targets[field]) }),
+                          })}</dd> : null}
+                        </div>
+                      );
+                    })}
+                  </dl>
+                  {previousAttempt.derived.numericComplete === false ? <p>{t("Required measurement missing")}</p> : null}
+                  {previousAttempt.derived.status === "performed" && previousAttempt.methodLog.phases[phase.phaseId]?.[requiredMetric] === "0"
+                    ? <p>{t("A confirmed attempt can have a zero result. The target remains separate.")}</p> : null}
+                  <div className="border-t border-[#2A3138] pt-2">
+                    <p className="font-semibold text-[#D7DDD7]">{t("Base set")}</p>
+                    <dl className="mt-1 space-y-1">
+                      {[["weight", "Kg"], ["reps", "Reps"], ["rir", "RIR"]].map(([field, label]) => (
+                        <div key={field} className="flex flex-wrap justify-between gap-x-3">
+                          <dt>{t(label)}</dt><dd className="font-semibold text-[#D7DDD7]">{previousAttempt.baseSet[field] === ""
+                            ? t("Measurement not recorded") : previousAttempt.baseSet[field]}</dd>
+                        </div>
+                      ))}
+                    </dl>
+                    <p className="mt-2">{t(previousAttempt.baseSet.isDone ? "Base set marked performed" : "Base set not marked performed")}</p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
           </>
         ) : <p className="text-sm leading-6 text-[#AAB2BA]">{t("Method logging unavailable")}</p>}
       </div>

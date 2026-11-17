@@ -162,6 +162,7 @@ test("isolated Chrome: pilot Exercise UI interactions, lifecycle guards and mobi
       await click(`${panel} input[value="unconfirmed"]`); await open(); await open();
       assert.equal(await read(), before); assert.deepEqual(await evaluate("window.__writes"), []);
       assert.equal(await evaluate(`${row}.methodLog`), undefined);
+      assert.equal(await evaluate("document.querySelector('[data-method-history]')===null"), true);
     });
     await t.test("actual UI sends exact identity; metrics, partial/performed and main Done are independent", async () => {
       await fill("reps", "3"); assert.match(await summary(), /Not confirmed/);
@@ -265,6 +266,141 @@ test("isolated Chrome: pilot Exercise UI interactions, lifecycle guards and mobi
       await seed(fixture("bulk-pro", "d4"), route("face-away-cable-curl", "d4")); await open(); await fill("reps", "5");
       await click(`${panel} input[value="performed"]`);
       assert.match(await summary(), /Within target/);
+    });
+    // Synthetic cycles retain all real fixture scaffolding; only evidence varies.
+    function historyFixture(exerciseId = "incline-db-press", count = 2) {
+      const state = fixture();
+      const progress = state.progressByPlan['bulk-pro'];
+      const first = progress.cycles[1];
+      const historical = first.dayLogs.d1.mainExerciseLogs[exerciseId].sets.at(-1);
+      const phaseId = exerciseId === "cable-stretch-fly" ? "loaded-stretch" : "extra-reps";
+      const field = exerciseId === "cable-stretch-fly" ? "durationSeconds" : "reps";
+      Object.assign(historical, {weight:"24",reps:"10",rir:"",isDone:false,
+        methodLog:{choice:"record",phases:{[phaseId]:{execution:"performed",[field]:"0"}}}});
+      for (let number = 2; number <= count; number++) {
+        const c = structuredClone(first); c.cycleNumber = number; c.startedAt = `synthetic-cycle-${number}`;
+        delete c.dayLogs.d1.mainExerciseLogs[exerciseId].sets.at(-1).methodLog;
+        c.dayLogs.d1.mainExerciseLogs[exerciseId].sets.at(-1).weight = "30";
+        progress.cycles[number] = c;
+      }
+      progress.currentCycleNumber = count;
+      return state;
+    }
+    const historySelector = '[data-method-history]';
+    const historyText = () => evaluate(`document.querySelector('${historySelector}').innerText`);
+    const historyToggle = () => click(`${historySelector} > button`);
+    await t.test("Cycle 2 shows one confirmed zero attempt; history is read-only and independent of today's form", async () => {
+      await seed(historyFixture());
+      assert.equal(await evaluate(`document.querySelector('${panel} > button').getAttribute('aria-expanded')`), "false");
+      await open();
+      assert.equal(await evaluate(`document.querySelector('${historySelector} > button').getAttribute('aria-expanded')`), "false");
+      const before = await read(); const state = await evaluate("JSON.stringify(window.__qa.state)");
+      await historyToggle();
+      assert.match(await historyText(), /Cycle 1/);
+      assert.match(await historyText(), /Method: Performed/);
+      assert.match(await historyText(), /Recorded extra reps\s+0\s+Below target/);
+      assert.match(await historyText(), /Recorded rest\s+Measurement not recorded/);
+      assert.match(await historyText(), /Base set not marked performed/);
+      assert.doesNotMatch(await historyText(), /Required measurement missing/);
+      assert.equal(await evaluate(`document.querySelector('${historySelector} input, ${historySelector} select, ${historySelector} textarea')===null`), true);
+      assert.equal(await evaluate(`document.querySelectorAll('${historySelector} button').length`), 1);
+      assert.equal(await evaluate(`document.querySelector('${panel} input[name="reps"]').value`), "");
+      assert.equal(await evaluate(`window.__qa.state.progressByPlan['bulk-pro'].cycles[2].dayLogs.d1.mainExerciseLogs['incline-db-press'].sets[2].weight`), "30");
+      await historyToggle(); await historyToggle();
+      assert.equal(await read(), before); assert.equal(await evaluate("JSON.stringify(window.__qa.state)"), state);
+      assert.deepEqual(await evaluate("window.__writes"), []); assert.deepEqual(await evaluate("window.__actions"), []);
+    });
+    await t.test("latest confirmed incomplete attempt wins; newer draft, skipped, unbound and incompatible cycles do not substitute data", async () => {
+      const state = historyFixture("incline-db-press", 8);
+      const cycles = state.progressByPlan['bulk-pro'].cycles;
+      const attempt = (number) => cycles[number].dayLogs.d1.mainExerciseLogs['incline-db-press'].sets[2];
+      attempt(2).methodLog = {choice:'record',phases:{'extra-reps':{execution:'performed',reps:'3',restSeconds:'15'}}};
+      attempt(3).methodLog = {choice:'record',phases:{'extra-reps':{execution:'performed',reps:'',restSeconds:'0'}}};
+      attempt(4).methodLog = {choice:'record',phases:{'extra-reps':{execution:'unconfirmed',reps:'9'}}};
+      attempt(5).methodLog = {choice:'skip',phases:{'extra-reps':{execution:'performed',reps:'8'}}};
+      attempt(6).methodLog = structuredClone(attempt(2).methodLog); delete cycles[6].methodBindings;
+      attempt(7).methodLog = structuredClone(attempt(2).methodLog); cycles[7].methodBindings.exercises['incline-db-press'].revision = 99;
+      await seed(state); await open(); await historyToggle();
+      assert.match(await historyText(), /Cycle 3/);
+      assert.match(await historyText(), /Method: Performed/);
+      assert.match(await historyText(), /Recorded extra reps\s+Measurement not recorded/);
+      assert.match(await historyText(), /Recorded rest\s+0 s\s+Below target/);
+      assert.match(await historyText(), /Required measurement missing/);
+      const original = await read();
+      await historyToggle(); await historyToggle(); assert.equal(await read(), original);
+    });
+    await t.test("iso-stretch history stays available during skip, locale switching and refresh without copying values", async () => {
+      const state = historyFixture("cable-stretch-fly");
+      const cycles = state.progressByPlan['bulk-pro'].cycles;
+      const previous = cycles[1].dayLogs.d1.mainExerciseLogs['cable-stretch-fly'].sets[0];
+      previous.methodLog.phases['loaded-stretch'].durationSeconds = '8'; previous.isDone = true;
+      cycles[2].dayLogs.d1.mainExerciseLogs['cable-stretch-fly'].sets[0].methodLog = {
+        choice:'skip',phases:{'loaded-stretch':{execution:'partial',durationSeconds:'4'}},
+      };
+      await seed(state, route('cable-stretch-fly')); await open(); await historyToggle();
+      assert.match(await historyText(), /Recorded stretch duration\s+8 s\s+Below target/);
+      assert.match(await historyText(), /Base set marked performed/);
+      assert.doesNotMatch(await historyText(), /Recorded extra reps|Recorded rest/);
+      const before = await read();
+      await evaluate(`window.__currentInput=document.querySelector('${panel} input[name="durationSeconds"]');window.__historyButton=document.activeElement;const s=document.querySelector('select');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(s,'sr-Latn');s.dispatchEvent(new Event('change',{bubbles:true}));`);
+      await settle();
+      assert.match(await historyText(), /Prethodni uporedivi pokušaj · Ciklus 1/);
+      assert.match(await historyText(), /Zabeleženo trajanje istezanja\s+8 s/);
+      assert.equal(await evaluate(`window.__currentInput===document.querySelector('${panel} input[name="durationSeconds"]') && document.activeElement===window.__historyButton`), true);
+      assert.equal(await read(), before);
+      const generation = await evaluate("window.__generation");
+      await call('Page.reload'); await wait(`window.__generation>${generation} && Boolean(window.__qa && document.querySelector('${panel}'))`);
+      await open(); await historyToggle();
+      assert.match(await historyText(), /Ciklus 1/);
+      assert.equal(await read(), before); assert.deepEqual(await evaluate("window.__writes"), []);
+      assert.deepEqual(await evaluate("window.__actions"), []);
+      assert.equal(await evaluate(`window.__qa.state.progressByPlan['bulk-pro'].cycles[2].dayLogs.d1.mainExerciseLogs['cable-stretch-fly'].sets[0].methodLog.phases['loaded-stretch'].durationSeconds`), '4');
+    });
+    await t.test("historical evidence never enables unsupported current contexts", async () => {
+      for (const kind of ['unbound','revision','scaffold','record']) {
+        const state = historyFixture(); const c = state.progressByPlan['bulk-pro'].cycles[2];
+        if (kind === 'unbound') delete c.methodBindings;
+        if (kind === 'revision') c.methodBindings.exercises['incline-db-press'].revision = 99;
+        if (kind === 'scaffold') c.dayLogs.d1.mainExerciseLogs['incline-db-press'].sets.pop();
+        if (kind === 'record') c.dayLogs.d1.mainExerciseLogs['incline-db-press'].sets[2].methodLog = {choice:'record',phases:{'extra-reps':{execution:'performed',reps:'31'}}};
+        await seed(state);
+        assert.equal(await evaluate(`document.querySelector('${historySelector}')===null && document.querySelector('input[type=radio]')===null`), true, kind);
+        assert.deepEqual(await evaluate('window.__writes'), []);
+      }
+    });
+    await t.test("nested history supports keyboard, stable focus and 320/390px EN/SR layouts", async () => {
+      const directory = '/tmp/cycle-coach-3b-visual'; await mkdir(directory,{recursive:true});
+      for (const width of [320,390]) for (const locale of ['en','sr-Latn']) {
+        const state = historyFixture();
+        state.progressByPlan['bulk-pro'].cycles[2].dayLogs.d1.mainExerciseLogs['incline-db-press'].sets[2].methodLog = {choice:'record',phases:{'extra-reps':{execution:'performed',reps:'2',restSeconds:''}}};
+        await call('Emulation.setDeviceMetricsOverride',{width,height:width===320?568:844,deviceScaleFactor:1,mobile:true});
+        await seed(state,route(),locale); await open();
+        await click(`${panel} [id$="-body"] > button`);
+        await call('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
+        await call('Input.dispatchKeyEvent',{type:'keyUp',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
+        assert.equal(await evaluate(`document.activeElement===document.querySelector('${historySelector} > button')`), true);
+        const before = await read();
+        const writeCount = await evaluate("window.__writes.length");
+        const actionCount = await evaluate("window.__actions.length");
+        await evaluate('window.__historyFocus=document.activeElement;void 0');
+        for (const expanded of ['true','false','true']) {
+          await call('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13,text:'\r',unmodifiedText:'\r'});
+          await call('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13}); await settle();
+          assert.equal(await evaluate(`document.querySelector('${historySelector} > button').getAttribute('aria-expanded')`),expanded, `${width} ${locale} expected ${expanded}`);
+          assert.equal(await evaluate('document.activeElement===window.__historyFocus'),true);
+        }
+        assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth'),true);
+        assert.equal(await read(),before);
+        assert.equal(await evaluate('window.__writes.length'),writeCount);
+        assert.equal(await evaluate('window.__actions.length'),actionCount);
+        // Both disclosure states survive parent collapse without touching evidence.
+        await open(); await open();
+        assert.equal(await evaluate(`document.querySelector('${historySelector} > button').getAttribute('aria-expanded')`),'true');
+        await evaluate(`document.querySelector('${historySelector}').scrollIntoView({block:'start'})`);
+        const image = await call('Page.captureScreenshot',{format:'png'});
+        await writeFile(join(directory,`history-rest-pause-${locale}-${width}.png`),Buffer.from(image.data,'base64'));
+      }
+      t.diagnostic(`Synthetic history screenshots: ${directory}`);
     });
     await t.test("all mobile sizes, keyboard focus and reduced motion; synthetic review screenshots", async () => {
       await mkdir(screenshots, { recursive: true });
