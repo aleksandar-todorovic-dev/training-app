@@ -3,12 +3,27 @@ import { appInitialState } from "./appInitialState";
 import { buildInitialDayLog } from "../utils/runtime/dayLogHelpers";
 import { buildInitialCoreBlockLog } from "../utils/runtime/coreLogHelpers";
 import { areAllTrainingDaysFinished } from "../utils/runtime/cycleStatusHelpers";
-import { buildCycleMethodBindings } from "../utils/runtime/advancedMethodContextHelpers.js";
+import { buildCycleMethodBindings, resolveCycleMethodBinding } from "../utils/runtime/advancedMethodContextHelpers.js";
+import { getApplicableSetIndexes, transitionMethodLog } from "../utils/runtime/advancedMethodHelpers.js";
+import { validateMethodLog } from "../utils/runtime/advancedMethodValidation.js";
+import { getDayMode } from "../utils/runtime/dayModeHelpers.js";
+import { getPlanById } from "../data/plans/index.js";
 
 const TRAINING_DAY_ORDER = ["d1", "d2", "d3", "d4", "d5", "d6"];
 
 function isRuntimeRecord(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+// Method actions accept only their declared data fields, including nested edits.
+// This also rejects accessors, inherited fields and client-supplied whole logs.
+function hasExactMethodFields(value, fields) {
+  return isRuntimeRecord(value) &&
+    [Object.prototype, null].includes(Object.getPrototypeOf(value)) &&
+    Reflect.ownKeys(value).length === fields.length && fields.every((field) => {
+      const descriptor = Object.getOwnPropertyDescriptor(value, field);
+      return descriptor?.enumerable && "value" in descriptor;
+    });
 }
 
 function isUsablePlanProgress(planProgress) {
@@ -183,6 +198,77 @@ export function appReducer(state, action) {
     // ---------------------------------------------------------------------------
     // Main exercise set updates
     // ---------------------------------------------------------------------------
+
+    case APP_ACTIONS.UPDATE_EXERCISE_METHOD: {
+      const payload = action.payload;
+      if (!hasExactMethodFields(payload, ["planId", "cycleNumber", "cycleStartedAt", "dayId", "exerciseId", "setIndex", "change"]) ||
+          ![payload.planId, payload.cycleStartedAt, payload.dayId, payload.exerciseId].every((value) =>
+            typeof value === "string" && value.trim() !== "") ||
+          !Number.isSafeInteger(payload.cycleNumber) || payload.cycleNumber < 1 ||
+          !Number.isSafeInteger(payload.setIndex) || payload.setIndex < 1) return state;
+      const { planId, cycleNumber, cycleStartedAt, dayId, exerciseId, setIndex, change } = payload;
+      const changeType = isRuntimeRecord(change) ? Object.getOwnPropertyDescriptor(change, "type")?.value : null;
+      const fields = changeType === "set-choice" ? ["type", "choice"]
+        : changeType === "set-metric" ? ["type", "phaseId", "field", "value"]
+          : changeType === "set-execution" ? ["type", "phaseId", "execution"] : null;
+      if (!fields || !hasExactMethodFields(change, fields) ||
+          !fields.every((field) => typeof change[field] === "string")) return state;
+
+      const plan = getPlanById(planId);
+      const planProgress = state.progressByPlan?.[planId];
+      const currentCycle = planProgress?.cycles?.[cycleNumber];
+      if (!plan || planProgress?.currentCycleNumber !== cycleNumber ||
+          currentCycle?.cycleNumber !== cycleNumber || currentCycle.planId !== planId ||
+          currentCycle.startedAt !== cycleStartedAt) return state;
+      const dayLog = currentCycle.dayLogs?.[dayId];
+      const exerciseLog = dayLog?.mainExerciseLogs?.[exerciseId];
+      if (dayLog?.dayId !== dayId || exerciseLog?.exerciseId !== exerciseId) return state;
+      const dayIndex = plan.dayOrder.indexOf(dayId);
+      const currentDayIndex = plan.dayOrder.indexOf(currentCycle.currentDayId);
+      // A precreated future log, even one carrying a finish date, cannot grant
+      // editing permission ahead of the actual current workout.
+      if (dayIndex < 0 || currentDayIndex < 0 || dayIndex > currentDayIndex ||
+          !["active", "finished"].includes(getDayMode({ dayId, currentDayId: currentCycle.currentDayId,
+            dayLog, dayOrder: plan.dayOrder }))) return state;
+      const resolved = resolveCycleMethodBinding({ planId, cycle: currentCycle, dayId, exerciseId });
+      if (resolved.status !== "resolved" ||
+          !getApplicableSetIndexes(resolved.definition, exerciseLog.sets).includes(setIndex)) return state;
+      const target = exerciseLog.sets.find((set) => set.setIndex === setIndex);
+      const previous = target.methodLog;
+      if ((Object.hasOwn(target, "methodLog") && previous === undefined) ||
+          !validateMethodLog(resolved.definition, previous).valid) return state;
+      const methodLog = transitionMethodLog(resolved.definition, previous, change);
+      if (methodLog === previous) return state;
+
+      return {
+        ...state,
+        progressByPlan: {
+          ...state.progressByPlan,
+          [planId]: {
+            ...planProgress,
+            cycles: {
+              ...planProgress.cycles,
+              [cycleNumber]: {
+                ...currentCycle,
+                dayLogs: {
+                  ...currentCycle.dayLogs,
+                  [dayId]: {
+                    ...dayLog,
+                    mainExerciseLogs: {
+                      ...dayLog.mainExerciseLogs,
+                      [exerciseId]: {
+                        ...exerciseLog,
+                        sets: exerciseLog.sets.map((set) => set === target ? { ...set, methodLog } : set),
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      };
+    }
 
     case APP_ACTIONS.TOGGLE_EXERCISE_SET_DONE: {
       const { planId, dayId, exerciseId, setIndex } = action.payload;
