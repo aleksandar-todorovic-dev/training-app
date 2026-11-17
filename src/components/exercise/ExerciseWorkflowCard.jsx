@@ -1,5 +1,5 @@
 import { useTranslation } from "../../i18n/useTranslation";
-import { useId, useState } from "react";
+import { Fragment, useId, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import {
   ArrowRight,
@@ -12,6 +12,7 @@ import {
 
 import HelpSheet from "../common/HelpSheet";
 import SetRow from "./SetRow";
+import AdvancedMethodPanel from "./AdvancedMethodPanel";
 import {
   exerciseHelp,
   advancedTechniqueHelpByType,
@@ -95,6 +96,8 @@ export default function ExerciseWorkflowCard({
   onToggleSetDone,
   onUpdateSetField,
   onCloseExercise,
+  methodView,
+  onMethodChange,
 }) {
   const { t } = useTranslation();
   const [isHelpOpen, setIsHelpOpen] = useState(false);
@@ -304,21 +307,33 @@ export default function ExerciseWorkflowCard({
             </div>
 
             <div>
+              {methodView?.unavailable ? (
+                <p role="note" className="border-t border-[#2A3138] px-3.5 py-3 text-sm text-[#AAB2BA]">{t("Method logging unavailable")}</p>
+              ) : null}
               {sets.map((set) => (
-                <SetRow
-                  key={`${exercise.id}-set-${set.setNumber}`}
-                  isReadOnly={isReadOnly}
-                  showDoneControl={!isReadOnly}
-                  setNumber={set.setNumber}
-                  weight={set.weight}
-                  reps={set.reps}
-                  rir={set.rir}
-                  isDone={set.isDone}
-                  onToggleDone={() => onToggleSetDone?.(set.setNumber)}
-                  onSetFieldChange={(field, value) =>
-                    onUpdateSetField?.(set.setNumber, field, value)
-                  }
-                />
+                <Fragment key={`${exercise.id}-set-${set.setNumber}`}>
+                  <SetRow
+                    isReadOnly={isReadOnly}
+                    showDoneControl={!isReadOnly}
+                    setNumber={set.setNumber}
+                    weight={set.weight}
+                    reps={set.reps}
+                    rir={set.rir}
+                    isDone={set.isDone}
+                    onToggleDone={() => onToggleSetDone?.(set.setNumber)}
+                    onSetFieldChange={(field, value) =>
+                      onUpdateSetField?.(set.setNumber, field, value)
+                    }
+                  />
+                  {methodView?.entries[set.setNumber] ? (
+                    <AdvancedMethodPanel
+                      key={`${methodView.key}-${set.setNumber}`}
+                      setIndex={set.setNumber}
+                      {...methodView.entries[set.setNumber]}
+                      onChange={(change) => onMethodChange?.(set.setNumber, change)}
+                    />
+                  ) : null}
+                </Fragment>
               ))}
             </div>
 

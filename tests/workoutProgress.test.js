@@ -301,3 +301,48 @@ for (const planId of ["bulk-pro", "cut-pro"]) {
     assert.match(w.renderExercise(), /Previous values loaded/);
   });
 }
+
+test("method editors require exact bindings and intact existing runtime context", () => {
+  const w = workout("bulk-pro");
+  const cycle = w.cycle();
+  const log = cycle.dayLogs.d1.mainExerciseLogs["incline-db-press"];
+  const valid = structuredClone(cycle);
+  const html = () => w.renderExercise("d1", "incline-db-press");
+  assert.match(html(), /data-method-set="3"/);
+  assert.equal(log.sets.length, 3);
+  assert.equal(w.progress().performedMainSetCount, 0);
+  assert.doesNotMatch(w.renderExercise("d1", "overhead-rope-extension"), /data-method-set=/);
+  const cut = workout("cut-pro");
+  assert.doesNotMatch(cut.renderExercise(), /data-method-set=/);
+  const reset = () => { Object.keys(cycle).forEach((key) => delete cycle[key]); Object.assign(cycle, structuredClone(valid)); };
+  for (const alter of [
+    () => { delete cycle.methodBindings; },
+    () => { delete cycle.methodBindings.exercises["incline-db-press"]; },
+    () => { cycle.methodBindings.version = 99; },
+    () => { cycle.methodBindings.exercises["incline-db-press"].revision = 99; },
+    () => { cycle.dayLogs.d1.mainExerciseLogs["incline-db-press"].sets.pop(); },
+    () => { cycle.dayLogs.d1.mainExerciseLogs["incline-db-press"].sets[2].methodLog = { choice: "record", phases: { "extra-reps": { execution: "performed", reps: "31" } } }; },
+  ]) {
+    reset(); alter();
+    const before = JSON.stringify(w.state());
+    assert.doesNotMatch(html(), /type="radio"|name="restSeconds"/);
+    assert.equal(JSON.stringify(w.state()), before);
+  }
+  reset();
+  w.closeDay();
+  const closed = cycle.dayLogs.d1.finishedAt;
+  assert.match(html(), /type="radio"/);
+  assert.match(html(), /Return to day/);
+  assert.equal(cycle.dayLogs.d1.finishedAt, closed);
+});
+
+test("precreated future finished logs cannot expose any Exercise editing controls", () => {
+  const w = workout("bulk-pro");
+  w.ensureDay("d4");
+  w.cycle().dayLogs.d4.finishedAt = "anomalous-future-finish";
+  const before = JSON.stringify(w.state());
+  const html = w.renderExercise("d4", "face-away-cable-curl");
+  assert.match(html, /Read-only preview/);
+  assert.doesNotMatch(html, /<input|aria-pressed=|Finish exercise|Return to day/);
+  assert.equal(JSON.stringify(w.state()), before);
+});

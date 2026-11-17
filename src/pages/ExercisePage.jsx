@@ -14,6 +14,9 @@ import { sanitizeSetInputValue } from "../utils/runtime/setInputHelpers";
 import { hasCarryOverValuesForExercise } from "../utils/runtime/carryOverHelpers";
 import { getDayMode } from "../utils/runtime/dayModeHelpers";
 import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
+import { resolveCycleMethodBinding } from "../utils/runtime/advancedMethodContextHelpers.js";
+import { deriveMethodState, getApplicableSetIndexes } from "../utils/runtime/advancedMethodHelpers.js";
+import { validateMethodLog, isValidMethodMetricValue } from "../utils/runtime/advancedMethodValidation.js";
 
 /**
  * Builds display-only rows for upcoming exercise previews.
@@ -92,7 +95,7 @@ export default function ExercisePage() {
   const { t } = useTranslation();
   const { planId, dayId, exerciseId } = useParams();
   const navigate = useNavigate();
-  const { state, dispatch } = useAppState();
+  const { state, dispatch, isWorkoutBlocked } = useAppState();
 
   const plan = getPlanById(planId);
   const dayDetails = getDayDetails(planId, dayId);
@@ -115,7 +118,11 @@ export default function ExercisePage() {
   const currentDayId = currentCycle?.currentDayId ?? null;
   const dayOrder = plan?.dayOrder ?? [];
 
-  const dayMode = dayDetails
+  // Chronological ownership takes precedence over an anomalous future finish date.
+  const dayIndex = dayOrder.indexOf(dayId);
+  const currentDayIndex = dayOrder.indexOf(currentDayId);
+  const isFutureDay = dayIndex >= 0 && currentDayIndex >= 0 && dayIndex > currentDayIndex;
+  const dayMode = isFutureDay ? "upcoming" : dayDetails
     ? getDayMode({
         dayId: dayDetails.id,
         currentDayId,
@@ -143,6 +150,43 @@ export default function ExercisePage() {
 
   // Upcoming days use static preview rows. Active/finished days use runtime rows.
   const displaySets = isUpcomingPreview ? previewSets : runtimeSets;
+
+  const resolvedMethod = resolveCycleMethodBinding({ planId, cycle: currentCycle, dayId, exerciseId });
+  const methodView = { entries: {}, unavailable: false };
+  const canEditMethod = !isWorkoutBlocked && !isUpcomingPreview &&
+    ["active", "finished"].includes(dayMode) && dayIndex >= 0 && currentDayIndex >= dayIndex &&
+    currentCycle?.cycleNumber === currentCycleNumber && typeof currentCycle?.startedAt === "string" &&
+    currentCycle.startedAt.trim() !== "" && dayLog?.dayId === dayId && exerciseLog?.exerciseId === exerciseId;
+  if (!isUpcomingPreview && resolvedMethod.status === "resolved") {
+    const indexes = getApplicableSetIndexes(resolvedMethod.definition, exerciseLog?.sets);
+    methodView.unavailable = indexes.length === 0;
+    for (const setIndex of indexes) {
+      const row = exerciseLog.sets.find((set) => set.setIndex === setIndex);
+      const valid = !(Object.hasOwn(row, "methodLog") && row.methodLog === undefined) &&
+        validateMethodLog(resolvedMethod.definition, row.methodLog).valid;
+      methodView.entries[setIndex] = {
+        definition: resolvedMethod.definition,
+        record: row.methodLog,
+        derived: deriveMethodState(resolvedMethod.definition, row.methodLog),
+        editable: canEditMethod && valid,
+      };
+    }
+  } else if (!isUpcomingPreview) {
+    methodView.unavailable = ["invalid", "unresolved"].includes(resolvedMethod.status) ||
+      Boolean(exerciseLog?.sets.some((row) => Object.hasOwn(row, "methodLog")));
+  }
+  // Presentation resets only when the addressed workout changes, never on input or locale.
+  methodView.key = JSON.stringify([planId, currentCycleNumber, currentCycle?.startedAt, dayId, exerciseId]);
+
+  function handleMethodChange(setIndex, change) {
+    if (!methodView.entries[setIndex]?.editable) return;
+    if (change.type === "set-metric" && !isValidMethodMetricValue(change.field, change.value)) return;
+    dispatch({
+      type: APP_ACTIONS.UPDATE_EXERCISE_METHOD,
+      payload: { planId, cycleNumber: currentCycleNumber, cycleStartedAt: currentCycle.startedAt,
+        dayId, exerciseId, setIndex, change },
+    });
+  }
 
   // Previous-values UI must reflect historical carry-over availability only.
   // Today's editable rows are intentionally ignored so typing new values does not
@@ -312,6 +356,8 @@ export default function ExercisePage() {
           onToggleSetDone={handleToggleSetDone}
           onUpdateSetField={handleUpdateSetField}
           onCloseExercise={handleCloseExercise}
+          methodView={methodView}
+          onMethodChange={handleMethodChange}
         />
       </div>
     </AppShell>

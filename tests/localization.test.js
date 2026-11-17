@@ -162,6 +162,10 @@ test("all source data and UI copy have Serbian catalog entries", () => {
     const s = node.value;
     if (typeof s !== "string" || unchanged(s) || Object.hasOwn(srLatn, s)) return;
     if (node.parent.type === "ImportDeclaration" || node.parent.type === "Property" && node.parent.key === node) return;
+    // A runtime own-property check is not user-facing copy.
+    if (s === "methodLog" && node.parent.type === "CallExpression" &&
+        node.parent.callee.object?.name === "Object" && node.parent.callee.property?.name === "hasOwn" &&
+        node.parent.arguments[1] === node) return;
     let field = node.parent;
     while (field && field.type !== "Property") field = field.parent;
     if (currentFile.includes("/data/")) {
@@ -415,5 +419,50 @@ for (const planId of ["bulk-pro", "cut-pro"]) {
     assert.match(html, /Zatvoreno · Delimično odrađeno · Odrađena 1 glavna serija/);
     assert.match(html, /Zatvoreno · Odrađeno 0 glavnih serija/);
     assert.match(html, /Odrađena 1 Core serija/);
+  });
+}
+
+for (const [exerciseId, dayId, setIndex, phaseId, field] of [
+  ["incline-db-press", "d1", 3, "extra-reps", "reps"],
+  ["cable-stretch-fly", "d1", 1, "loaded-stretch", "durationSeconds"],
+  ["face-away-cable-curl", "d4", 1, "extra-reps", "reps"],
+]) {
+  test(`${exerciseId}: method evidence renders truthful EN/SR states on its prescribed row`, () => {
+    const w = workout("bulk-pro");
+    if (dayId === "d4") {
+      for (const day of ["d1", "d2", "d3"]) {
+        w.ensure(day); w.send(actions.FINISH_DAY, { dayId: day, finishedAt: `finished-${day}` });
+      }
+      w.ensure(dayId);
+    }
+    const row = w.cycle().dayLogs[dayId].mainExerciseLogs[exerciseId].sets.find((set) => set.setIndex === setIndex);
+    const cases = [
+      [undefined, "Not recorded", null],
+      [{ choice: "skip", phases: {} }, "Skipped", null],
+      [{ choice: "record", phases: { [phaseId]: { execution: "unconfirmed", [field]: "8" } } }, "Not confirmed", null],
+      [{ choice: "record", phases: { [phaseId]: { execution: "partial", [field]: "8" } } }, "Partially performed", null],
+      [{ choice: "record", phases: { [phaseId]: { execution: "performed", [field]: "0" } } }, "Attempt confirmed", "Below target"],
+      [{ choice: "record", phases: { [phaseId]: { execution: "performed", [field]: "" } } }, "Performed", "Required measurement missing"],
+      [{ choice: "record", phases: { [phaseId]: { execution: "performed", [field]: "8" } } }, "Performed", null],
+    ];
+    for (const [record, status, extra] of cases) {
+      if (record === undefined) delete row.methodLog; else row.methodLog = record;
+      const before = JSON.stringify(w.state());
+      for (const locale of ["en", "sr-Latn"]) {
+        const t = createTranslator(locale);
+        const html = render("ExercisePage", w.state(), locale, "/plan/:planId/day/:dayId/exercise/:exerciseId", `/plan/bulk-pro/day/${dayId}/exercise/${exerciseId}`);
+        assert.equal((html.match(/data-method-set=/g) ?? []).length, 1);
+        assert.ok(html.includes(`data-method-set="${setIndex}"`));
+        assert.ok(html.includes(escape(t(status))));
+        assert.ok(html.includes(escape(t(field === "reps" ? "Extra reps" : "Actual stretch duration (s)"))));
+        if (extra) assert.ok(html.includes(escape(t(extra))));
+        if (record?.phases[phaseId]?.[field] === "8") assert.ok(!html.includes(escape(t("Required measurement missing"))));
+        assert.ok(html.includes('type="radio"'));
+        assert.ok(!html.includes("Previous compatible attempt"));
+        assert.ok(!html.includes("{set}"));
+      }
+      assert.equal(JSON.stringify(w.state()), before);
+      assert.equal(row.isDone, false);
+    }
   });
 }
