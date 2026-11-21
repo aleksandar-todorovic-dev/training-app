@@ -15,7 +15,7 @@ const storageKey = "training-app:v2:app-state";
 const route = (exercise = "incline-db-press", day = "d1", plan = "bulk-pro") => `/plan/${plan}/day/${day}/exercise/${exercise}`;
 
 // Only the isolated server exposes this route. Real pages, context and persistence
-// run under StrictMode; the wrapper observes dispatched actions without changing them.
+// run under StrictMode; the wrapper can enqueue a base edit to reproduce a stale confirmation.
 const harness = `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="data:,"></head><body><div id="root"></div><script type="module">
 import React, { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -31,7 +31,11 @@ import '/src/index.css';
 function Probe() {
   const context = useAppState(); const navigate = useNavigate();
   useEffect(() => { window.__qa = context; window.__navigate = navigate; });
-  return React.createElement(AppStateContext.Provider, { value: {...context, dispatch(action) { window.__actions.push(action); context.dispatch(action); }} },
+  return React.createElement(AppStateContext.Provider, { value: {...context, dispatch(action) { window.__actions.push(action);
+    if (window.__beforeMethod && action.type === "UPDATE_EXERCISE_METHOD") {
+      context.dispatch(window.__beforeMethod); delete window.__beforeMethod;
+    }
+    context.dispatch(action); }} },
     React.createElement(Routes, null, React.createElement(Route, {path:'/plan/:planId/day/:dayId/exercise/:exerciseId', element:React.createElement(ExercisePage)}),
       React.createElement(Route, {path:'/plan/:planId/guide',element:React.createElement(GuidePage)}),
       React.createElement(Route, {path:'/plan/:planId/end-cycle',element:React.createElement(EndCyclePage)})));
@@ -65,7 +69,7 @@ test("isolated Chrome: pilot Exercise UI interactions, lifecycle guards and mobi
       let state = structuredClone(appInitialState);
       const send = (type, payload) => { state = appReducer(state, { type, payload: { planId, ...payload } }); };
       send(actions.START_PLAN_CYCLE, { startedAt: "2026-11-17T10:00:00Z" });
-      for (const day of ["d1", "d2", "d3", "d4"]) {
+      for (const day of ["d1", "d2", "d3", "d4", "d5"]) {
         const dayDetails = getDayDetails(planId, day);
         send(actions.ENSURE_DAY_LOG, { dayDetails, exercises: getExercisesForDay(planId, dayDetails.exerciseIds) });
         if (day === dayId) break;
@@ -528,6 +532,146 @@ test("isolated Chrome: pilot Exercise UI interactions, lifecycle guards and mobi
       const shot = await call("Page.captureScreenshot", {format:"png"});
       await writeFile(join(screenshots,"iso-stretch-expanded-en-390.png"),Buffer.from(shot.data,"base64"));
       t.diagnostic(`Synthetic screenshots: ${screenshots}`);
+    });
+    const clusterId = "assisted-pull-up-cluster";
+    const clusterRoute = route(clusterId, "d5");
+    const set1 = '[data-method-set="1"]';
+    const set2 = '[data-method-set="2"]';
+    function clusterFixture() {
+      const state = fixture("bulk-pro", "d5");
+      const progress = state.progressByPlan["bulk-pro"];
+      const first = progress.cycles[1];
+      first.methodBindings.exercises[clusterId] = {
+        dayId: "d5", definitionId: "bulk-pro/assisted-pull-up-cluster/cluster", revision: 1, setCount: 2,
+      };
+      for (const n of [2, 3]) {
+        progress.cycles[n] = { ...structuredClone(first), cycleNumber: n, startedAt: "cycle-" + n };
+      }
+      progress.currentCycleNumber = 3;
+      for (const n of [1, 2]) {
+        const row = progress.cycles[n].dayLogs.d5.mainExerciseLogs[clusterId].sets[n - 1];
+        row.weight = "40";
+        row.isDone = n === 2;
+        row.methodLog = { choice: "record", phases: { "additional-burst": {
+          execution: n === 1 ? "partial" : "performed", restSeconds: "", reps: String(n + 3),
+          assistance: n === 1 ? { mode: "same", kg: "30" } : { mode: "entered", kg: "0" },
+        } } };
+      }
+      progress.cycles[3].dayLogs.d5.mainExerciseLogs[clusterId].sets[0].weight = "25";
+      return state;
+    }
+    const clusterRows = async () => JSON.parse(await read()).state.progressByPlan["bulk-pro"]
+      .cycles[3].dayLogs.d5.mainExerciseLogs[clusterId].sets;
+    const burstOf = (row) => row.methodLog?.phases["additional-burst"];
+    await t.test("Cluster snapshots, drafts, rejection, independent rows and V2 reload", async () => {
+      await seed(clusterFixture(), clusterRoute);
+      const before = await read();
+      assert.equal(await evaluate("document.querySelectorAll('[data-method-set]').length"), 2);
+      await click(set1 + " > button"); await click(set2 + " > button");
+      assert.equal(await read(), before);
+      assert.equal(await evaluate(`document.querySelector('${set2} [data-assistance=same]').disabled`), true);
+      // Queue a real base edit immediately before the UI confirmation reaches the reducer.
+      await evaluate(`window.__beforeMethod = {type:'UPDATE_EXERCISE_SET_FIELD', payload:{
+        planId:'bulk-pro',dayId:'d5',exerciseId:'assisted-pull-up-cluster',setIndex:1,field:'weight',value:'35'}}`);
+      await click(set1 + " [data-assistance=same]");
+      assert.equal(burstOf((await clusterRows())[0]), undefined);
+      assert.match(await evaluate(`document.querySelector('${set1}').innerText`), /Assistance was not updated/);
+      await click(set1 + " [data-assistance=same]");
+      await click('input[name="set-1-weight"]');
+      await evaluate("document.activeElement.select()");
+      await call("Input.insertText", {text:"25."}); await settle();
+      assert.equal(await evaluate(`document.querySelector('${set1} [data-assistance=same]').disabled`), true);
+      assert.deepEqual(burstOf((await clusterRows())[0]).assistance, { mode:"same", kg:"35" });
+      await click(set2 + " [data-assistance=entered]");
+      const input = set2 + ' input[name="assistanceKg"]';
+      await click(input);
+      await call("Input.insertText", {text:"12"});
+      await click(set2 + " > button"); await click(set2 + " > button");
+      assert.equal(burstOf((await clusterRows())[1]), undefined);
+      assert.equal(await evaluate(`document.querySelector('${input}').value`), "12");
+      async function enter(value) {
+        await click(input); await evaluate("document.activeElement.select()");
+        await call("Input.insertText", {text:value});
+        await call("Input.dispatchKeyEvent", {type:"keyDown",key:"Tab",code:"Tab",windowsVirtualKeyCode:9});
+        await call("Input.dispatchKeyEvent", {type:"keyUp",key:"Tab",code:"Tab",windowsVirtualKeyCode:9});
+        await settle();
+      }
+      for (const value of ["32.", "1000", "1.23"]) {
+        await enter(value);
+        assert.equal(await evaluate(`document.querySelector('${input}').getAttribute('aria-invalid')`), "true");
+        assert.equal(burstOf((await clusterRows())[1]), undefined);
+      }
+      for (const [value, kg] of [["0","0"],["032,5","32.5"]]) {
+        await enter(value);
+        assert.deepEqual(burstOf((await clusterRows())[1]).assistance, {mode:"entered",kg});
+      }
+      await click(set2 + ' input[name="reps"]'); await call("Input.insertText", {text:"4"});
+      await click(set2 + ' input[value="performed"]');
+      assert.equal((await clusterRows())[1].isDone,false);
+      await click(set2 + ' div.space-y-3 > button');
+      assert.equal((await clusterRows())[1].methodLog.choice,"skip");
+      await click(set2 + ' div.space-y-3 > button');
+      const generation = await evaluate("window.__generation");
+      await call("Page.reload"); await wait(`window.__generation>${generation} && Boolean(document.querySelector('[data-method-set]'))`);
+      await click(set2 + " > button");
+      assert.match(await evaluate(`document.querySelector('${set2}').innerText`), /Entered · 32.5 kg/);
+      await click(set2 + " [data-assistance=clear]");
+      assert.deepEqual(burstOf((await clusterRows())[1]), { execution:"performed", reps:"4", restSeconds:"" });
+      assert.deepEqual(burstOf((await clusterRows())[0]).assistance,{mode:"same",kg:"35"});
+    });
+
+    await t.test("Cluster panels and history at 320, 360 and 390 px in English and Serbian", async () => {
+      const directory = await mkdtemp(join(tmpdir(), "cycle-coach-4c-visual-"));
+      for (const width of [320,360,390]) for (const locale of ["en","sr-Latn"]) {
+        const t = createTranslator(locale);
+        const state = clusterFixture();
+        const rows = state.progressByPlan["bulk-pro"].cycles[3].dayLogs.d5.mainExerciseLogs[clusterId].sets;
+        rows[0].methodLog = {choice:"record",phases:{"additional-burst":{execution:"partial",reps:"3",
+          assistance:{mode:"same",kg:"35"}}}};
+        await call("Emulation.setDeviceMetricsOverride",{width,height:width===320?568:800,deviceScaleFactor:1,mobile:true});
+        await seed(state,clusterRoute,locale);
+        if (width === 360 && locale === "en") {
+          await evaluate(`document.querySelector('${set1}').scrollIntoView({block:'center'})`);
+          const shot = await call("Page.captureScreenshot",{format:"png"});
+          await writeFile(join(directory,"cluster-rows-en-360.png"),Buffer.from(shot.data,"base64"));
+        }
+        const label = await evaluate('document.querySelector("[name=set-1-weight]").getAttribute("aria-label")');
+        assert.ok(label.includes(t("Assistance (kg)")));
+        const before = await read();
+        for (const [panel,cycle] of [[set1,1],[set2,2]]) {
+          await click(panel+" > button");
+          const toggle = panel+" [data-method-history] > button";
+          assert.equal(await evaluate(`document.querySelector('${toggle}').getAttribute('aria-expanded')`),"false");
+          await click(toggle);
+          const history = await evaluate(`document.querySelector('${panel} [data-method-history]').innerText`);
+          assert.ok(history.includes(t("Previous comparable attempt · Cycle {cycle}",{cycle})));
+          assert.ok(history.includes(cycle===1?t("Same at confirmation · {kg} kg",{kg:"30"}):t("Entered · {kg} kg",{kg:"0"})));
+        }
+        await click(set2+" [data-assistance=entered]");
+        await click(set2+' input[name="assistanceKg"]');
+        assert.equal(await evaluate("document.activeElement.inputMode"),"decimal");
+        assert.equal(await evaluate("document.documentElement.scrollWidth<=innerWidth"),true);
+        assert.equal(await read(),before);
+        if ((locale==="en" && width===390) || (locale==="sr-Latn" && width===320)) {
+          await evaluate(`document.querySelector('${set1} fieldset').scrollIntoView({block:'center'})`);
+          const shot = await call("Page.captureScreenshot",{format:"png"});
+          await writeFile(join(directory,`cluster-${locale}-${width}.png`),Buffer.from(shot.data,"base64"));
+        }
+      }
+      t.diagnostic("Cluster review screenshots: "+directory);
+    });
+
+    await t.test("Cluster legacy, unbound and unknown revisions retain ordinary weight inputs", async () => {
+      for (const kind of ["legacy","unbound","unknown"]) {
+        const state=clusterFixture();
+        const current=state.progressByPlan["bulk-pro"].cycles[3];
+        if (kind==="legacy") delete current.methodBindings;
+        if (kind==="unbound") delete current.methodBindings.exercises[clusterId];
+        if (kind==="unknown") current.methodBindings.exercises[clusterId].revision=99;
+        await seed(state,clusterRoute);
+        assert.equal(await evaluate("document.querySelector('[data-method-set]')===null"),true);
+        assert.match(await evaluate('document.querySelector("[name=set-1-weight]").getAttribute("aria-label")'),/weight/i);
+      }
     });
     assert.deepEqual(exceptions, []);
     await send("Browser.close");

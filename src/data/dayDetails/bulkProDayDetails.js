@@ -115,7 +115,7 @@ export const bulkProDayDetails = [
     goal: "Chest pump, row bridge, and triceps lock-out",
     sessionInfo: {
       rirRule: "Compound 1-2, other lifts 1-2",
-      advancedTechniques: "Push-up Mechanical Dropset",
+      advancedTechniques: "Assisted Pull-up Cluster · Push-up Mechanical Dropset",
       warmupId: "warmup-d5",
     },
     exerciseIds: [

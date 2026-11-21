@@ -1,4 +1,7 @@
 export default {
+  "Assisted Pull-up Cluster · Push-up Mechanical Dropset": "Klaster asistiranih zgibova · Mehanički dropset sklekova",
+  "On Bulk D5, start each of two sets with 8–10 reps. For the optional continuation, rest 15 seconds and aim for 4–5 extra reps. Rest 120 seconds between sets.": "Na D5 u Bulk Pro planu počni svaku od dve serije sa 8–10 ponavljanja. Za opcioni nastavak odmori 15 sekundi i ciljaj još 4–5 ponavljanja. Između serija odmori 120 sekundi.",
+  "On the same machine, less assistance makes the pull-up harder. Mark Done for the first burst. Log the continuation separately when the cycle includes Cluster logging.": "Na istoj spravi manja pomoć otežava zgib. Označi osnovni deo kao urađen. Nastavak zabeleži posebno ako ciklus podržava beleženje klastera.",
   "Dropset": "Dropset serija",
   "A dropset extends the last working set by reducing the load and continuing with controlled reps.": "Dropset produžava poslednju radnu seriju tako što smanjuješ opterećenje i nastavljaš kontrolisanim ponavljanjima.",
   "How to do it": "Kako se izvodi",
@@ -40,9 +43,6 @@ export default {
   "Skip it if the stretch feels sharp, unstable, or if fatigue is already too high. If the day already includes several advanced techniques, do not force every one of them.": "Preskoči ga ako pri istezanju osetiš oštar bol, nestabilnost ili ako je zamor već previsok. Ako trening već uključuje više naprednih tehnika, ne forsiraj svaku.",
   "Cluster": "Klaster serija",
   "A cluster splits one hard set into smaller bursts with a short rest inside the set.": "Klaster deli jednu tešku seriju na manje grupe ponavljanja, uz kratak odmor unutar serije.",
-  "Perform the first rep burst listed in the exercise note.": "Uradi prvu grupu ponavljanja navedenu u napomeni uz vežbu.",
-  "Rest briefly, then perform the second burst with the same setup.": "Kratko odmori, pa uradi drugu grupu ponavljanja sa istim podešavanjem vežbe.",
-  "One full cluster counts as one working set, even though there is a short rest inside it.": "Ceo klaster računa se kao jedna radna serija, iako unutar nje postoji kratak odmor.",
   "Each burst should stay clean. The short rest is there to preserve quality.": "Svaku grupu ponavljanja izvodi pravilno. Kratak odmor služi da sačuvaš kvalitet izvođenja.",
   "Use it only when you can keep the movement clean across both bursts.": "Koristi ga samo ako obe grupe ponavljanja možeš da izvedeš pravilno.",
   "Skip or reduce it if the second burst turns into rushed or grindy reps. If the day already includes several advanced techniques, complete the prescribed sets first and use this only when quality is still good.": "Preskoči ga ili smanji ako drugu grupu ponavljanja izvodiš užurbano ili ih jedva dovršavaš. Ako trening već uključuje više naprednih tehnika, prvo odradi propisane serije i primeni ga samo dok je kvalitet izvođenja dobar.",

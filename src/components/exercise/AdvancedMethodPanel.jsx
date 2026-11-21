@@ -1,7 +1,7 @@
 import { useId, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useTranslation } from "../../i18n/useTranslation";
-import { isValidMethodMetricValue } from "../../utils/runtime/advancedMethodValidation.js";
+import { isValidMethodMetricValue, normalizeAssistanceKg } from "../../utils/runtime/advancedMethodValidation.js";
 
 const statusLabels = {
   unknown: "Not recorded", skipped: "Skipped", draft: "Not confirmed",
@@ -22,8 +22,80 @@ function formatTarget(target) {
   return target.min === target.max ? String(target.min) : `${target.min}–${target.max}`;
 }
 
-/** A controlled evidence form. Only disclosure and rejected-input feedback are local. */
-export default function AdvancedMethodPanel({ definition, record, derived, setIndex, editable, onChange, previousAttempt }) {
+function assistanceLabel(t, saved) {
+  if (!saved) return t("Not recorded");
+  return t(saved.mode === "same" ? "Same at confirmation · {kg} kg" : "Entered · {kg} kg", { kg: saved.kg });
+}
+
+function ClusterAssistance({ baseWeight, saved, onChange, phaseId }) {
+  const { t } = useTranslation();
+  const id = useId();
+  const baseKg = normalizeAssistanceKg(baseWeight);
+  const [draft, setDraft] = useState(null);
+  const [invalid, setInvalid] = useState(false);
+  const [requested, setRequested] = useState(null);
+  const entering = draft !== null || saved?.mode === "entered";
+  const mismatch = saved?.mode === "same" && saved.kg !== baseKg;
+  const buttonClass = "min-h-11 rounded-lg border border-[#3A434C] px-3 text-left text-sm aria-pressed:border-[#F1B864] disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-[#B8F36B]";
+
+  function save(mode, kg) {
+    setRequested({ mode, kg, previous: saved });
+    onChange({ type: "set-assistance", phaseId, mode, kg });
+    setDraft(null);
+    setInvalid(false);
+  }
+
+  function commitDraft() {
+    if (draft === null) return;
+    const kg = normalizeAssistanceKg(draft.replace(",", "."));
+    if (kg === null) {
+      setInvalid(true);
+      return;
+    }
+    save("entered", kg);
+  }
+
+  return (
+    <fieldset className="min-w-0 space-y-2 text-sm text-[#D7DDD7]">
+      <legend className="font-semibold">{t("Continuation assistance")}</legend>
+      <div className="grid gap-1">
+        <button type="button" data-assistance="clear" className={buttonClass} aria-pressed={!saved && !entering}
+          onClick={() => {
+            setDraft(null); setInvalid(false); setRequested(null);
+            onChange({ type: "clear-assistance", phaseId });
+          }}>{t("Not recorded")}</button>
+        <button type="button" data-assistance="same" className={buttonClass} disabled={baseKg === null}
+          aria-pressed={!entering && saved?.mode === "same" && !mismatch}
+          onClick={() => save("same", baseKg)}>{baseKg === null ? t("Same as base") : t("Same as base — {kg} kg", { kg: baseKg })}</button>
+        <button type="button" data-assistance="entered" className={buttonClass} aria-pressed={entering}
+          onClick={() => { setDraft(draft ?? (saved?.mode === "entered" ? saved.kg : "")); setRequested(null); }}>
+          {t("Enter assistance")}
+        </button>
+      </div>
+      {entering ? <label className="flex min-h-11 items-center justify-between gap-2">
+        {t("Continuation assistance (kg)")}
+        <input name="assistanceKg" inputMode="decimal" autoComplete="off" value={draft ?? saved?.kg ?? ""}
+          aria-invalid={invalid || undefined} aria-describedby={id}
+          onChange={(event) => { setDraft(event.target.value); setInvalid(false); }}
+          onBlur={(event) => {
+            // Toggling a disclosure is presentation-only, even with a pending draft.
+            if (!event.relatedTarget?.closest("button[aria-expanded]")) commitDraft();
+          }}
+          onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }}
+          className="h-11 w-20 rounded-lg border border-[#3A434C] bg-[#13181D] px-2 text-center text-base focus-visible:ring-2 focus-visible:ring-[#B8F36B]" />
+      </label> : null}
+      <div id={id} role="status" className="space-y-1 text-xs leading-5">
+        <p>{t("Recorded assistance")} · {assistanceLabel(t, saved)}</p>
+        {invalid && <p>{t("Enter 0–999.9 kg with up to one decimal place.")}</p>}
+        {requested && saved === requested.previous && (saved?.mode !== requested.mode || saved?.kg !== requested.kg || mismatch) &&
+          <p>{t("Assistance was not updated. Check the current setting and try again.")}</p>}
+        {mismatch && <p>{t("The base has changed since confirmation. The recorded assistance is still {kg} kg.", { kg: saved.kg })}</p>}
+      </div>
+    </fieldset>
+  );
+}
+
+export default function AdvancedMethodPanel({ definition, record, derived, setIndex, editable, onChange, previousAttempt, baseWeight, machineAssistance }) {
   const { t } = useTranslation();
   const id = useId();
   const [open, setOpen] = useState(false);
@@ -31,6 +103,7 @@ export default function AdvancedMethodPanel({ definition, record, derived, setIn
   const [historyOpen, setHistoryOpen] = useState(false);
   const phase = definition.phases[0];
   const isRestPause = definition.type === "rest-pause";
+  const usesReps = phase.requiredMetrics.includes("reps");
   const phaseLog = record?.phases?.[phase.phaseId];
   const skipped = derived.status === "skipped";
   const available = editable && derived.valid;
@@ -42,7 +115,7 @@ export default function AdvancedMethodPanel({ definition, record, derived, setIn
   const comparison = derived.targetComparisons[phase.phaseId]?.[requiredMetric];
   const summary = [status];
   if (available && ["partial", "performed"].includes(derived.status)) {
-    summary.push(actual === "" ? t("Measurement not recorded") : t(isRestPause
+    summary.push(actual === "" ? t("Measurement not recorded") : t(usesReps
       ? "Extra reps: {value}" : "Stretch duration: {value} s", { value: actual }));
     if (actual !== "") summary.push(t(comparisonLabels[comparison]));
   }
@@ -65,7 +138,7 @@ export default function AdvancedMethodPanel({ definition, record, derived, setIn
         className="flex min-h-14 w-full items-center justify-between gap-3 py-3 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#B8F36B]">
         <span className="min-w-0">
           <span className="block text-sm font-semibold leading-5 text-[#F4C87F]">
-            {t(isRestPause ? "Rest-pause log · Set {set}" : "Iso-stretch log · Set {set}", { set: setIndex })}
+            {t(definition.type === "cluster" ? "Cluster log · Set {set}" : isRestPause ? "Rest-pause log · Set {set}" : "Iso-stretch log · Set {set}", { set: setIndex })}
           </span>
           <span className="mt-1 block text-xs leading-5 text-[#AAB2BA]" data-method-summary>{summary.join(" · ")}</span>
         </span>
@@ -75,12 +148,12 @@ export default function AdvancedMethodPanel({ definition, record, derived, setIn
         {available ? (
           <>
             <p className="text-xs leading-5 text-[#AAB2BA]">{t("Log the base set above and the optional extension here.")}</p>
-            <p className="text-xs leading-5 text-[#D7DDD7]">{isRestPause
+            <p className="text-xs leading-5 text-[#D7DDD7]">{usesReps
               ? t("Target: {rest} s rest, then {reps} extra reps.", {
                 rest: formatTarget(phase.targets.restSeconds), reps: formatTarget(phase.targets.reps),
               })
               : t("Target: {duration} s stretch.", { duration: formatTarget(phase.targets.durationSeconds) })}</p>
-            <p className="text-xs text-[#AAB2BA]">{t("Same load as the base set.")}</p>
+            {!machineAssistance && <p className="text-xs text-[#AAB2BA]">{t("Same load as the base set.")}</p>}
             {/* Keep controls mounted across skip/resume so their identity is stable. */}
             <div hidden={skipped} className="space-y-3">
               {phase.metrics.map((field) => {
@@ -104,8 +177,10 @@ export default function AdvancedMethodPanel({ definition, record, derived, setIn
                   </div>
                 );
               })}
+              {machineAssistance && !skipped && <ClusterAssistance baseWeight={baseWeight} saved={phaseLog?.assistance}
+                phaseId={phase.phaseId} onChange={onChange} />}
               <fieldset>
-                <legend className="text-xs font-semibold text-[#D7DDD7]">{t(isRestPause ? "Extension confirmation" : "Stretch confirmation")}</legend>
+                <legend className="text-xs font-semibold text-[#D7DDD7]">{t(usesReps ? "Extension confirmation" : "Stretch confirmation")}</legend>
                 <div className="mt-1">
                   {confirmationOptions.map(([execution, label]) => (
                     <label key={execution} className="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-[#D7DDD7]">
@@ -163,13 +238,15 @@ export default function AdvancedMethodPanel({ definition, record, derived, setIn
                       );
                     })}
                   </dl>
+                  {machineAssistance && <p>{t("Recorded assistance")} · {assistanceLabel(t, previousAttempt.methodLog.phases[phase.phaseId]?.assistance)}</p>}
                   {previousAttempt.derived.numericComplete === false ? <p>{t("Required measurement missing")}</p> : null}
                   {previousAttempt.derived.status === "performed" && previousAttempt.methodLog.phases[phase.phaseId]?.[requiredMetric] === "0"
                     ? <p>{t("A confirmed attempt can have a zero result. The target remains separate.")}</p> : null}
                   <div className="border-t border-[#2A3138] pt-2">
                     <p className="font-semibold text-[#D7DDD7]">{t("Base set")}</p>
+                    {machineAssistance && <p>{t("Saved base values may include carry-over.")}</p>}
                     <dl className="mt-1 space-y-1">
-                      {[["weight", "Kg"], ["reps", "Reps"], ["rir", "RIR"]].map(([field, label]) => (
+                      {[["weight", machineAssistance ? "Assistance (kg)" : "Kg"], ["reps", "Reps"], ["rir", "RIR"]].map(([field, label]) => (
                         <div key={field} className="flex flex-wrap justify-between gap-x-3">
                           <dt>{t(label)}</dt><dd className={previousAttempt.baseSet[field] === "" ? undefined : "font-semibold text-[#D7DDD7]"}>{previousAttempt.baseSet[field] === ""
                             ? t("Not recorded") : previousAttempt.baseSet[field]}</dd>

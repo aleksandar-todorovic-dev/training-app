@@ -287,6 +287,11 @@ export default function ExerciseWorkflowCard({
               </div>
             ) : null}
 
+            {methodView?.machineAssistance ? (
+              <p id={`${methodPanelId}-assistance`} className="px-3 py-2 text-xs leading-5 text-[#AAB2BA]">
+                {t("More assistance makes the pull-up easier on the same machine. Check today’s setting if kg carried over.")}
+              </p>
+            ) : null}
             <div
               className={`grid min-h-9 items-center gap-1 border-t border-[#2A3138] bg-[#171D22]/70 px-2 text-[0.6rem] font-semibold uppercase tracking-[0.08em] text-[#77818B] ${
                 isReadOnly
@@ -297,7 +302,7 @@ export default function ExerciseWorkflowCard({
             >
               <span className="text-center">{t("Set")}</span>
               <span className="grid grid-cols-3 text-center">
-                <span>{t("Kg")}</span>
+                <span>{t(methodView?.machineAssistance ? "Assistance (kg)" : "Kg")}</span>
                 <span>{t("Reps")}</span>
                 <span>{t("RIR")}</span>
               </span>
@@ -314,6 +319,7 @@ export default function ExerciseWorkflowCard({
                     isReadOnly={isReadOnly}
                     showDoneControl={!isReadOnly}
                     setNumber={set.setNumber}
+                    assistanceDescription={methodView?.machineAssistance ? `${methodPanelId}-assistance` : undefined}
                     weight={set.weight}
                     reps={set.reps}
                     rir={set.rir}
@@ -326,6 +332,8 @@ export default function ExerciseWorkflowCard({
                   {methodView?.entries[set.setNumber] ? (
                     <AdvancedMethodPanel
                       key={`${methodView.key}-${set.setNumber}`}
+                      baseWeight={set.weight}
+                      machineAssistance={methodView.machineAssistance}
                       setIndex={set.setNumber}
                       {...methodView.entries[set.setNumber]}
                       onChange={(change) => onMethodChange?.(set.setNumber, change)}

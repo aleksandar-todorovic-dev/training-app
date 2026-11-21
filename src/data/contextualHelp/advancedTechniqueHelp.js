@@ -147,9 +147,8 @@ export const advancedTechniqueHelpByType = {
         id: "how-to",
         title: "How to do it",
         paragraphs: [
-          "Perform the first rep burst listed in the exercise note.",
-          "Rest briefly, then perform the second burst with the same setup.",
-          "One full cluster counts as one working set, even though there is a short rest inside it.",
+          "On Bulk D5, start each of two sets with 8–10 reps. For the optional continuation, rest 15 seconds and aim for 4–5 extra reps. Rest 120 seconds between sets.",
+          "On the same machine, less assistance makes the pull-up harder. Mark Done for the first burst. Log the continuation separately when the cycle includes Cluster logging.",
           "Each burst should stay clean. The short rest is there to preserve quality.",
         ],
       },

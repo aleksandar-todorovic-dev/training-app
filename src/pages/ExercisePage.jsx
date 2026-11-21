@@ -161,6 +161,9 @@ export default function ExercisePage() {
   if (!isUpcomingPreview && resolvedMethod.status === "resolved") {
     const indexes = getApplicableSetIndexes(resolvedMethod.definition, exerciseLog?.sets);
     methodView.unavailable = indexes.length === 0;
+    methodView.machineAssistance = canEditMethod && indexes.length === 2 &&
+      resolvedMethod.definition.definitionId === "bulk-pro/assisted-pull-up-cluster/cluster" &&
+      resolvedMethod.definition.revision === 1;
     for (const setIndex of indexes) {
       const row = exerciseLog.sets.find((set) => set.setIndex === setIndex);
       const valid = !(Object.hasOwn(row, "methodLog") && row.methodLog === undefined) &&

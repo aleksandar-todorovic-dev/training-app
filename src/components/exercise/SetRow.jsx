@@ -8,6 +8,7 @@ const MotionButton = motion.button;
 
 function MetricField({
   label,
+  description,
   name,
   value,
   setNumber,
@@ -33,6 +34,7 @@ function MetricField({
       <span className="sr-only">{t("Set {value0} {value1}", { value0: setNumber, value1: label })}</span>
       <input
         aria-label={t("Set {value0} {value1}", { value0: setNumber, value1: label })}
+        aria-describedby={description}
         name={name}
         value={inputValue}
         onChange={(event) => onChange?.(event.target.value)}
@@ -56,6 +58,7 @@ function MetricField({
 export default function SetRow({
   setNumber,
   weight,
+  assistanceDescription,
   reps,
   rir,
   isDone = false,
@@ -88,7 +91,8 @@ export default function SetRow({
 
       <div className="grid min-w-0 grid-cols-3 divide-x divide-[#2A3138]">
         <MetricField
-          label="weight"
+          label={assistanceDescription ? "Assistance (kg)" : "weight"}
+          description={assistanceDescription}
           name={`set-${setNumber}-weight`}
           setNumber={setNumber}
           value={weight}

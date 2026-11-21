@@ -172,7 +172,7 @@ test("all source data and UI copy have Serbian catalog entries", () => {
     if (currentFile.includes("/data/")) {
       if (dataFields.has(field?.key.name)) missing.push(`${currentFile}:${node.loc.start.line} ${s}`);
     } else {
-      if (!/[A-Z]|[a-z] [a-z]/.test(s) || /[#[]/.test(s) || /^(?:flex |grid |relative flex |group |mb-|ml-|p-| x |http:|M\d)/.test(s) || s.includes("prefers-reduced-motion") || ["Escape","Tab"].includes(s)) return;
+      if (!/[A-Z]|[a-z] [a-z]/.test(s) || /[#[]/.test(s) || /^(?:flex |grid |relative flex |group |mb-|ml-|p-| x |http:|M\d)/.test(s) || s.includes("prefers-reduced-motion") || ["Escape","Tab","Enter"].includes(s)) return;
       if (node.parent.type === "JSXAttribute" && !["aria-label","title","alt","placeholder"].includes(node.parent.name.name)) return;
       missing.push(`${currentFile}:${node.loc.start.line} ${s}`);
     }
@@ -552,7 +552,7 @@ test("guides explain separate field references and limit structured method loggi
     const logging = topics.find((topic)=>topic.id==='logging-basics');
     assert.match(previous.paragraphs.join(' '),/earlier performed sets.*Each field is carried forward separately and may come from a different cycle/);
     assert.doesNotMatch(previous.paragraphs.join(' '),/Use your last logged/);
-    if (planId==='bulk-pro') assert.match(logging.paragraphs.join(' '),/supported rest-pause or iso-stretch panel.*Other advanced methods remain educational guidance/);
+    if (planId==='bulk-pro') assert.match(logging.paragraphs.join(' '),/supported rest-pause, iso-stretch or Cluster panel.*Other advanced methods remain educational guidance/);
     for (const locale of ['en','sr-Latn']) {
       const html = render('GuideGroupCard',appInitialState,locale,'/','/',{group:guide.groups.find((group)=>group.topics.includes(previous)),groupIndex:0,groupCount:guide.groups.length});
       assert.ok(html.includes(escape(createTranslator(locale)(previous.paragraphs[1]))));
