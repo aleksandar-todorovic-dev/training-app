@@ -9,6 +9,7 @@ const activeMethodsByPlan = Object.freeze({
     Object.freeze({ exerciseId: "incline-db-press", dayId: "d1", definitionId: "bulk-pro/incline-db-press/rest-pause", revision: 1, type: "rest-pause" }),
     Object.freeze({ exerciseId: "cable-stretch-fly", dayId: "d1", definitionId: "bulk-pro/cable-stretch-fly/iso-stretch", revision: 1, type: "iso-stretch" }),
     Object.freeze({ exerciseId: "face-away-cable-curl", dayId: "d4", definitionId: "bulk-pro/face-away-cable-curl/rest-pause", revision: 1, type: "rest-pause" }),
+    Object.freeze({ exerciseId: "assisted-pull-up-cluster", dayId: "d5", definitionId: "bulk-pro/assisted-pull-up-cluster/cluster", revision: 1, type: "cluster" }),
   ]),
   "cut-pro": Object.freeze([]),
 });

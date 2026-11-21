@@ -512,13 +512,13 @@ for (const [exerciseId, phaseId, field] of [
   });
 }
 
-test("all six educational method summaries match source types without activating additional editors", () => {
+test("all six educational summaries match source types and only bound exercises show method editors", () => {
   const summaries = {
     'rest-pause':'Rest-pause · exact method available', 'iso-stretch':'Iso stretch · exact timing available',
     dropset:'Dropset · exact method available', cluster:'Cluster set · exact structure available',
     'mechanical-set':'Mechanical set · exact sequence available', 'mechanical-dropset':'Mechanical dropset · exact sequence available',
   };
-  const pilots = new Set(['incline-db-press','cable-stretch-fly','face-away-cable-curl']);
+  const activeExercises = new Set(['incline-db-press','cable-stretch-fly','face-away-cable-curl','assisted-pull-up-cluster']);
   const w = workout('bulk-pro'); const seen = new Set();
   for (const day of getDayDetailsByPlanId('bulk-pro')) {
     w.cycle().currentDayId = day.id; w.ensure(day.id);
@@ -531,7 +531,7 @@ test("all six educational method summaries match source types without activating
         const html = render('ExercisePage',w.state(),locale,'/plan/:planId/day/:dayId/exercise/:exerciseId',`/plan/bulk-pro/day/${day.id}/exercise/${exercise.id}`);
         assert.ok(html.includes(escape(t(summaries[type]))),type);
         assert.ok(html.includes(escape(t('Prescribed method'))));
-        assert.equal(html.includes('data-method-set='),pilots.has(exercise.id));
+        assert.equal(html.includes('data-method-set='),activeExercises.has(exercise.id));
       }
     }
   }

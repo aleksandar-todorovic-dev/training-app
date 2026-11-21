@@ -488,11 +488,17 @@ const assistance = (mode, kg) => ({ type: "set-assistance", phaseId: burst, mode
 const clearAssistance = { type: "clear-assistance", phaseId: burst };
 
 function clusterWorkout(previous) {
-  const state = ensure(start(previous), cluster.dayId);
-  cycle(state).currentDayId = cluster.dayId;
-  // Only this synthetic cycle has a binding. New production cycles still use the three pilots.
-  cycle(state).methodBindings.exercises[cluster.exerciseId] = { ...clusterBinding };
-  return state;
+  const started = start(previous);
+  assert.deepEqual(cycle(started).methodBindings.exercises[cluster.exerciseId], clusterBinding);
+  const state = getDays(cluster.planId).slice(0, 4).reduce((state, day) => finishDay(state, day.id), started);
+  assert.equal(cycle(state).currentDayId, cluster.dayId);
+  return ensure(state, cluster.dayId);
+}
+
+function finishDay(state, dayId) {
+  return appReducer(ensure(state, dayId), { type: actions.FINISH_DAY, payload: {
+    planId: cluster.planId, dayId, finishedAt: `closed-${dayId}`,
+  } });
 }
 
 test("Cluster same checks the displayed KG against the addressed row at dispatch time", () => {
@@ -605,12 +611,13 @@ function clusterHistory() {
   first = update(first, assistance("same", "25"), cluster);
   first = update(first, metric("5", burst), cluster);
   first = update(first, execution("performed", burst), cluster);
+  first = finishDay(finishDay(first, "d5"), "d6");
   let second = clusterWorkout(first);
   second = update(second, assistance("entered", "32.5"), secondCluster);
   second = update(second, metric("0", burst, "restSeconds"), secondCluster);
   second = update(second, execution("partial", burst), secondCluster);
+  second = finishDay(finishDay(second, "d5"), "d6");
   const current = cycle(start(second, "current-start"));
-  current.methodBindings.exercises[cluster.exerciseId] = { ...clusterBinding };
   return { ...cluster, currentCycleNumber: 3, cycles: { 1: cycle(first), 2: cycle(second), 3: current } };
 }
 
@@ -619,10 +626,12 @@ test("Cluster history selects one detached confirmed attempt per set without fil
   const first = findAttempt(context);
   const second = findAttempt({ ...context, setIndex: 2 });
   assert.equal(first.cycleNumber, 1);
+  assert.equal(context.cycles[1].completedAt, "closed-d6");
   assert.deepEqual(first.baseSet, { setIndex: 1, weight: "25", reps: "9", rir: "", isDone: true });
   assert.deepEqual(first.methodLog.phases[burst], { execution: "performed", reps: "5", restSeconds: "",
     assistance: { mode: "same", kg: "25" } });
   assert.equal(second.cycleNumber, 2);
+  assert.equal(context.cycles[2].completedAt, "closed-d6");
   assert.deepEqual(second.baseSet, { setIndex: 2, weight: "", reps: "", rir: "", isDone: false });
   assert.deepEqual(second.methodLog.phases[burst], { execution: "partial", reps: "", restSeconds: "0",
     assistance: { mode: "entered", kg: "32.5" } });
@@ -667,8 +676,7 @@ test("Cluster history does not generalize to other known revisions or load conve
 });
 
 test("Cluster evidence survives V2 reload alongside pilot and Core data without affecting progression or carry-over", () => {
-  let state = ensure(clusterWorkout(), incline.dayId);
-  cycle(state).dayLogs.d1.finishedAt = "finished";
+  let state = clusterWorkout();
   state = update(state, execution(), incline);
   assert.ok(row(state, incline).methodLog);
   const coreBlock = getCoreBlock(getDay(cluster.planId, cluster.dayId).coreBlockId);
@@ -681,6 +689,7 @@ test("Cluster evidence survives V2 reload alongside pilot and Core data without 
   Object.assign(row(state, cluster), { weight: "25", reps: "9", rir: "2", isDone: true });
   const before = freeze(state);
   state = update(state, assistance("same", "25"), cluster);
+  state = update(state, execution("partial", burst), cluster);
   state = update(state, assistance("entered", "32.5"), secondCluster);
   state = update(state, metric("0", burst), secondCluster);
   state = update(state, execution("performed", burst), secondCluster);
@@ -706,12 +715,20 @@ test("Cluster evidence survives V2 reload alongside pilot and Core data without 
   assert.deepEqual(row(loaded.state, secondCluster).methodLog.phases[burst],
     { execution: "performed", reps: "0", restSeconds: "", assistance: { mode: "entered", kg: "32.5" } });
 
-  const next = ensureCore(ensure(start(loaded.state, "next-start"), cluster.dayId));
-  assert.deepEqual(Object.keys(cycle(next).methodBindings.exercises).sort(), pilots.map((p) => p.exerciseId).sort());
+  const oldAction = payload(loaded.state, assistance("entered", "40"), cluster);
+  const next = ensureCore(clusterWorkout(finishDay(finishDay(loaded.state, "d5"), "d6")));
+  assert.deepEqual(Object.keys(cycle(next).methodBindings.exercises).sort(), [...pilots, cluster].map((p) => p.exerciseId).sort());
   assert.deepEqual(cycle(start(next, "cut-start", "cut-pro"), "cut-pro").methodBindings.exercises, {});
   assert.deepEqual(row(next, cluster), { setIndex: 1, weight: "25", reps: "9", rir: "2", isDone: false });
   assert.deepEqual(row(next, secondCluster), { setIndex: 2, weight: "", reps: "", rir: "", isDone: false });
   assert.deepEqual(firstCoreRow(next), { ...firstCoreRow(before), isDone: false });
+  reject(next, oldAction);
+  for (const address of [cluster, secondCluster]) {
+    const attempt = findAttempt({ ...address, cycles: next.progressByPlan[cluster.planId].cycles, currentCycleNumber: 2 });
+    assert.equal(attempt.cycleNumber, 1);
+    assert.deepEqual(attempt.methodLog, row(loaded.state, address).methodLog);
+    assert.notEqual(attempt.methodLog, rowInCycle(next.progressByPlan[cluster.planId].cycles[1], address).methodLog);
+  }
 });
 
 const chrome = ["/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser"].find(existsSync);

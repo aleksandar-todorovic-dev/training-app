@@ -24,6 +24,9 @@ import { AppStateProvider } from '/src/state/AppStateProvider.jsx';
 import { AppStateContext } from '/src/state/AppStateContext.js';
 import { useAppState } from '/src/state/useAppState.js';
 import { LocaleProvider } from '/src/i18n/LocaleProvider.jsx';
+import PlanOverviewPage from '/src/pages/PlanOverviewPage.jsx';
+import CyclePage from '/src/pages/CyclePage.jsx';
+import DayPage from '/src/pages/DayPage.jsx';
 import ExercisePage from '/src/pages/ExercisePage.jsx';
 import GuidePage from '/src/pages/GuidePage.jsx';
 import EndCyclePage from '/src/pages/EndCyclePage.jsx';
@@ -37,6 +40,9 @@ function Probe() {
     }
     context.dispatch(action); }} },
     React.createElement(Routes, null, React.createElement(Route, {path:'/plan/:planId/day/:dayId/exercise/:exerciseId', element:React.createElement(ExercisePage)}),
+      React.createElement(Route, {path:'/plan/:planId', element:React.createElement(PlanOverviewPage)}),
+      React.createElement(Route, {path:'/plan/:planId/cycle', element:React.createElement(CyclePage)}),
+      React.createElement(Route, {path:'/plan/:planId/day/:dayId', element:React.createElement(DayPage)}),
       React.createElement(Route, {path:'/plan/:planId/guide',element:React.createElement(GuidePage)}),
       React.createElement(Route, {path:'/plan/:planId/end-cycle',element:React.createElement(EndCyclePage)})));
 }
@@ -45,7 +51,7 @@ createRoot(document.getElementById('root')).render(React.createElement(React.Str
     React.createElement(MemoryRouter, {initialEntries:[sessionStorage.getItem('qa-route')]}, React.createElement(Probe))))));
 </script></body></html>`;
 
-test("isolated Chrome: pilot Exercise UI interactions, lifecycle guards and mobile layout", { skip: !chrome, timeout: 180000 }, async (t) => {
+test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", { skip: !chrome, timeout: 180000 }, async (t) => {
   const profile = await mkdtemp(join(tmpdir(), "cycle-coach-method-ui-"));
   const screenshots = "/tmp/cycle-coach-3a-visual";
   let server, child, socket;
@@ -65,10 +71,11 @@ test("isolated Chrome: pilot Exercise UI interactions, lifecycle guards and mobi
     const [{ appReducer }, { APP_ACTIONS: actions }, { appInitialState }, { getDayDetails }, { getExercisesForDay }] = await Promise.all([
       "state/appReducer.js", "state/appActions.js", "state/appInitialState.js", "data/dayDetails/index.js", "data/exercises/index.js",
     ].map(load));
-    function fixture(planId = "bulk-pro", dayId = "d1") {
-      let state = structuredClone(appInitialState);
+    function fixture(planId = "bulk-pro", dayId = "d1", previous = structuredClone(appInitialState)) {
+      let state = previous;
       const send = (type, payload) => { state = appReducer(state, { type, payload: { planId, ...payload } }); };
-      send(actions.START_PLAN_CYCLE, { startedAt: "2026-11-17T10:00:00Z" });
+      const number = (previous.progressByPlan[planId]?.currentCycleNumber ?? 0) + 1;
+      send(actions.START_PLAN_CYCLE, { startedAt: new Date(Date.UTC(2026, 10, 17, 10, 0, number - 1)).toISOString().replace(".000Z", "Z") });
       for (const day of ["d1", "d2", "d3", "d4", "d5"]) {
         const dayDetails = getDayDetails(planId, day);
         send(actions.ENSURE_DAY_LOG, { dayDetails, exercises: getExercisesForDay(planId, dayDetails.exerciseIds) });
@@ -136,8 +143,25 @@ test("isolated Chrome: pilot Exercise UI interactions, lifecycle guards and mobi
     const settle = () => evaluate("new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))");
     const panel = '[data-method-set]';
     const selector = (suffix) => JSON.stringify(`${panel} ${suffix}`);
-    async function click(sel) {
-      const point = await evaluate(`(()=>{const el=document.querySelector(${JSON.stringify(sel)}); if(!el) throw Error('Missing control'); el.scrollIntoView({block:'nearest'}); const r=el.getBoundingClientRect(); return {x:r.x+r.width/2,y:r.y+r.height/2};})()`);
+    async function click(sel, label) {
+      const point = await evaluate(`(async ()=>{
+        const selector = ${JSON.stringify(sel)};
+        const label = ${JSON.stringify(label)};
+        const deadline = performance.now() + 2500;
+        do {
+          const elements = document.querySelectorAll(selector);
+          const el = label === undefined ? elements[0] : Array.from(elements).find(e => e.textContent.trim() === label);
+          if (el) {
+            el.scrollIntoView({block:'nearest', inline:'nearest', behavior:'instant'});
+            const r = el.getBoundingClientRect();
+            const x = r.x + r.width / 2;
+            const y = r.y + r.height / 2;
+            if (el.contains(document.elementFromPoint(x, y))) return {x,y};
+          }
+          await new Promise(requestAnimationFrame);
+        } while (performance.now() < deadline);
+        throw Error('Unreachable control: ' + selector + (label ? ' ' + label : '') + ' on ' + document.querySelector('h1')?.innerText);
+      })()`);
       await call("Input.dispatchMouseEvent", { type: "mousePressed", button: "left", clickCount: 1, ...point });
       await call("Input.dispatchMouseEvent", { type: "mouseReleased", button: "left", clickCount: 1, ...point });
       await settle();
@@ -538,18 +562,10 @@ test("isolated Chrome: pilot Exercise UI interactions, lifecycle guards and mobi
     const set1 = '[data-method-set="1"]';
     const set2 = '[data-method-set="2"]';
     function clusterFixture() {
-      const state = fixture("bulk-pro", "d5");
-      const progress = state.progressByPlan["bulk-pro"];
-      const first = progress.cycles[1];
-      first.methodBindings.exercises[clusterId] = {
-        dayId: "d5", definitionId: "bulk-pro/assisted-pull-up-cluster/cluster", revision: 1, setCount: 2,
-      };
-      for (const n of [2, 3]) {
-        progress.cycles[n] = { ...structuredClone(first), cycleNumber: n, startedAt: "cycle-" + n };
-      }
-      progress.currentCycleNumber = 3;
+      const state = fixture("bulk-pro", "d5", fixture("bulk-pro", "d5", fixture("bulk-pro", "d5")));
+      const { cycles } = state.progressByPlan["bulk-pro"];
       for (const n of [1, 2]) {
-        const row = progress.cycles[n].dayLogs.d5.mainExerciseLogs[clusterId].sets[n - 1];
+        const row = cycles[n].dayLogs.d5.mainExerciseLogs[clusterId].sets[n - 1];
         row.weight = "40";
         row.isDone = n === 2;
         row.methodLog = { choice: "record", phases: { "additional-burst": {
@@ -557,14 +573,51 @@ test("isolated Chrome: pilot Exercise UI interactions, lifecycle guards and mobi
           assistance: n === 1 ? { mode: "same", kg: "30" } : { mode: "entered", kg: "0" },
         } } };
       }
-      progress.cycles[3].dayLogs.d5.mainExerciseLogs[clusterId].sets[0].weight = "25";
+      cycles[3].dayLogs.d5.mainExerciseLogs[clusterId].sets[0].weight = "25";
       return state;
     }
-    const clusterRows = async () => JSON.parse(await read()).state.progressByPlan["bulk-pro"]
-      .cycles[3].dayLogs.d5.mainExerciseLogs[clusterId].sets;
+    const clusterRows = async (number = 1) => JSON.parse(await read()).state.progressByPlan["bulk-pro"]
+      .cycles[number].dayLogs.d5.mainExerciseLogs[clusterId].sets;
     const burstOf = (row) => row.methodLog?.phases["additional-burst"];
-    await t.test("Cluster snapshots, drafts, rejection, independent rows and V2 reload", async () => {
-      await seed(clusterFixture(), clusterRoute);
+    const finishDay = async () => {
+      await click("button", "Finish day");
+      await click('[role="dialog"] button', "Finish and move on");
+    };
+    const enterDay = (day) => click(`a[href="/plan/bulk-pro/day/${day}"]:not([aria-current])`);
+    async function openCluster(number) {
+      await enterDay("d5");
+      await wait(`Boolean(window.__qa.state.progressByPlan['bulk-pro'].cycles[${number}].dayLogs.d5)`);
+      await click(`a[href="${clusterRoute}"]`);
+      await wait(`Boolean(document.querySelector('[name="set-1-weight"]'))`);
+    }
+    async function reachCluster(number) {
+      for (const day of ["d1", "d2", "d3", "d4"]) {
+        await enterDay(day);
+        await finishDay();
+      }
+      await openCluster(number);
+      await wait("document.querySelectorAll('[data-method-set]').length===2");
+    }
+    await t.test("new Bulk cycle: start, reach D5, preserve both Cluster logs in V2, and reference them in Cycle 2", async () => {
+      await seed(structuredClone(appInitialState), "/plan/bulk-pro");
+      await click("a", "Start Cycle 1");
+      await click('[role="dialog"] button', "I understand — start cycle");
+      const first = await evaluate("window.__qa.state.progressByPlan['bulk-pro'].cycles[1]");
+      assert.deepEqual(first.methodBindings, { version: 1, exercises: {
+        "incline-db-press": { definitionId: "bulk-pro/incline-db-press/rest-pause", revision: 1, dayId: "d1", setCount: 3 },
+        "cable-stretch-fly": { definitionId: "bulk-pro/cable-stretch-fly/iso-stretch", revision: 1, dayId: "d1", setCount: 1 },
+        "face-away-cable-curl": { definitionId: "bulk-pro/face-away-cable-curl/rest-pause", revision: 1, dayId: "d4", setCount: 1 },
+        [clusterId]: { definitionId: "bulk-pro/assisted-pull-up-cluster/cluster", revision: 1, dayId: "d5", setCount: 2 },
+      } });
+      assert.deepEqual(first.dayLogs, {});
+      await reachCluster(1);
+      assert.equal((await clusterRows()).length, 2);
+      assert.equal(await evaluate('document.querySelectorAll(\'input[aria-label$="Assistance (kg)"]\').length'), 2);
+      await click('input[name="set-1-weight"]');
+      await call("Input.insertText", {text:"25"}); await settle();
+      await click('button[aria-label="Mark set 1 performed"]');
+      assert.equal((await clusterRows())[0].isDone, true);
+      assert.equal(burstOf((await clusterRows())[0]), undefined);
       const before = await read();
       assert.equal(await evaluate("document.querySelectorAll('[data-method-set]').length"), 2);
       await click(set1 + " > button"); await click(set2 + " > button");
@@ -607,21 +660,55 @@ test("isolated Chrome: pilot Exercise UI interactions, lifecycle guards and mobi
       }
       await click(set2 + ' input[name="reps"]'); await call("Input.insertText", {text:"4"});
       await click(set2 + ' input[value="performed"]');
-      assert.equal((await clusterRows())[1].isDone,false);
+      assert.equal((await clusterRows())[1].isDone, false);
+      await click(set2 + ' input[name="assistanceKg"]');
       await click(set2 + ' div.space-y-3 > button');
       assert.equal((await clusterRows())[1].methodLog.choice,"skip");
       await click(set2 + ' div.space-y-3 > button');
+      assert.equal(burstOf((await clusterRows())[1]).assistance.kg, "32.5");
+      await click(set1 + ' input[name="reps"]'); await call("Input.insertText", {text:"3"});
+      await click(set1 + ' input[name="restSeconds"]'); await call("Input.insertText", {text:"15"});
+      await click(set1 + ' input[value="partial"]');
+      const savedRows = await clusterRows();
       const generation = await evaluate("window.__generation");
+      await evaluate(`sessionStorage.setItem('qa-route',${JSON.stringify(clusterRoute)})`);
       await call("Page.reload"); await wait(`window.__generation>${generation} && Boolean(document.querySelector('[data-method-set]'))`);
+      assert.equal(JSON.parse(await read()).version, 2);
+      assert.deepEqual(await clusterRows(), savedRows);
       await click(set2 + " > button");
       assert.match(await evaluate(`document.querySelector('${set2}').innerText`), /Entered · 32.5 kg/);
       await click(set2 + " [data-assistance=clear]");
       assert.deepEqual(burstOf((await clusterRows())[1]), { execution:"performed", reps:"4", restSeconds:"" });
       assert.deepEqual(burstOf((await clusterRows())[0]).assistance,{mode:"same",kg:"35"});
+      await click('button', "Finish exercise");
+      await finishDay();
+      await enterDay("d6");
+      await finishDay();
+      await click('a[href="/plan/bulk-pro/end-cycle"]');
+      await click("button", "Start Cycle 2");
+      await reachCluster(2);
+      assert.ok((await clusterRows(2)).every((row) => !Object.hasOwn(row, "methodLog") && !row.isDone));
+      for (const panel of [set1, set2]) {
+        await click(panel + " > button");
+        await click(panel + " [data-method-history] > button");
+        const history = await evaluate(`document.querySelector('${panel} [data-method-history]').innerText`);
+        assert.match(history, /Cycle 1/);
+        if (panel === set1) {
+          assert.match(history, /Partially performed/);
+          assert.match(history, /Same at confirmation · 35 kg/);
+          assert.match(history, /Recorded rest \(optional\)\s+15 s/);
+          assert.match(history, /Base set marked performed/);
+        } else {
+          assert.match(history, /Method: Performed/);
+          assert.match(history, /Recorded assistance · Not recorded/);
+          assert.match(history, /Base set not marked performed/);
+        }
+      }
+      assert.ok((await clusterRows(2)).every((row) => !Object.hasOwn(row, "methodLog")));
     });
 
     await t.test("Cluster panels and history at 320, 360 and 390 px in English and Serbian", async () => {
-      const directory = await mkdtemp(join(tmpdir(), "cycle-coach-4c-visual-"));
+      const directory = await mkdtemp(join(tmpdir(), "cycle-coach-4d-visual-"));
       for (const width of [320,360,390]) for (const locale of ["en","sr-Latn"]) {
         const t = createTranslator(locale);
         const state = clusterFixture();
@@ -651,27 +738,59 @@ test("isolated Chrome: pilot Exercise UI interactions, lifecycle guards and mobi
         await click(set2+' input[name="assistanceKg"]');
         assert.equal(await evaluate("document.activeElement.inputMode"),"decimal");
         assert.equal(await evaluate("document.documentElement.scrollWidth<=innerWidth"),true);
+        assert.equal(await evaluate("document.querySelectorAll('[data-method-set] > [aria-expanded=true]').length"), 2);
         assert.equal(await read(),before);
         if ((locale==="en" && width===390) || (locale==="sr-Latn" && width===320)) {
           await evaluate(`document.querySelector('${set1} fieldset').scrollIntoView({block:'center'})`);
           const shot = await call("Page.captureScreenshot",{format:"png"});
           await writeFile(join(directory,`cluster-${locale}-${width}.png`),Buffer.from(shot.data,"base64"));
         }
+        if (width === 320) {
+          // A short viewport tests control reachability with focus; Chrome does not open an Android IME.
+          await call("Emulation.setDeviceMetricsOverride", {width, height:340, deviceScaleFactor:1, mobile:true});
+          await click(set2 + ' input[name="assistanceKg"]');
+          await call("Input.insertText", {text:"27."});
+          assert.equal(await read(), before);
+          await click(set2 + " [data-assistance=clear]");
+          assert.equal(await evaluate(`document.querySelector('${set2} input[name="assistanceKg"]') === null`), true);
+          assert.equal(burstOf((await clusterRows(3))[1]), undefined);
+          await click(set2 + ' input[name="reps"]');
+          await call("Input.insertText", {text:"4"});
+          await click(set2 + ' div.space-y-3 > button');
+          assert.equal((await clusterRows(3))[1].methodLog.choice, "skip");
+          await click(set2 + ' div.space-y-3 > button');
+          assert.equal(burstOf((await clusterRows(3))[1]).reps, "4");
+          assert.equal(await evaluate("document.documentElement.scrollWidth<=innerWidth"), true);
+        }
       }
       t.diagnostic("Cluster review screenshots: "+directory);
     });
 
-    await t.test("Cluster legacy, unbound and unknown revisions retain ordinary weight inputs", async () => {
-      for (const kind of ["legacy","unbound","unknown"]) {
-        const state=clusterFixture();
-        const current=state.progressByPlan["bulk-pro"].cycles[3];
-        if (kind==="legacy") delete current.methodBindings;
-        if (kind==="unbound") delete current.methodBindings.exercises[clusterId];
-        if (kind==="unknown") current.methodBindings.exercises[clusterId].revision=99;
-        await seed(state,clusterRoute);
-        assert.equal(await evaluate("document.querySelector('[data-method-set]')===null"),true);
-        assert.match(await evaluate('document.querySelector("[name=set-1-weight]").getAttribute("aria-label")'),/weight/i);
+    await t.test("pre-activation, legacy and unknown snapshots stay protected on first D5 visit; Cut stays ordinary", async () => {
+      for (const kind of ["legacy", "pre-activation", "unknown"]) {
+        const state = fixture("bulk-pro", "d4");
+        const current = state.progressByPlan["bulk-pro"].cycles[1];
+        if (kind === "legacy") delete current.methodBindings;
+        if (kind === "pre-activation") {
+          delete current.methodBindings.exercises[clusterId];
+          assert.equal(Object.keys(current.methodBindings.exercises).length, 3);
+        }
+        if (kind === "unknown") current.methodBindings.exercises[clusterId].revision = 99;
+        assert.equal(current.dayLogs.d5, undefined);
+        await seed(state, "/plan/bulk-pro/day/d4");
+        await finishDay();
+        await openCluster(1);
+        assert.equal(await evaluate("document.querySelector('[data-method-set]')===null"), true, kind);
+        assert.match(await evaluate('document.querySelector("[name=set-1-weight]").getAttribute("aria-label")'), /weight/i);
+        const reopened = JSON.parse(await read()).state.progressByPlan["bulk-pro"].cycles[1];
+        assert.deepEqual(reopened.methodBindings, current.methodBindings, kind);
+        assert.ok((await clusterRows()).every((row) => !Object.hasOwn(row, "methodLog")), kind);
       }
+      await seed(fixture("cut-pro", "d5"), route("assisted-pull-up-light", "d5", "cut-pro"));
+      assert.deepEqual(await evaluate("window.__qa.state.progressByPlan['cut-pro'].cycles[1].methodBindings"),
+        {version:1, exercises:{}});
+      assert.equal(await evaluate("document.querySelector('[data-method-set]')===null"), true);
+      assert.match(await evaluate('document.querySelector("[name=set-1-weight]").getAttribute("aria-label")'), /weight/i);
     });
     assert.deepEqual(exceptions, []);
     await send("Browser.close");

@@ -29,7 +29,7 @@ before(async () => {
 });
 after(() => vite?.close());
 
-const expected = {
+const preActivationBindings = {
   version: 1,
   exercises: {
     "incline-db-press": { definitionId: "bulk-pro/incline-db-press/rest-pause", revision: 1, dayId: "d1", setCount: 3 },
@@ -37,6 +37,11 @@ const expected = {
     "face-away-cable-curl": { definitionId: "bulk-pro/face-away-cable-curl/rest-pause", revision: 1, dayId: "d4", setCount: 1 },
   },
 };
+const clusterId = "assisted-pull-up-cluster";
+const expected = { version: 1, exercises: {
+  ...preActivationBindings.exercises,
+  [clusterId]: { definitionId: "bulk-pro/assisted-pull-up-cluster/cluster", revision: 1, dayId: "d5", setCount: 2 },
+} };
 function freeze(value) {
   if (value && typeof value === "object") { Object.values(value).forEach(freeze); Object.freeze(value); }
   return value;
@@ -47,7 +52,7 @@ function catalog() {
     exercises: structuredClone(getExercises("bulk-pro")),
     days: structuredClone(getDays("bulk-pro")),
     definitions: structuredClone(advancedMethodDefinitions),
-    activeMethodsByPlan: { "bulk-pro": Object.entries(expected.exercises).map(([exerciseId, binding]) => ({
+    activeMethodsByPlan: { "bulk-pro": Object.entries(preActivationBindings.exercises).map(([exerciseId, binding]) => ({
       exerciseId, definitionId: binding.definitionId, revision: binding.revision, dayId: binding.dayId,
       type: exerciseId === "cable-stretch-fly" ? "iso-stretch" : "rest-pause",
     })), "cut-pro": [] },
@@ -100,7 +105,35 @@ test("only a new cycle gains a fresh snapshot; legacy unvisited days never backf
   assert.deepEqual(cycle(next).dayLogs, {});
 });
 
-test("pre-row resolver resolves all pilots, absent bindings and same-ID Cut safely", () => {
+test("a three-binding Bulk cycle keeps its snapshot when it first opens D5 and when archived", () => {
+  let previous = start();
+  cycle(previous).methodBindings = structuredClone(preActivationBindings);
+  const snapshot = freeze(cycle(previous).methodBindings);
+  const finish = (state, dayId) => appReducer(state, { type: actions.FINISH_DAY,
+    payload: { planId: "bulk-pro", dayId, finishedAt: `closed-${dayId}` } });
+  for (const dayId of ["d1", "d2", "d3", "d4"]) previous = finish(ensure(previous, dayId), dayId);
+  assert.equal(cycle(previous).currentDayId, "d5");
+  assert.equal(cycle(previous).dayLogs.d5, undefined);
+  const scope = { planId: "bulk-pro", dayId: "d5", exerciseId: clusterId };
+  assert.equal(resolve({ ...scope, cycle: cycle(previous) }).status, "unbound");
+  const opened = ensure(freeze(previous), "d5");
+  assert.equal(cycle(opened).methodBindings, snapshot);
+  assert.equal(resolve({ ...scope, cycle: cycle(opened) }).status, "unbound");
+  const oldRows = cycle(opened).dayLogs.d5.mainExerciseLogs[clusterId].sets;
+  assert.deepEqual(oldRows.map((row) => row.setIndex), [1, 2]);
+  assert.ok(oldRows.every((row) => !Object.hasOwn(row, "methodLog")));
+  const completed = finish(ensure(finish(opened, "d5"), "d6"), "d6");
+  const archived = freeze(cycle(completed));
+  assert.equal(archived.completedAt, "closed-d6");
+  const next = start(freeze(completed));
+  assert.equal(cycle(next).cycleNumber, 2);
+  assert.deepEqual(cycle(next).methodBindings, expected);
+  assert.equal(next.progressByPlan["bulk-pro"].cycles[1], archived);
+  assert.deepEqual(archived.methodBindings, preActivationBindings);
+  assert.equal(archived.dayLogs.d5.mainExerciseLogs[clusterId].sets, oldRows);
+});
+
+test("pre-row resolver resolves all active methods, absent bindings and same-ID Cut safely", () => {
   const current = freeze(cycle(start()));
   for (const [exerciseId, binding] of Object.entries(expected.exercises)) {
     const resolved = resolve({ planId: "bulk-pro", cycle: current, dayId: binding.dayId, exerciseId });
@@ -130,10 +163,10 @@ test("a retained historical revision resolves despite a newer active protocol an
   assert.deepEqual(current.methodBindings, expected);
 });
 
-test("registry additions never activate an unlisted method", () => {
+test("definitions in the registry never activate methods omitted from an allowlist", () => {
   const source = catalog();
   source.definitions.push({ ...source.definitions[0], exerciseId: "overhead-rope-extension", definitionId: "synthetic/unapproved", revision: 9 });
-  assert.deepEqual(build({ planId: "bulk-pro" }, freeze(source)).bindings, expected);
+  assert.deepEqual(build({ planId: "bulk-pro" }, freeze(source)).bindings, preActivationBindings);
 });
 
 for (const [label, mutate] of [
