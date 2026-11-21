@@ -479,6 +479,241 @@ test("method records round-trip through the unchanged V2 session and never auto-
   assert.equal(values.size, 1); assert.ok(values.has(WORKOUT_STORAGE_KEYS.v2));
 });
 
+const cluster = { planId: "bulk-pro", dayId: "d5", exerciseId: "assisted-pull-up-cluster", setIndex: 1 };
+const secondCluster = { ...cluster, setIndex: 2 };
+const clusterBinding = { definitionId: "bulk-pro/assisted-pull-up-cluster/cluster", revision: 1, dayId: "d5", setCount: 2 };
+const clusterDefinition = getMethodDefinition({ ...cluster, ...clusterBinding });
+const burst = "additional-burst";
+const assistance = (mode, kg) => ({ type: "set-assistance", phaseId: burst, mode, kg });
+const clearAssistance = { type: "clear-assistance", phaseId: burst };
+
+function clusterWorkout(previous) {
+  const state = ensure(start(previous), cluster.dayId);
+  cycle(state).currentDayId = cluster.dayId;
+  // Only this synthetic cycle has a binding. New production cycles still use the three pilots.
+  cycle(state).methodBindings.exercises[cluster.exerciseId] = { ...clusterBinding };
+  return state;
+}
+
+test("Cluster same checks the displayed KG against the addressed row at dispatch time", () => {
+  let state = clusterWorkout();
+  const sets = cycle(state).dayLogs.d5.mainExerciseLogs[cluster.exerciseId].sets;
+  sets.reverse();
+  row(state, cluster).weight = "025.0";
+  row(state, secondCluster).weight = "32.5";
+  state = update(freeze(state), assistance("same", "25"), cluster);
+  const saved = row(state, cluster).methodLog;
+  assert.deepEqual(saved.phases[burst].assistance, { mode: "same", kg: "25" });
+  assert.equal(row(state, secondCluster).methodLog, undefined);
+  reject(state, payload(state, assistance("same", "25"), secondCluster));
+  state = update(state, assistance("same", "32.5"), secondCluster);
+  assert.deepEqual(row(state, secondCluster).methodLog.phases[burst].assistance, { mode: "same", kg: "32.5" });
+
+  const displayed = payload(state, assistance("same", "25"), cluster);
+  state = appReducer(freeze(state), { type: actions.UPDATE_EXERCISE_SET_FIELD,
+    payload: { ...cluster, field: "weight", value: "0" } });
+  reject(state, displayed);
+  assert.equal(row(state, cluster).methodLog, saved);
+  state = update(state, assistance("same", "0"), cluster);
+  assert.deepEqual(row(state, cluster).methodLog.phases[burst].assistance, { mode: "same", kg: "0" });
+});
+
+test("Cluster entered accepts an independent or equal KG, including when same is unavailable", () => {
+  for (const weight of [undefined, null, "", "25.", "25,5", "-1", "1000", 25, "25"]) {
+    let state = clusterWorkout();
+    if (weight === undefined) delete row(state, cluster).weight;
+    else row(state, cluster).weight = weight;
+    reject(state, payload(state, assistance("same", "32.5"), cluster));
+    state = update(state, assistance("entered", "32.5"), cluster);
+    assert.deepEqual(row(state, cluster).methodLog.phases[burst].assistance, { mode: "entered", kg: "32.5" });
+    if (weight === "25") {
+      state = update(state, assistance("entered", "25"), cluster);
+      assert.deepEqual(row(state, cluster).methodLog.phases[burst].assistance, { mode: "entered", kg: "25" });
+    }
+  }
+});
+
+test("Cluster skip, resume and clear preserve burst evidence and independent completion", () => {
+  let state = clusterWorkout();
+  reject(state, payload(state, clearAssistance, cluster));
+  state = update(state, assistance("entered", "0"), cluster);
+  const derive = () => deriveMethodState(clusterDefinition, row(state, cluster).methodLog);
+  assert.equal(derive().status, "draft");
+  assert.equal(derive().numericComplete, false);
+  state = update(state, execution("performed", burst), cluster);
+  assert.equal(derive().status, "performed");
+  assert.equal(derive().numericComplete, false);
+  state = update(state, metric("0", burst), cluster);
+  assert.equal(derive().numericComplete, true);
+  assert.deepEqual(derive().targetComparisons[burst], { reps: "below", restSeconds: "unrecorded" });
+  state = update(state, metric("15", burst, "restSeconds"), cluster);
+  const recorded = row(state, cluster).methodLog;
+  state = update(state, choice("skip"), cluster);
+  reject(state, payload(state, assistance("entered", "15"), cluster));
+  reject(state, payload(state, clearAssistance, cluster));
+  state = update(state, choice("record"), cluster);
+  assert.deepEqual(row(state, cluster).methodLog, recorded);
+  state = update(state, clearAssistance, cluster);
+  assert.deepEqual(row(state, cluster).methodLog.phases[burst], { reps: "0", restSeconds: "15", execution: "performed" });
+  assert.equal(row(state, cluster).isDone, false);
+  reject(state, payload(state, clearAssistance, cluster));
+});
+
+test("Cluster rejects invalid assistance edits without replacing prior evidence", () => {
+  const state = update(clusterWorkout(), assistance("entered", "25"), cluster);
+  for (const kg of [undefined, null, 25, "", "025", "25.0", "-1", "25.", " 25", "1e2", "25,5", "1.25", "1000"]) {
+    reject(state, payload(state, assistance("entered", kg), cluster));
+  }
+  const edit = assistance("entered", "32.5");
+  for (const change of [assistance("automatic", "25"), { ...edit, phaseId: "extra-reps" },
+    { ...edit, weight: "25" }, { ...clearAssistance, kg: "25" }, { type: "clear-assistance" },
+    Object.create(edit), { ...edit, get kg() { throw Error("Unexpected getter call"); } }]) {
+    reject(state, payload(state, change, cluster));
+  }
+  for (const pilot of pilots) {
+    const original = update(workout(pilot), execution("performed", pilot.definition.phases[0].phaseId), pilot);
+    for (const change of [edit, clearAssistance]) {
+      reject(original, payload(original, { ...change, phaseId: pilot.definition.phases[0].phaseId }, pilot));
+    }
+  }
+});
+
+test("Cluster assistance requires the current cycle, editable day, exact binding and both unique rows", () => {
+  const state = update(clusterWorkout(), assistance("entered", "0"), cluster);
+  const edit = payload(state, assistance("entered", "32.5"), cluster);
+  for (const override of [{ cycleNumber: 2 }, { cycleStartedAt: "stale" }, { dayId: "d1" }, { planId: "cut-pro" },
+    { exerciseId: incline.exerciseId }, { setIndex: 3 }]) reject(state, { ...edit, ...override });
+  for (const mutate of [
+    (c) => { c.currentDayId = "d4"; },
+    (c) => { delete c.methodBindings.exercises[cluster.exerciseId]; },
+    (c) => { c.methodBindings.exercises[cluster.exerciseId].revision = 2; },
+    (c) => { c.methodBindings.exercises[cluster.exerciseId].definitionId = "unknown"; },
+    (c) => { c.methodBindings.exercises[cluster.exerciseId].setCount = 1; },
+    (c) => { c.methodBindings.exercises[cluster.exerciseId].dayId = "d1"; },
+    (c) => { c.dayLogs.d5.mainExerciseLogs[cluster.exerciseId].sets.pop(); },
+    (c) => { rowInCycle(c, secondCluster).setIndex = 1; },
+  ]) {
+    const invalid = structuredClone(state);
+    mutate(cycle(invalid));
+    reject(invalid, edit);
+  }
+});
+
+function clusterHistory() {
+  let first = clusterWorkout();
+  Object.assign(row(first, cluster), { weight: "25", reps: "9", rir: "", isDone: true });
+  first = update(first, assistance("same", "25"), cluster);
+  first = update(first, metric("5", burst), cluster);
+  first = update(first, execution("performed", burst), cluster);
+  let second = clusterWorkout(first);
+  second = update(second, assistance("entered", "32.5"), secondCluster);
+  second = update(second, metric("0", burst, "restSeconds"), secondCluster);
+  second = update(second, execution("partial", burst), secondCluster);
+  const current = cycle(start(second, "current-start"));
+  current.methodBindings.exercises[cluster.exerciseId] = { ...clusterBinding };
+  return { ...cluster, currentCycleNumber: 3, cycles: { 1: cycle(first), 2: cycle(second), 3: current } };
+}
+
+test("Cluster history selects one detached confirmed attempt per set without filling gaps", () => {
+  const context = freeze(clusterHistory());
+  const first = findAttempt(context);
+  const second = findAttempt({ ...context, setIndex: 2 });
+  assert.equal(first.cycleNumber, 1);
+  assert.deepEqual(first.baseSet, { setIndex: 1, weight: "25", reps: "9", rir: "", isDone: true });
+  assert.deepEqual(first.methodLog.phases[burst], { execution: "performed", reps: "5", restSeconds: "",
+    assistance: { mode: "same", kg: "25" } });
+  assert.equal(second.cycleNumber, 2);
+  assert.deepEqual(second.baseSet, { setIndex: 2, weight: "", reps: "", rir: "", isDone: false });
+  assert.deepEqual(second.methodLog.phases[burst], { execution: "partial", reps: "", restSeconds: "0",
+    assistance: { mode: "entered", kg: "32.5" } });
+  assert.equal(second.derived.numericComplete, false);
+  second.methodLog.phases[burst].assistance.kg = "99";
+  assert.equal(rowInCycle(context.cycles[2], secondCluster).methodLog.phases[burst].assistance.kg, "32.5");
+  assert.deepEqual(context.cycles[3].dayLogs, {});
+});
+
+test("Cluster history requires compatible bindings and valid, confirmed evidence for that exact set", () => {
+  for (const mutate of [
+    (c) => { delete c.methodBindings.exercises[cluster.exerciseId]; },
+    (c) => { c.methodBindings.exercises[cluster.exerciseId].revision = 2; },
+    (c) => { c.methodBindings.exercises[cluster.exerciseId].setCount = 1; },
+    (c) => { rowInCycle(c, secondCluster).methodLog.choice = "skip"; },
+    (c) => { rowInCycle(c, secondCluster).methodLog.phases[burst].execution = "unconfirmed"; },
+    (c) => { rowInCycle(c, secondCluster).methodLog.phases[burst].assistance.kg = "01"; },
+    (c) => { delete rowInCycle(c, secondCluster).methodLog; },
+  ]) {
+    const context = clusterHistory();
+    mutate(context.cycles[2]);
+    assert.equal(findAttempt(freeze({ ...context, setIndex: 2 })), null);
+  }
+  const context = clusterHistory();
+  delete context.cycles[3].methodBindings.exercises[cluster.exerciseId];
+  assert.equal(findAttempt(freeze(context)), null);
+});
+
+test("Cluster history does not generalize to other known revisions or load conventions", () => {
+  for (const override of [{ revision: 2 }, { appliesTo: "last" }, { type: "rest-pause" },
+    { base: { ...clusterDefinition.base, loadKind: "external" } },
+    { phases: [{ ...clusterDefinition.phases[0], loadRule: "same-as-base" }] },
+    { phases: [{ ...clusterDefinition.phases[0], phaseId: "other-burst" }] }]) {
+    const definition = { ...clusterDefinition, ...override };
+    const context = clusterHistory();
+    for (const c of Object.values(context.cycles)) c.methodBindings.exercises[cluster.exerciseId].revision = definition.revision;
+    const catalog = { getPlanById: getPlan, getDayDetailsByPlanId: getDays,
+      getExercisesByPlanId: (planId) => getExercises(planId, getDay(planId, "d5").exerciseIds),
+      getMethodDefinition: () => definition };
+    assert.equal(findAttempt(freeze({ ...context, setIndex: 2 }), catalog), null);
+  }
+});
+
+test("Cluster evidence survives V2 reload alongside pilot and Core data without affecting progression or carry-over", () => {
+  let state = ensure(clusterWorkout(), incline.dayId);
+  cycle(state).dayLogs.d1.finishedAt = "finished";
+  state = update(state, execution(), incline);
+  assert.ok(row(state, incline).methodLog);
+  const coreBlock = getCoreBlock(getDay(cluster.planId, cluster.dayId).coreBlockId);
+  const ensureCore = (state) => appReducer(state, { type: actions.ENSURE_CORE_BLOCK_LOG, payload: {
+    planId: cluster.planId, dayId: cluster.dayId, coreBlock, coreExercises: getCoreExercises(coreBlock.exerciseIds),
+  } });
+  state = ensureCore(state);
+  const firstCoreRow = (state) => cycle(state).dayLogs.d5.coreBlockLog.coreExerciseLogs[coreBlock.exerciseIds[0]].sets[0];
+  Object.assign(firstCoreRow(state), { reps: "8", isDone: true });
+  Object.assign(row(state, cluster), { weight: "25", reps: "9", rir: "2", isDone: true });
+  const before = freeze(state);
+  state = update(state, assistance("same", "25"), cluster);
+  state = update(state, assistance("entered", "32.5"), secondCluster);
+  state = update(state, metric("0", burst), secondCluster);
+  state = update(state, execution("performed", burst), secondCluster);
+  const stripped = structuredClone(state);
+  delete row(stripped, cluster).methodLog;
+  delete row(stripped, secondCluster).methodLog;
+  assert.deepEqual(stripped, before);
+  const progress = (s) => getProgress(cycle(s).dayLogs.d5, getDay(cluster.planId, cluster.dayId).exerciseIds);
+  const summary = (s) => getSummary({ cycle: cycle(s), dayDetailsList: getDays(cluster.planId) });
+  assert.deepEqual(progress(state), progress(before));
+  assert.deepEqual(summary(state), summary(before));
+
+  const values = new Map();
+  const storage = { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+  const session = createAppStatePersistence({ getStorage: () => storage });
+  assert.equal(session.save(state), true);
+  assert.deepEqual([...values.keys()], [WORKOUT_STORAGE_KEYS.v2]);
+  assert.equal(JSON.parse(values.get(WORKOUT_STORAGE_KEYS.v2)).version, 2);
+  const loaded = createAppStatePersistence({ getStorage: () => storage }).getSnapshot();
+  assert.equal(loaded.mode, "ready");
+  assert.deepEqual(loaded.state, state);
+  assert.deepEqual(row(loaded.state, cluster).methodLog.phases[burst].assistance, { mode: "same", kg: "25" });
+  assert.deepEqual(row(loaded.state, secondCluster).methodLog.phases[burst],
+    { execution: "performed", reps: "0", restSeconds: "", assistance: { mode: "entered", kg: "32.5" } });
+
+  const next = ensureCore(ensure(start(loaded.state, "next-start"), cluster.dayId));
+  assert.deepEqual(Object.keys(cycle(next).methodBindings.exercises).sort(), pilots.map((p) => p.exerciseId).sort());
+  assert.deepEqual(cycle(start(next, "cut-start", "cut-pro"), "cut-pro").methodBindings.exercises, {});
+  assert.deepEqual(row(next, cluster), { setIndex: 1, weight: "25", reps: "9", rir: "2", isDone: false });
+  assert.deepEqual(row(next, secondCluster), { setIndex: 2, weight: "", reps: "", rir: "", isDone: false });
+  assert.deepEqual(firstCoreRow(next), { ...firstCoreRow(before), isDone: false });
+});
+
 const chrome = ["/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser"].find(existsSync);
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 

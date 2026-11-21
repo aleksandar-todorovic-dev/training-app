@@ -5,11 +5,18 @@ import { buildInitialCoreBlockLog } from "../utils/runtime/coreLogHelpers";
 import { areAllTrainingDaysFinished } from "../utils/runtime/cycleStatusHelpers";
 import { buildCycleMethodBindings, resolveCycleMethodBinding } from "../utils/runtime/advancedMethodContextHelpers.js";
 import { getApplicableSetIndexes, transitionMethodLog } from "../utils/runtime/advancedMethodHelpers.js";
-import { validateMethodLog } from "../utils/runtime/advancedMethodValidation.js";
+import { normalizeAssistanceKg, validateMethodLog } from "../utils/runtime/advancedMethodValidation.js";
 import { getDayMode } from "../utils/runtime/dayModeHelpers.js";
 import { getPlanById } from "../data/plans/index.js";
 
 const TRAINING_DAY_ORDER = ["d1", "d2", "d3", "d4", "d5", "d6"];
+const methodChangeFields = {
+  "set-choice": ["type", "choice"],
+  "set-metric": ["type", "phaseId", "field", "value"],
+  "set-execution": ["type", "phaseId", "execution"],
+  "set-assistance": ["type", "phaseId", "mode", "kg"],
+  "clear-assistance": ["type", "phaseId"],
+};
 
 function isRuntimeRecord(value) {
   return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -208,10 +215,9 @@ export function appReducer(state, action) {
           !Number.isSafeInteger(payload.setIndex) || payload.setIndex < 1) return state;
       const { planId, cycleNumber, cycleStartedAt, dayId, exerciseId, setIndex, change } = payload;
       const changeType = isRuntimeRecord(change) ? Object.getOwnPropertyDescriptor(change, "type")?.value : null;
-      const fields = changeType === "set-choice" ? ["type", "choice"]
-        : changeType === "set-metric" ? ["type", "phaseId", "field", "value"]
-          : changeType === "set-execution" ? ["type", "phaseId", "execution"] : null;
-      if (!fields || !hasExactMethodFields(change, fields) ||
+      if (typeof changeType !== "string" || !Object.hasOwn(methodChangeFields, changeType)) return state;
+      const fields = methodChangeFields[changeType];
+      if (!hasExactMethodFields(change, fields) ||
           !fields.every((field) => typeof change[field] === "string")) return state;
 
       const plan = getPlanById(planId);
@@ -239,6 +245,10 @@ export function appReducer(state, action) {
           !validateMethodLog(resolved.definition, previous).valid) return state;
       const methodLog = transitionMethodLog(resolved.definition, previous, change);
       if (methodLog === previous) return state;
+      // Only an accepted assistance transition gives this row's weight that meaning.
+      // Commit "same" only if the displayed snapshot still matches the targeted row.
+      if (changeType === "set-assistance" && change.mode === "same" &&
+          normalizeAssistanceKg(target.weight) !== change.kg) return state;
 
       return {
         ...state,

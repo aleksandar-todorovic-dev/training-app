@@ -3,9 +3,18 @@ import { deriveMethodState, getApplicableSetIndexes } from "./advancedMethodHelp
 
 // Exact revisions supply phase semantics. Only the currently understood base and
 // phase load conventions may participate in comparisons; unknown ones stay opaque.
-function hasKnownSemantics(definition) {
-  return definition.base?.semantics === "pre-extension" &&
-    definition.base.loadKind === "external" && definition.base.loadUnit === "kg" &&
+function hasKnownSemantics(definition, dayId) {
+  if (definition.base?.semantics !== "pre-extension" || definition.base.loadUnit !== "kg") return false;
+  if (definition.type === "cluster") {
+    const [burst] = definition.phases;
+    return definition.planId === "bulk-pro" && dayId === "d5" &&
+      definition.exerciseId === "assisted-pull-up-cluster" &&
+      definition.definitionId === "bulk-pro/assisted-pull-up-cluster/cluster" && definition.revision === 1 &&
+      definition.prescribedSetCount === 2 && definition.appliesTo === "all" &&
+      definition.base.loadKind === "machine-assistance" && definition.phases.length === 1 &&
+      burst.phaseId === "additional-burst" && burst.loadRule === "adjustable-machine-assistance";
+  }
+  return definition.base.loadKind === "external" &&
     definition.phases.length > 0 && definition.phases.every((phase) => phase.loadRule === "same-as-base");
 }
 
@@ -30,7 +39,7 @@ export function findPreviousCompatibleMethodAttempt({ cycles, currentCycleNumber
   const current = cycles[currentCycleNumber];
   if (current?.cycleNumber !== currentCycleNumber) return null;
   const context = resolveCycleMethodBinding({ planId, cycle: current, dayId, exerciseId }, catalog);
-  if (context.status !== "resolved" || !hasKnownSemantics(context.definition)) return null;
+  if (context.status !== "resolved" || !hasKnownSemantics(context.definition, dayId)) return null;
   const numbers = Object.keys(cycles).filter((key) => {
     const number = Number(key);
     return String(number) === key && Number.isSafeInteger(number) && number > 0 && number < currentCycleNumber;
