@@ -1,13 +1,18 @@
-import { isValidMethodMetricValue, validateMethodLog } from "./advancedMethodValidation.js";
+import {
+  isPlainRecord, isValidMethodAssistanceChange, isValidMethodMetricValue, validateMethodLog,
+} from "./advancedMethodValidation.js";
 
 /**
  * @typedef {'unconfirmed'|'partial'|'performed'} PhaseExecution
+ * @typedef {{mode: 'same'|'entered', kg: string}} MethodAssistance
  * @typedef {{execution: PhaseExecution, reps?: string, restSeconds?: string,
- *   durationSeconds?: string}} MethodPhaseLog
+ *   durationSeconds?: string, assistance?: MethodAssistance}} MethodPhaseLog
  * @typedef {{choice: 'record'|'skip', phases: Object<string, MethodPhaseLog>}} MethodLog
  * @typedef {{type: 'set-choice', choice: 'record'|'skip'} |
  *   {type: 'set-metric', phaseId: string, field: string, value: string} |
- *   {type: 'set-execution', phaseId: string, execution: PhaseExecution}} MethodChange
+ *   {type: 'set-execution', phaseId: string, execution: PhaseExecution} |
+ *   {type: 'set-assistance', phaseId: string, mode: 'same'|'entered', kg: string} |
+ *   {type: 'clear-assistance', phaseId: string}} MethodChange
  */
 
 /**
@@ -20,7 +25,9 @@ import { isValidMethodMetricValue, validateMethodLog } from "./advancedMethodVal
 export function getApplicableSetIndexes(definition, setRows) {
   if (!definition || !Array.isArray(setRows) ||
       setRows.length !== definition.prescribedSetCount) return [];
-  const indexes = Array.from(setRows, (row) => row?.setIndex).sort((a, b) => a - b);
+  const indexes = Array.from(setRows, (row) => row?.setIndex);
+  if (!indexes.every(Number.isSafeInteger)) return [];
+  indexes.sort((a, b) => a - b);
   if (!indexes.every((index, position) => index === position + 1)) return [];
   if (definition.appliesTo === "all") return indexes;
   return definition.appliesTo === "last" ? indexes.slice(-1) : [];
@@ -30,13 +37,15 @@ export function getApplicableSetIndexes(definition, setRows) {
  * Pure immutable edits. Rejected changes return the original record unchanged.
  * Editing retained phases under skip is rejected; explicitly resume record first.
  * No main-set fields or definition references are stored in this record.
+ * The "same" assistance kg is a snapshot. Checking it against the actual base
+ * row at confirmation time is the caller's responsibility.
  * @param {import('../../data/advancedMethods/definitions.js').MethodDefinition|null} definition
  * @param {MethodLog|undefined} record
  * @param {MethodChange} change
  * @returns {MethodLog|undefined}
  */
 export function transitionMethodLog(definition, record, change) {
-  if (!validateMethodLog(definition, record).valid || !change) return record;
+  if (!validateMethodLog(definition, record).valid || !isPlainRecord(change)) return record;
   if (change.type === "set-choice") {
     if (!["record", "skip"].includes(change.choice)) return record;
     return { choice: change.choice, phases: { ...record?.phases } };
@@ -49,15 +58,20 @@ export function transitionMethodLog(definition, record, change) {
         !isValidMethodMetricValue(change.field, change.value)) return record;
   } else if (change.type === "set-execution") {
     if (!["unconfirmed", "partial", "performed"].includes(change.execution)) return record;
-  } else return record;
+  } else if (!isValidMethodAssistanceChange(definition, phaseDefinition, change)) {
+    return record;
+  }
 
-  const phase = record?.phases[change.phaseId] ?? {
+  const previousPhase = record?.phases[change.phaseId];
+  if (change.type === "clear-assistance" && !previousPhase?.assistance) return record;
+  const updatedPhase = previousPhase ? { ...previousPhase } : {
     execution: "unconfirmed",
     ...Object.fromEntries(phaseDefinition.metrics.map((metric) => [metric, ""])),
   };
-  const updatedPhase = change.type === "set-metric"
-    ? { ...phase, [change.field]: change.value }
-    : { ...phase, execution: change.execution };
+  if (change.type === "set-metric") updatedPhase[change.field] = change.value;
+  else if (change.type === "set-execution") updatedPhase.execution = change.execution;
+  else if (change.type === "set-assistance") updatedPhase.assistance = { mode: change.mode, kg: change.kg };
+  else delete updatedPhase.assistance;
   return {
     choice: "record",
     phases: { ...record?.phases, [change.phaseId]: updatedPhase },

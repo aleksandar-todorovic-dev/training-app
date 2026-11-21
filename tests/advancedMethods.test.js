@@ -2,11 +2,15 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { advancedMethodDefinitions, getMethodDefinition } from "../src/data/advancedMethods/definitions.js";
 import { deriveMethodState, getApplicableSetIndexes, transitionMethodLog } from "../src/utils/runtime/advancedMethodHelpers.js";
-import { isValidMethodMetricValue, validateMethodLog } from "../src/utils/runtime/advancedMethodValidation.js";
+import { isValidMethodMetricValue, normalizeAssistanceKg, validateMethodLog } from "../src/utils/runtime/advancedMethodValidation.js";
+import { bulkProDayDetails } from "../src/data/dayDetails/bulkProDayDetails.js";
 import { bulkProExercises } from "../src/data/exercises/bulkProExercises.js";
 import { cutProExercises } from "../src/data/exercises/cutProExercises.js";
 
-const [incline, curl, stretch] = advancedMethodDefinitions;
+const [incline, curl, stretch, cluster] = advancedMethodDefinitions;
+const clusterPhaseId = "additional-burst";
+const setAssistance = (mode, kg, phaseId = clusterPhaseId) => ({ type: "set-assistance", phaseId, mode, kg });
+const clearAssistance = (phaseId = clusterPhaseId) => ({ type: "clear-assistance", phaseId });
 const metric = (value, field = "reps", phaseId = "extra-reps") =>
   ({ type: "set-metric", phaseId, field, value });
 const execution = (value, phaseId = "extra-reps") =>
@@ -25,7 +29,6 @@ function freezeTree(value) {
 }
 
 test("pilot definitions match actual Bulk exercise identity, counts and prescriptions", () => {
-  assert.equal(advancedMethodDefinitions.length, 3);
   const expected = [
     [incline, "incline-db-press", 3, "rest-pause", "extra-reps", { reps: { min: 2, max: 3 }, restSeconds: { min: 15, max: 15 } },
       "Last set rest-pause: rack the dumbbells for 15 seconds, then perform 2-3 extra reps."],
@@ -55,8 +58,53 @@ test("pilot definitions match actual Bulk exercise identity, counts and prescrip
     assert.deepEqual(definition.phases[0].requiredMetrics, [type === "iso-stretch" ? "durationSeconds" : "reps"]);
     assert.deepEqual(JSON.parse(JSON.stringify(definition)), definition);
   }
-  assert.equal(new Set(advancedMethodDefinitions.map((item) => item.definitionId)).size, 3);
   assert.throws(() => { incline.phases[0].targets.reps.min = 9; }, TypeError);
+});
+
+test("Cluster revision 1 matches the D5 prescription and is deeply frozen", () => {
+  assert.equal(advancedMethodDefinitions.length, 4);
+  assert.equal(new Set(advancedMethodDefinitions.map((item) => item.definitionId)).size, 4);
+  assert.deepEqual(cluster, {
+    definitionId: "bulk-pro/assisted-pull-up-cluster/cluster",
+    revision: 1,
+    planId: "bulk-pro",
+    exerciseId: "assisted-pull-up-cluster",
+    type: "cluster",
+    prescribedSetCount: 2,
+    appliesTo: "all",
+    base: { semantics: "pre-extension", loadKind: "machine-assistance", loadUnit: "kg" },
+    phases: [{
+      phaseId: "additional-burst",
+      metrics: ["reps", "restSeconds"],
+      requiredMetrics: ["reps"],
+      targets: { reps: { min: 4, max: 5 }, restSeconds: { min: 15, max: 15 } },
+      loadRule: "adjustable-machine-assistance",
+    }],
+  });
+  const day = bulkProDayDetails.find(({ id }) => id === "d5");
+  const exercise = bulkProExercises.find(({ id }) => id === cluster.exerciseId);
+  assert.ok(day.exerciseIds.includes(exercise.id));
+  assert.equal(exercise.setCount, cluster.prescribedSetCount);
+  assert.equal(exercise.prescription, "2 x 8-10");
+  assert.equal(exercise.details.rest, "120 s");
+  assert.equal(exercise.details.advancedTechniqueType, cluster.type);
+  assert.equal(exercise.details.advancedTechnique,
+    "Cluster set: perform 8-10 reps, rest 15 seconds, then perform 4-5 more reps.");
+  assert.throws(() => { cluster.base.loadKind = "external"; }, TypeError);
+  assert.throws(() => { cluster.phases[0].targets.restSeconds.max = 120; }, TypeError);
+  assert.throws(() => { cluster.phases[0].metrics.push("assistance"); }, TypeError);
+});
+
+test("Cluster applies independently to both prescribed indexes on a complete scaffold", () => {
+  const rows = freezeTree([{ setIndex: 2, isDone: true }, { setIndex: 1, isDone: false }]);
+  assert.deepEqual(getApplicableSetIndexes(cluster, rows), [1, 2]);
+  for (const invalid of [
+    [{ setIndex: 1 }], Array(2), [{ setIndex: 1 }, null],
+    [{ setIndex: 1 }, { setIndex: 1 }], [{ setIndex: 1 }, { setIndex: 3 }],
+    ...["2", 1.5, Symbol("2"), 2n].map((setIndex) => [{ setIndex: 1 }, { setIndex }]),
+  ]) {
+    assert.deepEqual(getApplicableSetIndexes(cluster, invalid), []);
+  }
 });
 
 test("exercise IDs are unique within each current plan; Cut never resolves Bulk methods", () => {
@@ -298,5 +346,127 @@ test("round trips, edits and derivation preserve main values, Done and prescribe
       assert.equal(Object.hasOwn(sample.phases[phase.phaseId], "weight"), false);
       assert.equal(Object.hasOwn(sample.phases[phase.phaseId], "totalReps"), false);
     }
+  }
+});
+
+test("assistance normalization accepts completed dot-decimal strings only", () => {
+  for (const [raw, canonical] of [
+    ["0", "0"], ["000.0", "0"], ["0.1", "0.1"], ["025.0", "25"], ["032.5", "32.5"], ["999.9", "999.9"],
+  ]) {
+    assert.equal(normalizeAssistanceKg(raw), canonical);
+  }
+  for (const invalid of [
+    "", " ", " 25", "25 ", "25\n", "25.", ".5", "25,", "25,5", "-0", "-1", "+1",
+    "25.50", "1000", "1000.0", "1e2", "Infinity", null, undefined, 25, false, {}, [],
+  ]) {
+    assert.equal(normalizeAssistanceKg(invalid), null);
+  }
+  assert.equal(isValidMethodMetricValue("assistance", "25"), false);
+});
+
+test("Cluster stores absent, same and independently entered assistance without inferring execution", () => {
+  const base = { weight: "025.0", isDone: false };
+  assert.equal(deriveMethodState(cluster, undefined).status, "unknown");
+  assert.equal(transitionMethodLog(cluster, undefined, clearAssistance()), undefined);
+  const same = freezeTree(recordWith(cluster, setAssistance("same", normalizeAssistanceKg(base.weight))));
+  assert.deepEqual(same.phases[clusterPhaseId], {
+    execution: "unconfirmed", reps: "", restSeconds: "", assistance: { mode: "same", kg: "25" },
+  });
+  const entered = transitionMethodLog(cluster, same, setAssistance("entered", normalizeAssistanceKg(base.weight)));
+  assert.deepEqual(entered.phases[clusterPhaseId].assistance, { mode: "entered", kg: "25" });
+  base.weight = "20";
+  assert.equal(same.phases[clusterPhaseId].assistance.kg, "25");
+  assert.equal(base.isDone, false);
+  assert.equal(deriveMethodState(cluster, same).status, "draft");
+  assert.equal(deriveMethodState(cluster, entered).numericComplete, false);
+});
+
+test("only canonical assistance with exact fields is accepted in Cluster records and changes", () => {
+  const record = freezeTree(recordWith(cluster, setAssistance("entered", "32.5")));
+  const withAssistance = (assistance) => ({
+    ...record, phases: { [clusterPhaseId]: { ...record.phases[clusterPhaseId], assistance } },
+  });
+  for (const kg of ["0", "0.1", "32.5", "999.9"]) {
+    for (const mode of ["same", "entered"]) {
+      assert.equal(validateMethodLog(cluster, withAssistance({ mode, kg })).valid, true);
+      const next = transitionMethodLog(cluster, record, setAssistance(mode, kg));
+      assert.deepEqual(next.phases[clusterPhaseId].assistance, { mode, kg });
+    }
+  }
+  for (const kg of ["", "00", "025.0", "25.0", "25.", "25,", "25,5", "25.50", "-1", "1000", null, undefined, 25, {}]) {
+    assert.equal(validateMethodLog(cluster, withAssistance({ mode: "same", kg })).valid, false);
+    assert.equal(transitionMethodLog(cluster, record, setAssistance("entered", kg)), record);
+  }
+  for (const invalid of [
+    null, undefined, "25", [], {}, { mode: "unrecorded", kg: "0" }, { mode: "entered" },
+    { mode: "same", kg: "25", extra: true }, { mode: "same", kg: "25", [Symbol("extra")]: 1 },
+    Object.create({ mode: "same", kg: "25" }),
+    { mode: "same", get kg() { throw new Error("must not read getters"); } },
+  ]) {
+    assert.equal(validateMethodLog(cluster, withAssistance(invalid)).valid, false);
+  }
+  for (const invalid of [
+    setAssistance("unrecorded", "0"), setAssistance("entered", "25", "extra-reps"),
+    { ...setAssistance("same", "25"), weight: "25" }, { ...clearAssistance(), kg: "0" },
+    { ...setAssistance("same", "25"), get kg() { throw new Error("must not read getters"); } },
+  ]) {
+    assert.equal(transitionMethodLog(cluster, record, invalid), record);
+  }
+});
+
+test("pilot methods and unsupported load semantics reject assistance", () => {
+  for (const definition of [
+    incline, curl, stretch,
+    { ...cluster, base: { ...cluster.base, loadKind: "external" } },
+    { ...cluster, base: { ...cluster.base, loadUnit: "lb" } },
+    { ...cluster, phases: [{ ...cluster.phases[0], loadRule: "same-as-base" }] },
+    { ...cluster, phases: [{ ...cluster.phases[0], phaseId: "other" }] },
+  ]) {
+    const { phaseId } = definition.phases[0];
+    const record = freezeTree(recordWith(definition, execution("performed", phaseId)));
+    assert.equal(transitionMethodLog(definition, record, setAssistance("entered", "32.5", phaseId)), record);
+    const invalid = structuredClone(record);
+    invalid.phases[phaseId].assistance = { mode: "same", kg: "25" };
+    assert.equal(validateMethodLog(definition, invalid).valid, false);
+  }
+});
+
+test("Cluster replacement, clear and skip/resume preserve the other recorded evidence", () => {
+  const record = freezeTree(recordWith(cluster, metric("4", "reps", clusterPhaseId),
+    metric("12", "restSeconds", clusterPhaseId), execution("performed", clusterPhaseId), setAssistance("same", "25")));
+  const replaced = freezeTree(transitionMethodLog(cluster, record, setAssistance("entered", "32.5")));
+  assert.deepEqual(record.phases[clusterPhaseId].assistance, { mode: "same", kg: "25" });
+  assert.deepEqual(replaced.phases[clusterPhaseId].assistance, { mode: "entered", kg: "32.5" });
+  const skipped = freezeTree(transitionMethodLog(cluster, replaced, choice("skip")));
+  assert.equal(deriveMethodState(cluster, skipped).status, "skipped");
+  assert.deepEqual(deriveMethodState(cluster, skipped).targetComparisons, {});
+  assert.equal(transitionMethodLog(cluster, skipped, clearAssistance()), skipped);
+  assert.equal(transitionMethodLog(cluster, skipped, setAssistance("same", "0")), skipped);
+  const resumed = transitionMethodLog(cluster, skipped, choice("record"));
+  assert.deepEqual(resumed, replaced);
+  const cleared = transitionMethodLog(cluster, resumed, clearAssistance());
+  assert.deepEqual(cleared.phases[clusterPhaseId], { execution: "performed", reps: "4", restSeconds: "12" });
+  assert.equal(transitionMethodLog(cluster, cleared, clearAssistance()), cleared);
+  for (const sample of [record, replaced, skipped, resumed, cleared]) {
+    const restored = JSON.parse(JSON.stringify(sample));
+    assert.deepEqual(restored, sample);
+    assert.equal(validateMethodLog(cluster, restored).valid, true);
+  }
+});
+
+test("Cluster confirmation, required reps, optional assistance and targets stay independent", () => {
+  for (const [reps, comparison, complete] of [
+    ["", "unrecorded", false], ["0", "below", true], ["3", "below", true], ["4", "within", true], ["6", "above", true],
+  ]) {
+    const record = recordWith(cluster, execution("performed", clusterPhaseId), metric(reps, "reps", clusterPhaseId));
+    const derived = deriveMethodState(cluster, record);
+    assert.equal(derived.status, "performed");
+    assert.equal(derived.numericComplete, complete);
+    assert.deepEqual(derived.targetComparisons, { [clusterPhaseId]: { reps: comparison, restSeconds: "unrecorded" } });
+    assert.equal(record.phases[clusterPhaseId].restSeconds, "");
+    const withZeroAssistance = transitionMethodLog(cluster, record, setAssistance("entered", "0"));
+    assert.deepEqual(deriveMethodState(cluster, withZeroAssistance), derived);
+    const partial = transitionMethodLog(cluster, withZeroAssistance, execution("partial", clusterPhaseId));
+    assert.equal(deriveMethodState(cluster, partial).status, "partial");
   }
 });

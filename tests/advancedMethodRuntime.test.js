@@ -7,7 +7,7 @@ import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createServer } from "vite";
-import { advancedMethodDefinitions } from "../src/data/advancedMethods/definitions.js";
+import { advancedMethodDefinitions, getMethodDefinition } from "../src/data/advancedMethods/definitions.js";
 import { deriveMethodState, transitionMethodLog } from "../src/utils/runtime/advancedMethodHelpers.js";
 import { createAppStatePersistence, WORKOUT_STORAGE_KEYS } from "../src/storage/appStateStorage.js";
 
@@ -32,9 +32,20 @@ before(async () => {
 });
 after(() => vite?.close());
 
-const pilots = advancedMethodDefinitions.map((definition) => ({ definition,
-  planId: definition.planId, dayId: definition.exerciseId === "face-away-cable-curl" ? "d4" : "d1",
-  exerciseId: definition.exerciseId, setIndex: definition.prescribedSetCount }));
+const pilots = [
+  { exerciseId: "incline-db-press", dayId: "d1", type: "rest-pause", setIndex: 3 },
+  { exerciseId: "face-away-cable-curl", dayId: "d4", type: "rest-pause", setIndex: 1 },
+  { exerciseId: "cable-stretch-fly", dayId: "d1", type: "iso-stretch", setIndex: 1 },
+].map(({ exerciseId, dayId, type, setIndex }) => {
+  const planId = "bulk-pro";
+  const definitionId = `${planId}/${exerciseId}/${type}`;
+  const definition = getMethodDefinition({ planId, exerciseId, definitionId, revision: 1 });
+  assert.ok(definition, `Missing runtime pilot definition: ${definitionId} revision 1`);
+  assert.equal(definition.type, type, `${definitionId}: unexpected method type`);
+  assert.equal(definition.prescribedSetCount, setIndex, `${definitionId}: unexpected prescribed set count`);
+  assert.equal(definition.appliesTo, "last", `${definitionId}: expected the last set only`);
+  return { definition, planId, dayId, exerciseId, setIndex };
+});
 const incline = pilots[0];
 const choice = (value) => ({ type: "set-choice", choice: value });
 const metric = (value = "3", phaseId = "extra-reps", field = "reps") => ({ type: "set-metric", phaseId, field, value });

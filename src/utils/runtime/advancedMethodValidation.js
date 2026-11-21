@@ -21,13 +21,50 @@ export function isValidMethodMetricValue(metric, value) {
 }
 
 // Reject prototypes, accessors, symbols and hidden fields that JSON would lose.
-function isPlainRecord(value) {
+export function isPlainRecord(value) {
   return value !== null && typeof value === "object" &&
     [Object.prototype, null].includes(Object.getPrototypeOf(value)) &&
     Reflect.ownKeys(value).every((key) => {
       const descriptor = Object.getOwnPropertyDescriptor(value, key);
       return typeof key === "string" && descriptor.enumerable && "value" in descriptor;
     });
+}
+
+/**
+ * Normalize a completed dot-decimal assistance value (0–999.9 kg).
+ * Leading zeros and a redundant .0 are accepted at this boundary only.
+ * Blank, incomplete, comma-decimal and non-string values return null.
+ * @param {unknown} value
+ * @returns {string|null}
+ */
+export function normalizeAssistanceKg(value) {
+  if (typeof value !== "string" || value !== value.trim() ||
+      !/^\d{1,3}(\.\d)?$/.test(value)) return null;
+  return value.replace(/^0+(?=\d)/, "").replace(/\.0$/, "");
+}
+
+function supportsAssistance(definition, phase) {
+  return definition.type === "cluster" &&
+    definition.base?.semantics === "pre-extension" &&
+    definition.base.loadKind === "machine-assistance" && definition.base.loadUnit === "kg" &&
+    phase.phaseId === "additional-burst" && phase.loadRule === "adjustable-machine-assistance";
+}
+
+function hasExactFields(record, fields) {
+  return Object.keys(record).length === fields.length && fields.every((field) => Object.hasOwn(record, field));
+}
+
+function isValidAssistanceValue(mode, kg) {
+  return ["same", "entered"].includes(mode) && typeof kg === "string" && normalizeAssistanceKg(kg) === kg;
+}
+
+// Accepts a plain change record. The caller must verify "same" against the
+// targeted base row before passing the canonical snapshot to the transition.
+export function isValidMethodAssistanceChange(definition, phase, change) {
+  if (!supportsAssistance(definition, phase)) return false;
+  if (change.type === "clear-assistance") return hasExactFields(change, ["type", "phaseId"]);
+  return change.type === "set-assistance" && hasExactFields(change, ["type", "phaseId", "mode", "kg"]) &&
+    isValidAssistanceValue(change.mode, change.kg);
 }
 
 /**
@@ -64,6 +101,13 @@ export function validateMethodLog(definition, record) {
     }
     for (const [field, value] of Object.entries(phase)) {
       if (field === "execution") continue;
+      if (field === "assistance") {
+        if (!supportsAssistance(definition, phaseDefinition) || !isPlainRecord(value) ||
+            !hasExactFields(value, ["mode", "kg"]) || !isValidAssistanceValue(value.mode, value.kg)) {
+          errors.push(`${phaseId}.assistance: invalid assistance`);
+        }
+        continue;
+      }
       if (!phaseDefinition.metrics.includes(field) || !isValidMethodMetricValue(field, value)) {
         errors.push(`${phaseId}.${field}: invalid metric or value`);
       }
