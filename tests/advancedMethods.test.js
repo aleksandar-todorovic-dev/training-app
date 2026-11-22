@@ -470,3 +470,252 @@ test("Cluster confirmation, required reps, optional assistance and targets stay 
     assert.equal(deriveMethodState(cluster, partial).status, "partial");
   }
 });
+
+const dropIds = ["drop-1", "drop-2", "drop-3"];
+const dropset = freezeTree({
+  definitionId: "bulk-pro/leg-extension/dropset",
+  revision: 1,
+  planId: "bulk-pro",
+  exerciseId: "leg-extension",
+  type: "dropset",
+  prescribedSetCount: 3,
+  appliesTo: "last",
+  base: { semantics: "pre-extension", loadKind: "external", loadUnit: "kg" },
+  reductionPercent: 25,
+  phases: dropIds.map((phaseId) => ({
+    phaseId,
+    metrics: ["loadKg", "reps"],
+    requiredMetrics: ["loadKg", "reps"],
+    targets: {},
+    loadRule: "reduced-from-previous",
+  })),
+});
+const finishDrop = (phaseId) => ({ type: "finish-dropset", phaseId });
+const extendDropset = (phaseId) => ({ type: "extend-dropset", phaseId });
+
+test("the D3 Dropset fixture applies only to the last set and has no runtime definition", () => {
+  const exercise = bulkProExercises.find(({ id }) => id === dropset.exerciseId);
+  assert.ok(bulkProDayDetails.find(({ id }) => id === "d3").exerciseIds.includes(exercise.id));
+  assert.equal(exercise.details.advancedTechniqueType, dropset.type);
+  assert.equal(exercise.setCount, dropset.prescribedSetCount);
+  assert.match(exercise.details.advancedTechnique, new RegExp(`${dropset.reductionPercent}%`));
+  assert.deepEqual(getApplicableSetIndexes(dropset, [
+    { setIndex: 3, isDone: false }, { setIndex: 1, isDone: true }, { setIndex: 2, isDone: true },
+  ]), [3]);
+  assert.ok(cutProExercises.some(({ id }) => id === exercise.id));
+  assert.equal(getMethodDefinition(dropset), null);
+  assert.equal(getMethodDefinition({ ...dropset, planId: "cut-pro" }), null);
+});
+
+test("Dropset external load accepts blank and canonical kg up to 999.9 without rounding", () => {
+  const previous = freezeTree(recordWith(dropset, metric("27.5", "loadKg", "drop-1")));
+  for (const value of ["", "0", "0.1", "1", "37.5", "999", "999.9"]) {
+    assert.equal(isValidMethodMetricValue("loadKg", value), true, value);
+    const next = transitionMethodLog(dropset, previous, metric(value, "loadKg", "drop-1"));
+    assert.equal(next.phases["drop-1"].loadKg, value);
+    assert.equal(deriveMethodState(dropset, next).status, "draft");
+  }
+  for (const value of ["27.", "27,", "27,5", "27.55", "27.50", "27.0", "00", "01.5", ".5", "-0", "-1", "+1",
+    "1000", "1000.1", "1e2", " 1", "1 ", "1\n", "\t", null, undefined, 27.5, false, {}]) {
+    assert.equal(isValidMethodMetricValue("loadKg", value), false, String(value));
+    assert.equal(transitionMethodLog(dropset, previous, metric(value, "loadKg", "drop-1")), previous);
+    const invalid = structuredClone(previous);
+    invalid.phases["drop-1"].loadKg = value;
+    assert.equal(validateMethodLog(dropset, invalid).valid, false);
+  }
+  assert.equal(previous.phases["drop-1"].loadKg, "27.5");
+  const atRepLimit = transitionMethodLog(dropset, previous, metric("30", "reps", "drop-1"));
+  assert.equal(atRepLimit.phases["drop-1"].reps, "30");
+  for (const value of ["31", "-1", "1.0", 1]) {
+    assert.equal(transitionMethodLog(dropset, atRepLimit, metric(value, "reps", "drop-1")), atRepLimit);
+  }
+});
+
+test("open Dropset drafts separate measurements from confirmation and do not create later phases", () => {
+  assert.equal(deriveMethodState(dropset, undefined).status, "unknown");
+  assert.equal(transitionMethodLog(dropset, undefined, metric("", "loadKg", "drop-1")), undefined);
+  assert.equal(transitionMethodLog(dropset, undefined, execution("unconfirmed", "drop-1")), undefined);
+  const started = recordWith(dropset, choice("record"));
+  assert.deepEqual(deriveMethodState(dropset, started).missingMetrics, ["drop-1.loadKg", "drop-1.reps"]);
+
+  const draft = freezeTree(recordWith(dropset, metric("37.5", "loadKg", "drop-1"), metric("8", "reps", "drop-1")));
+  assert.deepEqual(draft, { choice: "record", phases: { "drop-1": { execution: "unconfirmed", loadKg: "37.5", reps: "8" } } });
+  assert.equal(deriveMethodState(dropset, draft).status, "draft");
+  assert.equal(deriveMethodState(dropset, draft).numericComplete, true);
+  const attempted = transitionMethodLog(dropset, draft, execution("partial", "drop-1"));
+  assert.equal(deriveMethodState(dropset, attempted).status, "partial");
+  assert.equal(deriveMethodState(dropset, attempted).numericComplete, true);
+  assert.deepEqual(transitionMethodLog(dropset, attempted, execution("unconfirmed", "drop-1")), draft);
+});
+
+test("Dropset can explicitly finish after one, two or three confirmed drops", () => {
+  const actualLoads = ["37.5", "30", "22.5"];
+  let open;
+  for (const [index, phaseId] of dropIds.entries()) {
+    open = transitionMethodLog(dropset, open, metric(actualLoads[index], "loadKg", phaseId));
+    open = freezeTree(transitionMethodLog(dropset, open, metric(String(8 - index), "reps", phaseId)));
+    const finished = freezeTree(transitionMethodLog(dropset, open, freezeTree(finishDrop(phaseId))));
+    assert.equal(finished.endPhaseId, phaseId);
+    assert.deepEqual(Object.keys(finished.phases), dropIds.slice(0, index + 1));
+    assert.deepEqual(finished.phases[phaseId], { ...open.phases[phaseId], execution: "performed" });
+    assert.equal(open.phases[phaseId].execution, "unconfirmed");
+    assert.equal(Object.hasOwn(open, "endPhaseId"), false);
+    assert.deepEqual(deriveMethodState(dropset, finished), {
+      valid: true, errors: [], status: "performed", numericComplete: true, missingMetrics: [], targetComparisons: {},
+    });
+    assert.equal(transitionMethodLog(dropset, finished, finishDrop(phaseId)), finished);
+
+    // Even three phase confirmations do not imply an intentional end.
+    const confirm = execution("performed", phaseId);
+    open = freezeTree(transitionMethodLog(dropset, open, confirm));
+    assert.equal(deriveMethodState(dropset, open).status, "partial");
+    assert.equal(deriveMethodState(dropset, open).numericComplete, true);
+    assert.equal(transitionMethodLog(dropset, open, confirm), open);
+  }
+});
+
+test("a confirmed Dropset can contain no measurements, one measurement or explicit zeros", () => {
+  for (const [loadKg, reps, missingMetrics] of [
+    ["", "", ["drop-1.loadKg", "drop-1.reps"]],
+    ["", "4", ["drop-1.loadKg"]],
+    ["37.5", "", ["drop-1.reps"]],
+    ["0", "0", []],
+  ]) {
+    const record = recordWith(dropset, metric(loadKg, "loadKg", "drop-1"), metric(reps, "reps", "drop-1"), finishDrop("drop-1"));
+    assert.deepEqual(record.phases["drop-1"], { execution: "performed", loadKg, reps });
+    const derived = deriveMethodState(dropset, record);
+    assert.equal(derived.status, "performed");
+    assert.equal(derived.numericComplete, missingMetrics.length === 0);
+    assert.deepEqual(derived.missingMetrics, missingMetrics);
+    assert.deepEqual(derived.targetComparisons, {});
+  }
+  const sparse = { choice: "record", endPhaseId: "drop-1", phases: { "drop-1": { execution: "performed" } } };
+  assert.equal(deriveMethodState(dropset, sparse).status, "performed");
+  assert.deepEqual(deriveMethodState(dropset, sparse).missingMetrics, ["drop-1.loadKg", "drop-1.reps"]);
+});
+
+test("Dropset ordering rejects gaps and never hides recorded data behind an earlier end", () => {
+  for (const change of [metric("10", "loadKg", "drop-2"), execution("performed", "drop-3"), finishDrop("drop-2"), finishDrop("drop-4")]) {
+    assert.equal(transitionMethodLog(dropset, undefined, change), undefined);
+  }
+  const open = freezeTree(recordWith(dropset, metric("37.5", "loadKg", "drop-1"), metric("8", "reps", "drop-1"),
+    execution("performed", "drop-1"), metric("0", "reps", "drop-2")));
+  assert.equal(transitionMethodLog(dropset, open, finishDrop("drop-1")), open);
+  assert.equal(transitionMethodLog(dropset, open, execution("unconfirmed", "drop-1")), open);
+  assert.equal(transitionMethodLog(dropset, open, finishDrop("drop-3")), open);
+
+  const cleared = freezeTree(transitionMethodLog(dropset, open, metric("", "reps", "drop-2")));
+  const finished = transitionMethodLog(dropset, cleared, finishDrop("drop-1"));
+  assert.equal(finished.phases["drop-2"], cleared.phases["drop-2"]);
+  assert.equal(finished.phases["drop-2"].execution, "unconfirmed");
+  assert.equal(finished.endPhaseId, "drop-1");
+  assert.equal(deriveMethodState(dropset, finished).status, "performed");
+  assert.deepEqual(deriveMethodState(dropset, finished).missingMetrics, []);
+});
+
+test("editing finished Dropset metrics preserves its end; extension requires explicit current intent", () => {
+  const first = freezeTree(recordWith(dropset, metric("37.5", "loadKg", "drop-1"), finishDrop("drop-1")));
+  const edited = freezeTree(transitionMethodLog(dropset, first, metric("8", "reps", "drop-1")));
+  assert.equal(edited.endPhaseId, "drop-1");
+  assert.equal(edited.phases["drop-1"].execution, "performed");
+  assert.equal(deriveMethodState(dropset, edited).numericComplete, true);
+  for (const change of [extendDropset("drop-2"), metric("30", "loadKg", "drop-2"),
+    finishDrop("drop-2"), execution("partial", "drop-1")]) {
+    assert.equal(transitionMethodLog(dropset, edited, change), edited);
+  }
+
+  const reopened = freezeTree(transitionMethodLog(dropset, edited, extendDropset("drop-1")));
+  assert.equal(Object.hasOwn(reopened, "endPhaseId"), false);
+  assert.equal(reopened.phases, edited.phases);
+  assert.equal(deriveMethodState(dropset, reopened).status, "partial");
+  assert.equal(transitionMethodLog(dropset, reopened, extendDropset("drop-1")), reopened);
+  const second = freezeTree(transitionMethodLog(dropset, reopened, finishDrop("drop-2")));
+  assert.equal(second.endPhaseId, "drop-2");
+  assert.equal(second.phases["drop-1"], edited.phases["drop-1"]);
+  assert.equal(transitionMethodLog(dropset, second, finishDrop("drop-1")), second);
+  assert.equal(transitionMethodLog(dropset, second, extendDropset("drop-1")), second);
+  const cleared = transitionMethodLog(dropset, second, metric("", "loadKg", "drop-1"));
+  assert.equal(cleared.endPhaseId, "drop-2");
+  assert.equal(cleared.phases["drop-2"], second.phases["drop-2"]);
+  assert.equal(deriveMethodState(dropset, cleared).status, "performed");
+  assert.deepEqual(deriveMethodState(dropset, cleared).missingMetrics, ["drop-1.loadKg", "drop-2.loadKg", "drop-2.reps"]);
+
+  const secondReopened = transitionMethodLog(dropset, second, extendDropset("drop-2"));
+  const third = freezeTree(transitionMethodLog(dropset, secondReopened, finishDrop("drop-3")));
+  assert.equal(third.endPhaseId, "drop-3");
+  assert.equal(third.phases["drop-2"], second.phases["drop-2"]);
+  assert.equal(transitionMethodLog(dropset, third, extendDropset("drop-3")), third);
+});
+
+test("Dropset Skip and Resume retain drafts and finished attempts through a JSON round trip", () => {
+  const draft = freezeTree(recordWith(dropset, metric("0", "reps", "drop-1")));
+  const finished = freezeTree(transitionMethodLog(dropset, draft, finishDrop("drop-1")));
+  for (const original of [draft, finished]) {
+    const skipped = freezeTree(transitionMethodLog(dropset, original, choice("skip")));
+    assert.deepEqual(skipped, { ...original, choice: "skip" });
+    assert.deepEqual(deriveMethodState(dropset, skipped), {
+      valid: true, errors: [], status: "skipped", numericComplete: null, missingMetrics: [], targetComparisons: {},
+    });
+    for (const change of [choice("skip"), metric("20", "loadKg", "drop-1"), execution("performed", "drop-1"),
+      finishDrop("drop-1"), extendDropset("drop-1")]) {
+      assert.equal(transitionMethodLog(dropset, skipped, change), skipped);
+    }
+    const restored = JSON.parse(JSON.stringify(skipped));
+    assert.deepEqual(restored, skipped);
+    assert.deepEqual(transitionMethodLog(dropset, restored, choice("record")), original);
+  }
+});
+
+test("malformed Dropset records or changes leave valid evidence untouched", () => {
+  const valid = freezeTree(recordWith(dropset, metric("27.5", "loadKg", "drop-1"), execution("performed", "drop-1")));
+  const validPhase = valid.phases["drop-1"];
+  for (const record of [
+    { ...valid, endPhaseId: "drop-2" }, { ...valid, endPhaseId: null }, { ...valid, endPhaseId: undefined },
+    { ...valid, endPhaseId: "drop-4" }, { ...valid, done: true },
+    { ...valid, endPhaseId: "drop-1", phases: { "drop-1": { ...validPhase, execution: "partial" } } },
+    { ...valid, endPhaseId: "drop-1", phases: { ...valid.phases, "drop-2": { execution: "performed" } } },
+    { ...valid, phases: { "drop-2": { execution: "performed" } } },
+    { ...valid, phases: { ...valid.phases, "drop-4": { execution: "unconfirmed" } } },
+    { ...valid, phases: { "drop-1": { ...validPhase, restSeconds: "0" } } },
+    { ...valid, phases: { "drop-1": { ...validPhase, assistance: { mode: "entered", kg: "27.5" } } } },
+    { ...valid, get endPhaseId() { throw new Error("must not read getters"); } },
+  ]) {
+    assert.equal(validateMethodLog(dropset, record).valid, false);
+    assert.equal(deriveMethodState(dropset, record).status, null);
+    assert.equal(transitionMethodLog(dropset, record, choice("skip")), record);
+  }
+  for (const change of [
+    null, [], { type: "finish-dropset" }, finishDrop(1), finishDrop("drop-4"),
+    { ...finishDrop("drop-1"), reps: "5" }, { ...extendDropset("drop-1"), [Symbol("extra")]: true },
+    { ...choice("skip"), endPhaseId: "drop-1" }, { ...execution("performed", "drop-1"), done: true },
+    Object.defineProperty(finishDrop("drop-1"), "hidden", { value: 1 }), Object.create(finishDrop("drop-1")),
+    { type: "finish-dropset", get phaseId() { throw new Error("must not read getters"); } },
+    metric("27.5", "weight", "drop-1"), metric("5", "restSeconds", "drop-1"), setAssistance("entered", "25", "drop-1"),
+    { ...metric("8", "reps", "drop-1"), value: undefined },
+  ]) {
+    assert.equal(transitionMethodLog(dropset, valid, change), valid);
+  }
+});
+
+test("Dropset validates bounded, distinct phases and keeps external load out of other methods", () => {
+  for (const definition of [
+    { ...dropset, phases: [] }, { ...dropset, phases: Array(2) },
+    { ...dropset, phases: [...dropset.phases, { ...dropset.phases[0], phaseId: "drop-4" }] },
+    { ...dropset, phases: [dropset.phases[0], dropset.phases[0]] },
+    { ...dropset, base: cluster.base }, { ...dropset, phases: [incline.phases[0]] },
+  ]) {
+    assert.equal(validateMethodLog(definition, undefined).valid, false);
+    assert.equal(transitionMethodLog(definition, undefined, finishDrop("drop-1")), undefined);
+  }
+  for (const definition of advancedMethodDefinitions) {
+    const [phase] = definition.phases;
+    const existing = freezeTree(recordWith(definition, execution("performed", phase.phaseId)));
+    const withUnexpectedLoad = structuredClone(existing);
+    withUnexpectedLoad.phases[phase.phaseId].loadKg = "27.5";
+    assert.equal(validateMethodLog(definition, withUnexpectedLoad).valid, false);
+    assert.equal(validateMethodLog(definition, { ...existing, endPhaseId: phase.phaseId }).valid, false);
+    for (const change of [finishDrop(phase.phaseId), extendDropset(phase.phaseId), metric("27.5", "loadKg", phase.phaseId)]) {
+      assert.equal(transitionMethodLog(definition, existing, change), existing);
+    }
+  }
+});

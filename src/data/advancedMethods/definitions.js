@@ -2,12 +2,12 @@
  * @typedef {{min: number, max: number}} MethodTarget
  * @typedef {{phaseId: string, metrics: string[], requiredMetrics: string[],
  *   targets: Object<string, MethodTarget>,
- *   loadRule: 'same-as-base'|'adjustable-machine-assistance'}} MethodPhase
+ *   loadRule: 'same-as-base'|'adjustable-machine-assistance'|'reduced-from-previous'}} MethodPhase
  * @typedef {{definitionId: string, revision: number, planId: string,
- *   exerciseId: string, type: 'rest-pause'|'iso-stretch'|'cluster',
+ *   exerciseId: string, type: 'rest-pause'|'iso-stretch'|'cluster'|'dropset',
  *   prescribedSetCount: number, appliesTo: 'last'|'all',
  *   base: {semantics: 'pre-extension', loadKind: 'external'|'machine-assistance', loadUnit: 'kg'},
- *   phases: MethodPhase[]}} MethodDefinition
+ *   phases: MethodPhase[], reductionPercent?: number}} MethodDefinition
  */
 
 function freezeDefinition(value) {

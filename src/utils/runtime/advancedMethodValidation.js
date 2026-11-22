@@ -1,23 +1,30 @@
 /**
- * Approved Phase 1 numeric contract:
- * measurements are canonical whole-number strings, including explicit zero.
- * Seconds use whole-second precision. Empty means unrecorded, never zero.
- * Reps are limited to 0–30 and seconds to 0–999 for input/UX consistency;
- * these bounds are not prescribed training targets.
- * Zero records an explicit result. A separate performed confirmation may
- * describe a confirmed attempt with zero achieved reps/seconds.
- * Decimal/comma input is rejected rather than rounded or silently coerced.
+ * Empty means unrecorded. Zero is an explicit measurement. Reps use whole
+ * numbers from 0–30 and seconds use whole numbers from 0–999. External drop
+ * load uses canonical dot decimals from 0–999.9 kg with at most one decimal
+ * digit and no redundant zeros. These bounds are for input, not targets.
+ * The domain neither coerces nor rounds measurements.
  *
  * @param {string} metric
  * @param {unknown} value
  * @returns {boolean}
  */
 export function isValidMethodMetricValue(metric, value) {
+  if (metric === "loadKg") {
+    return typeof value === "string" && (
+      value === "" || (value === value.trim() && /^(0|[1-9]\d{0,2})(\.[1-9])?$/.test(value))
+    );
+  }
   if (!["reps", "restSeconds", "durationSeconds"].includes(metric)) return false;
   const maxValue = metric === "reps" ? 30 : 999;
   return typeof value === "string" && (
     value === "" || (value === value.trim() && /^(0|[1-9]\d*)$/.test(value) && Number(value) <= maxValue)
   );
+}
+
+export function isValidMethodPhaseMetricValue(definition, phase, field, value) {
+  const supported = definition.type === "dropset" ? ["reps", "loadKg"].includes(field) : field !== "loadKg";
+  return supported && phase.metrics.includes(field) && isValidMethodMetricValue(field, value);
 }
 
 // Reject prototypes, accessors, symbols and hidden fields that JSON would lose.
@@ -50,7 +57,8 @@ function supportsAssistance(definition, phase) {
     phase.phaseId === "additional-burst" && phase.loadRule === "adjustable-machine-assistance";
 }
 
-function hasExactFields(record, fields) {
+// The caller must first check that record is a plain data object.
+export function hasExactFields(record, fields) {
   return Object.keys(record).length === fields.length && fields.every((field) => Object.hasOwn(record, field));
 }
 
@@ -67,6 +75,41 @@ export function isValidMethodAssistanceChange(definition, phase, change) {
     isValidAssistanceValue(change.mode, change.kg);
 }
 
+function hasValidDropsetPhaseOrder({ base, phases }) {
+  if (base?.semantics !== "pre-extension" || base.loadKind !== "external" || base.loadUnit !== "kg" ||
+      !Array.isArray(phases) || phases.length < 1 || phases.length > 3) return false;
+  const phaseIds = Array.from(phases, (phase) => phase?.phaseId);
+  return phaseIds.every((id) => typeof id === "string" && id.trim() !== "") &&
+    new Set(phaseIds).size === phaseIds.length && phases.every((phase) => phase.loadRule === "reduced-from-previous");
+}
+
+// An empty, unconfirmed scaffold does not extend the recorded attempt.
+export function hasDropsetPhaseData(phase) {
+  return Boolean(phase && (phase.execution !== "unconfirmed" || phase.reps || phase.loadKg));
+}
+
+function checkDropsetSequence(definition, record, errors) {
+  const hasEnd = Object.hasOwn(record, "endPhaseId");
+  const endIndex = hasEnd ? definition.phases.findIndex(({ phaseId }) => phaseId === record.endPhaseId)
+    : definition.phases.length - 1;
+  if (endIndex < 0) {
+    errors.push("endPhaseId: unknown phase");
+    return;
+  }
+
+  let prefixConfirmed = true;
+  for (const [index, { phaseId }] of definition.phases.entries()) {
+    const phase = record.phases[phaseId];
+    if (hasDropsetPhaseData(phase) && (!prefixConfirmed || index > endIndex)) {
+      errors.push(`${phaseId}: recorded drop is out of sequence`);
+    }
+    prefixConfirmed = prefixConfirmed && phase?.execution === "performed";
+    if (hasEnd && index === endIndex && !prefixConfirmed) {
+      errors.push("endPhaseId: all drops through the end must be confirmed");
+    }
+  }
+}
+
 /**
  * Validates only the optional method record, never the parent main set.
  * Definition must come from an exact registry lookup (trusted static metadata).
@@ -81,9 +124,13 @@ export function isValidMethodAssistanceChange(definition, phase, change) {
 export function validateMethodLog(definition, record) {
   const errors = [];
   if (!definition) return { valid: false, errors: ["definition: unresolved"] };
+  const dropset = definition.type === "dropset";
+  if (dropset && !hasValidDropsetPhaseOrder(definition)) {
+    return { valid: false, errors: ["definition: invalid dropset phase order or load semantics"] };
+  }
   if (record === undefined) return { valid: true, errors };
   if (!isPlainRecord(record)) return { valid: false, errors: ["record: expected plain object"] };
-  if (Object.keys(record).some((key) => !["choice", "phases"].includes(key))) {
+  if (Object.keys(record).some((key) => key !== "choice" && key !== "phases" && !(dropset && key === "endPhaseId"))) {
     errors.push("record: unknown field");
   }
   if (!["record", "skip"].includes(record.choice)) errors.push("choice: invalid");
@@ -108,10 +155,11 @@ export function validateMethodLog(definition, record) {
         }
         continue;
       }
-      if (!phaseDefinition.metrics.includes(field) || !isValidMethodMetricValue(field, value)) {
+      if (!isValidMethodPhaseMetricValue(definition, phaseDefinition, field, value)) {
         errors.push(`${phaseId}.${field}: invalid metric or value`);
       }
     }
   }
+  if (dropset && errors.length === 0) checkDropsetSequence(definition, record, errors);
   return { valid: errors.length === 0, errors };
 }
