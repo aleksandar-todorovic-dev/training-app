@@ -16,6 +16,8 @@ const methodChangeFields = {
   "set-execution": ["type", "phaseId", "execution"],
   "set-assistance": ["type", "phaseId", "mode", "kg"],
   "clear-assistance": ["type", "phaseId"],
+  "finish-dropset": ["type", "phaseId"],
+  "extend-dropset": ["type", "phaseId"],
 };
 
 function isRuntimeRecord(value) {

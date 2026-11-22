@@ -1,5 +1,10 @@
 import { resolveCycleMethodBinding } from "./advancedMethodContextHelpers.js";
 import { deriveMethodState, getApplicableSetIndexes } from "./advancedMethodHelpers.js";
+import { isPlainRecord, validateMethodLog } from "./advancedMethodValidation.js";
+
+const DROP_METRICS = ["loadKg", "reps"];
+const hasDropMetrics = (metrics) => Array.isArray(metrics) && metrics.length === DROP_METRICS.length &&
+  DROP_METRICS.every((metric) => metrics.includes(metric));
 
 // Exact revisions supply phase semantics. Only the currently understood base and
 // phase load conventions may participate in comparisons; unknown ones stay opaque.
@@ -14,8 +19,27 @@ function hasKnownSemantics(definition, dayId) {
       definition.base.loadKind === "machine-assistance" && definition.phases.length === 1 &&
       burst.phaseId === "additional-burst" && burst.loadRule === "adjustable-machine-assistance";
   }
+  if (definition.type === "dropset") {
+    return definition.planId === "bulk-pro" && dayId === "d3" && definition.exerciseId === "leg-extension" &&
+      definition.definitionId === "bulk-pro/leg-extension/dropset" && definition.revision === 1 &&
+      definition.prescribedSetCount === 3 && definition.appliesTo === "last" && definition.reductionPercent === 25 &&
+      definition.base.loadKind === "external" && Array.isArray(definition.phases) && definition.phases.length === 3 &&
+      Array.from(definition.phases).every((phase, index) => phase?.phaseId === `drop-${index + 1}` &&
+        phase.loadRule === "reduced-from-previous" && hasDropMetrics(phase.metrics) &&
+        hasDropMetrics(phase.requiredMetrics) && isPlainRecord(phase.targets) && Object.keys(phase.targets).length === 0);
+  }
   return definition.base.loadKind === "external" &&
     definition.phases.length > 0 && definition.phases.every((phase) => phase.loadRule === "same-as-base");
+}
+
+function getApplicableRow(cycle, definition, dayId, exerciseId, setIndex) {
+  const dayLog = cycle.dayLogs?.[dayId];
+  const exerciseLog = dayLog?.mainExerciseLogs?.[exerciseId];
+  if (dayLog?.dayId !== dayId || exerciseLog?.exerciseId !== exerciseId ||
+      !getApplicableSetIndexes(definition, exerciseLog.sets).includes(setIndex)) return null;
+  const row = exerciseLog.sets.find((set) => set.setIndex === setIndex);
+  return typeof row.isDone === "boolean" && ["weight", "reps", "rir"].every((field) => typeof row[field] === "string")
+    ? row : null;
 }
 
 /**
@@ -40,6 +64,14 @@ export function findPreviousCompatibleMethodAttempt({ cycles, currentCycleNumber
   if (current?.cycleNumber !== currentCycleNumber) return null;
   const context = resolveCycleMethodBinding({ planId, cycle: current, dayId, exerciseId }, catalog);
   if (context.status !== "resolved" || !hasKnownSemantics(context.definition, dayId)) return null;
+  if (context.definition.type === "dropset") {
+    if (setIndex !== context.binding.setCount || !isPlainRecord(current.dayLogs)) return null;
+    if (Object.hasOwn(current.dayLogs, dayId)) {
+      const currentRow = getApplicableRow(current, context.definition, dayId, exerciseId, setIndex);
+      if (!currentRow || (Object.hasOwn(currentRow, "methodLog") && currentRow.methodLog === undefined) ||
+          !validateMethodLog(context.definition, currentRow.methodLog).valid) return null;
+    }
+  }
   const numbers = Object.keys(cycles).filter((key) => {
     const number = Number(key);
     return String(number) === key && Number.isSafeInteger(number) && number > 0 && number < currentCycleNumber;
@@ -50,12 +82,8 @@ export function findPreviousCompatibleMethodAttempt({ cycles, currentCycleNumber
     const resolved = resolveCycleMethodBinding({ planId, cycle: previous, dayId, exerciseId }, catalog);
     if (resolved.status !== "resolved" || resolved.binding.definitionId !== context.binding.definitionId ||
         resolved.binding.revision !== context.binding.revision || resolved.binding.setCount !== context.binding.setCount) continue;
-    const dayLog = previous.dayLogs?.[dayId];
-    const exerciseLog = dayLog?.mainExerciseLogs?.[exerciseId];
-    if (dayLog?.dayId !== dayId || exerciseLog?.exerciseId !== exerciseId ||
-        !getApplicableSetIndexes(resolved.definition, exerciseLog.sets).includes(setIndex)) continue;
-    const row = exerciseLog.sets.find((set) => set.setIndex === setIndex);
-    if (typeof row.isDone !== "boolean" || !["weight", "reps", "rir"].every((field) => typeof row[field] === "string")) continue;
+    const row = getApplicableRow(previous, resolved.definition, dayId, exerciseId, setIndex);
+    if (!row) continue;
     const { methodLog, ...baseSet } = row;
     const derived = deriveMethodState(resolved.definition, methodLog);
     if (!derived.valid || !["partial", "performed"].includes(derived.status)) continue;
