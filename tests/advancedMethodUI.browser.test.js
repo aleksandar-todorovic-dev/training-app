@@ -143,8 +143,8 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
     const settle = () => evaluate("new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))");
     const panel = '[data-method-set]';
     const selector = (suffix) => JSON.stringify(`${panel} ${suffix}`);
-    async function click(sel, label) {
-      const point = await evaluate(`(async ()=>{
+    async function controlPoint(sel, label) {
+      return evaluate(`(async ()=>{
         const selector = ${JSON.stringify(sel)};
         const label = ${JSON.stringify(label)};
         const deadline = performance.now() + 2500;
@@ -162,6 +162,9 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
         } while (performance.now() < deadline);
         throw Error('Unreachable control: ' + selector + (label ? ' ' + label : '') + ' on ' + document.querySelector('h1')?.innerText);
       })()`);
+    }
+    async function click(sel, label) {
+      const point = await controlPoint(sel, label);
       await call("Input.dispatchMouseEvent", { type: "mousePressed", button: "left", clickCount: 1, ...point });
       await call("Input.dispatchMouseEvent", { type: "mouseReleased", button: "left", clickCount: 1, ...point });
       await settle();
@@ -764,6 +767,96 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
         }
       }
       t.diagnostic("Cluster review screenshots: "+directory);
+    });
+
+    await t.test("Cluster assistance blur keeps Skip and confirmation under the first pointer activation", async () => {
+      const inputSelector = set2 + ' input[name="assistanceKg"]';
+      const skipSelector = set2 + " div.space-y-3 > button";
+      const partialSelector = set2 + ' input[value="partial"]';
+      const performed = { execution: "performed", reps: "4", restSeconds: "15" };
+      const snapshot = { mode: "same", kg: "35" };
+      const manual = { mode: "entered", kg: "27.5" };
+
+      async function enterDraft({ value, assistance, width = 320, locale = "en" }) {
+        const state = fixture("bulk-pro", "d5");
+        const [first, second] = state.progressByPlan["bulk-pro"].cycles[1].dayLogs.d5.mainExerciseLogs[clusterId].sets;
+        first.methodLog = { choice: "skip", phases: {} };
+        const phase = assistance ? { ...performed, assistance } : performed;
+        Object.assign(second, { weight: "25", reps: "8", isDone: true,
+          methodLog: { choice: "record", phases: { "additional-burst": phase } } });
+        await call("Emulation.setDeviceMetricsOverride", { width, height: 540, deviceScaleFactor: 1, mobile: true });
+        await seed(state, clusterRoute, locale);
+        await click(set2 + " > button");
+        await click(set2 + " [data-assistance=entered]");
+        await click(inputSelector);
+        await call("Input.insertText", { text: value });
+        await settle();
+        assert.deepEqual(await clusterRows(), [first, second]);
+        return { first, second };
+      }
+
+      for (const [inputType, value, assistance, expectedAssistance] of [
+        ["mouse", "27,", undefined, undefined],
+        ["touch", "27,", snapshot, snapshot],
+        ["mouse", "27,5", snapshot, manual],
+      ]) {
+        const { first, second } = await enterDraft({ value, assistance });
+        const description = `${inputType} on Skip from ${value}`;
+        if (inputType === "touch") {
+          await call("Emulation.setTouchEmulationEnabled", { enabled: true });
+          try {
+            // The contact ends in place, with no fresh hit test or second tap.
+            const point = await controlPoint(skipSelector);
+            await call("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [point] });
+            await call("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+            await wait(`document.querySelector(${JSON.stringify(skipSelector)}).textContent === "Resume recording"`);
+            await settle();
+          } finally {
+            await call("Emulation.setTouchEmulationEnabled", { enabled: false });
+          }
+        } else {
+          // click() uses a single point for both mouse events, even if blur changes layout.
+          await click(skipSelector);
+        }
+        const [untouched, skipped] = await clusterRows();
+        assert.equal(skipped.methodLog.choice, "skip", description);
+        const expectedPhase = expectedAssistance ? { ...performed, assistance: expectedAssistance } : performed;
+        assert.deepEqual(burstOf(skipped), expectedPhase, description);
+        assert.deepEqual(untouched, first, description);
+        await click(skipSelector);
+        const expectedLog = { choice: "record", phases: { "additional-burst": expectedPhase } };
+        assert.deepEqual(await clusterRows(), [first, { ...second, methodLog: expectedLog }], description);
+      }
+
+      for (const width of [320, 360, 390]) for (const locale of ["en", "sr-Latn"]) {
+        const description = `${locale} at ${width}px`;
+        const { first, second } = await enterDraft({ value: "27,", assistance: snapshot, width, locale });
+        await click(partialSelector);
+        assert.equal(await evaluate(`document.querySelector(${JSON.stringify(partialSelector)}).checked`), true, description);
+        const expectedLog = { choice: "record", phases: { "additional-burst": {
+          ...performed, execution: "partial", assistance: snapshot,
+        } } };
+        assert.deepEqual(await clusterRows(), [first, { ...second, methodLog: expectedLog }], description);
+        const feedback = await evaluate(`(() => {
+          const input = document.querySelector(${JSON.stringify(inputSelector)});
+          const status = document.getElementById(input.getAttribute("aria-describedby"));
+          const messages = [...status.querySelectorAll("p")];
+          const bounds = messages.map(message => message.getBoundingClientRect());
+          return { invalid: input.getAttribute("aria-invalid"), role: status.getAttribute("role"),
+            messages: messages.map(message => message.innerText),
+            wraps: bounds.some((rect, index) => rect.height > parseFloat(getComputedStyle(messages[index]).lineHeight)),
+            separate: bounds.every((rect, index) => rect.width > 0 && rect.height > 0 &&
+              (!index || rect.top >= bounds[index - 1].bottom)),
+            fits: document.documentElement.scrollWidth <= innerWidth };
+        })()`);
+        const translate = createTranslator(locale);
+        assert.equal(feedback.invalid, "true", description);
+        assert.equal(feedback.role, "status", description);
+        assert.ok(feedback.messages.includes(translate("Enter 0–999.9 kg with up to one decimal place.")), description);
+        assert.ok(feedback.messages.includes(translate("The base has changed since confirmation. The recorded assistance is still {kg} kg.", { kg: "35" })), description);
+        assert.ok(feedback.separate && feedback.fits, description);
+        if (width === 320) assert.equal(feedback.wraps, true, description);
+      }
     });
 
     await t.test("pre-activation, legacy and unknown snapshots stay protected on first D5 visit; Cut stays ordinary", async () => {

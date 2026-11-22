@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useTranslation } from "../../i18n/useTranslation";
 import { isValidMethodMetricValue, normalizeAssistanceKg } from "../../utils/runtime/advancedMethodValidation.js";
@@ -34,9 +34,40 @@ function ClusterAssistance({ baseWeight, saved, onChange, phaseId }) {
   const [draft, setDraft] = useState(null);
   const [invalid, setInvalid] = useState(false);
   const [requested, setRequested] = useState(null);
+  const inputRef = useRef(null);
+  const pressInProgress = useRef(false);
+  const [feedbackDuringPress, setFeedbackDuringPress] = useState(null);
   const entering = draft !== null || saved?.mode === "entered";
   const mismatch = saved?.mode === "same" && saved.kg !== baseKg;
+  const rejected = Boolean(requested && saved === requested.previous &&
+    (saved?.mode !== requested.mode || saved?.kg !== requested.kg || mismatch));
+  const feedback = feedbackDuringPress ?? { invalid, rejected, mismatch, saved };
   const buttonClass = "min-h-11 rounded-lg border border-[#3A434C] px-3 text-left text-sm aria-pressed:border-[#F1B864] disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-[#B8F36B]";
+
+  useEffect(() => {
+    let releaseFrame;
+    function startPress(event) {
+      const input = inputRef.current;
+      pressInProgress.current = event.button === 0 && input !== null &&
+        document.activeElement === input && event.target !== input;
+    }
+    function releasePress() {
+      if (!pressInProgress.current) return;
+      pressInProgress.current = false;
+      // A tap can blur during the compatibility mouse events after touchend.
+      // Keep the original feedback in flow through mouseup and click targeting.
+      releaseFrame = requestAnimationFrame(() => setFeedbackDuringPress(null));
+    }
+    window.addEventListener("mousedown", startPress, true);
+    window.addEventListener("mouseup", releasePress, true);
+    window.addEventListener("blur", releasePress);
+    return () => {
+      window.removeEventListener("mousedown", startPress, true);
+      window.removeEventListener("mouseup", releasePress, true);
+      window.removeEventListener("blur", releasePress);
+      cancelAnimationFrame(releaseFrame);
+    };
+  }, []);
 
   function save(mode, kg) {
     setRequested({ mode, kg, previous: saved });
@@ -74,22 +105,26 @@ function ClusterAssistance({ baseWeight, saved, onChange, phaseId }) {
       </div>
       {entering ? <label className="flex min-h-11 items-center justify-between gap-2">
         {t("Continuation assistance (kg)")}
-        <input name="assistanceKg" inputMode="decimal" autoComplete="off" value={draft ?? saved?.kg ?? ""}
-          aria-invalid={invalid || undefined} aria-describedby={id}
+        <input ref={inputRef} name="assistanceKg" inputMode="decimal" autoComplete="off" value={draft ?? saved?.kg ?? ""}
+          aria-invalid={feedback.invalid || undefined} aria-describedby={id}
           onChange={(event) => { setDraft(event.target.value); setInvalid(false); }}
           onBlur={(event) => {
             // Toggling a disclosure is presentation-only, even with a pending draft.
-            if (!event.relatedTarget?.closest("button[aria-expanded]")) commitDraft();
+            if (event.relatedTarget?.closest("button[aria-expanded]")) return;
+            if (draft !== null && pressInProgress.current) {
+              setFeedbackDuringPress({ invalid, rejected, mismatch, saved });
+            }
+            commitDraft();
           }}
           onKeyDown={(event) => { if (event.key === "Enter") event.currentTarget.blur(); }}
           className="h-11 w-20 rounded-lg border border-[#3A434C] bg-[#13181D] px-2 text-center text-base focus-visible:ring-2 focus-visible:ring-[#B8F36B]" />
       </label> : null}
       <div id={id} role="status" className="space-y-1 text-xs leading-5">
-        <p>{t("Recorded assistance")} · {assistanceLabel(t, saved)}</p>
-        {invalid && <p>{t("Enter 0–999.9 kg with up to one decimal place.")}</p>}
-        {requested && saved === requested.previous && (saved?.mode !== requested.mode || saved?.kg !== requested.kg || mismatch) &&
+        <p>{t("Recorded assistance")} · {assistanceLabel(t, feedback.saved)}</p>
+        {feedback.invalid && <p>{t("Enter 0–999.9 kg with up to one decimal place.")}</p>}
+        {feedback.rejected &&
           <p>{t("Assistance was not updated. Check the current setting and try again.")}</p>}
-        {mismatch && <p>{t("The base has changed since confirmation. The recorded assistance is still {kg} kg.", { kg: saved.kg })}</p>}
+        {feedback.mismatch && <p>{t("The base has changed since confirmation. The recorded assistance is still {kg} kg.", { kg: feedback.saved.kg })}</p>}
       </div>
     </fieldset>
   );
