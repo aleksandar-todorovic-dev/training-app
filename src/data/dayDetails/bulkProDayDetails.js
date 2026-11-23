@@ -20,7 +20,7 @@ export const bulkProDayDetails = [
     sessionInfo: {
       rirRule: "Compound 1-2, other lifts 1-2",
       advancedTechniques:
-        "Incline DB Press last set rest-pause; Cable Stretch-Fly 15 s iso-stretch; Overhead Rope Extension last set dropset -20%",
+        "Incline DB Press last-set rest-pause. Cable Stretch-Fly 15 s iso-stretch. Overhead Rope Extension optional last-set dropset, up to three drops of about 20% each.",
       warmupId: "warmup-d1",
     },
     exerciseIds: [
@@ -67,7 +67,7 @@ export const bulkProDayDetails = [
     goal: "Quad priority with hamstring top-up",
     sessionInfo: {
       rirRule: "Compound 1-2, other lifts 1-2",
-      advancedTechniques: "Leg Extension last set dropset -25%",
+      advancedTechniques: "Leg Extension optional last-set dropset, up to three drops of about 25% each.",
       warmupId: "warmup-d3",
     },
     exerciseIds: [
@@ -91,7 +91,7 @@ export const bulkProDayDetails = [
     sessionInfo: {
       rirRule: "Compound 1-2, other lifts 1-2",
       advancedTechniques:
-        "Lateral Raise last set optional dropset -20%; Face-away Cable Curl rest-pause 15 s (+5-6 reps)",
+        "Machine Lateral Raise optional last-set dropset, up to three drops of about 20% each. Face-away Cable Curl rest-pause 15 s (+5-6 reps).",
       warmupId: "warmup-d4",
     },
     exerciseIds: [
@@ -140,7 +140,7 @@ export const bulkProDayDetails = [
     sessionInfo: {
       rirRule: "Compound 1-2, other lifts 1-2",
       advancedTechniques:
-        "Preacher Curl mechanical set; Leg-Press Calf Raise last set dropset -25%",
+        "Preacher Curl mechanical set. Leg-Press Calf Raise optional last-set dropset, up to three drops of about 25% each.",
       warmupId: "warmup-d6",
     },
     exerciseIds: [

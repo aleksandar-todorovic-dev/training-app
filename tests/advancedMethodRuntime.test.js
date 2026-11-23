@@ -1160,7 +1160,8 @@ createRoot(document.getElementById('root')).render(React.createElement(React.Str
         await wait("window.__methodRuntime?.persistence.mode === 'ready'");
         const sendChange = (change) => evaluate(`window.__methodRuntime.dispatch(${JSON.stringify(dropAction(state, change))})`);
         const stored = () => evaluate(`localStorage.getItem(${v2})`);
-        const dropLog = "window.__methodRuntime?.state.progressByPlan['bulk-pro'].cycles[1].dayLogs.d3.mainExerciseLogs['leg-extension'].sets[2].methodLog";
+        const logPath = "progressByPlan['bulk-pro']?.cycles[1]?.dayLogs.d3?.mainExerciseLogs['leg-extension']?.sets[2]?.methodLog";
+        const dropLog = `window.__methodRuntime?.state.${logPath}`;
         await sendChange(finishDrop(dropIds[1]));
         await settled();
         assert.equal(await stored(), raw);
@@ -1169,7 +1170,7 @@ createRoot(document.getElementById('root')).render(React.createElement(React.Str
         await sendChange(metric("37.5", dropIds[0], "loadKg"));
         await sendChange(metric("0", dropIds[0]));
         await sendChange(finishDrop());
-        await wait(`${dropLog}?.endPhaseId === 'drop-1' && JSON.parse(localStorage.getItem(${v2})).savedAt !== 'dropset-test-seed'`);
+        await wait(`JSON.parse(localStorage.getItem(${v2})).state.${logPath}?.endPhaseId === 'drop-1'`);
         await settled();
         const saved = await stored();
         const expected = { choice: "record", endPhaseId: "drop-1",
@@ -1183,6 +1184,8 @@ createRoot(document.getElementById('root')).render(React.createElement(React.Str
         assert.equal(await stored(), saved);
         assert.equal(await evaluate("window.__methodWrites.length"), writes);
 
+        // A reload acknowledgement can arrive before the old document goes away.
+        await evaluate("delete window.__methodRuntime");
         await call("Page.reload");
         await wait(`${dropLog}?.endPhaseId === 'drop-1'`);
         assert.deepEqual(await evaluate(dropLog), expected);

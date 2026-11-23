@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useTranslation } from "../../i18n/useTranslation";
 import { isValidMethodMetricValue, normalizeAssistanceKg } from "../../utils/runtime/advancedMethodValidation.js";
+import DropsetMethodPanel from "./DropsetMethodPanel";
 
 const statusLabels = {
   unknown: "Not recorded", skipped: "Skipped", draft: "Not confirmed",
@@ -130,7 +131,11 @@ function ClusterAssistance({ baseWeight, saved, onChange, phaseId }) {
   );
 }
 
-export default function AdvancedMethodPanel({ definition, record, derived, setIndex, editable, onChange, previousAttempt, baseWeight, machineAssistance }) {
+export default function AdvancedMethodPanel(props) {
+  return props.definition.type === "dropset" ? <DropsetMethodPanel {...props} /> : <SinglePhaseMethodPanel {...props} />;
+}
+
+function SinglePhaseMethodPanel({ definition, record, derived, setIndex, editable, onChange, previousAttempt, baseWeight, machineAssistance }) {
   const { t } = useTranslation();
   const id = useId();
   const [open, setOpen] = useState(false);

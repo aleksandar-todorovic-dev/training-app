@@ -114,7 +114,7 @@ export const bulkProExercises = [
       progression:
         "Own the 12-15 range with stable elbows before increasing the stack.",
       advancedTechnique:
-        "Last set dropset: reduce the load by about 20% and continue with clean reps.",
+        "Optional last-set dropset, with up to three drops. Reduce the preceding actual load by about 20% each time and continue with controlled reps. Stop early if form declines.",
       advancedTechniqueType: "dropset",
       extraCues: [
         "Lean slightly forward to feel the stretch better",
@@ -457,7 +457,7 @@ export const bulkProExercises = [
       progression:
         "Own the 12-15 range with clean reps and full contraction before increasing the load.",
       advancedTechnique:
-        "Last set dropset: reduce the load by about 25% and continue with controlled reps.",
+        "Optional last-set dropset, with up to three drops. Reduce the preceding actual load by about 25% each time and continue with controlled reps. Stop early if form declines.",
       advancedTechniqueType: "dropset",
       extraCues: [
         "Do not throw the hips off the seat",
@@ -587,7 +587,7 @@ export const bulkProExercises = [
       progression:
         "Build toward the top of the 12-15 range with clean reps before increasing load.",
       advancedTechnique:
-        "Optional last set dropset: reduce the load by about 20% and continue with controlled reps.",
+        "Optional last-set dropset, with up to three drops. Reduce the preceding actual load by about 20% each time and continue with controlled reps. Stop early if form declines.",
       advancedTechniqueType: "dropset",
       extraCues: [
         "Use your full comfortable range of motion with control",
@@ -1083,7 +1083,7 @@ export const bulkProExercises = [
       progression:
         "Reach the target reps with full range and clean control before increasing load.",
       advancedTechnique:
-        "Last set dropset: reduce the load by about 25% and continue with controlled reps.",
+        "Optional last-set dropset, with up to three drops. Reduce the preceding actual load by about 25% each time and continue with controlled reps. Stop early if form declines.",
       advancedTechniqueType: "dropset",
       extraCues: [
         "Let the heels drop into a real stretch",

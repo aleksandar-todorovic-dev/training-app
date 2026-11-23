@@ -73,7 +73,7 @@ export const bulkProGuide = {
             "A set counts as performed only when you check it as done. Weight, reps, and RIR describe the set, but input values alone do not complete it.",
 
             '"Closed partial" means work was intentionally closed while incomplete; unchecked sets stay unperformed. "Return to day" goes back without repeating the close action. Closed-day logs in the current cycle can still be reviewed and edited.',
-            "One prescribed main set remains one main set. Where a supported rest-pause, iso-stretch or Cluster panel is available, log the base work in the set row and the optional extension below it. Other advanced methods remain educational guidance without separate method inputs.",
+            "One prescribed main set remains one main set. If your cycle has a method logging panel, record the base work in the set row and the optional extension below it. If a method has no logging panel, use its instructions as guidance.",
             "You can finish a day even if every set was not completed. A partial day is still a valid training log. The app does not fake completion just to make the day look perfect.",
             "Core work is recorded separately from main progress; warm-up is guidance only.",
           ],
@@ -281,6 +281,7 @@ export const bulkProGuide = {
             "Advanced techniques are extra intensity tools.",
             "For D5 assisted pull-ups, each of the two sets starts with 8–10 reps. If form stays controlled, rest 15 seconds and add 4–5 reps. Rest 120 seconds between sets. Less machine assistance increases difficulty. Record each continuation separately in cycles with Cluster logging.",
             "Bulk Pro includes methods like rest-pause, dropsets, loaded stretches, clusters, or mechanical sets only where they are written. They are there to add a targeted stimulus, not to turn the whole workout into failure training.",
+            "For an optional last-set dropset, plan up to three drops and stop early if form declines. Use the approximate percentage from the exercise note on the preceding actual load. Record only the load used and reps achieved.",
             "Use them as part of the plan, not as a way to make every exercise harder. They are not an automatic target for every cycle; if recovery, form, or performance is not there, clean straight work is the better choice. More intensity is not always a better signal if it damages the next sets, next day, or next cycle.",
           ],
           bullets: [

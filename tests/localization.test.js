@@ -163,6 +163,8 @@ test("all source data and UI copy have Serbian catalog entries", () => {
     const s = node.value;
     if (typeof s !== "string" || unchanged(s) || Object.hasOwn(srLatn, s)) return;
     if (node.parent.type === "ImportDeclaration" || node.parent.type === "Property" && node.parent.key === node) return;
+    // Dropset metric keys are reducer fields, not display labels.
+    if (s === "loadKg" && currentFile.endsWith("/DropsetMethodPanel.jsx")) return;
     // A runtime own-property check is not user-facing copy.
     if (s === "methodLog" && node.parent.type === "CallExpression" &&
         node.parent.callee.object?.name === "Object" && node.parent.callee.property?.name === "hasOwn" &&
@@ -552,7 +554,13 @@ test("guides explain separate field references and limit structured method loggi
     const logging = topics.find((topic)=>topic.id==='logging-basics');
     assert.match(previous.paragraphs.join(' '),/earlier performed sets.*Each field is carried forward separately and may come from a different cycle/);
     assert.doesNotMatch(previous.paragraphs.join(' '),/Use your last logged/);
-    if (planId==='bulk-pro') assert.match(logging.paragraphs.join(' '),/supported rest-pause, iso-stretch or Cluster panel.*Other advanced methods remain educational guidance/);
+    if (planId==='bulk-pro') {
+      assert.match(logging.paragraphs.join(' '),/If your cycle has a method logging panel.*If a method has no logging panel/);
+      const dropsetGuidance = topics.flatMap((topic) => topic.paragraphs)
+        .find((paragraph) => paragraph.startsWith("For an optional last-set dropset"));
+      assert.match(dropsetGuidance, /three drops and stop early.*preceding actual load.*load used and reps achieved/);
+      assert.match(createTranslator("sr-Latn")(dropsetGuidance), /tri smanjenja.*neposredno prethodno opterećenje/);
+    }
     for (const locale of ['en','sr-Latn']) {
       const html = render('GuideGroupCard',appInitialState,locale,'/','/',{group:guide.groups.find((group)=>group.topics.includes(previous)),groupIndex:0,groupCount:guide.groups.length});
       assert.ok(html.includes(escape(createTranslator(locale)(previous.paragraphs[1]))));

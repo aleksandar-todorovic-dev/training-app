@@ -14,6 +14,37 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const storageKey = "training-app:v2:app-state";
 const route = (exercise = "incline-db-press", day = "d1", plan = "bulk-pro") => `/plan/${plan}/day/${day}/exercise/${exercise}`;
 
+const dropExercise = "leg-extension";
+const dropBinding = { definitionId: "bulk-pro/leg-extension/dropset", revision: 1, dayId: "d3", setCount: 3 };
+const dropIds = ["drop-1", "drop-2", "drop-3"];
+const dropDefinition = {
+  planId: "bulk-pro", exerciseId: dropExercise, definitionId: dropBinding.definitionId, revision: 1,
+  type: "dropset", prescribedSetCount: 3, appliesTo: "last", reductionPercent: 25,
+  base: { semantics: "pre-extension", loadKind: "external", loadUnit: "kg" },
+  phases: dropIds.map((phaseId) => ({ phaseId, loadRule: "reduced-from-previous", targets: {},
+    metrics: ["loadKg", "reps"], requiredMetrics: ["loadKg", "reps"] })),
+};
+
+function dropsetFixtureCatalog() {
+  const id = "\0method-ui:dropset-registry";
+  return {
+    name: "dropset-ui-fixture", enforce: "pre",
+    resolveId(source, importer) {
+      if (source === "../../data/advancedMethods/definitions.js" &&
+          importer?.endsWith("/src/utils/runtime/advancedMethodContextHelpers.js")) return id;
+    },
+    load(source) {
+      if (source !== id) return;
+      return `import { getMethodDefinition as lookup } from '/src/data/advancedMethods/definitions.js';
+        const fixture = ${JSON.stringify(dropDefinition)};
+        export function getMethodDefinition(ref) {
+          return ['planId', 'exerciseId', 'definitionId', 'revision'].every(field => ref?.[field] === fixture[field])
+            ? fixture : lookup(ref);
+        }`;
+    },
+  };
+}
+
 // Only the isolated server exposes this route. Real pages, context and persistence
 // run under StrictMode; the wrapper can enqueue a base edit to reproduce a stale confirmation.
 const harness = `<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="data:,"></head><body><div id="root"></div><script type="module">
@@ -60,7 +91,7 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
     server = await createServer({ cacheDir: join(profile, "vite-cache"),
       server: { host: "127.0.0.1", port: 0 },
       optimizeDeps: { noDiscovery: true, include: ["react", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime", "react-router-dom", "motion/react", "lucide-react"] },
-      plugins: [{ name: "method-ui-fixture", configureServer(vite) {
+      plugins: [dropsetFixtureCatalog(), { name: "method-ui-fixture", configureServer(vite) {
         vite.middlewares.use(async (req, res, next) => {
           if (req.url !== "/__method-ui") return next();
           res.setHeader("Content-Type", "text/html"); res.end(await vite.transformIndexHtml(req.url, harness));
@@ -884,6 +915,221 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
         {version:1, exercises:{}});
       assert.equal(await evaluate("document.querySelector('[data-method-set]')===null"), true);
       assert.match(await evaluate('document.querySelector("[name=set-1-weight]").getAttribute("aria-label")'), /weight/i);
+    });
+    const dropRoute = route(dropExercise, "d3");
+    const dropEditor = "[data-dropset] [data-drop-editor]:not([hidden] *)";
+    const dropLog = "window.__qa?.state.progressByPlan['bulk-pro']?.cycles[window.__qa.state.progressByPlan['bulk-pro'].currentCycleNumber]?.dayLogs.d3?.mainExerciseLogs['leg-extension']?.sets[2]?.methodLog";
+    const dropAction = (action) => `[data-dropset] [data-drop-action="${action}"]:not([hidden] *)`;
+    const doDropAction = (action) => click(dropAction(action));
+    const dropValue = (field) => evaluate(`document.querySelector(${JSON.stringify(`${dropEditor} input[name="${field}"]`)})?.value`);
+    const openDrop = () => click("[data-dropset] > button");
+    const dropEdit = (phaseId) => click(`[data-drop-edit="${phaseId}"]`);
+    const dropStep = () => evaluate(`document.querySelector(${JSON.stringify(dropEditor)})?.dataset.dropEditor`);
+    const registeredDrop = (previous, day = "d3") => {
+      const state = fixture("bulk-pro", day, previous);
+      const progress = state.progressByPlan["bulk-pro"];
+      const current = progress.cycles[progress.currentCycleNumber];
+      assert.equal(current.methodBindings.exercises[dropExercise], undefined);
+      current.methodBindings.exercises[dropExercise] = { ...dropBinding };
+      return state;
+    };
+    async function fillDrop(field, value) {
+      await click(`${dropEditor} input[name="${field}"]`);
+      await evaluate("document.activeElement.select()");
+      await call("Input.insertText", { text: value });
+      await settle();
+    }
+    async function tapPoint(point) {
+      await call("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [point] });
+      await call("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    }
+
+    await t.test("Dropset starts collapsed, advances progressively and finishes explicitly at 1/3, 2/3 or 3/3", async () => {
+      for (const count of [1, 2, 3]) {
+        const state = registeredDrop();
+        state.progressByPlan["bulk-pro"].cycles[1].dayLogs.d3.mainExerciseLogs[dropExercise].sets[2].isDone = true;
+        await seed(state, dropRoute);
+        const original = await read();
+        assert.equal(await evaluate("document.querySelector('[data-dropset]').dataset.methodSet"), "3");
+        assert.equal(await dropStep(), undefined);
+        await openDrop();
+        assert.equal(await read(), original);
+        for (let index = 0; index < count; index++) {
+          assert.equal(await dropStep(), dropIds[index]);
+          assert.equal(await evaluate(`document.querySelectorAll(${JSON.stringify(dropEditor)}).length`), 1);
+          assert.equal(await evaluate(`Boolean(document.querySelector(${JSON.stringify(dropAction("continue"))}))`), index < 2);
+          await fillDrop("loadKg", "27,5");
+          await fillDrop("reps", index === 0 ? "0" : "5");
+          assert.notEqual(await evaluate(`${dropLog}?.phases['${dropIds[index]}']?.execution`), "performed");
+          await doDropAction(index + 1 === count ? "finish" : "continue");
+          if (index + 1 < count) await pause(360);
+        }
+        const log = await evaluate(dropLog);
+        assert.equal(log.endPhaseId, dropIds[count - 1]);
+        assert.deepEqual(Object.keys(log.phases), dropIds.slice(0, count));
+        assert.equal(log.phases["drop-1"].loadKg, "27.5");
+        assert.equal(log.phases["drop-1"].reps, "0");
+        assert.ok((await summary()).includes(`Completed · ${count}/3`));
+        assert.equal(await dropStep(), undefined);
+        const persisted = JSON.parse(await read()).state;
+        delete persisted.progressByPlan["bulk-pro"].cycles[1].dayLogs.d3.mainExerciseLogs[dropExercise].sets[2].methodLog;
+        assert.deepEqual(persisted, state);
+      }
+    });
+
+    await t.test("Dropset touch actions validate the visible drafts before confirmation and ignore rapid repeat taps", async () => {
+      const state = registeredDrop();
+      const set = state.progressByPlan["bulk-pro"].cycles[1].dayLogs.d3.mainExerciseLogs[dropExercise].sets[2];
+      set.methodLog = { choice: "record", phases: { "drop-1": { execution: "unconfirmed", loadKg: "40", reps: "6" } } };
+      await seed(state, dropRoute, "sr-Latn");
+      await openDrop();
+      await evaluate(`window.__dropClicks = [];
+        document.addEventListener('click', (event) => {
+          if (event.target.dataset.dropAction) window.__dropClicks.push(event.target.dataset.dropAction);
+        }, true)`);
+      await call("Emulation.setTouchEmulationEnabled", { enabled: true });
+      try {
+        for (const [incomplete, action] of [["27,", "finish"], ["27.", "continue"]]) {
+          await fillDrop("loadKg", incomplete);
+          const before = await read();
+          const point = await controlPoint(dropAction(action));
+          await tapPoint(point);
+          await settle();
+          assert.deepEqual(await evaluate(dropLog), set.methodLog);
+          assert.equal(await read(), before);
+          assert.equal(await dropValue("loadKg"), incomplete);
+          assert.equal(await evaluate("window.__actions.length"), 0);
+          assert.equal(await evaluate("window.__dropClicks.at(-1)"), action);
+          assert.equal(await evaluate("document.activeElement.getAttribute('aria-invalid')"), "true");
+        }
+        await fillDrop("loadKg", "27,5");
+        const point = await controlPoint(dropAction("continue"));
+        await tapPoint(point);
+        await tapPoint(point);
+        await settle();
+        assert.equal(await dropStep(), "drop-2");
+        assert.deepEqual((await evaluate(dropLog)).phases, { "drop-1": { execution: "performed", loadKg: "27.5", reps: "6" } });
+        assert.deepEqual(await evaluate("window.__actions.map(action => action.payload.change.type)"), ["set-metric", "set-execution"]);
+        assert.equal(await dropValue("loadKg"), "");
+        await fillDrop("loadKg", "20,5");
+        await pause(360);
+        await tapPoint(await controlPoint(dropAction("finish")));
+        await settle();
+        assert.equal((await evaluate(dropLog)).endPhaseId, "drop-2");
+        assert.equal((await evaluate(dropLog)).phases["drop-2"].loadKg, "20.5");
+      } finally {
+        await call("Emulation.setTouchEmulationEnabled", { enabled: false });
+      }
+    });
+
+    await t.test("Dropset separates blank and zero, edits a finished drop and preserves its end across Skip, Resume and reload", async () => {
+      await seed(registeredDrop(), dropRoute);
+      await openDrop();
+      assert.equal(await evaluate(`document.querySelector(${JSON.stringify(dropAction("finish"))}).disabled`), true);
+      await click(`${dropEditor} input[type="checkbox"]`);
+      assert.deepEqual(await evaluate("window.__writes"), []);
+      await doDropAction("finish");
+      assert.deepEqual((await evaluate(dropLog)).phases["drop-1"], { execution: "performed", loadKg: "", reps: "" });
+      await dropEdit("drop-1");
+      await fillDrop("reps", "0");
+      await click(`${dropEditor} button`, "Save measurements");
+      assert.equal((await evaluate(dropLog)).endPhaseId, "drop-1");
+      assert.equal(await evaluate(`${dropLog}.phases['drop-1'].reps`), "0");
+      assert.equal(await dropStep(), undefined);
+      await pause(360);
+      await doDropAction("skip");
+      assert.equal((await evaluate(dropLog)).choice, "skip");
+      await pause(360);
+      await doDropAction("skip");
+      assert.equal((await evaluate(dropLog)).endPhaseId, "drop-1");
+      await pause(360);
+      await doDropAction("extend");
+      assert.equal(await dropStep(), "drop-2");
+      await fillDrop("loadKg", "23,5");
+      await pause(360);
+      await doDropAction("finish");
+      const log = await evaluate(dropLog);
+      const generation = await evaluate("window.__generation");
+      await call("Page.reload");
+      await wait(`window.__generation > ${generation} && Boolean(${dropLog}?.endPhaseId)`);
+      assert.deepEqual(await evaluate(dropLog), log);
+      assert.equal(log.endPhaseId, "drop-2");
+      assert.equal(log.phases["drop-2"].reps, "");
+    });
+
+    await t.test("Dropset history is read-only and only valid Bulk bindings get a panel on active or finished days", async () => {
+      const earlier = registeredDrop();
+      const row = earlier.progressByPlan["bulk-pro"].cycles[1].dayLogs.d3.mainExerciseLogs[dropExercise].sets[2];
+      row.methodLog = { choice: "record", endPhaseId: "drop-2", phases: {
+        "drop-1": { execution: "performed", loadKg: "37.5", reps: "0" },
+        "drop-2": { execution: "performed", loadKg: "30", reps: "" },
+      } };
+      const current = registeredDrop(earlier, "d4");
+      await seed(current, dropRoute);
+      await openDrop();
+      await click("[data-dropset] [data-method-history] button");
+      const historyText = await evaluate("document.querySelector('[data-dropset] [data-method-history]').innerText");
+      assert.match(historyText, /Cycle 1[\s\S]*Completed · 2\/3[\s\S]*37\.5[\s\S]*0[\s\S]*Not recorded/);
+      assert.equal(await evaluate("document.querySelector('[data-method-history] input')"), null);
+      assert.equal(await dropValue("loadKg"), "");
+      assert.equal(await dropValue("reps"), "");
+      assert.deepEqual(await evaluate("window.__writes"), []);
+      await fillDrop("reps", "3");
+      await doDropAction("finish");
+      assert.equal((await evaluate(dropLog)).endPhaseId, "drop-1");
+
+      for (const context of ["legacy", "pre-activation", "unknown", "cut", "upcoming"]) {
+        const state = context === "cut" ? fixture("cut-pro", "d3") : registeredDrop();
+        const cycle = state.progressByPlan[context === "cut" ? "cut-pro" : "bulk-pro"].cycles[1];
+        if (context === "legacy") delete cycle.methodBindings;
+        if (context === "pre-activation") delete cycle.methodBindings.exercises[dropExercise];
+        if (context === "unknown") cycle.methodBindings.exercises[dropExercise].revision = 99;
+        if (context === "upcoming") cycle.currentDayId = "d2";
+        await seed(state, context === "cut" ? route(dropExercise, "d3", "cut-pro") : dropRoute);
+        assert.equal(await evaluate("Boolean(document.querySelector('[data-dropset]'))"), false, context);
+        assert.deepEqual(await evaluate("window.__writes"), [], context);
+      }
+    });
+
+    await t.test("Dropset drafts survive disclosure and locale changes, support Enter and Tab and fit EN/SR at narrow widths", async () => {
+      const dropsetScreenshots = await mkdtemp(join(tmpdir(), "cycle-coach-5c-visual-"));
+      for (const width of [320, 360, 390]) {
+        for (const locale of ["en", "sr-Latn"]) {
+          const t = createTranslator(locale);
+          await call("Emulation.setDeviceMetricsOverride", { width, height: 820, deviceScaleFactor: 1, mobile: true });
+          await seed(registeredDrop(), dropRoute, locale);
+          await openDrop();
+          await fillDrop("loadKg", "27,5");
+          await openDrop();
+          await openDrop();
+          assert.equal(await dropValue("loadKg"), "27,5");
+          const other = locale === "en" ? "sr-Latn" : "en";
+          for (const language of [other, locale]) {
+            await evaluate(`(() => { const s=document.querySelector('select');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(s,${JSON.stringify(language)});s.dispatchEvent(new Event('change',{bubbles:true})); })()`);
+            await settle();
+            assert.equal(await dropValue("loadKg"), "27,5");
+          }
+          assert.deepEqual(await evaluate("window.__writes"), []);
+          await click(`${dropEditor} input[name="loadKg"]`);
+          for (const [key, keyCode] of [["Enter", 13], ["Tab", 9]]) {
+            await call("Input.dispatchKeyEvent", { type: "keyDown", key, code: key, windowsVirtualKeyCode: keyCode });
+            await call("Input.dispatchKeyEvent", { type: "keyUp", key, code: key, windowsVirtualKeyCode: keyCode });
+            await settle();
+          }
+          assert.equal(await evaluate("document.activeElement.name"), "reps");
+          assert.equal(await evaluate(`${dropLog}.phases['drop-1'].loadKg`), "27.5");
+          assert.equal(await evaluate(`${dropLog}.phases['drop-1'].execution`), "unconfirmed");
+          assert.match(await summary(), new RegExp(t("Not confirmed")));
+          assert.equal(await evaluate("document.documentElement.scrollWidth <= innerWidth"), true);
+          if (width !== 360) {
+            await evaluate("document.querySelector('[data-dropset]').scrollIntoView({ block: 'center', behavior: 'instant' })");
+            await settle();
+            const shot = await call("Page.captureScreenshot", { format: "png" });
+            await writeFile(join(dropsetScreenshots, `dropset-${locale}-${width}.png`), Buffer.from(shot.data, "base64"));
+          }
+        }
+      }
+      console.log(`Dropset synthetic screenshots: ${dropsetScreenshots}`);
     });
     assert.deepEqual(exceptions, []);
     await send("Browser.close");

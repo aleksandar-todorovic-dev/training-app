@@ -17,8 +17,8 @@ export const advancedTechniqueHelpByType = {
         title: "How to do it",
         paragraphs: [
           "Finish the prescribed working set first.",
-          "Reduce the load by the percentage shown in the exercise note, then continue with controlled reps.",
-          "Standard target: up to 3 drops total, using the listed percentage each time.",
+          "Use the approximate percentage in the exercise note. Start from the actual main-set load and use the preceding actual load for each later drop.",
+          "Three drops are planned. Stopping after the first or second is fine. There is no fixed rep target for a drop. If you log it, record only the load used and reps achieved.",
           "Stop earlier if form breaks down, joints feel irritated, or the target muscle is no longer controlling the movement.",
         ],
       },
