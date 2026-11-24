@@ -93,6 +93,24 @@ export const advancedMethodDefinitions = freezeDefinition([
       loadRule: "adjustable-machine-assistance",
     }],
   },
+  {
+    definitionId: "bulk-pro/leg-extension/dropset",
+    revision: 1,
+    planId: "bulk-pro",
+    exerciseId: "leg-extension",
+    type: "dropset",
+    prescribedSetCount: 3,
+    appliesTo: "last",
+    base: { semantics: "pre-extension", loadKind: "external", loadUnit: "kg" },
+    reductionPercent: 25,
+    phases: ["drop-1", "drop-2", "drop-3"].map((phaseId) => ({
+      phaseId,
+      metrics: ["loadKg", "reps"],
+      requiredMetrics: ["loadKg", "reps"],
+      targets: {},
+      loadRule: "reduced-from-previous",
+    })),
+  },
 ]);
 
 /**

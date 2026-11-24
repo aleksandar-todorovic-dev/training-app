@@ -11,15 +11,12 @@ import { advancedMethodDefinitions, getMethodDefinition } from "../src/data/adva
 import { deriveMethodState, transitionMethodLog } from "../src/utils/runtime/advancedMethodHelpers.js";
 import { createAppStatePersistence, WORKOUT_STORAGE_KEYS } from "../src/storage/appStateStorage.js";
 
-let vite, dropsetVite, appReducer, dropsetReducer, actions, initialState, findAttempt, findDropsetAttempt;
+let vite, appReducer, actions, initialState, findAttempt;
 let getPlan, getDay, getDays, getExercises, getCoreBlock, getCoreExercises, getProgress, getSummary, getCarryOver;
-function createRuntimeServer(plugins = []) {
-  return createServer({ root: fileURLToPath(new URL("../", import.meta.url)), plugins,
+before(async () => {
+  vite = await createServer({ root: fileURLToPath(new URL("../", import.meta.url)),
     server: { middlewareMode: true, hmr: false, ws: false, watch: null },
     optimizeDeps: { noDiscovery: true, include: [] }, appType: "custom" });
-}
-before(async () => {
-  vite = await createRuntimeServer();
   const load = (path) => vite.ssrLoadModule(`/src/${path}`);
   [
     { appReducer }, { APP_ACTIONS: actions }, { appInitialState: initialState },
@@ -32,13 +29,8 @@ before(async () => {
     "data/plans/index.js", "data/dayDetails/index.js", "data/exercises/index.js", "data/core/index.js",
     "utils/runtime/workoutProgressHelpers.js", "utils/runtime/cycleSummaryHelpers.js", "utils/runtime/carryOverHelpers.js",
   ].map(load));
-  dropsetVite = await createRuntimeServer([dropsetFixtureCatalog()]);
-  [{ appReducer: dropsetReducer }, { findPreviousCompatibleMethodAttempt: findDropsetAttempt }] = await Promise.all([
-    dropsetVite.ssrLoadModule("/src/state/appReducer.js"),
-    dropsetVite.ssrLoadModule("/src/utils/runtime/advancedMethodHistoryHelpers.js"),
-  ]);
 });
-after(async () => { await Promise.all([vite?.close(), dropsetVite?.close()]); });
+after(() => vite?.close());
 
 const pilots = [
   { exerciseId: "incline-db-press", dayId: "d1", type: "rest-pause", setIndex: 3 },
@@ -725,7 +717,7 @@ test("Cluster evidence survives V2 reload alongside pilot and Core data without 
 
   const oldAction = payload(loaded.state, assistance("entered", "40"), cluster);
   const next = ensureCore(clusterWorkout(finishDay(finishDay(loaded.state, "d5"), "d6")));
-  assert.deepEqual(Object.keys(cycle(next).methodBindings.exercises).sort(), [...pilots, cluster].map((p) => p.exerciseId).sort());
+  assert.deepEqual(Object.keys(cycle(next).methodBindings.exercises).sort(), [...pilots, cluster, dropset].map((p) => p.exerciseId).sort());
   assert.deepEqual(cycle(start(next, "cut-start", "cut-pro"), "cut-pro").methodBindings.exercises, {});
   assert.deepEqual(row(next, cluster), { setIndex: 1, weight: "25", reps: "9", rir: "2", isDone: false });
   assert.deepEqual(row(next, secondCluster), { setIndex: 2, weight: "", reps: "", rir: "", isDone: false });
@@ -742,55 +734,29 @@ test("Cluster evidence survives V2 reload alongside pilot and Core data without 
 const dropset = { planId: "bulk-pro", dayId: "d3", exerciseId: "leg-extension", setIndex: 3 };
 const dropBinding = { definitionId: "bulk-pro/leg-extension/dropset", revision: 1, dayId: "d3", setCount: 3 };
 const dropIds = ["drop-1", "drop-2", "drop-3"];
-const dropDefinition = freeze({
-  planId: dropset.planId, exerciseId: dropset.exerciseId, definitionId: dropBinding.definitionId,
-  revision: dropBinding.revision, type: "dropset", prescribedSetCount: 3, appliesTo: "last",
-  base: { semantics: "pre-extension", loadKind: "external", loadUnit: "kg" }, reductionPercent: 25,
-  phases: dropIds.map((phaseId) => ({ phaseId, loadRule: "reduced-from-previous", targets: {},
-    metrics: ["loadKg", "reps"], requiredMetrics: ["loadKg", "reps"] })),
-});
-
-// Only the isolated Vite servers supply the extra definition at the registry
-// import boundary. The real resolver and reducer still check every action.
-function dropsetFixtureCatalog() {
-  const id = "\0method-runtime:dropset-registry";
-  return {
-    name: "dropset-runtime-fixture",
-    enforce: "pre",
-    resolveId(source, importer) {
-      if (source === "../../data/advancedMethods/definitions.js" &&
-          importer?.endsWith("/src/utils/runtime/advancedMethodContextHelpers.js")) return id;
-    },
-    load(source) {
-      if (source !== id) return;
-      return `import { getMethodDefinition as lookup } from '/src/data/advancedMethods/definitions.js';
-        const fixture = ${JSON.stringify(dropDefinition)};
-        export function getMethodDefinition(ref) {
-          return ['planId', 'exerciseId', 'definitionId', 'revision'].every(field => ref?.[field] === fixture[field])
-            ? fixture : lookup(ref);
-        }`;
-    },
-  };
-}
+const dropDefinition = getMethodDefinition({ ...dropset, ...dropBinding });
+assert.ok(dropDefinition, "Missing registered D3 Leg Extension Dropset revision 1");
 
 function dropsetWorkout() {
-  const state = workout(dropset);
-  cycle(state).methodBindings.exercises[dropset.exerciseId] = { ...dropBinding };
-  return state;
+  const started = start();
+  assert.deepEqual(cycle(started).methodBindings.exercises[dropset.exerciseId], dropBinding);
+  const state = finishDay(finishDay(started, "d1"), "d2");
+  assert.equal(cycle(state).currentDayId, dropset.dayId);
+  return ensure(state, dropset.dayId);
 }
 const readDrop = (state) => row(state, dropset).methodLog;
 const finishDrop = (phaseId = dropIds[0]) => ({ type: "finish-dropset", phaseId });
 const extendDrop = (phaseId = dropIds[0]) => ({ type: "extend-dropset", phaseId });
 const dropAction = (state, change, overrides = {}) => ({ type: actions.UPDATE_EXERCISE_METHOD,
   payload: { ...payload(state, change, dropset), ...overrides } });
-const sendDrop = (state, change) => dropsetReducer(freeze(state), dropAction(state, change));
+const sendDrop = (state, change) => appReducer(freeze(state), dropAction(state, change));
 
-test("an unmodified runtime cannot resolve Dropset even with the exact synthetic binding", () => {
-  assert.equal(advancedMethodDefinitions.length, 4);
-  assert.equal(getMethodDefinition(dropDefinition), null);
-  assert.equal(cycle(start()).methodBindings.exercises[dropset.exerciseId], undefined);
-  const fixture = dropsetWorkout();
-  assert.equal(appReducer(freeze(fixture), dropAction(fixture, finishDrop())), fixture);
+test("the registered Dropset remains guarded in a Bulk cycle without its binding", () => {
+  const previous = dropsetWorkout();
+  delete cycle(previous).methodBindings.exercises[dropset.exerciseId];
+  assert.equal(Object.keys(cycle(previous).methodBindings.exercises).length, 4);
+  assert.equal(sendDrop(previous, finishDrop()), previous);
+  assert.equal(readDrop(previous), undefined);
 });
 
 test("Dropset reducer preserves confirmation, editing and extension independently of workout progress", () => {
@@ -834,7 +800,7 @@ test("Dropset rejects stale actions, foreign addresses, bad bindings and malform
   const valid = sendDrop(initial, finishDrop());
   for (const overrides of [{ cycleNumber: 2 }, { cycleStartedAt: "stale" }, { setIndex: 2 },
     { dayId: "d2" }, { exerciseId: "not-leg-extension" }, { protocol: dropDefinition }]) {
-    assert.equal(dropsetReducer(valid, dropAction(valid, extendDrop(), overrides)), valid);
+    assert.equal(appReducer(valid, dropAction(valid, extendDrop(), overrides)), valid);
   }
   for (const change of [{ ...extendDrop(), extra: true }, { ...extendDrop(), phaseId: 1 },
     { type: "finish-dropset" }, { type: "extend-dropset", get phaseId() { throw new Error("getter invoked"); } },
@@ -862,10 +828,10 @@ test("Dropset rejects stale actions, foreign addresses, bad bindings and malform
   const cut = { ...dropset, planId: "cut-pro" };
   const cutState = workout(cut);
   cycle(cutState, cut.planId).methodBindings.exercises[cut.exerciseId] = { ...dropBinding };
-  assert.equal(dropsetReducer(freeze(cutState), { type: actions.UPDATE_EXERCISE_METHOD,
+  assert.equal(appReducer(freeze(cutState), { type: actions.UPDATE_EXERCISE_METHOD,
     payload: payload(cutState, finishDrop(), cut) }), cutState);
   const existingMethod = freeze(workout());
-  assert.equal(dropsetReducer(existingMethod, { type: actions.UPDATE_EXERCISE_METHOD,
+  assert.equal(appReducer(existingMethod, { type: actions.UPDATE_EXERCISE_METHOD,
     payload: payload(existingMethod, finishDrop("extra-reps")) }), existingMethod);
 });
 
@@ -904,7 +870,7 @@ test("Dropset history selects one latest compatible confirmed attempt with its e
       current.cycleNumber = 7;
       const context = freeze({ ...dropset, currentCycleNumber: 7,
         cycles: { 1: cycle(completeFirst), 3: prior, 4: skipped, 5: invalid, 6: unresolved, 7: current } });
-      const found = findDropsetAttempt(context);
+      const found = findAttempt(context);
       assert.equal(found.cycleNumber, 3);
       assert.equal(found.cycleStartedAt, "latest-start");
       assert.equal(found.derived.status, status);
@@ -916,7 +882,6 @@ test("Dropset history selects one latest compatible confirmed attempt with its e
       found.methodLog.phases[dropIds[0]].reps = "10";
       assert.equal(rowInCycle(prior, dropset).methodLog.phases[dropIds[0]].reps, "0");
       assert.equal(rowInCycle(current, dropset).methodLog, undefined);
-      assert.equal(findAttempt(context), null);
     }
     attempt = sendDrop(attempt, finishDrop(phaseId));
   }
@@ -927,14 +892,15 @@ test("Dropset history requires a valid current address and an exact known protoc
   const current = structuredClone(cycle(dropsetWorkout()));
   current.cycleNumber = 2;
   const context = freeze({ ...dropset, cycles: { 1: previous, 2: current }, currentCycleNumber: 2 });
-  assert.equal(findDropsetAttempt(context).cycleNumber, 1);
+  assert.equal(findAttempt(context).cycleNumber, 1);
   const beforeRowsExist = freeze({ ...context, cycles: { 1: previous, 2: { ...current, dayLogs: {} } } });
-  assert.equal(findDropsetAttempt(beforeRowsExist).cycleNumber, 1);
+  assert.equal(findAttempt(beforeRowsExist).cycleNumber, 1);
   for (const override of [{ setIndex: 2 }, { dayId: "d2" }, { planId: "cut-pro" }]) {
-    assert.equal(findDropsetAttempt({ ...context, ...override }), null);
+    assert.equal(findAttempt({ ...context, ...override }), null);
   }
   for (const mutate of [
     (c) => { delete c.methodBindings; },
+    (c) => { delete c.methodBindings.exercises[dropset.exerciseId]; },
     (c) => { c.methodBindings.exercises[dropset.exerciseId].revision = 99; },
     (c) => { c.dayLogs = null; },
     (c) => { c.dayLogs.d3.mainExerciseLogs[dropset.exerciseId].sets.pop(); },
@@ -942,7 +908,7 @@ test("Dropset history requires a valid current address and an exact known protoc
   ]) {
     const copy = structuredClone(context);
     mutate(copy.cycles[2]);
-    assert.equal(findDropsetAttempt(freeze(copy)), null);
+    assert.equal(findAttempt(freeze(copy)), null);
   }
   for (const override of [{ reductionPercent: 20 }, { appliesTo: "all" },
     { phases: dropDefinition.phases.slice(0, 2) }, { phases: dropDefinition.phases.toReversed() }]) {
@@ -953,7 +919,7 @@ test("Dropset history requires a valid current address and an exact known protoc
   }
 });
 
-test("V2 preserves Dropset phases and early completion as JSON without enabling unregistered methods", () => {
+test("V2 preserves Dropset phases and early completion without granting edits to an unbound record", () => {
   const values = new Map();
   const storage = { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
   const session = createAppStatePersistence({ getStorage: () => storage });
@@ -967,7 +933,14 @@ test("V2 preserves Dropset phases and early completion as JSON without enabling 
     assert.deepEqual(loaded.state, state);
     assert.equal(readDrop(loaded.state).endPhaseId, phaseId);
     assert.deepEqual(deriveMethodState(dropDefinition, readDrop(loaded.state)), deriveMethodState(dropDefinition, readDrop(state)));
-    assert.equal(appReducer(loaded.state, dropAction(loaded.state, metric("25", phaseId, "loadKg"))), loaded.state);
+    const change = metric("25", phaseId, "loadKg");
+    const edited = sendDrop(loaded.state, change);
+    assert.equal(readDrop(edited).phases[phaseId].loadKg, "25");
+    assert.equal(readDrop(edited).endPhaseId, phaseId);
+    const unbound = structuredClone(loaded.state);
+    delete cycle(unbound).methodBindings.exercises[dropset.exerciseId];
+    assert.equal(sendDrop(unbound, change), unbound);
+    assert.deepEqual(readDrop(unbound), readDrop(state));
   }
   assert.deepEqual([...values.keys()], [WORKOUT_STORAGE_KEYS.v2]);
 
@@ -1015,7 +988,7 @@ createRoot(document.getElementById('root')).render(React.createElement(React.Str
 </script></body></html>`;
       server = await createServer({ cacheDir: join(profile, "vite-cache"), server: { host: "127.0.0.1", port: 0 },
         optimizeDeps: { noDiscovery: true, include: ["react", "react-dom/client", "react/jsx-dev-runtime", "react/jsx-runtime"] },
-        plugins: [dropsetFixtureCatalog(), { name: "method-runtime-test", configureServer(vite) {
+        plugins: [{ name: "method-runtime-test", configureServer(vite) {
           vite.middlewares.use(async (req, res, next) => {
             if (req.url !== "/__method-runtime") return next();
             res.setHeader("Content-Type", "text/html"); res.end(await vite.transformIndexHtml(req.url, html));

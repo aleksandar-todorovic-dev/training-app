@@ -520,7 +520,7 @@ test("all six educational summaries match source types and only bound exercises 
     dropset:'Dropset · exact method available', cluster:'Cluster set · exact structure available',
     'mechanical-set':'Mechanical set · exact sequence available', 'mechanical-dropset':'Mechanical dropset · exact sequence available',
   };
-  const activeExercises = new Set(['incline-db-press','cable-stretch-fly','face-away-cable-curl','assisted-pull-up-cluster']);
+  const activeExercises = new Set(['incline-db-press','cable-stretch-fly','face-away-cable-curl','assisted-pull-up-cluster','leg-extension']);
   const w = workout('bulk-pro'); const seen = new Set();
   for (const day of getDayDetailsByPlanId('bulk-pro')) {
     w.cycle().currentDayId = day.id; w.ensure(day.id);

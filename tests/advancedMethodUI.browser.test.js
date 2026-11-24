@@ -17,33 +17,6 @@ const route = (exercise = "incline-db-press", day = "d1", plan = "bulk-pro") => 
 const dropExercise = "leg-extension";
 const dropBinding = { definitionId: "bulk-pro/leg-extension/dropset", revision: 1, dayId: "d3", setCount: 3 };
 const dropIds = ["drop-1", "drop-2", "drop-3"];
-const dropDefinition = {
-  planId: "bulk-pro", exerciseId: dropExercise, definitionId: dropBinding.definitionId, revision: 1,
-  type: "dropset", prescribedSetCount: 3, appliesTo: "last", reductionPercent: 25,
-  base: { semantics: "pre-extension", loadKind: "external", loadUnit: "kg" },
-  phases: dropIds.map((phaseId) => ({ phaseId, loadRule: "reduced-from-previous", targets: {},
-    metrics: ["loadKg", "reps"], requiredMetrics: ["loadKg", "reps"] })),
-};
-
-function dropsetFixtureCatalog() {
-  const id = "\0method-ui:dropset-registry";
-  return {
-    name: "dropset-ui-fixture", enforce: "pre",
-    resolveId(source, importer) {
-      if (source === "../../data/advancedMethods/definitions.js" &&
-          importer?.endsWith("/src/utils/runtime/advancedMethodContextHelpers.js")) return id;
-    },
-    load(source) {
-      if (source !== id) return;
-      return `import { getMethodDefinition as lookup } from '/src/data/advancedMethods/definitions.js';
-        const fixture = ${JSON.stringify(dropDefinition)};
-        export function getMethodDefinition(ref) {
-          return ['planId', 'exerciseId', 'definitionId', 'revision'].every(field => ref?.[field] === fixture[field])
-            ? fixture : lookup(ref);
-        }`;
-    },
-  };
-}
 
 // Only the isolated server exposes this route. Real pages, context and persistence
 // run under StrictMode; the wrapper can enqueue a base edit to reproduce a stale confirmation.
@@ -91,7 +64,7 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
     server = await createServer({ cacheDir: join(profile, "vite-cache"),
       server: { host: "127.0.0.1", port: 0 },
       optimizeDeps: { noDiscovery: true, include: ["react", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime", "react-router-dom", "motion/react", "lucide-react"] },
-      plugins: [dropsetFixtureCatalog(), { name: "method-ui-fixture", configureServer(vite) {
+      plugins: [{ name: "method-ui-fixture", configureServer(vite) {
         vite.middlewares.use(async (req, res, next) => {
           if (req.url !== "/__method-ui") return next();
           res.setHeader("Content-Type", "text/html"); res.end(await vite.transformIndexHtml(req.url, harness));
@@ -642,6 +615,7 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
         "cable-stretch-fly": { definitionId: "bulk-pro/cable-stretch-fly/iso-stretch", revision: 1, dayId: "d1", setCount: 1 },
         "face-away-cable-curl": { definitionId: "bulk-pro/face-away-cable-curl/rest-pause", revision: 1, dayId: "d4", setCount: 1 },
         [clusterId]: { definitionId: "bulk-pro/assisted-pull-up-cluster/cluster", revision: 1, dayId: "d5", setCount: 2 },
+        [dropExercise]: dropBinding,
       } });
       assert.deepEqual(first.dayLogs, {});
       await reachCluster(1);
@@ -897,6 +871,7 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
         if (kind === "legacy") delete current.methodBindings;
         if (kind === "pre-activation") {
           delete current.methodBindings.exercises[clusterId];
+          delete current.methodBindings.exercises[dropExercise];
           assert.equal(Object.keys(current.methodBindings.exercises).length, 3);
         }
         if (kind === "unknown") current.methodBindings.exercises[clusterId].revision = 99;
@@ -925,12 +900,11 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
     const openDrop = () => click("[data-dropset] > button");
     const dropEdit = (phaseId) => click(`[data-drop-edit="${phaseId}"]`);
     const dropStep = () => evaluate(`document.querySelector(${JSON.stringify(dropEditor)})?.dataset.dropEditor`);
-    const registeredDrop = (previous, day = "d3") => {
+    const dropsetFixture = (previous, day = "d3") => {
       const state = fixture("bulk-pro", day, previous);
       const progress = state.progressByPlan["bulk-pro"];
       const current = progress.cycles[progress.currentCycleNumber];
-      assert.equal(current.methodBindings.exercises[dropExercise], undefined);
-      current.methodBindings.exercises[dropExercise] = { ...dropBinding };
+      assert.deepEqual(current.methodBindings.exercises[dropExercise], dropBinding);
       return state;
     };
     async function fillDrop(field, value) {
@@ -944,9 +918,113 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
       await call("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
     }
 
+    await t.test("new Bulk cycle: start, log D3 Dropset, restore it from V2 and reference it in Cycle 2", async () => {
+      const bulk = "window.__qa.state.progressByPlan['bulk-pro']";
+      const stored = async () => JSON.parse(await read()).state.progressByPlan["bulk-pro"];
+      const rows = (cycle) => cycle.dayLogs.d3.mainExerciseLogs[dropExercise].sets;
+      const openDay = async (day) => {
+        await enterDay(day);
+        await wait(`Boolean(${bulk}.cycles[${bulk}.currentCycleNumber].dayLogs.${day})`);
+        await settle();
+      };
+      const reachDropset = async () => {
+        for (const day of ["d1", "d2"]) {
+          await openDay(day);
+          await finishDay();
+        }
+        await openDay("d3");
+        await click(`a[href="${dropRoute}"]`);
+        await wait("Boolean(document.querySelector('[data-dropset]'))");
+        assert.deepEqual(await evaluate(`Array.from(document.querySelectorAll('input[name^="set-"][name$="-weight"]'), input => input.name)`),
+          ["set-1-weight", "set-2-weight", "set-3-weight"]);
+        assert.deepEqual(await evaluate(`Array.from(document.querySelectorAll('[data-method-set]'), panel => panel.dataset.methodSet)`), ["3"]);
+      };
+      await call("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+      await call("Emulation.setEmulatedMedia", { features: [{ name: "prefers-reduced-motion", value: "reduce" }] });
+      await evaluate("localStorage.removeItem('training-app:v1:safety-acknowledged')");
+      await seed(structuredClone(appInitialState), "/plan/bulk-pro");
+      await click("a", "Start Cycle 1");
+      await click('[role="dialog"] button', "I understand — start cycle");
+      const first = await evaluate(`${bulk}.cycles[1]`);
+      assert.deepEqual(first.methodBindings.exercises[dropExercise], dropBinding);
+      assert.deepEqual(first.dayLogs, {});
+      await reachDropset();
+      const before = await read();
+      assert.equal(await dropStep(), undefined);
+      await openDrop();
+      assert.equal(await read(), before);
+      await fillDrop("reps", "0");
+      await fillDrop("loadKg", "27,5");
+      assert.equal(await evaluate("document.activeElement.name"), "loadKg");
+      await doDropAction("finish");
+      const log = { choice: "record", endPhaseId: "drop-1", phases: {
+        "drop-1": { execution: "performed", loadKg: "27.5", reps: "0" },
+      } };
+      assert.deepEqual(await evaluate(dropLog), log);
+      const key = JSON.stringify(storageKey);
+      await wait(`JSON.parse(localStorage.getItem(${key}))?.state.progressByPlan['bulk-pro'].cycles[1]?.dayLogs.d3?.mainExerciseLogs['leg-extension'].sets[2].methodLog?.endPhaseId === 'drop-1'`);
+      const saved = JSON.parse(await read());
+      assert.equal(saved.version, 2);
+      const savedRows = rows(saved.state.progressByPlan["bulk-pro"].cycles[1]);
+      assert.deepEqual(savedRows[2].methodLog, log);
+      const withoutLog = structuredClone(saved.state);
+      delete rows(withoutLog.progressByPlan["bulk-pro"].cycles[1])[2].methodLog;
+      assert.deepEqual(withoutLog, JSON.parse(before).state);
+
+      const generation = await evaluate("window.__generation");
+      await evaluate(`sessionStorage.setItem('qa-route',${JSON.stringify(dropRoute)});delete window.__qa`);
+      await call("Page.reload");
+      await wait(`window.__generation > ${generation} && Boolean(${dropLog}?.endPhaseId)`);
+      assert.deepEqual(await evaluate(dropLog), log);
+      assert.deepEqual(await evaluate("window.__writes"), []);
+      await click("button", "Finish exercise");
+      await finishDay();
+      for (const day of ["d4", "d5", "d6"]) {
+        await openDay(day);
+        await finishDay();
+      }
+      await click('a[href="/plan/bulk-pro/end-cycle"]');
+      const archived = (await stored()).cycles[1];
+      assert.deepEqual(rows(archived)[2].methodLog, log);
+      await click("button", "Start Cycle 2");
+      assert.deepEqual(await evaluate(`${bulk}.cycles[2].methodBindings`), first.methodBindings);
+      await reachDropset();
+      const current = await stored();
+      assert.deepEqual(current.cycles[1], archived);
+      assert.ok(rows(current.cycles[2]).every((row) => !row.isDone && !Object.hasOwn(row, "methodLog")));
+      const writes = await evaluate("window.__writes.length");
+      await openDrop();
+      await click("[data-dropset] [data-method-history] button");
+      assert.match(await evaluate("document.querySelector('[data-dropset] [data-method-history]').innerText"),
+        /Cycle 1[\s\S]*Completed · 1\/3[\s\S]*27\.5/);
+      assert.equal(await dropValue("loadKg"), "");
+      assert.equal(await dropValue("reps"), "");
+      assert.equal(await evaluate("window.__writes.length"), writes);
+    });
+
+    await t.test("first D3 visit does not retrofit pre-activation Bulk snapshots", async () => {
+      for (const count of [3, 4]) {
+        const state = fixture("bulk-pro", "d2");
+        const previous = state.progressByPlan["bulk-pro"].cycles[1];
+        delete previous.methodBindings.exercises[dropExercise];
+        if (count === 3) delete previous.methodBindings.exercises[clusterId];
+        assert.equal(Object.keys(previous.methodBindings.exercises).length, count);
+        assert.equal(previous.dayLogs.d3, undefined);
+        await seed(state, "/plan/bulk-pro/day/d2");
+        await finishDay();
+        await enterDay("d3");
+        await click(`a[href="${dropRoute}"]`);
+        await wait(`Boolean(document.querySelector('input[name="set-3-weight"]'))`);
+        assert.equal(await evaluate("document.querySelector('[data-method-set]')"), null);
+        const reopened = JSON.parse(await read()).state.progressByPlan["bulk-pro"].cycles[1];
+        assert.deepEqual(reopened.methodBindings, previous.methodBindings);
+        assert.ok(reopened.dayLogs.d3.mainExerciseLogs[dropExercise].sets.every((row) => !Object.hasOwn(row, "methodLog")));
+      }
+    });
+
     await t.test("Dropset starts collapsed, advances progressively and finishes explicitly at 1/3, 2/3 or 3/3", async () => {
       for (const count of [1, 2, 3]) {
-        const state = registeredDrop();
+        const state = dropsetFixture();
         state.progressByPlan["bulk-pro"].cycles[1].dayLogs.d3.mainExerciseLogs[dropExercise].sets[2].isDone = true;
         await seed(state, dropRoute);
         const original = await read();
@@ -978,7 +1056,7 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
     });
 
     await t.test("Dropset touch actions validate the visible drafts before confirmation and ignore rapid repeat taps", async () => {
-      const state = registeredDrop();
+      const state = dropsetFixture();
       const set = state.progressByPlan["bulk-pro"].cycles[1].dayLogs.d3.mainExerciseLogs[dropExercise].sets[2];
       set.methodLog = { choice: "record", phases: { "drop-1": { execution: "unconfirmed", loadKg: "40", reps: "6" } } };
       await seed(state, dropRoute, "sr-Latn");
@@ -1023,7 +1101,7 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
     });
 
     await t.test("Dropset separates blank and zero, edits a finished drop and preserves its end across Skip, Resume and reload", async () => {
-      await seed(registeredDrop(), dropRoute);
+      await seed(dropsetFixture(), dropRoute);
       await openDrop();
       assert.equal(await evaluate(`document.querySelector(${JSON.stringify(dropAction("finish"))}).disabled`), true);
       await click(`${dropEditor} input[type="checkbox"]`);
@@ -1058,13 +1136,13 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
     });
 
     await t.test("Dropset history is read-only and only valid Bulk bindings get a panel on active or finished days", async () => {
-      const earlier = registeredDrop();
+      const earlier = dropsetFixture();
       const row = earlier.progressByPlan["bulk-pro"].cycles[1].dayLogs.d3.mainExerciseLogs[dropExercise].sets[2];
       row.methodLog = { choice: "record", endPhaseId: "drop-2", phases: {
         "drop-1": { execution: "performed", loadKg: "37.5", reps: "0" },
         "drop-2": { execution: "performed", loadKg: "30", reps: "" },
       } };
-      const current = registeredDrop(earlier, "d4");
+      const current = dropsetFixture(earlier, "d4");
       await seed(current, dropRoute);
       await openDrop();
       await click("[data-dropset] [data-method-history] button");
@@ -1078,12 +1156,13 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
       await doDropAction("finish");
       assert.equal((await evaluate(dropLog)).endPhaseId, "drop-1");
 
-      for (const context of ["legacy", "pre-activation", "unknown", "cut", "upcoming"]) {
-        const state = context === "cut" ? fixture("cut-pro", "d3") : registeredDrop();
+      for (const context of ["legacy", "pre-activation", "unknown", "malformed", "cut", "upcoming"]) {
+        const state = context === "cut" ? fixture("cut-pro", "d3") : dropsetFixture();
         const cycle = state.progressByPlan[context === "cut" ? "cut-pro" : "bulk-pro"].cycles[1];
         if (context === "legacy") delete cycle.methodBindings;
         if (context === "pre-activation") delete cycle.methodBindings.exercises[dropExercise];
         if (context === "unknown") cycle.methodBindings.exercises[dropExercise].revision = 99;
+        if (context === "malformed") cycle.methodBindings.exercises[dropExercise].setCount = 2;
         if (context === "upcoming") cycle.currentDayId = "d2";
         await seed(state, context === "cut" ? route(dropExercise, "d3", "cut-pro") : dropRoute);
         assert.equal(await evaluate("Boolean(document.querySelector('[data-dropset]'))"), false, context);
@@ -1092,12 +1171,12 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
     });
 
     await t.test("Dropset drafts survive disclosure and locale changes, support Enter and Tab and fit EN/SR at narrow widths", async () => {
-      const dropsetScreenshots = await mkdtemp(join(tmpdir(), "cycle-coach-5c-visual-"));
+      const dropsetScreenshots = await mkdtemp(join(tmpdir(), "cycle-coach-5d-visual-"));
       for (const width of [320, 360, 390]) {
         for (const locale of ["en", "sr-Latn"]) {
           const t = createTranslator(locale);
           await call("Emulation.setDeviceMetricsOverride", { width, height: 820, deviceScaleFactor: 1, mobile: true });
-          await seed(registeredDrop(), dropRoute, locale);
+          await seed(dropsetFixture(), dropRoute, locale);
           await openDrop();
           await fillDrop("loadKg", "27,5");
           await openDrop();
@@ -1121,15 +1200,13 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
           assert.equal(await evaluate(`${dropLog}.phases['drop-1'].execution`), "unconfirmed");
           assert.match(await summary(), new RegExp(t("Not confirmed")));
           assert.equal(await evaluate("document.documentElement.scrollWidth <= innerWidth"), true);
-          if (width !== 360) {
-            await evaluate("document.querySelector('[data-dropset]').scrollIntoView({ block: 'center', behavior: 'instant' })");
-            await settle();
-            const shot = await call("Page.captureScreenshot", { format: "png" });
-            await writeFile(join(dropsetScreenshots, `dropset-${locale}-${width}.png`), Buffer.from(shot.data, "base64"));
-          }
+          await evaluate("document.querySelector('[data-dropset]').scrollIntoView({ block: 'center', behavior: 'instant' })");
+          await settle();
+          const shot = await call("Page.captureScreenshot", { format: "png" });
+          await writeFile(join(dropsetScreenshots, `dropset-${locale}-${width}.png`), Buffer.from(shot.data, "base64"));
         }
       }
-      console.log(`Dropset synthetic screenshots: ${dropsetScreenshots}`);
+      console.log(`Dropset mobile screenshots: ${dropsetScreenshots}`);
     });
     assert.deepEqual(exceptions, []);
     await send("Browser.close");

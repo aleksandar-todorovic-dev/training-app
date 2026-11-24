@@ -8,6 +8,7 @@ import { bulkProExercises } from "../src/data/exercises/bulkProExercises.js";
 import { cutProExercises } from "../src/data/exercises/cutProExercises.js";
 
 const [incline, curl, stretch, cluster] = advancedMethodDefinitions;
+const previousDefinitions = [incline, curl, stretch, cluster];
 const clusterPhaseId = "additional-burst";
 const setAssistance = (mode, kg, phaseId = clusterPhaseId) => ({ type: "set-assistance", phaseId, mode, kg });
 const clearAssistance = (phaseId = clusterPhaseId) => ({ type: "clear-assistance", phaseId });
@@ -62,8 +63,8 @@ test("pilot definitions match actual Bulk exercise identity, counts and prescrip
 });
 
 test("Cluster revision 1 matches the D5 prescription and is deeply frozen", () => {
-  assert.equal(advancedMethodDefinitions.length, 4);
-  assert.equal(new Set(advancedMethodDefinitions.map((item) => item.definitionId)).size, 4);
+  assert.equal(advancedMethodDefinitions.length, 5);
+  assert.equal(new Set(advancedMethodDefinitions.map((item) => item.definitionId)).size, 5);
   assert.deepEqual(cluster, {
     definitionId: "bulk-pro/assisted-pull-up-cluster/cluster",
     revision: 1,
@@ -239,7 +240,7 @@ test("approved input limits accept empty and canonical integers: reps 0–30, se
     }
   }
   assert.equal(isValidMethodMetricValue("weight", "24"), false);
-  for (const definition of advancedMethodDefinitions) {
+  for (const definition of previousDefinitions) {
     const phase = definition.phases[0];
     for (const field of phase.metrics) {
       const maxValue = field === "reps" ? 30 : 999;
@@ -334,7 +335,7 @@ test("round trips, edits and derivation preserve main values, Done and prescribe
   assert.equal(record.phases["extra-reps"].reps, "3");
   assert.equal(changed.phases["extra-reps"].reps, "2");
   assert.equal(JSON.stringify(rows), before);
-  for (const definition of advancedMethodDefinitions) {
+  for (const definition of previousDefinitions) {
     const phase = definition.phases[0];
     const original = recordWith(definition, metric("8", phase.requiredMetrics[0], phase.phaseId), execution("partial", phase.phaseId));
     for (const sample of [original, transitionMethodLog(definition, original, choice("skip"))]) {
@@ -472,7 +473,7 @@ test("Cluster confirmation, required reps, optional assistance and targets stay 
 });
 
 const dropIds = ["drop-1", "drop-2", "drop-3"];
-const dropset = freezeTree({
+const expectedDropset = {
   definitionId: "bulk-pro/leg-extension/dropset",
   revision: 1,
   planId: "bulk-pro",
@@ -489,11 +490,17 @@ const dropset = freezeTree({
     targets: {},
     loadRule: "reduced-from-previous",
   })),
-});
+};
+const dropset = getMethodDefinition(expectedDropset);
+assert.ok(dropset, "Missing registered D3 Leg Extension Dropset revision 1");
 const finishDrop = (phaseId) => ({ type: "finish-dropset", phaseId });
 const extendDropset = (phaseId) => ({ type: "extend-dropset", phaseId });
 
-test("the D3 Dropset fixture applies only to the last set and has no runtime definition", () => {
+test("registered D3 Dropset is the frozen approved protocol and applies only to the last set", () => {
+  assert.deepEqual(dropset, expectedDropset);
+  const { phases, base } = dropset;
+  assert.ok([dropset, base, phases, ...phases.flatMap((phase) =>
+    [phase, phase.metrics, phase.requiredMetrics, phase.targets])].every(Object.isFrozen));
   const exercise = bulkProExercises.find(({ id }) => id === dropset.exerciseId);
   assert.ok(bulkProDayDetails.find(({ id }) => id === "d3").exerciseIds.includes(exercise.id));
   assert.equal(exercise.details.advancedTechniqueType, dropset.type);
@@ -503,7 +510,7 @@ test("the D3 Dropset fixture applies only to the last set and has no runtime def
     { setIndex: 3, isDone: false }, { setIndex: 1, isDone: true }, { setIndex: 2, isDone: true },
   ]), [3]);
   assert.ok(cutProExercises.some(({ id }) => id === exercise.id));
-  assert.equal(getMethodDefinition(dropset), null);
+  assert.equal(getMethodDefinition(dropset), dropset);
   assert.equal(getMethodDefinition({ ...dropset, planId: "cut-pro" }), null);
 });
 
@@ -707,7 +714,7 @@ test("Dropset validates bounded, distinct phases and keeps external load out of 
     assert.equal(validateMethodLog(definition, undefined).valid, false);
     assert.equal(transitionMethodLog(definition, undefined, finishDrop("drop-1")), undefined);
   }
-  for (const definition of advancedMethodDefinitions) {
+  for (const definition of previousDefinitions) {
     const [phase] = definition.phases;
     const existing = freezeTree(recordWith(definition, execution("performed", phase.phaseId)));
     const withUnexpectedLoad = structuredClone(existing);

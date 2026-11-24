@@ -38,9 +38,14 @@ const preActivationBindings = {
   },
 };
 const clusterId = "assisted-pull-up-cluster";
-const expected = { version: 1, exercises: {
+const dropsetId = "leg-extension";
+const beforeDropsetBindings = { version: 1, exercises: {
   ...preActivationBindings.exercises,
   [clusterId]: { definitionId: "bulk-pro/assisted-pull-up-cluster/cluster", revision: 1, dayId: "d5", setCount: 2 },
+} };
+const expected = { version: 1, exercises: {
+  ...beforeDropsetBindings.exercises,
+  [dropsetId]: { definitionId: "bulk-pro/leg-extension/dropset", revision: 1, dayId: "d3", setCount: 3 },
 } };
 function freeze(value) {
   if (value && typeof value === "object") { Object.values(value).forEach(freeze); Object.freeze(value); }
@@ -131,6 +136,36 @@ test("a three-binding Bulk cycle keeps its snapshot when it first opens D5 and w
   assert.equal(next.progressByPlan["bulk-pro"].cycles[1], archived);
   assert.deepEqual(archived.methodBindings, preActivationBindings);
   assert.equal(archived.dayLogs.d5.mainExerciseLogs[clusterId].sets, oldRows);
+});
+
+test("first D3 visit preserves earlier snapshots and only a new cycle has a last-set Dropset binding", () => {
+  const finish = (state, dayId) => appReducer(ensure(state, dayId), { type: actions.FINISH_DAY,
+    payload: { planId: "bulk-pro", dayId, finishedAt: `closed-${dayId}` } });
+  const resolveDropset = (state) => resolve({ planId: "bulk-pro", cycle: cycle(state), dayId: "d3", exerciseId: dropsetId });
+  const rows = (state) => cycle(state).dayLogs.d3.mainExerciseLogs[dropsetId].sets;
+  for (const previousBindings of [preActivationBindings, beforeDropsetBindings]) {
+    const previous = start();
+    const snapshot = freeze(structuredClone(previousBindings));
+    cycle(previous).methodBindings = snapshot;
+    const beforeD3 = finish(finish(previous, "d1"), "d2");
+    assert.equal(cycle(beforeD3).currentDayId, "d3");
+    assert.equal(cycle(beforeD3).dayLogs.d3, undefined);
+    const opened = ensure(freeze(beforeD3), "d3");
+    assert.equal(cycle(opened).methodBindings, snapshot);
+    assert.equal(resolveDropset(opened).status, "unbound");
+    assert.deepEqual(rows(opened).map(({ setIndex }) => setIndex), [1, 2, 3]);
+    assert.ok(rows(opened).every((row) => !Object.hasOwn(row, "methodLog")));
+    const archived = ["d3", "d4", "d5", "d6"].reduce(finish, opened);
+    const next = start(freeze(archived));
+    assert.equal(cycle(next).cycleNumber, 2);
+    assert.equal(next.progressByPlan["bulk-pro"].cycles[1], cycle(archived));
+    assert.equal(cycle(archived).methodBindings, snapshot);
+    assert.deepEqual(cycle(next).methodBindings, expected);
+    const current = ensure(finish(finish(next, "d1"), "d2"), "d3");
+    assert.deepEqual(rows(current).map(({ setIndex }) => setIndex), [1, 2, 3]);
+    assert.deepEqual(getApplicableSetIndexes(resolveDropset(current).definition, rows(current)), [3]);
+    assert.ok(rows(current).every((row) => !Object.hasOwn(row, "methodLog")));
+  }
 });
 
 test("pre-row resolver resolves all active methods, absent bindings and same-ID Cut safely", () => {
