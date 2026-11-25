@@ -1,15 +1,30 @@
+import { knownDropsetProtocols } from "../../data/advancedMethods/definitions.js";
 import { resolveCycleMethodBinding } from "./advancedMethodContextHelpers.js";
 import { deriveMethodState, getApplicableSetIndexes } from "./advancedMethodHelpers.js";
 import { isPlainRecord, validateMethodLog } from "./advancedMethodValidation.js";
 
 const DROP_METRICS = ["loadKg", "reps"];
 const hasDropMetrics = (metrics) => Array.isArray(metrics) && metrics.length === DROP_METRICS.length &&
-  DROP_METRICS.every((metric) => metrics.includes(metric));
+  DROP_METRICS.every((metric, index) => metrics[index] === metric);
 
 // Exact revisions supply phase semantics. Only the currently understood base and
 // phase load conventions may participate in comparisons; unknown ones stay opaque.
 function hasKnownSemantics(definition, dayId) {
   if (definition.base?.semantics !== "pre-extension" || definition.base.loadUnit !== "kg") return false;
+  const dropset = knownDropsetProtocols.find(({ definitionId }) => definitionId === definition.definitionId);
+  if (dropset || definition.type === "dropset") {
+    return Boolean(dropset && definition.type === "dropset" && definition.planId === "bulk-pro" &&
+      dayId === dropset.dayId && definition.exerciseId === dropset.exerciseId && definition.revision === dropset.revision &&
+      definition.prescribedSetCount === dropset.prescribedSetCount && definition.appliesTo === "last" &&
+      definition.reductionPercent === dropset.reductionPercent && definition.base.loadKind === "external" &&
+      (Object.hasOwn(dropset, "loadConvention")
+        ? Object.hasOwn(definition.base, "loadConvention") && definition.base.loadConvention === dropset.loadConvention
+        : !Object.hasOwn(definition.base, "loadConvention")) &&
+      Array.isArray(definition.phases) && definition.phases.length === 3 &&
+      Array.from(definition.phases).every((phase, index) => phase?.phaseId === `drop-${index + 1}` &&
+        phase.loadRule === "reduced-from-previous" && hasDropMetrics(phase.metrics) &&
+        hasDropMetrics(phase.requiredMetrics) && isPlainRecord(phase.targets) && Object.keys(phase.targets).length === 0));
+  }
   if (definition.type === "cluster") {
     const [burst] = definition.phases;
     return definition.planId === "bulk-pro" && dayId === "d5" &&
@@ -18,15 +33,6 @@ function hasKnownSemantics(definition, dayId) {
       definition.prescribedSetCount === 2 && definition.appliesTo === "all" &&
       definition.base.loadKind === "machine-assistance" && definition.phases.length === 1 &&
       burst.phaseId === "additional-burst" && burst.loadRule === "adjustable-machine-assistance";
-  }
-  if (definition.type === "dropset") {
-    return definition.planId === "bulk-pro" && dayId === "d3" && definition.exerciseId === "leg-extension" &&
-      definition.definitionId === "bulk-pro/leg-extension/dropset" && definition.revision === 1 &&
-      definition.prescribedSetCount === 3 && definition.appliesTo === "last" && definition.reductionPercent === 25 &&
-      definition.base.loadKind === "external" && Array.isArray(definition.phases) && definition.phases.length === 3 &&
-      Array.from(definition.phases).every((phase, index) => phase?.phaseId === `drop-${index + 1}` &&
-        phase.loadRule === "reduced-from-previous" && hasDropMetrics(phase.metrics) &&
-        hasDropMetrics(phase.requiredMetrics) && isPlainRecord(phase.targets) && Object.keys(phase.targets).length === 0);
   }
   return definition.base.loadKind === "external" &&
     definition.phases.length > 0 && definition.phases.every((phase) => phase.loadRule === "same-as-base");
@@ -81,7 +87,8 @@ export function findPreviousCompatibleMethodAttempt({ cycles, currentCycleNumber
     if (previous?.cycleNumber !== number) continue;
     const resolved = resolveCycleMethodBinding({ planId, cycle: previous, dayId, exerciseId }, catalog);
     if (resolved.status !== "resolved" || resolved.binding.definitionId !== context.binding.definitionId ||
-        resolved.binding.revision !== context.binding.revision || resolved.binding.setCount !== context.binding.setCount) continue;
+        resolved.binding.revision !== context.binding.revision || resolved.binding.setCount !== context.binding.setCount ||
+        (context.definition.type === "dropset" && !hasKnownSemantics(resolved.definition, dayId))) continue;
     const row = getApplicableRow(previous, resolved.definition, dayId, exerciseId, setIndex);
     if (!row) continue;
     const { methodLog, ...baseSet } = row;

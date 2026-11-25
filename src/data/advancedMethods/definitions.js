@@ -6,7 +6,8 @@
  * @typedef {{definitionId: string, revision: number, planId: string,
  *   exerciseId: string, type: 'rest-pause'|'iso-stretch'|'cluster'|'dropset',
  *   prescribedSetCount: number, appliesTo: 'last'|'all',
- *   base: {semantics: 'pre-extension', loadKind: 'external'|'machine-assistance', loadUnit: 'kg'},
+ *   base: {semantics: 'pre-extension', loadKind: 'external'|'machine-assistance', loadUnit: 'kg',
+ *     loadConvention?: 'total-added-plates-or-marked-kg'},
  *   phases: MethodPhase[], reductionPercent?: number}} MethodDefinition
  */
 
@@ -16,6 +17,42 @@ function freezeDefinition(value) {
     Object.freeze(value);
   }
   return value;
+}
+
+export const LEG_PRESS_LOAD_CONVENTION = "total-added-plates-or-marked-kg";
+
+// Exact historical protocols, independent of the list activated for new cycles.
+export const knownDropsetProtocols = freezeDefinition([
+  { dayId: "d3", exerciseId: "leg-extension", definitionId: "bulk-pro/leg-extension/dropset",
+    revision: 1, prescribedSetCount: 3, reductionPercent: 25 },
+  { dayId: "d1", exerciseId: "overhead-rope-extension", definitionId: "bulk-pro/overhead-rope-extension/dropset",
+    revision: 1, prescribedSetCount: 4, reductionPercent: 20 },
+  { dayId: "d4", exerciseId: "machine-lateral-raise", definitionId: "bulk-pro/machine-lateral-raise/dropset",
+    revision: 1, prescribedSetCount: 3, reductionPercent: 20 },
+  { dayId: "d6", exerciseId: "leg-press-calf-raise", definitionId: "bulk-pro/leg-press-calf-raise/dropset",
+    revision: 1, prescribedSetCount: 3, reductionPercent: 25, loadConvention: LEG_PRESS_LOAD_CONVENTION },
+]);
+
+function createDropsetDefinition({ exerciseId, definitionId, revision, prescribedSetCount, reductionPercent, loadConvention }) {
+  return {
+    definitionId,
+    revision,
+    planId: "bulk-pro",
+    exerciseId,
+    type: "dropset",
+    prescribedSetCount,
+    appliesTo: "last",
+    base: { semantics: "pre-extension", loadKind: "external", loadUnit: "kg",
+      ...(loadConvention ? { loadConvention } : {}) },
+    reductionPercent,
+    phases: ["drop-1", "drop-2", "drop-3"].map((phaseId) => ({
+      phaseId,
+      metrics: ["loadKg", "reps"],
+      requiredMetrics: ["loadKg", "reps"],
+      targets: {},
+      loadRule: "reduced-from-previous",
+    })),
+  };
 }
 
 /**
@@ -93,24 +130,7 @@ export const advancedMethodDefinitions = freezeDefinition([
       loadRule: "adjustable-machine-assistance",
     }],
   },
-  {
-    definitionId: "bulk-pro/leg-extension/dropset",
-    revision: 1,
-    planId: "bulk-pro",
-    exerciseId: "leg-extension",
-    type: "dropset",
-    prescribedSetCount: 3,
-    appliesTo: "last",
-    base: { semantics: "pre-extension", loadKind: "external", loadUnit: "kg" },
-    reductionPercent: 25,
-    phases: ["drop-1", "drop-2", "drop-3"].map((phaseId) => ({
-      phaseId,
-      metrics: ["loadKg", "reps"],
-      requiredMetrics: ["loadKg", "reps"],
-      targets: {},
-      loadRule: "reduced-from-previous",
-    })),
-  },
+  ...knownDropsetProtocols.map(createDropsetDefinition),
 ]);
 
 /**

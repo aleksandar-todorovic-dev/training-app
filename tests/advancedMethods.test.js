@@ -63,8 +63,6 @@ test("pilot definitions match actual Bulk exercise identity, counts and prescrip
 });
 
 test("Cluster revision 1 matches the D5 prescription and is deeply frozen", () => {
-  assert.equal(advancedMethodDefinitions.length, 5);
-  assert.equal(new Set(advancedMethodDefinitions.map((item) => item.definitionId)).size, 5);
   assert.deepEqual(cluster, {
     definitionId: "bulk-pro/assisted-pull-up-cluster/cluster",
     revision: 1,
@@ -496,22 +494,39 @@ assert.ok(dropset, "Missing registered D3 Leg Extension Dropset revision 1");
 const finishDrop = (phaseId) => ({ type: "finish-dropset", phaseId });
 const extendDropset = (phaseId) => ({ type: "extend-dropset", phaseId });
 
-test("registered D3 Dropset is the frozen approved protocol and applies only to the last set", () => {
+test("the registry has eight exact identities and all four frozen Dropsets match their prescriptions", () => {
+  const expected = [
+    ["d3", "leg-extension", "bulk-pro/leg-extension/dropset", 3, 25],
+    ["d1", "overhead-rope-extension", "bulk-pro/overhead-rope-extension/dropset", 4, 20],
+    ["d4", "machine-lateral-raise", "bulk-pro/machine-lateral-raise/dropset", 3, 20],
+    ["d6", "leg-press-calf-raise", "bulk-pro/leg-press-calf-raise/dropset", 3, 25, "total-added-plates-or-marked-kg"],
+  ];
+  assert.equal(advancedMethodDefinitions.length, 8);
+  assert.ok(Object.isFrozen(advancedMethodDefinitions));
+  assert.equal(new Set(advancedMethodDefinitions.map(({ planId, exerciseId, definitionId, revision }) =>
+    JSON.stringify([planId, exerciseId, definitionId, revision]))).size, 8);
   assert.deepEqual(dropset, expectedDropset);
-  const { phases, base } = dropset;
-  assert.ok([dropset, base, phases, ...phases.flatMap((phase) =>
-    [phase, phase.metrics, phase.requiredMetrics, phase.targets])].every(Object.isFrozen));
-  const exercise = bulkProExercises.find(({ id }) => id === dropset.exerciseId);
-  assert.ok(bulkProDayDetails.find(({ id }) => id === "d3").exerciseIds.includes(exercise.id));
-  assert.equal(exercise.details.advancedTechniqueType, dropset.type);
-  assert.equal(exercise.setCount, dropset.prescribedSetCount);
-  assert.match(exercise.details.advancedTechnique, new RegExp(`${dropset.reductionPercent}%`));
-  assert.deepEqual(getApplicableSetIndexes(dropset, [
-    { setIndex: 3, isDone: false }, { setIndex: 1, isDone: true }, { setIndex: 2, isDone: true },
-  ]), [3]);
-  assert.ok(cutProExercises.some(({ id }) => id === exercise.id));
-  assert.equal(getMethodDefinition(dropset), dropset);
-  assert.equal(getMethodDefinition({ ...dropset, planId: "cut-pro" }), null);
+  for (const [dayId, exerciseId, definitionId, prescribedSetCount, reductionPercent, loadConvention] of expected) {
+    const contract = { ...expectedDropset, exerciseId, definitionId, prescribedSetCount, reductionPercent,
+      base: { ...expectedDropset.base, ...(loadConvention ? { loadConvention } : {}) } };
+    const definition = getMethodDefinition(contract);
+    assert.deepEqual(definition, contract);
+    const { phases, base } = definition;
+    assert.ok([definition, base, phases, ...phases.flatMap((phase) =>
+      [phase, phase.metrics, phase.requiredMetrics, phase.targets])].every(Object.isFrozen));
+    const exercise = bulkProExercises.find(({ id }) => id === exerciseId);
+    assert.deepEqual(bulkProDayDetails.filter((day) => day.exerciseIds.includes(exerciseId)).map(({ id }) => id), [dayId]);
+    assert.equal(exercise.details.advancedTechniqueType, "dropset");
+    assert.equal(exercise.setCount, prescribedSetCount);
+    assert.match(exercise.details.advancedTechnique, new RegExp(`Optional.*${reductionPercent}%`));
+    const rows = Array.from({ length: prescribedSetCount }, (_, index) => ({
+      setIndex: prescribedSetCount - index, isDone: index !== 0,
+    }));
+    assert.deepEqual(getApplicableSetIndexes(definition, rows), [prescribedSetCount]);
+    assert.equal(getMethodDefinition({ ...contract, planId: "cut-pro" }), null);
+    assert.equal(getMethodDefinition({ ...contract, revision: 2 }), null);
+  }
+  assert.ok(cutProExercises.some(({ id }) => id === dropset.exerciseId));
 });
 
 test("Dropset external load accepts blank and canonical kg up to 999.9 without rounding", () => {

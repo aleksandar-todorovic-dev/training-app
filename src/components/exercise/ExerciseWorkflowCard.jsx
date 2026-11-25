@@ -13,6 +13,7 @@ import {
 import HelpSheet from "../common/HelpSheet";
 import SetRow from "./SetRow";
 import AdvancedMethodPanel from "./AdvancedMethodPanel";
+import { LEG_PRESS_LOAD_CONVENTION } from "../../data/advancedMethods/definitions.js";
 import {
   exerciseHelp,
   advancedTechniqueHelpByType,
@@ -103,6 +104,10 @@ export default function ExerciseWorkflowCard({
   const [isMethodOpen, setIsMethodOpen] = useState(false);
   const [isCoachNotesOpen, setIsCoachNotesOpen] = useState(false);
   const methodPanelId = useId();
+  const legPressLoadGuidance = !isReadOnly && Object.values(methodView?.entries ?? {}).some(({ definition, editable }) =>
+    editable && definition.revision === 1 && definition.base.loadConvention === LEG_PRESS_LOAD_CONVENTION)
+    ? t("Record the total weight of added plates on both sides, excluding the sled, or the marked kg for the selected setting on a selectorized machine. Use the same convention for main sets and drops. Check carried-over values. Leave unknown kg blank.")
+    : undefined;
   const coachNotesPanelId = useId();
 
   if (!exercise) {
@@ -292,6 +297,11 @@ export default function ExerciseWorkflowCard({
                 {t("More assistance makes the pull-up easier on the same machine. Check today’s setting if kg carried over.")}
               </p>
             ) : null}
+            {legPressLoadGuidance && (
+              <p id={`${methodPanelId}-load`} className="px-3 py-2 text-xs leading-5 text-[#AAB2BA]">
+                {legPressLoadGuidance}
+              </p>
+            )}
             <div
               className={`grid min-h-9 items-center gap-1 border-t border-[#2A3138] bg-[#171D22]/70 px-2 text-[0.6rem] font-semibold uppercase tracking-[0.08em] text-[#77818B] ${
                 isReadOnly
@@ -320,6 +330,7 @@ export default function ExerciseWorkflowCard({
                     showDoneControl={!isReadOnly}
                     setNumber={set.setNumber}
                     assistanceDescription={methodView?.machineAssistance ? `${methodPanelId}-assistance` : undefined}
+                    weightDescription={legPressLoadGuidance ? `${methodPanelId}-load` : undefined}
                     weight={set.weight}
                     reps={set.reps}
                     rir={set.rir}
@@ -336,6 +347,7 @@ export default function ExerciseWorkflowCard({
                       machineAssistance={methodView.machineAssistance}
                       setIndex={set.setNumber}
                       {...methodView.entries[set.setNumber]}
+                      loadGuidance={legPressLoadGuidance}
                       onChange={(change) => onMethodChange?.(set.setNumber, change)}
                     />
                   ) : null}

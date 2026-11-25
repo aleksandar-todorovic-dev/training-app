@@ -36,7 +36,7 @@ function DropMeasurements({ entry }) {
   );
 }
 
-function DropEditor({ phaseId, title, entry, last, editing, onChange, acceptClick, onDone, onCancel }) {
+function DropEditor({ phaseId, title, entry, last, editing, onChange, acceptClick, onDone, onCancel, loadGuidanceId }) {
   const { t } = useTranslation();
   const id = useId();
   const inputs = useRef({});
@@ -76,6 +76,8 @@ function DropEditor({ phaseId, title, entry, last, editing, onChange, acceptClic
       <legend tabIndex={-1} className="px-1 text-sm font-semibold text-[#F4C87F]">{title}</legend>
       {fields.map((field) => {
         const inputId = `${id}-${field}`;
+        const description = field === "loadKg" && loadGuidanceId
+          ? `${loadGuidanceId} ${inputId}-feedback` : `${inputId}-feedback`;
         const rejected = !isValidMethodMetricValue(field, values[field]);
         const metricError = field === "loadKg" ? t("Enter 0–999.9 kg with up to one decimal place.")
           : t("Use a whole number from 0 to {max}, or leave blank.", { max: 30 });
@@ -85,7 +87,7 @@ function DropEditor({ phaseId, title, entry, last, editing, onChange, acceptClic
               {t(fieldLabels[field])}
               <input id={inputId} ref={(input) => { inputs.current[field] = input; }} name={field}
                 type="text" inputMode={field === "loadKg" ? "decimal" : "numeric"} autoComplete="off"
-                value={draft[field] ?? entry?.[field] ?? ""} aria-invalid={rejected || undefined} aria-describedby={`${inputId}-feedback`}
+                value={draft[field] ?? entry?.[field] ?? ""} aria-invalid={rejected || undefined} aria-describedby={description}
                 onChange={(event) => {
                   const value = event.target.value;
                   setDraft((previous) => ({ ...previous, [field]: value }));
@@ -131,7 +133,7 @@ function DropEditor({ phaseId, title, entry, last, editing, onChange, acceptClic
   );
 }
 
-export default function DropsetMethodPanel({ definition, record, derived, setIndex, editable, onChange, previousAttempt }) {
+export default function DropsetMethodPanel({ definition, record, derived, setIndex, editable, onChange, previousAttempt, loadGuidance }) {
   const { t } = useTranslation();
   const id = useId();
   const panel = useRef(null);
@@ -140,6 +142,7 @@ export default function DropsetMethodPanel({ definition, record, derived, setInd
   const [historyOpen, setHistoryOpen] = useState(false);
   const [editing, setEditing] = useState(null);
   const { phases, reductionPercent } = definition;
+  const loadGuidanceId = loadGuidance ? `${id}-load` : undefined;
   const available = editable && derived.valid;
   const skipped = derived.status === "skipped";
   const end = phases.findIndex(({ phaseId }) => phaseId === record?.endPhaseId);
@@ -177,8 +180,12 @@ export default function DropsetMethodPanel({ definition, record, derived, setInd
           <>
             <p className="text-xs leading-5 text-[#AAB2BA]">{t("Dropset is optional and does not change main-set Done. Stop early if form declines.")}</p>
             <div hidden={skipped} className="space-y-3">
+              {loadGuidance && <p id={loadGuidanceId} className="text-xs leading-5 text-[#AAB2BA]">{loadGuidance}</p>}
               {reductionPercent && <p className="text-xs leading-5 text-[#AAB2BA]">
-                {t("As a guide, reduce the preceding actual load by about {percent}% each time. Use the main set load for the first drop.", { percent: reductionPercent })}
+                {t(loadGuidance
+                  ? "As a guide, reduce the preceding recorded load by about {percent}% each time. Use the main set load for the first drop."
+                  : "As a guide, reduce the preceding actual load by about {percent}% each time. Use the main set load for the first drop.",
+                { percent: reductionPercent })}
               </p>}
               {phases.map(({ phaseId }, index) => {
                 const entry = record?.phases[phaseId];
@@ -198,14 +205,14 @@ export default function DropsetMethodPanel({ definition, record, derived, setInd
               })}
               {editing && (
                 <DropEditor key={editing} phaseId={editing} title={t("Edit {drop}", { drop: dropTitle(t, phases.findIndex(({ phaseId }) => phaseId === editing), phases.length) })}
-                  entry={record.phases[editing]} editing onChange={onChange} onCancel={() => { setEditing(null); focusStep(); }}
+                  entry={record.phases[editing]} editing loadGuidanceId={loadGuidanceId} onChange={onChange} onCancel={() => { setEditing(null); focusStep(); }}
                   onDone={() => { setEditing(null); focusStep(); }} />
               )}
               {activePhase && (
                 <div hidden={editing !== null}>
                   <p className="mb-2 text-xs leading-5 text-[#AAB2BA]">{t("Log what you actually did. Leave unknown measurements blank.")}</p>
                   <DropEditor key={activePhase.phaseId} phaseId={activePhase.phaseId} title={dropTitle(t, active, phases.length)}
-                    entry={record?.phases[activePhase.phaseId]} last={active === phases.length - 1}
+                    entry={record?.phases[activePhase.phaseId]} last={active === phases.length - 1} loadGuidanceId={loadGuidanceId}
                     onChange={onChange} acceptClick={acceptClick} onDone={focusStep} />
                 </div>
               )}
@@ -227,9 +234,13 @@ export default function DropsetMethodPanel({ definition, record, derived, setInd
                 <button type="button" aria-expanded={historyOpen} aria-controls={`${id}-history`}
                   onClick={() => setHistoryOpen(!historyOpen)}
                   className="min-h-11 w-full py-2 text-left text-xs font-semibold leading-5 text-[#D7DDD7] focus-visible:ring-2 focus-visible:ring-[#B8F36B]">
-                  {t("Previous comparable attempt · Cycle {cycle}", { cycle: previousAttempt.cycleNumber })}
+                  {t(loadGuidance ? "Previous recorded attempt · Cycle {cycle}" : "Previous comparable attempt · Cycle {cycle}",
+                    { cycle: previousAttempt.cycleNumber })}
                 </button>
                 <div id={`${id}-history`} hidden={!historyOpen} className="space-y-2 text-xs">
+                  {loadGuidance && <p className="leading-5 text-[#AAB2BA]">
+                    {t("Compare kg only on the same machine and using the same logging convention.")}
+                  </p>}
                   <p className="text-[#AAB2BA]">{attemptStatus(t, phases, previousAttempt.methodLog, previousAttempt.derived.status)}</p>
                   {phases.map(({ phaseId }, index) => {
                     const entry = previousAttempt.methodLog.phases[phaseId];

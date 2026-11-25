@@ -59,6 +59,7 @@ export default function SetRow({
   setNumber,
   weight,
   assistanceDescription,
+  weightDescription,
   reps,
   rir,
   isDone = false,
@@ -92,7 +93,7 @@ export default function SetRow({
       <div className="grid min-w-0 grid-cols-3 divide-x divide-[#2A3138]">
         <MetricField
           label={assistanceDescription ? "Assistance (kg)" : "weight"}
-          description={assistanceDescription}
+          description={assistanceDescription ?? weightDescription}
           name={`set-${setNumber}-weight`}
           setNumber={setNumber}
           value={weight}

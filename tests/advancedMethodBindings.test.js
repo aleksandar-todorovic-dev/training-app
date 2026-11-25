@@ -43,10 +43,16 @@ const beforeDropsetBindings = { version: 1, exercises: {
   ...preActivationBindings.exercises,
   [clusterId]: { definitionId: "bulk-pro/assisted-pull-up-cluster/cluster", revision: 1, dayId: "d5", setCount: 2 },
 } };
-const expected = { version: 1, exercises: {
+const beforeRolloutBindings = { version: 1, exercises: {
   ...beforeDropsetBindings.exercises,
   [dropsetId]: { definitionId: "bulk-pro/leg-extension/dropset", revision: 1, dayId: "d3", setCount: 3 },
 } };
+const addedBindings = {
+  "overhead-rope-extension": { definitionId: "bulk-pro/overhead-rope-extension/dropset", revision: 1, dayId: "d1", setCount: 4 },
+  "machine-lateral-raise": { definitionId: "bulk-pro/machine-lateral-raise/dropset", revision: 1, dayId: "d4", setCount: 3 },
+  "leg-press-calf-raise": { definitionId: "bulk-pro/leg-press-calf-raise/dropset", revision: 1, dayId: "d6", setCount: 3 },
+};
+const expected = { version: 1, exercises: { ...beforeRolloutBindings.exercises, ...addedBindings } };
 function freeze(value) {
   if (value && typeof value === "object") { Object.values(value).forEach(freeze); Object.freeze(value); }
   return value;
@@ -180,6 +186,49 @@ test("pre-row resolver resolves all active methods, absent bindings and same-ID 
   assert.equal(resolve({ ...address(cycle(start(undefined, "cut-pro"), "cut-pro")), planId: "cut-pro" }).status, "unbound");
   const cut = structuredClone(current); cut.planId = "cut-pro";
   assert.notEqual(resolve({ ...address(cut), planId: "cut-pro" }).status, "resolved");
+});
+
+test("first visits and reload preserve all three authentic pre-rollout snapshots", () => {
+  for (const historic of [preActivationBindings, beforeDropsetBindings, beforeRolloutBindings]) {
+    let state = start();
+    cycle(state).methodBindings = freeze(structuredClone(historic));
+    const snapshot = cycle(state).methodBindings;
+    for (const dayId of getPlan("bulk-pro").dayOrder) {
+      assert.equal(cycle(state).dayLogs[dayId], undefined);
+      state = ensure(freeze(state), dayId);
+      assert.equal(cycle(state).methodBindings, snapshot);
+      for (const [exerciseId, binding] of Object.entries(addedBindings).filter(([, entry]) => entry.dayId === dayId)) {
+        assert.equal(resolve({ planId: "bulk-pro", cycle: cycle(state), dayId, exerciseId }).status, "unbound");
+        const rows = cycle(state).dayLogs[dayId].mainExerciseLogs[exerciseId].sets;
+        assert.equal(rows.length, binding.setCount);
+        assert.ok(rows.every((row) => !Object.hasOwn(row, "methodLog")));
+      }
+      state = appReducer(state, { type: actions.FINISH_DAY, payload: { planId: "bulk-pro", dayId, finishedAt: `closed-${dayId}` } });
+    }
+    const restored = inspectStoredAppState(JSON.stringify({ version: 2, savedAt: "fixture", state }), 2);
+    assert.equal(restored.status, "valid");
+    const previous = cycle(restored.wrapper.state);
+    assert.deepEqual(previous.methodBindings, historic);
+    const next = start(freeze(restored.wrapper.state));
+    assert.equal(next.progressByPlan["bulk-pro"].cycles[1], previous);
+    assert.deepEqual(cycle(next).methodBindings, expected);
+  }
+});
+
+test("an opaque exact reference can resolve once the registry knows it without changing the saved snapshot", () => {
+  const current = cycle(start());
+  const exerciseId = "leg-press-calf-raise";
+  current.methodBindings = { version: 1, exercises: { [exerciseId]: structuredClone(addedBindings[exerciseId]) } };
+  freeze(current);
+  const scope = { planId: "bulk-pro", cycle: current, dayId: "d6", exerciseId };
+  const before = catalog();
+  before.definitions.splice(before.definitions.findIndex((definition) => definition.exerciseId === exerciseId), 1);
+  // The injected catalog intentionally reproduces the pre-registration lookup.
+  assert.equal(resolve(scope, before).reason, "unknown-definition-revision");
+  const known = resolve(scope);
+  assert.equal(known.status, "resolved");
+  assert.equal(known.binding, current.methodBindings.exercises[exerciseId]);
+  assert.deepEqual(current.methodBindings.exercises, { [exerciseId]: addedBindings[exerciseId] });
 });
 
 test("a retained historical revision resolves despite a newer active protocol and static count", () => {

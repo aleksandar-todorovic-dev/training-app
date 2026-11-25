@@ -311,7 +311,7 @@ test("method editors require exact bindings and intact existing runtime context"
   assert.match(html(), /data-method-set="3"/);
   assert.equal(log.sets.length, 3);
   assert.equal(w.progress().performedMainSetCount, 0);
-  assert.doesNotMatch(w.renderExercise("d1", "overhead-rope-extension"), /data-method-set=/);
+  assert.doesNotMatch(w.renderExercise("d1", "smith-bench-press"), /data-method-set=/);
   const cut = workout("cut-pro");
   assert.doesNotMatch(cut.renderExercise(), /data-method-set=/);
   const reset = () => { Object.keys(cycle).forEach((key) => delete cycle[key]); Object.assign(cycle, structuredClone(valid)); };

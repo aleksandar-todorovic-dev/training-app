@@ -11,6 +11,9 @@ const activeMethodsByPlan = Object.freeze({
     Object.freeze({ exerciseId: "face-away-cable-curl", dayId: "d4", definitionId: "bulk-pro/face-away-cable-curl/rest-pause", revision: 1, type: "rest-pause" }),
     Object.freeze({ exerciseId: "assisted-pull-up-cluster", dayId: "d5", definitionId: "bulk-pro/assisted-pull-up-cluster/cluster", revision: 1, type: "cluster" }),
     Object.freeze({ exerciseId: "leg-extension", dayId: "d3", definitionId: "bulk-pro/leg-extension/dropset", revision: 1, type: "dropset" }),
+    Object.freeze({ exerciseId: "overhead-rope-extension", dayId: "d1", definitionId: "bulk-pro/overhead-rope-extension/dropset", revision: 1, type: "dropset" }),
+    Object.freeze({ exerciseId: "machine-lateral-raise", dayId: "d4", definitionId: "bulk-pro/machine-lateral-raise/dropset", revision: 1, type: "dropset" }),
+    Object.freeze({ exerciseId: "leg-press-calf-raise", dayId: "d6", definitionId: "bulk-pro/leg-press-calf-raise/dropset", revision: 1, type: "dropset" }),
   ]),
   "cut-pro": Object.freeze([]),
 });

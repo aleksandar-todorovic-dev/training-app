@@ -520,8 +520,10 @@ test("all six educational summaries match source types and only bound exercises 
     dropset:'Dropset · exact method available', cluster:'Cluster set · exact structure available',
     'mechanical-set':'Mechanical set · exact sequence available', 'mechanical-dropset':'Mechanical dropset · exact sequence available',
   };
-  const activeExercises = new Set(['incline-db-press','cable-stretch-fly','face-away-cable-curl','assisted-pull-up-cluster','leg-extension']);
+  const activeExercises = new Set(['incline-db-press','cable-stretch-fly','face-away-cable-curl','assisted-pull-up-cluster',
+    'leg-extension','overhead-rope-extension','machine-lateral-raise','leg-press-calf-raise']);
   const w = workout('bulk-pro'); const seen = new Set();
+  let panelPositions = 0;
   for (const day of getDayDetailsByPlanId('bulk-pro')) {
     w.cycle().currentDayId = day.id; w.ensure(day.id);
     for (const exercise of getExercisesForDay('bulk-pro',day.exerciseIds)) {
@@ -534,10 +536,14 @@ test("all six educational summaries match source types and only bound exercises 
         assert.ok(html.includes(escape(t(summaries[type]))),type);
         assert.ok(html.includes(escape(t('Prescribed method'))));
         assert.equal(html.includes('data-method-set='),activeExercises.has(exercise.id));
+        if (locale === 'en') panelPositions += [...html.matchAll(/data-method-set=/g)].length;
+        const guidance = locale === 'en' ? 'Record the total weight of added plates on both sides' : 'Beleži ukupnu težinu dodatih ploča sa obe strane';
+        assert.equal(html.includes(guidance), exercise.id === 'leg-press-calf-raise');
       }
     }
   }
   assert.deepEqual([...seen].sort(),Object.keys(summaries).sort());
+  assert.equal(panelPositions, 9);
   const exercise = getExercisesForDay('bulk-pro',getDayDetails('bulk-pro','d1').exerciseIds)[1];
   for (const type of ['future-method','toString','__proto__']) for (const locale of ['en','sr-Latn']) {
     const html = render('ExerciseWorkflowCard',w.state(),locale,'/','/',{exercise:{...exercise,details:{...exercise.details,advancedTechniqueType:type}}});

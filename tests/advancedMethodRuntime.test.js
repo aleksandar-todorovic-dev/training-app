@@ -717,7 +717,8 @@ test("Cluster evidence survives V2 reload alongside pilot and Core data without 
 
   const oldAction = payload(loaded.state, assistance("entered", "40"), cluster);
   const next = ensureCore(clusterWorkout(finishDay(finishDay(loaded.state, "d5"), "d6")));
-  assert.deepEqual(Object.keys(cycle(next).methodBindings.exercises).sort(), [...pilots, cluster, dropset].map((p) => p.exerciseId).sort());
+  assert.deepEqual(Object.keys(cycle(next).methodBindings.exercises).sort(),
+    [...pilots, cluster, ...dropsetAddresses].map((p) => p.exerciseId).sort());
   assert.deepEqual(cycle(start(next, "cut-start", "cut-pro"), "cut-pro").methodBindings.exercises, {});
   assert.deepEqual(row(next, cluster), { setIndex: 1, weight: "25", reps: "9", rir: "2", isDone: false });
   assert.deepEqual(row(next, secondCluster), { setIndex: 2, weight: "", reps: "", rir: "", isDone: false });
@@ -732,7 +733,19 @@ test("Cluster evidence survives V2 reload alongside pilot and Core data without 
 });
 
 const dropset = { planId: "bulk-pro", dayId: "d3", exerciseId: "leg-extension", setIndex: 3 };
+const dropsetAddresses = [
+  { planId: "bulk-pro", dayId: "d1", exerciseId: "overhead-rope-extension", setIndex: 4 },
+  dropset,
+  { planId: "bulk-pro", dayId: "d4", exerciseId: "machine-lateral-raise", setIndex: 3 },
+  { planId: "bulk-pro", dayId: "d6", exerciseId: "leg-press-calf-raise", setIndex: 3 },
+];
 const dropBinding = { definitionId: "bulk-pro/leg-extension/dropset", revision: 1, dayId: "d3", setCount: 3 };
+const beforeDropsetBindings = { version: 1, exercises: {
+  "incline-db-press": { definitionId: "bulk-pro/incline-db-press/rest-pause", revision: 1, dayId: "d1", setCount: 3 },
+  "cable-stretch-fly": { definitionId: "bulk-pro/cable-stretch-fly/iso-stretch", revision: 1, dayId: "d1", setCount: 1 },
+  "face-away-cable-curl": { definitionId: "bulk-pro/face-away-cable-curl/rest-pause", revision: 1, dayId: "d4", setCount: 1 },
+  "assisted-pull-up-cluster": { definitionId: "bulk-pro/assisted-pull-up-cluster/cluster", revision: 1, dayId: "d5", setCount: 2 },
+} };
 const dropIds = ["drop-1", "drop-2", "drop-3"];
 const dropDefinition = getMethodDefinition({ ...dropset, ...dropBinding });
 assert.ok(dropDefinition, "Missing registered D3 Leg Extension Dropset revision 1");
@@ -753,10 +766,77 @@ const sendDrop = (state, change) => appReducer(freeze(state), dropAction(state, 
 
 test("the registered Dropset remains guarded in a Bulk cycle without its binding", () => {
   const previous = dropsetWorkout();
-  delete cycle(previous).methodBindings.exercises[dropset.exerciseId];
+  cycle(previous).methodBindings = structuredClone(beforeDropsetBindings);
   assert.equal(Object.keys(cycle(previous).methodBindings.exercises).length, 4);
   assert.equal(sendDrop(previous, finishDrop()), previous);
   assert.equal(readDrop(previous), undefined);
+});
+
+test("all four Dropsets use the right row, round-trip V2 and reference only their own earlier attempt", () => {
+  let state = start();
+  for (const dayId of getPlan("bulk-pro").dayOrder) {
+    state = ensure(state, dayId);
+    for (const pilot of dropsetAddresses.filter((address) => address.dayId === dayId)) {
+      const original = freeze(state);
+      const otherMethods = pilots.filter((method) => method.dayId === dayId);
+      for (const other of otherMethods) {
+        state = update(state, choice("skip"), other);
+      }
+      const rows = cycle(state).dayLogs[dayId].mainExerciseLogs[pilot.exerciseId].sets;
+      assert.equal(rows.length, pilot.setIndex);
+      reject(state, { ...payload(state, finishDrop(), pilot), setIndex: pilot.setIndex - 1 });
+      const kg = dayId === "d6" ? "0" : "27.5";
+      state = update(state, metric(kg, "drop-1", "loadKg"), pilot);
+      state = update(state, finishDrop(), pilot);
+      assert.deepEqual(row(state, pilot).methodLog.phases["drop-1"], { execution: "performed", loadKg: kg, reps: "" });
+      assert.equal(row(state, pilot).isDone, false);
+      assert.ok(cycle(state).dayLogs[dayId].mainExerciseLogs[pilot.exerciseId].sets
+        .slice(0, -1).every((set) => !Object.hasOwn(set, "methodLog")));
+      const stripped = structuredClone(state);
+      delete row(stripped, pilot).methodLog;
+      for (const other of otherMethods) {
+        assert.deepEqual(row(state, other).methodLog, { choice: "skip", phases: {} });
+        delete row(stripped, other).methodLog;
+      }
+      assert.deepEqual(stripped, original);
+    }
+    state = finishDay(state, dayId);
+  }
+  const values = new Map();
+  const storage = { getItem: (key) => values.get(key) ?? null, setItem: (key, value) => values.set(key, value) };
+  assert.equal(createAppStatePersistence({ getStorage: () => storage }).save(state), true);
+  const restored = createAppStatePersistence({ getStorage: () => storage }).getSnapshot();
+  assert.equal(restored.mode, "ready");
+  assert.deepEqual(restored.state, state);
+  const next = start(freeze(restored.state), "cycle-two");
+  const { cycles, currentCycleNumber } = next.progressByPlan["bulk-pro"];
+  assert.equal(cycles[1], cycle(restored.state));
+  assert.deepEqual(cycles[2].dayLogs, {});
+  for (const pilot of dropsetAddresses) {
+    const previous = findAttempt({ ...pilot, cycles, currentCycleNumber });
+    assert.equal(previous.cycleNumber, 1);
+    assert.equal(previous.exerciseId, pilot.exerciseId);
+    assert.equal(previous.setIndex, pilot.setIndex);
+    assert.deepEqual(previous.methodLog, row(state, pilot).methodLog);
+    assert.notEqual(previous.methodLog, row(state, pilot).methodLog);
+  }
+});
+
+test("D3 revision 1 history crosses the five-to-eight-binding boundary", () => {
+  const prior = dropsetWorkout();
+  cycle(prior).methodBindings = structuredClone({ version: 1, exercises: {
+    ...beforeDropsetBindings.exercises, [dropset.exerciseId]: dropBinding,
+  } });
+  const recorded = sendDrop(sendDrop(prior, metric("0", "drop-1")), finishDrop());
+  const next = start(freeze(recorded), "after-rollout");
+  const { cycles, currentCycleNumber } = next.progressByPlan["bulk-pro"];
+  assert.equal(Object.keys(cycles[1].methodBindings.exercises).length, 5);
+  assert.equal(Object.keys(cycles[2].methodBindings.exercises).length, 8);
+  assert.equal(cycles[1], cycle(recorded));
+  const evidence = findAttempt({ ...dropset, cycles, currentCycleNumber });
+  assert.equal(evidence.cycleNumber, 1);
+  assert.equal(evidence.methodLog.endPhaseId, "drop-1");
+  assert.deepEqual(evidence.methodLog.phases["drop-1"], { execution: "performed", loadKg: "", reps: "0" });
 });
 
 test("Dropset reducer preserves confirmation, editing and extension independently of workout progress", () => {
@@ -911,12 +991,64 @@ test("Dropset history requires a valid current address and an exact known protoc
     assert.equal(findAttempt(freeze(copy)), null);
   }
   for (const override of [{ reductionPercent: 20 }, { appliesTo: "all" },
+    { base: { ...dropDefinition.base, loadConvention: "total-added-plates-or-marked-kg" } },
     { phases: dropDefinition.phases.slice(0, 2) }, { phases: dropDefinition.phases.toReversed() }]) {
     const catalog = { getPlanById: getPlan, getDayDetailsByPlanId: getDays,
       getExercisesByPlanId: (planId) => getExercises(planId, getDay(planId, "d3").exerciseIds),
       getMethodDefinition: () => ({ ...dropDefinition, ...override }) };
     assert.equal(findAttempt(context, catalog), null);
   }
+});
+
+test("history rejects altered D6 semantics in either cycle and skips an incompatible recent attempt", () => {
+  const pilot = dropsetAddresses.find(({ dayId }) => dayId === "d6");
+  const original = workout(pilot);
+  const recorded = cycle(update(original, finishDrop(), pilot));
+  const cycles = freeze({ 1: recorded, 2: { ...recorded, cycleNumber: 2 }, 3: { ...recorded, cycleNumber: 3 } });
+  const context = { ...pilot, cycles, currentCycleNumber: 3 };
+  const baseCatalog = {
+    getPlanById: getPlan, getDayDetailsByPlanId: getDays,
+    getExercisesByPlanId: (planId) => getExercises(planId, getDay(planId, "d6").exerciseIds),
+  };
+  for (const alter of [
+    (d) => { delete d.base.loadConvention; },
+    (d) => { d.base.loadConvention = "per-side"; },
+    (d) => { d.base.loadUnit = "lb"; },
+    (d) => { d.base.loadKind = "machine-assistance"; },
+    (d) => { d.base.semantics = "post-extension"; },
+    (d) => { d.reductionPercent = 20; },
+    (d) => { d.prescribedSetCount = 4; },
+    (d) => { d.type = "rest-pause"; },
+    (d) => { d.phases.reverse(); },
+    (d) => { d.phases[0].metrics = ["reps", "restSeconds"]; },
+    (d) => { d.phases[0].requiredMetrics = ["reps"]; },
+    (d) => { d.phases[0].loadRule = "same-as-base"; },
+    (d) => { d.phases[0].targets = { reps: { min: 5, max: 10 } }; },
+  ]) {
+    for (const rejectCall of [1, 2]) {
+      let calls = 0;
+      const catalog = { ...baseCatalog, getMethodDefinition(ref) {
+        const definition = structuredClone(getMethodDefinition(ref));
+        if (++calls === rejectCall) alter(definition);
+        return definition;
+      } };
+      const result = findAttempt(context, catalog);
+      if (rejectCall === 1) assert.equal(result, null);
+      else assert.equal(result.cycleNumber, 1);
+    }
+  }
+  for (const override of [{ dayId: "d4" }, { planId: "cut-pro" }, { exerciseId: "preacher-curl-mechanical" }, { setIndex: 2 }]) {
+    assert.equal(findAttempt({ ...context, ...override }), null);
+  }
+  const unsupported = structuredClone(context);
+  for (const c of Object.values(unsupported.cycles)) {
+    c.methodBindings.exercises[pilot.exerciseId].definitionId = "bulk-pro/leg-press-calf-raise/experimental-dropset";
+  }
+  assert.equal(findAttempt(unsupported, { ...baseCatalog, getMethodDefinition(ref) {
+    const approved = recorded.methodBindings.exercises[pilot.exerciseId];
+    return { ...getMethodDefinition({ ...ref, definitionId: approved.definitionId }), definitionId: ref.definitionId };
+  } }), null);
+  assert.equal(findAttempt(context).cycleNumber, 2);
 });
 
 test("V2 preserves Dropset phases and early completion without granting edits to an unbound record", () => {
