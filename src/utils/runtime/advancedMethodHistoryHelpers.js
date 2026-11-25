@@ -1,7 +1,10 @@
 import { knownDropsetProtocols } from "../../data/advancedMethods/definitions.js";
 import { resolveCycleMethodBinding } from "./advancedMethodContextHelpers.js";
 import { deriveMethodState, getApplicableSetIndexes } from "./advancedMethodHelpers.js";
-import { isPlainRecord, validateMethodLog } from "./advancedMethodValidation.js";
+import {
+  isPlainRecord, isPreacherMechanicalAddress, isPreacherMechanicalCandidate, isPreacherMechanicalDefinition,
+  isValidPreacherMechanicalBaseRow, validateMethodLog,
+} from "./advancedMethodValidation.js";
 
 const DROP_METRICS = ["loadKg", "reps"];
 const hasDropMetrics = (metrics) => Array.isArray(metrics) && metrics.length === DROP_METRICS.length &&
@@ -10,6 +13,11 @@ const hasDropMetrics = (metrics) => Array.isArray(metrics) && metrics.length ===
 // Exact revisions supply phase semantics. Only the currently understood base and
 // phase load conventions may participate in comparisons; unknown ones stay opaque.
 function hasKnownSemantics(definition, dayId) {
+  if (isPreacherMechanicalCandidate(definition)) {
+    return isPreacherMechanicalDefinition(definition) && isPreacherMechanicalAddress({
+      planId: definition.planId, exerciseId: definition.exerciseId, dayId,
+    });
+  }
   if (definition.base?.semantics !== "pre-extension" || definition.base.loadUnit !== "kg") return false;
   const dropset = knownDropsetProtocols.find(({ definitionId }) => definitionId === definition.definitionId);
   if (dropset || definition.type === "dropset") {
@@ -38,14 +46,22 @@ function hasKnownSemantics(definition, dayId) {
     definition.phases.length > 0 && definition.phases.every((phase) => phase.loadRule === "same-as-base");
 }
 
-function getApplicableRow(cycle, definition, dayId, exerciseId, setIndex) {
+export function getApplicableMethodRow(cycle, definition, dayId, exerciseId, setIndex) {
   const dayLog = cycle.dayLogs?.[dayId];
   const exerciseLog = dayLog?.mainExerciseLogs?.[exerciseId];
   if (dayLog?.dayId !== dayId || exerciseLog?.exerciseId !== exerciseId ||
       !getApplicableSetIndexes(definition, exerciseLog.sets).includes(setIndex)) return null;
   const row = exerciseLog.sets.find((set) => set.setIndex === setIndex);
+  if (definition.type === "mechanical-set") return isValidPreacherMechanicalBaseRow(row) ? row : null;
   return typeof row.isDone === "boolean" && ["weight", "reps", "rir"].every((field) => typeof row[field] === "string")
     ? row : null;
+}
+
+export function getEarlierCycleNumbers(cycles, currentCycleNumber) {
+  return Object.keys(cycles).filter((key) => {
+    const number = Number(key);
+    return String(number) === key && Number.isSafeInteger(number) && number > 0 && number < currentCycleNumber;
+  }).map(Number).sort((a, b) => b - a);
 }
 
 /**
@@ -70,26 +86,23 @@ export function findPreviousCompatibleMethodAttempt({ cycles, currentCycleNumber
   if (current?.cycleNumber !== currentCycleNumber) return null;
   const context = resolveCycleMethodBinding({ planId, cycle: current, dayId, exerciseId }, catalog);
   if (context.status !== "resolved" || !hasKnownSemantics(context.definition, dayId)) return null;
-  if (context.definition.type === "dropset") {
+  const strictContext = ["dropset", "mechanical-set"].includes(context.definition.type);
+  if (strictContext) {
     if (setIndex !== context.binding.setCount || !isPlainRecord(current.dayLogs)) return null;
     if (Object.hasOwn(current.dayLogs, dayId)) {
-      const currentRow = getApplicableRow(current, context.definition, dayId, exerciseId, setIndex);
+      const currentRow = getApplicableMethodRow(current, context.definition, dayId, exerciseId, setIndex);
       if (!currentRow || (Object.hasOwn(currentRow, "methodLog") && currentRow.methodLog === undefined) ||
           !validateMethodLog(context.definition, currentRow.methodLog).valid) return null;
     }
   }
-  const numbers = Object.keys(cycles).filter((key) => {
-    const number = Number(key);
-    return String(number) === key && Number.isSafeInteger(number) && number > 0 && number < currentCycleNumber;
-  }).map(Number).sort((a, b) => b - a);
-  for (const number of numbers) {
+  for (const number of getEarlierCycleNumbers(cycles, currentCycleNumber)) {
     const previous = cycles[number];
     if (previous?.cycleNumber !== number) continue;
     const resolved = resolveCycleMethodBinding({ planId, cycle: previous, dayId, exerciseId }, catalog);
     if (resolved.status !== "resolved" || resolved.binding.definitionId !== context.binding.definitionId ||
         resolved.binding.revision !== context.binding.revision || resolved.binding.setCount !== context.binding.setCount ||
-        (context.definition.type === "dropset" && !hasKnownSemantics(resolved.definition, dayId))) continue;
-    const row = getApplicableRow(previous, resolved.definition, dayId, exerciseId, setIndex);
+        (strictContext && !hasKnownSemantics(resolved.definition, dayId))) continue;
+    const row = getApplicableMethodRow(previous, resolved.definition, dayId, exerciseId, setIndex);
     if (!row) continue;
     const { methodLog, ...baseSet } = row;
     const derived = deriveMethodState(resolved.definition, methodLog);

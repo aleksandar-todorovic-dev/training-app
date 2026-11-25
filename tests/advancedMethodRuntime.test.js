@@ -11,19 +11,61 @@ import { advancedMethodDefinitions, getMethodDefinition } from "../src/data/adva
 import { deriveMethodState, transitionMethodLog } from "../src/utils/runtime/advancedMethodHelpers.js";
 import { createAppStatePersistence, WORKOUT_STORAGE_KEYS } from "../src/storage/appStateStorage.js";
 
+const preacher = {
+  planId: "bulk-pro", exerciseId: "preacher-curl-mechanical", dayId: "d6", setIndex: 1,
+};
+const preacherDefinition = freeze({
+  planId: "bulk-pro", exerciseId: "preacher-curl-mechanical",
+  definitionId: "bulk-pro/preacher-curl-mechanical/mechanical-set",
+  revision: 1, type: "mechanical-set", prescribedSetCount: 1, appliesTo: "last",
+  base: { semantics: "pre-extension", variationId: "wide-grip", loadKind: "external", loadUnit: "kg" },
+  phases: [{
+    phaseId: "narrow-grip", loadRule: "same-as-base", metrics: ["reps"], requiredMetrics: ["reps"], targets: {},
+  }],
+});
+
+// Only the resolver's registry import sees the synthetic definition. Cycle
+// creation still uses the application's real allowlist and all normal guards.
+function preacherCatalogAlias() {
+  const id = "\0preacher-catalog-test";
+  return {
+    name: "preacher-catalog-test",
+    enforce: "pre",
+    resolveId(source, importer) {
+      if (source === "../../data/advancedMethods/definitions.js" &&
+          importer?.endsWith("/utils/runtime/advancedMethodContextHelpers.js")) return id;
+    },
+    load(moduleId) {
+      if (moduleId !== id) return;
+      return `
+        import { getMethodDefinition as lookup } from "/src/data/advancedMethods/definitions.js";
+        const preacher = ${JSON.stringify(preacherDefinition)};
+        export function getMethodDefinition(ref) {
+          return ["planId", "exerciseId", "definitionId", "revision"].every(key => ref[key] === preacher[key])
+            ? preacher : lookup(ref);
+        }
+      `;
+    },
+  };
+}
+
 let vite, appReducer, actions, initialState, findAttempt;
 let getPlan, getDay, getDays, getExercises, getCoreBlock, getCoreExercises, getProgress, getSummary, getCarryOver;
+let getAllExercises, buildCarryOver, hasCarryOver;
 before(async () => {
   vite = await createServer({ root: fileURLToPath(new URL("../", import.meta.url)),
     server: { middlewareMode: true, hmr: false, ws: false, watch: null },
-    optimizeDeps: { noDiscovery: true, include: [] }, appType: "custom" });
+    optimizeDeps: { noDiscovery: true, include: [] }, appType: "custom", plugins: [preacherCatalogAlias()] });
   const load = (path) => vite.ssrLoadModule(`/src/${path}`);
   [
     { appReducer }, { APP_ACTIONS: actions }, { appInitialState: initialState },
     { findPreviousCompatibleMethodAttempt: findAttempt }, { getPlanById: getPlan },
-    { getDayDetails: getDay, getDayDetailsByPlanId: getDays }, { getExercisesForDay: getExercises },
+    { getDayDetails: getDay, getDayDetailsByPlanId: getDays },
+    { getExercisesForDay: getExercises, getExercisesByPlanId: getAllExercises },
     { getCoreBlockById: getCoreBlock, getCoreExercisesByIds: getCoreExercises },
-    { getWorkoutProgress: getProgress }, { getCycleSummary: getSummary }, { getLatestCarryOverFieldValue: getCarryOver },
+    { getWorkoutProgress: getProgress }, { getCycleSummary: getSummary },
+    { getLatestCarryOverFieldValue: getCarryOver, buildCarryOverSetValues: buildCarryOver,
+      hasCarryOverValuesForExercise: hasCarryOver },
   ] = await Promise.all([
     "state/appReducer.js", "state/appActions.js", "state/appInitialState.js", "utils/runtime/advancedMethodHistoryHelpers.js",
     "data/plans/index.js", "data/dayDetails/index.js", "data/exercises/index.js", "data/core/index.js",
@@ -1093,6 +1135,226 @@ test("V2 preserves Dropset phases and early completion without granting edits to
   assert.equal(values.get(WORKOUT_STORAGE_KEYS.v2), corrupt);
 });
 
+const preacherBinding = {
+  definitionId: "bulk-pro/preacher-curl-mechanical/mechanical-set", revision: 1, dayId: "d6", setCount: 1,
+};
+const preacherMetric = (value, field = "reps") => metric(value, "narrow-grip", field);
+const preacherExecution = (value) => execution(value, "narrow-grip");
+const preacherLog = (reps, execution = "performed") => ({
+  choice: "record", phases: { "narrow-grip": { execution, reps } },
+});
+
+function preacherWorkout() {
+  const state = start();
+  cycle(state).currentDayId = "d6";
+  cycle(state).methodBindings.exercises[preacher.exerciseId] = { ...preacherBinding };
+  return ensure(state, "d6");
+}
+
+function preacherHistoryFixture() {
+  const state = preacherWorkout();
+  const progress = state.progressByPlan["bulk-pro"];
+  const first = cycle(state);
+  const originalBindings = first.methodBindings;
+  const add = (number, baseValues, binding = preacherBinding) => {
+    const previous = structuredClone(first);
+    previous.cycleNumber = number;
+    previous.startedAt = `fixture-cycle-${number}`;
+    previous.completedAt = `closed-${number}`;
+    if (binding) {
+      previous.methodBindings = structuredClone(originalBindings);
+      previous.methodBindings.exercises[preacher.exerciseId] = { ...binding };
+    } else delete previous.methodBindings;
+    Object.assign(rowInCycle(previous, preacher), baseValues);
+    progress.cycles[number] = previous;
+    return previous;
+  };
+  add(10, {});
+  progress.currentCycleNumber = 10;
+  progress.cycles[10].dayLogs = {};
+  progress.cycles[10].completedAt = null;
+  return { state, add, first, context: { ...preacher, cycles: progress.cycles, currentCycleNumber: 10, setCount: 1 } };
+}
+
+test("real cycle start keeps eight Bulk bindings and Cut empty with the synthetic lookup available", () => {
+  assert.equal(advancedMethodDefinitions.length, 8);
+  assert.equal(getMethodDefinition(preacherDefinition), null);
+  const state = start();
+  assert.equal(Object.keys(cycle(state).methodBindings.exercises).length, 8);
+  assert.equal(Object.hasOwn(cycle(state).methodBindings.exercises, preacher.exerciseId), false);
+  assert.deepEqual(cycle(start(state, "test-cut", "cut-pro"), "cut-pro").methodBindings.exercises, {});
+  cycle(state).currentDayId = "d6";
+  const unbound = freeze(ensure(state, "d6"));
+  assert.equal(update(unbound, preacherExecution("performed"), preacher), unbound);
+});
+
+test("the real reducer writes only Preacher method evidence and deduplicates ineffective actions", () => {
+  const before = preacherWorkout();
+  const currentDay = cycle(before).dayLogs.d6;
+  currentDay.finishedAt = "day-finished";
+  row(before, preacher).weight = "25";
+  const original = structuredClone(before);
+  freeze(before);
+  for (const change of [preacherMetric(""), preacherExecution("unconfirmed")]) {
+    assert.equal(update(before, change, preacher), before);
+  }
+
+  const confirmed = freeze(update(before, preacherExecution("performed"), preacher));
+  assert.deepEqual(row(confirmed, preacher).methodLog, preacherLog(""));
+  assert.equal(row(confirmed, preacher).isDone, false);
+  const actual = structuredClone(confirmed);
+  delete row(actual, preacher).methodLog;
+  assert.deepEqual(actual, original);
+  assert.equal(update(confirmed, preacherExecution("performed"), preacher), confirmed);
+  assert.equal(update(confirmed, choice("record"), preacher), confirmed);
+  for (const change of [preacherMetric("31"), preacherMetric("3", "loadKg"), metric("4"),
+    { ...preacherExecution("partial"), extra: "ignored" },
+    { type: "set-assistance", phaseId: "narrow-grip", mode: "same", kg: "25" },
+    { type: "finish-dropset", phaseId: "narrow-grip" }, { type: "extend-dropset", phaseId: "narrow-grip" },
+  ]) assert.equal(update(confirmed, change, preacher), confirmed, JSON.stringify(change));
+
+  const zero = freeze(update(confirmed, preacherMetric("0"), preacher));
+  assert.deepEqual(row(zero, preacher).methodLog, preacherLog("0"));
+  assert.equal(update(zero, preacherMetric("0"), preacher), zero);
+  const skipped = freeze(update(zero, choice("skip"), preacher));
+  assert.equal(update(skipped, choice("skip"), preacher), skipped);
+  assert.equal(update(skipped, preacherMetric("4"), preacher), skipped);
+  assert.deepEqual(update(skipped, choice("record"), preacher), zero);
+});
+
+test("Preacher updates fail closed for stale addresses, upcoming/archived cycles and malformed rows", () => {
+  const state = preacherWorkout();
+  const actionPayload = payload(state, preacherExecution("partial"), preacher);
+  for (const override of [
+    { planId: "cut-pro" }, { dayId: "d5" }, { exerciseId: "preacher-curl-ez" }, { setIndex: 2 },
+    { cycleStartedAt: "stale" }, { cycleNumber: 2 }, { definitionId: preacherBinding.definitionId },
+  ]) reject(state, { ...actionPayload, ...override });
+
+  for (const alter of [
+    (s) => { cycle(s).currentDayId = "d5"; cycle(s).dayLogs.d6.finishedAt = "anomalous-date"; },
+    (s) => { delete cycle(s).dayLogs.d6; },
+    (s) => { cycle(s).dayLogs.d6.dayId = "d5"; },
+    (s) => { cycle(s).dayLogs.d6.mainExerciseLogs[preacher.exerciseId].exerciseId = "preacher-curl-ez"; },
+    (s) => { cycle(s).dayLogs.d6.mainExerciseLogs[preacher.exerciseId].sets.push(row(s, preacher)); },
+    (s) => { row(s, preacher).weight = 25; },
+    (s) => { row(s, preacher).methodLog = null; },
+    (s) => { row(s, preacher).methodLog = preacherLog("31"); },
+    (s) => { cycle(s).methodBindings.exercises[preacher.exerciseId].revision = 2; },
+    (s) => { const old = cycle(s); s.progressByPlan["bulk-pro"].cycles[2] = { ...old, cycleNumber: 2 };
+      s.progressByPlan["bulk-pro"].currentCycleNumber = 2; },
+  ]) {
+    const invalid = structuredClone(state);
+    alter(invalid);
+    reject(invalid, actionPayload);
+  }
+});
+
+test("Preacher history returns a whole newest confirmed attempt with raw base Done and measurements", () => {
+  const { context, first, add } = preacherHistoryFixture();
+  Object.assign(rowInCycle(first, preacher), { weight: "20", reps: "8", rir: "2", isDone: true, methodLog: preacherLog("5") });
+  add(3, { weight: "25", reps: "6", rir: "", isDone: false, methodLog: preacherLog("", "partial") });
+  add(4, { methodLog: preacherLog("8", "unconfirmed") });
+  add(5, { methodLog: { ...preacherLog("8"), choice: "skip" } });
+  add(6, { methodLog: preacherLog("31") });
+  add(7, { methodLog: preacherLog("9") }, { ...preacherBinding, revision: 2 });
+  add(8, { methodLog: preacherLog("9") }, null);
+  const invalid = add(9, { methodLog: preacherLog("9") });
+  rowInCycle(invalid, preacher).setIndex = 2;
+
+  const match = findAttempt(context);
+  assert.equal(match.cycleNumber, 3);
+  assert.equal(match.cycleStartedAt, "fixture-cycle-3");
+  assert.deepEqual(match.binding, preacherBinding);
+  assert.deepEqual(match.baseSet, { setIndex: 1, weight: "25", reps: "6", rir: "", isDone: false });
+  assert.deepEqual(match.methodLog, preacherLog("", "partial"));
+  assert.equal(match.derived.numericComplete, false);
+  assert.equal(match.derived.status, "partial");
+  match.baseSet.reps = "30";
+  match.methodLog.phases["narrow-grip"].reps = "30";
+  assert.deepEqual(findAttempt(context).methodLog, preacherLog("", "partial"));
+  assert.equal(findAttempt(context).baseSet.reps, "6");
+  assert.deepEqual(context.cycles[10].dayLogs, {});
+
+  add(3, { methodLog: preacherLog("0") });
+  assert.deepEqual(findAttempt(context).methodLog, preacherLog("0"));
+  assert.equal(findAttempt(context).derived.numericComplete, true);
+  for (const override of [{ exerciseId: "preacher-curl-ez" }, { planId: "cut-pro" }, { dayId: "d5" }, { setIndex: 2 }]) {
+    assert.equal(findAttempt({ ...context, ...override }), null);
+  }
+  const current = context.cycles[10];
+  current.dayLogs = structuredClone(first.dayLogs);
+  rowInCycle(current, preacher).methodLog = preacherLog("31");
+  assert.equal(findAttempt(context), null);
+  delete current.methodBindings;
+  assert.equal(findAttempt(context), null);
+});
+
+test("both Preacher history and prefill verify the current and source definitions semantically", () => {
+  const { context, first, add } = preacherHistoryFixture();
+  Object.assign(rowInCycle(first, preacher), { weight: "25", reps: "6", rir: "1", isDone: true, methodLog: preacherLog("2") });
+  add(8, { weight: "20", reps: "7", rir: "2", isDone: true, methodLog: preacherLog("5") });
+  const blank = { weight: "", reps: "", rir: "" };
+  const older = { weight: "25", reps: "6", rir: "1" };
+  for (const alter of [
+    (d) => { d.type = "rest-pause"; },
+    (d) => { d.appliesTo = "all"; },
+    (d) => { d.base.variationId = "narrow-grip"; },
+    (d) => { d.base.loadConvention = "per-side"; },
+    (d) => { d.phases[0].phaseId = "wide-grip"; },
+    (d) => { d.phases[0].loadRule = "reduced-from-previous"; },
+    (d) => { d.phases[0].metrics.push("restSeconds"); },
+    (d) => { d.phases[0].requiredMetrics = []; },
+    (d) => { d.phases[0].targets = { reps: { min: 6, max: 8 } }; },
+    (d) => { d.phases[0].equipment = "EZ"; },
+  ]) {
+    const testCatalog = (rejectCall) => {
+      let lookups = 0;
+      return { getPlanById: getPlan, getExercisesByPlanId: getAllExercises, getDayDetailsByPlanId: getDays,
+        getMethodDefinition() {
+          const definition = structuredClone(preacherDefinition);
+          if (++lookups === rejectCall) alter(definition);
+          return definition;
+        } };
+    };
+    assert.equal(findAttempt(context, testCatalog(1)), null);
+    assert.equal(findAttempt(context, testCatalog(2))?.cycleNumber, 1);
+    assert.deepEqual(buildCarryOver(context, testCatalog(2)), older);
+    assert.equal(hasCarryOver(context, testCatalog(2)), true);
+  }
+  assert.deepEqual(buildCarryOver({ ...context, setIndex: 2 }), blank);
+});
+
+test("actual Preacher lazy rows and reference availability share compatible Done base carry-over", () => {
+  const { context, state, first, add } = preacherHistoryFixture();
+  const legacyBase = { weight: "45", reps: "12", rir: "0", isDone: true };
+  Object.assign(rowInCycle(first, preacher), legacyBase);
+  delete first.methodBindings;
+  add(9, { ...legacyBase, reps: "13" }, { ...preacherBinding, revision: 2 });
+  add(8, { ...legacyBase, reps: "20" }, { ...preacherBinding, dayId: "d5" });
+  add(7, { ...legacyBase, reps: "21", isDone: false });
+  const malformed = add(6, { ...legacyBase, reps: "22" });
+  malformed.dayLogs.d6.mainExerciseLogs[preacher.exerciseId].sets.push({ ...rowInCycle(malformed, preacher) });
+
+  const blank = { weight: "", reps: "", rir: "" };
+  assert.deepEqual(buildCarryOver(context), blank);
+  assert.equal(hasCarryOver(context), false);
+  const firstStructured = ensure(state, "d6");
+  assert.deepEqual(row(firstStructured, preacher), { setIndex: 1, ...blank, isDone: false });
+  assert.equal(rowInCycle(firstStructured.progressByPlan["bulk-pro"].cycles[1], preacher).reps, "12");
+
+  add(2, { weight: "22.5", reps: "", rir: "2", isDone: true, methodLog: { ...preacherLog("4"), choice: "skip" } });
+  add(3, { weight: "", reps: "6", rir: "", isDone: true });
+  add(4, { weight: "25", reps: "", rir: "", isDone: true, methodLog: preacherLog("3", "unconfirmed") });
+  const expected = { weight: "25", reps: "6", rir: "2" };
+  assert.deepEqual(buildCarryOver(context), expected);
+  assert.equal(getCarryOver({ ...context, field: "reps" }), "6");
+  assert.equal(hasCarryOver(context), true);
+  assert.deepEqual(row(ensure(state, "d6"), preacher), { setIndex: 1, ...expected, isDone: false });
+  const unbound = structuredClone(state);
+  delete cycle(unbound).methodBindings;
+  assert.equal(row(ensure(unbound, "d6"), preacher).reps, "13");
+});
+
 const chrome = ["/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser"].find(existsSync);
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -1120,7 +1382,7 @@ createRoot(document.getElementById('root')).render(React.createElement(React.Str
 </script></body></html>`;
       server = await createServer({ cacheDir: join(profile, "vite-cache"), server: { host: "127.0.0.1", port: 0 },
         optimizeDeps: { noDiscovery: true, include: ["react", "react-dom/client", "react/jsx-dev-runtime", "react/jsx-runtime"] },
-        plugins: [{ name: "method-runtime-test", configureServer(vite) {
+        plugins: [preacherCatalogAlias(), { name: "method-runtime-test", configureServer(vite) {
           vite.middlewares.use(async (req, res, next) => {
             if (req.url !== "/__method-runtime") return next();
             res.setHeader("Content-Type", "text/html"); res.end(await vite.transformIndexHtml(req.url, html));
@@ -1294,6 +1556,45 @@ createRoot(document.getElementById('root')).render(React.createElement(React.Str
         await call("Page.reload");
         await wait(`${dropLog}?.endPhaseId === 'drop-1'`);
         assert.deepEqual(await evaluate(dropLog), expected);
+        assert.deepEqual(await evaluate("window.__methodWrites"), []);
+      });
+      await t.test("synthetic Preacher V2 round-trip preserves blank/zero; rejected and repeated edits do not write", async () => {
+        const state = preacherWorkout();
+        row(state, preacher).isDone = true;
+        const raw = JSON.stringify({ version: 2, savedAt: "preacher-test-seed", state });
+        const stored = () => evaluate(`localStorage.getItem(${v2})`);
+        const sendChange = (change) => evaluate(`window.__methodRuntime.dispatch(${JSON.stringify({
+          type: actions.UPDATE_EXERCISE_METHOD, payload: payload(state, change, preacher),
+        })})`);
+        const rowPath = "progressByPlan['bulk-pro'].cycles[1].dayLogs.d6.mainExerciseLogs['preacher-curl-mechanical'].sets[0]";
+        const storedRow = async () => row(JSON.parse(await stored()).state, preacher);
+        await evaluate(`localStorage.setItem(${v2}, ${JSON.stringify(raw)}); delete window.__methodRuntime`);
+        await call("Page.reload");
+        await wait("window.__methodRuntime?.persistence.mode === 'ready'");
+        for (const change of [preacherMetric(""), preacherExecution("unconfirmed"), preacherMetric("31"),
+          preacherMetric("25", "loadKg"), { ...preacherExecution("performed"), extra: "no" }]) await sendChange(change);
+        await settled();
+        assert.equal(await stored(), raw);
+        assert.deepEqual(await evaluate("window.__methodWrites"), []);
+
+        await sendChange(preacherExecution("performed"));
+        await wait(`JSON.parse(localStorage.getItem(${v2})).state.${rowPath}.methodLog?.phases['narrow-grip'].execution === 'performed'`);
+        assert.deepEqual(await storedRow(), { ...row(state, preacher), methodLog: preacherLog("") });
+        await sendChange(preacherMetric("0"));
+        await wait(`JSON.parse(localStorage.getItem(${v2})).state.${rowPath}.methodLog?.phases['narrow-grip'].reps === '0'`);
+        const saved = await stored();
+        const writes = await evaluate("window.__methodWrites.length");
+        for (const change of [preacherMetric("0"), preacherExecution("performed"), choice("record"),
+          { type: "finish-dropset", phaseId: "narrow-grip" }]) await sendChange(change);
+        await settled();
+        assert.equal(await stored(), saved);
+        assert.equal(await evaluate("window.__methodWrites.length"), writes);
+
+        await evaluate("delete window.__methodRuntime");
+        await call("Page.reload");
+        await wait(`window.__methodRuntime?.state.${rowPath}.methodLog?.phases['narrow-grip'].reps === '0'`);
+        assert.deepEqual(await evaluate(`window.__methodRuntime.state.${rowPath}`),
+          { ...row(state, preacher), methodLog: preacherLog("0") });
         assert.deepEqual(await evaluate("window.__methodWrites"), []);
       });
       assert.deepEqual(exceptions, []);

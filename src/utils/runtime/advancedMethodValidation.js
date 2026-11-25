@@ -62,6 +62,52 @@ export function hasExactFields(record, fields) {
   return Object.keys(record).length === fields.length && fields.every((field) => Object.hasOwn(record, field));
 }
 
+const preacherExerciseId = "preacher-curl-mechanical";
+const preacherDefinitionId = "bulk-pro/preacher-curl-mechanical/mechanical-set";
+
+export function isPreacherMechanicalAddress({ planId, dayId, exerciseId }) {
+  return planId === "bulk-pro" && dayId === "d6" && exerciseId === preacherExerciseId;
+}
+
+// A corrupted type must not route a known Preacher identity through generic validation.
+export function isPreacherMechanicalCandidate(definition) {
+  return Object.getOwnPropertyDescriptor(definition, "definitionId")?.value === preacherDefinitionId ||
+    Object.getOwnPropertyDescriptor(definition, "exerciseId")?.value === preacherExerciseId ||
+    definition.type === "mechanical-set";
+}
+
+// A singleton array must contain one ordinary data entry and no extension metadata.
+function onlyItem(items) {
+  if (!Array.isArray(items) || Object.getPrototypeOf(items) !== Array.prototype ||
+      items.length !== 1 || Reflect.ownKeys(items).length !== 2) return undefined;
+  const entry = Object.getOwnPropertyDescriptor(items, "0");
+  return entry?.enumerable ? entry.value : undefined;
+}
+
+export function isPreacherMechanicalDefinition(definition) {
+  if (!isPlainRecord(definition) || !hasExactFields(definition, [
+    "definitionId", "planId", "exerciseId", "type", "revision", "prescribedSetCount", "appliesTo", "base", "phases",
+  ]) || definition.definitionId !== preacherDefinitionId || definition.planId !== "bulk-pro" ||
+    definition.exerciseId !== preacherExerciseId || definition.type !== "mechanical-set" ||
+    definition.revision !== 1 || definition.prescribedSetCount !== 1 || definition.appliesTo !== "last") return false;
+
+  const { base } = definition;
+  const phase = onlyItem(definition.phases);
+  return isPlainRecord(base) && hasExactFields(base, ["semantics", "variationId", "loadKind", "loadUnit"]) &&
+    base.semantics === "pre-extension" && base.variationId === "wide-grip" &&
+    base.loadKind === "external" && base.loadUnit === "kg" &&
+    isPlainRecord(phase) && hasExactFields(phase, ["phaseId", "loadRule", "metrics", "requiredMetrics", "targets"]) &&
+    phase.phaseId === "narrow-grip" && phase.loadRule === "same-as-base" &&
+    onlyItem(phase.metrics) === "reps" && onlyItem(phase.requiredMetrics) === "reps" &&
+    isPlainRecord(phase.targets) && hasExactFields(phase.targets, []);
+}
+
+export function isValidPreacherMechanicalBaseRow(row) {
+  return isPlainRecord(row) && Object.hasOwn(row, "setIndex") && row.setIndex === 1 &&
+    Object.hasOwn(row, "isDone") && typeof row.isDone === "boolean" &&
+    ["weight", "reps", "rir"].every((field) => Object.hasOwn(row, field) && typeof row[field] === "string");
+}
+
 function isValidAssistanceValue(mode, kg) {
   return ["same", "entered"].includes(mode) && typeof kg === "string" && normalizeAssistanceKg(kg) === kg;
 }
@@ -124,6 +170,9 @@ function checkDropsetSequence(definition, record, errors) {
 export function validateMethodLog(definition, record) {
   const errors = [];
   if (!definition) return { valid: false, errors: ["definition: unresolved"] };
+  if (isPreacherMechanicalCandidate(definition) && !isPreacherMechanicalDefinition(definition)) {
+    return { valid: false, errors: ["definition: unsupported Preacher Mechanical protocol"] };
+  }
   const dropset = definition.type === "dropset";
   if (dropset && !hasValidDropsetPhaseOrder(definition)) {
     return { valid: false, errors: ["definition: invalid dropset phase order or load semantics"] };

@@ -17,10 +17,13 @@ import {
  *   {type: 'finish-dropset'|'extend-dropset', phaseId: string}} MethodChange
  */
 
-const dropsetChangeFields = {
+const phaseChangeFields = {
   "set-choice": ["type", "choice"],
   "set-metric": ["type", "phaseId", "field", "value"],
   "set-execution": ["type", "phaseId", "execution"],
+};
+const dropsetChangeFields = {
+  ...phaseChangeFields,
   "finish-dropset": ["type", "phaseId"],
   "extend-dropset": ["type", "phaseId"],
 };
@@ -59,11 +62,13 @@ export function getApplicableSetIndexes(definition, setRows) {
 export function transitionMethodLog(definition, record, change) {
   if (!validateMethodLog(definition, record).valid || !isPlainRecord(change)) return record;
   const dropset = definition.type === "dropset";
-  if (dropset && (typeof change.type !== "string" || !Object.hasOwn(dropsetChangeFields, change.type) ||
-      !hasExactFields(change, dropsetChangeFields[change.type]))) return record;
+  const strictChanges = dropset || definition.type === "mechanical-set";
+  const changeFields = dropset ? dropsetChangeFields : phaseChangeFields;
+  if (strictChanges && (typeof change.type !== "string" || !Object.hasOwn(changeFields, change.type) ||
+      !hasExactFields(change, changeFields[change.type]))) return record;
   if (change.type === "set-choice") {
     if (!["record", "skip"].includes(change.choice)) return record;
-    if (dropset && record?.choice === change.choice) return record;
+    if (strictChanges && record?.choice === change.choice) return record;
     return { ...record, choice: change.choice, phases: { ...record?.phases } };
   }
   if (record?.choice === "skip") return record;
@@ -82,10 +87,10 @@ export function transitionMethodLog(definition, record, change) {
   const previousPhase = record?.phases[change.phaseId];
   if (change.type === "set-metric") {
     if (!isValidMethodPhaseMetricValue(definition, phaseDefinition, change.field, change.value)) return record;
-    if (dropset && (previousPhase?.[change.field] ?? "") === change.value) return record;
+    if (strictChanges && (previousPhase?.[change.field] ?? "") === change.value) return record;
   } else if (change.type === "set-execution") {
     if (!["unconfirmed", "partial", "performed"].includes(change.execution)) return record;
-    if (dropset && (previousPhase?.execution ?? "unconfirmed") === change.execution) return record;
+    if (strictChanges && (previousPhase?.execution ?? "unconfirmed") === change.execution) return record;
   } else if (!finishing && !isValidMethodAssistanceChange(definition, phaseDefinition, change)) {
     return record;
   }
@@ -153,7 +158,7 @@ export function deriveMethodState(definition, record) {
         result.missingMetrics.push(`${phase.phaseId}.${metric}`);
       }
     }
-    if (dropset) continue;
+    if (dropset || definition.type === "mechanical-set") continue;
     result.targetComparisons[phase.phaseId] = {};
     for (const [metric, target] of Object.entries(phase.targets)) {
       const value = actual?.[metric];

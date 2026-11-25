@@ -29,6 +29,112 @@ function freezeTree(value) {
   return value;
 }
 
+const preacher = freezeTree({
+  planId: "bulk-pro", exerciseId: "preacher-curl-mechanical",
+  definitionId: "bulk-pro/preacher-curl-mechanical/mechanical-set",
+  revision: 1, type: "mechanical-set", prescribedSetCount: 1, appliesTo: "last",
+  base: { semantics: "pre-extension", variationId: "wide-grip", loadKind: "external", loadUnit: "kg" },
+  phases: [{
+    phaseId: "narrow-grip", loadRule: "same-as-base", metrics: ["reps"], requiredMetrics: ["reps"], targets: {},
+  }],
+});
+const narrowReps = (value) => metric(value, "reps", "narrow-grip");
+const narrowExecution = (value) => execution(value, "narrow-grip");
+
+test("synthetic Preacher records attempt and numeric completeness independently, without a target", () => {
+  assert.equal(getMethodDefinition(preacher), null);
+  assert.deepEqual(getApplicableSetIndexes(preacher, [{ setIndex: 1 }]), [1]);
+  assert.equal(deriveMethodState(preacher, undefined).status, "unknown");
+  const draft = recordWith(preacher, narrowReps("30"));
+  assert.deepEqual(draft, { choice: "record", phases: { "narrow-grip": { execution: "unconfirmed", reps: "30" } } });
+  assert.deepEqual(deriveMethodState(preacher, draft), {
+    valid: true, errors: [], status: "draft", numericComplete: true, missingMetrics: [], targetComparisons: {},
+  });
+  assert.equal(deriveMethodState(preacher, recordWith(preacher, narrowExecution("partial"))).status, "partial");
+
+  for (const value of ["", "0", "30"]) {
+    const confirmed = recordWith(preacher, narrowReps(value), narrowExecution("performed"));
+    assert.deepEqual(confirmed, { choice: "record", phases: { "narrow-grip": { execution: "performed", reps: value } } });
+    assert.deepEqual(deriveMethodState(preacher, confirmed), {
+      valid: true, errors: [], status: "performed", numericComplete: value !== "",
+      missingMetrics: value === "" ? ["narrow-grip.reps"] : [], targetComparisons: {},
+    });
+  }
+  const withoutMetric = { choice: "record", phases: { "narrow-grip": { execution: "performed" } } };
+  assert.equal(deriveMethodState(preacher, withoutMetric).numericComplete, false);
+  for (const value of ["31", "-1", "1.5", "1,5", "01", " 3", "2\n", "1e1", 0, null]) {
+    assert.equal(transitionMethodLog(preacher, draft, narrowReps(value)), draft, String(value));
+    assert.equal(validateMethodLog(preacher, {
+      choice: "record", phases: { "narrow-grip": { execution: "unconfirmed", reps: value } },
+    }).valid, false, String(value));
+  }
+});
+
+test("Preacher Skip/Resume, clearing, rejected changes and repeated edits preserve evidence", () => {
+  const confirmed = freezeTree(recordWith(preacher, narrowReps("0"), narrowExecution("performed")));
+  const skipped = freezeTree(transitionMethodLog(preacher, confirmed, choice("skip")));
+  assert.equal(deriveMethodState(preacher, skipped).status, "skipped");
+  assert.equal(skipped.phases["narrow-grip"], confirmed.phases["narrow-grip"]);
+  assert.equal(transitionMethodLog(preacher, skipped, choice("skip")), skipped);
+  assert.equal(transitionMethodLog(preacher, skipped, narrowReps("2")), skipped);
+  assert.equal(transitionMethodLog(preacher, skipped, narrowExecution("partial")), skipped);
+  assert.deepEqual(transitionMethodLog(preacher, skipped, choice("record")), confirmed);
+
+  const cleared = transitionMethodLog(preacher, confirmed, narrowReps(""));
+  assert.deepEqual(cleared, { choice: "record", phases: { "narrow-grip": { execution: "performed", reps: "" } } });
+  assert.equal(transitionMethodLog(preacher, cleared, narrowReps("")), cleared);
+  assert.equal(transitionMethodLog(preacher, undefined, narrowReps("")), undefined);
+  assert.equal(transitionMethodLog(preacher, undefined, narrowExecution("unconfirmed")), undefined);
+
+  for (const change of [
+    choice("record"), narrowReps("0"), narrowExecution("performed"),
+    { ...choice("skip"), extra: true }, { ...narrowReps("5"), extra: true },
+    { ...narrowExecution("partial"), extra: true }, narrowExecution("done"),
+    metric("5", "reps", "wide-grip"), metric("5", "reps", "extra-reps"),
+    ...["loadKg", "restSeconds", "durationSeconds", "rir", "assistance"].map((field) => metric("5", field, "narrow-grip")),
+    setAssistance("entered", "5", "narrow-grip"), clearAssistance("narrow-grip"),
+    { type: "finish-dropset", phaseId: "narrow-grip" }, { type: "extend-dropset", phaseId: "narrow-grip" },
+  ]) assert.equal(transitionMethodLog(preacher, confirmed, change), confirmed, JSON.stringify(change));
+});
+
+test("Preacher validation rejects altered protocol semantics and malformed records", () => {
+  const mismatches = [
+    (d) => { d.planId = "cut-pro"; }, (d) => { d.exerciseId = "preacher-curl-ez"; },
+    (d) => { d.definitionId += "-foreign"; }, (d) => { d.type = "rest-pause"; },
+    (d) => { d.revision = 2; }, (d) => { d.appliesTo = "all"; }, (d) => { d.prescribedSetCount = 2; },
+    (d) => { d.base.semantics = "post-extension"; }, (d) => { d.base.variationId = "narrow-grip"; },
+    (d) => { d.base.loadKind = "machine-assistance"; }, (d) => { d.base.loadUnit = "lb"; },
+    (d) => { d.base.loadConvention = "per-side"; }, (d) => { d.reductionPercent = 20; },
+    (d) => { d.phases = []; }, (d) => { d.phases.push(d.phases[0]); },
+    (d) => { d.phases[0].phaseId = "wide-grip"; }, (d) => { d.phases[0].loadRule = "reduced-from-previous"; },
+    (d) => { d.phases[0].metrics.push("loadKg"); }, (d) => { d.phases[0].requiredMetrics = []; },
+    (d) => { d.phases[0].targets = { reps: { min: 6, max: 8 } }; },
+    (d) => { d.phases[0].equipment = "EZ"; }, (d) => { d.phases[0].metrics.extra = "loadKg"; },
+    (d) => { Object.setPrototypeOf(d.phases[0].metrics, null); },
+    (d) => { Object.defineProperty(d.phases[0].metrics, "0", { get: () => assert.fail("executed a getter") }); },
+  ];
+  for (const alter of mismatches) {
+    const definition = structuredClone(preacher);
+    alter(definition);
+    assert.equal(validateMethodLog(definition, undefined).valid, false, alter.toString());
+    assert.equal(transitionMethodLog(definition, undefined, narrowExecution("performed")), undefined);
+  }
+  assert.equal(validateMethodLog(Object.create(preacher), undefined).valid, false);
+
+  for (const record of [
+    null, { choice: "record", phases: [] }, { choice: "record", phases: { "narrow-grip": { reps: "5" } } },
+    { choice: "skip", phases: { "narrow-grip": { execution: "done", reps: "0" } } },
+    { choice: "record", phases: { "wide-grip": { execution: "performed", reps: "8" } } },
+    { choice: "record", endPhaseId: "narrow-grip", phases: {} },
+    ...["loadKg", "restSeconds", "durationSeconds", "rir", "assistance", "equipment", "targets"].map((field) => ({
+      choice: "record", phases: { "narrow-grip": { execution: "performed", [field]: "5" } },
+    })),
+  ]) {
+    assert.equal(validateMethodLog(preacher, record).valid, false, JSON.stringify(record));
+    assert.equal(transitionMethodLog(preacher, record, choice("skip")), record);
+  }
+});
+
 test("pilot definitions match actual Bulk exercise identity, counts and prescriptions", () => {
   const expected = [
     [incline, "incline-db-press", 3, "rest-pause", "extra-reps", { reps: { min: 2, max: 3 }, restSeconds: { min: 15, max: 15 } },

@@ -201,6 +201,7 @@ export default function ExercisePage() {
   const hasPreviousValues =
     !isUpcomingPreview &&
     hasCarryOverValuesForExercise({
+      planId,
       cycles: planProgress?.cycles,
       currentCycleNumber,
       dayId: dayDetails?.id,
