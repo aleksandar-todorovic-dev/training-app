@@ -264,6 +264,9 @@ export default function DayPage() {
     dayLog,
     coreExercises,
     currentCycleNumber,
+    planId,
+    dayId,
+    cycle: currentCycle,
   });
 
   // Finish day records day-level close intent and returns to Cycle.

@@ -1,3 +1,5 @@
+import { getBoundPushUpBodyweightRow } from "./advancedMethodHistoryHelpers.js";
+
 function hasValue(value) {
   return value !== null && value !== undefined && String(value).trim() !== "";
 }
@@ -38,6 +40,9 @@ export function getMissingValueWarningSummary({
   dayLog,
   coreExercises = [],
   currentCycleNumber = 1,
+  planId,
+  dayId,
+  cycle,
 }) {
   const summary = createEmptySummary(currentCycleNumber);
 
@@ -47,7 +52,10 @@ export function getMissingValueWarningSummary({
 
   // Only checked sets are inspected. Unchecked sets are treated as not performed,
   // not as missing data.
-  Object.values(dayLog.mainExerciseLogs ?? {}).forEach((exerciseLog) => {
+  const hasCurrentDay = cycle?.cycleNumber === currentCycleNumber && cycle.dayLogs?.[dayId] === dayLog;
+  Object.entries(dayLog.mainExerciseLogs ?? {}).forEach(([exerciseId, exerciseLog]) => {
+    const bodyweightRow = hasCurrentDay
+      ? getBoundPushUpBodyweightRow({ planId, cycle, dayId, exerciseId }) : null;
     exerciseLog.sets?.forEach((set) => {
       if (!set.isDone) {
         return;
@@ -63,7 +71,7 @@ export function getMissingValueWarningSummary({
         summary.missingMainImportantCount += 1;
       }
 
-      if (!hasValue(set.weight)) {
+      if (set !== bodyweightRow && !hasValue(set.weight)) {
         summary.missingMainLoadCount += 1;
       }
     });

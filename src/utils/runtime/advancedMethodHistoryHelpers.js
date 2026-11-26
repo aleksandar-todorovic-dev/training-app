@@ -2,8 +2,9 @@ import { knownDropsetProtocols } from "../../data/advancedMethods/definitions.js
 import { resolveCycleMethodBinding } from "./advancedMethodContextHelpers.js";
 import { deriveMethodState, getApplicableSetIndexes } from "./advancedMethodHelpers.js";
 import {
-  isPlainRecord, isPreacherMechanicalAddress, isPreacherMechanicalCandidate, isPreacherMechanicalDefinition,
-  isValidPreacherMechanicalBaseRow, validateMethodLog,
+  isMechanicalMethodType, isPlainRecord, isPreacherMechanicalAddress, isPreacherMechanicalCandidate,
+  isPreacherMechanicalDefinition, isPushUpMechanicalAddress, isPushUpMechanicalCandidate,
+  isPushUpMechanicalDefinition, isValidMechanicalBaseRow, validateMethodLog,
 } from "./advancedMethodValidation.js";
 
 const DROP_METRICS = ["loadKg", "reps"];
@@ -15,6 +16,11 @@ const hasDropMetrics = (metrics) => Array.isArray(metrics) && metrics.length ===
 function hasKnownSemantics(definition, dayId) {
   if (isPreacherMechanicalCandidate(definition)) {
     return isPreacherMechanicalDefinition(definition) && isPreacherMechanicalAddress({
+      planId: definition.planId, exerciseId: definition.exerciseId, dayId,
+    });
+  }
+  if (isPushUpMechanicalCandidate(definition)) {
+    return isPushUpMechanicalDefinition(definition) && isPushUpMechanicalAddress({
       planId: definition.planId, exerciseId: definition.exerciseId, dayId,
     });
   }
@@ -49,12 +55,26 @@ function hasKnownSemantics(definition, dayId) {
 export function getApplicableMethodRow(cycle, definition, dayId, exerciseId, setIndex) {
   const dayLog = cycle.dayLogs?.[dayId];
   const exerciseLog = dayLog?.mainExerciseLogs?.[exerciseId];
+  if (definition.type === "mechanical-dropset" &&
+      (!isPlainRecord(cycle.dayLogs) || !Object.hasOwn(cycle.dayLogs, dayId) ||
+       !isPlainRecord(dayLog) || !isPlainRecord(dayLog.mainExerciseLogs) ||
+       !Object.hasOwn(dayLog.mainExerciseLogs, exerciseId) || !isPlainRecord(exerciseLog))) return null;
   if (dayLog?.dayId !== dayId || exerciseLog?.exerciseId !== exerciseId ||
       !getApplicableSetIndexes(definition, exerciseLog.sets).includes(setIndex)) return null;
   const row = exerciseLog.sets.find((set) => set.setIndex === setIndex);
-  if (definition.type === "mechanical-set") return isValidPreacherMechanicalBaseRow(row) ? row : null;
+  if (isMechanicalMethodType(definition.type)) return isValidMechanicalBaseRow(row) ? row : null;
   return typeof row.isDone === "boolean" && ["weight", "reps", "rir"].every((field) => typeof row[field] === "string")
     ? row : null;
+}
+
+// The only scoped bodyweight row. Its stored weight string is opaque evidence
+// and must remain available for neutral, read-only presentation if nonblank.
+export function getBoundPushUpBodyweightRow(context) {
+  if (!isPushUpMechanicalAddress(context)) return null;
+  const resolved = resolveCycleMethodBinding(context);
+  if (resolved.status !== "resolved" || !isPushUpMechanicalDefinition(resolved.definition)) return null;
+  const { cycle, dayId, exerciseId } = context;
+  return getApplicableMethodRow(cycle, resolved.definition, dayId, exerciseId, 1);
 }
 
 export function getEarlierCycleNumbers(cycles, currentCycleNumber) {
@@ -86,7 +106,7 @@ export function findPreviousCompatibleMethodAttempt({ cycles, currentCycleNumber
   if (current?.cycleNumber !== currentCycleNumber) return null;
   const context = resolveCycleMethodBinding({ planId, cycle: current, dayId, exerciseId }, catalog);
   if (context.status !== "resolved" || !hasKnownSemantics(context.definition, dayId)) return null;
-  const strictContext = ["dropset", "mechanical-set"].includes(context.definition.type);
+  const strictContext = context.definition.type === "dropset" || isMechanicalMethodType(context.definition.type);
   if (strictContext) {
     if (setIndex !== context.binding.setCount || !isPlainRecord(current.dayLogs)) return null;
     if (Object.hasOwn(current.dayLogs, dayId)) {

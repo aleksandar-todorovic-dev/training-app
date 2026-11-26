@@ -10,6 +10,7 @@ import { createServer } from "vite";
 import { advancedMethodDefinitions, getMethodDefinition } from "../src/data/advancedMethods/definitions.js";
 import { deriveMethodState, transitionMethodLog } from "../src/utils/runtime/advancedMethodHelpers.js";
 import { preacherDefinition } from "./preacherMechanicalFixture.js";
+import { pushUpCatalogAlias, pushUpDefinition } from "./pushUpMechanicalFixture.js";
 import { createAppStatePersistence, WORKOUT_STORAGE_KEYS } from "../src/storage/appStateStorage.js";
 
 const preacher = {
@@ -18,24 +19,27 @@ const preacher = {
 let vite, appReducer, actions, initialState, findAttempt;
 let getPlan, getDay, getDays, getExercises, getCoreBlock, getCoreExercises, getProgress, getSummary, getCarryOver;
 let getAllExercises, buildCarryOver, hasCarryOver;
+let getWarnings, getBodyweightRow;
 before(async () => {
   vite = await createServer({ root: fileURLToPath(new URL("../", import.meta.url)),
     server: { middlewareMode: true, hmr: false, ws: false, watch: null },
-    optimizeDeps: { noDiscovery: true, include: [] }, appType: "custom" });
+    optimizeDeps: { noDiscovery: true, include: [] }, appType: "custom", plugins: [pushUpCatalogAlias()] });
   const load = (path) => vite.ssrLoadModule(`/src/${path}`);
   [
     { appReducer }, { APP_ACTIONS: actions }, { appInitialState: initialState },
-    { findPreviousCompatibleMethodAttempt: findAttempt }, { getPlanById: getPlan },
+    { findPreviousCompatibleMethodAttempt: findAttempt, getBoundPushUpBodyweightRow: getBodyweightRow }, { getPlanById: getPlan },
     { getDayDetails: getDay, getDayDetailsByPlanId: getDays },
     { getExercisesForDay: getExercises, getExercisesByPlanId: getAllExercises },
     { getCoreBlockById: getCoreBlock, getCoreExercisesByIds: getCoreExercises },
     { getWorkoutProgress: getProgress }, { getCycleSummary: getSummary },
     { getLatestCarryOverFieldValue: getCarryOver, buildCarryOverSetValues: buildCarryOver,
       hasCarryOverValuesForExercise: hasCarryOver },
+    { getMissingValueWarningSummary: getWarnings },
   ] = await Promise.all([
     "state/appReducer.js", "state/appActions.js", "state/appInitialState.js", "utils/runtime/advancedMethodHistoryHelpers.js",
     "data/plans/index.js", "data/dayDetails/index.js", "data/exercises/index.js", "data/core/index.js",
     "utils/runtime/workoutProgressHelpers.js", "utils/runtime/cycleSummaryHelpers.js", "utils/runtime/carryOverHelpers.js",
+    "utils/runtime/missingValueWarningHelpers.js",
   ].map(load));
 });
 after(() => vite?.close());
@@ -1322,6 +1326,262 @@ test("actual Preacher lazy rows and reference availability share compatible Done
   assert.equal(row(ensure(unbound, "d6"), preacher).reps, "13");
 });
 
+const pushUp = { planId: "bulk-pro", dayId: "d5", exerciseId: "push-up-mechanical-dropset", setIndex: 1 };
+const pushUpBinding = {
+  definitionId: "bulk-pro/push-up-mechanical-dropset/mechanical-dropset", revision: 1, dayId: "d5", setCount: 1,
+};
+const knee = "knee-push-up";
+const rawWeight = " 075.0 ";
+const pushUpLog = (reps, execution = "performed") => ({ choice: "record", phases: { [knee]: { execution, reps } } });
+const baseAction = (field, value, address = pushUp) => ({
+  type: actions.UPDATE_EXERCISE_SET_FIELD, payload: { ...address, field, value },
+});
+
+function pushUpWorkout() {
+  const state = start();
+  const current = cycle(state);
+  assert.equal(Object.hasOwn(current.methodBindings.exercises, pushUp.exerciseId), false);
+  current.methodBindings.exercises[pushUp.exerciseId] = { ...pushUpBinding };
+  current.currentDayId = pushUp.dayId;
+  return ensure(state, pushUp.dayId);
+}
+
+function pushUpHistoryFixture() {
+  const state = pushUpWorkout();
+  const progress = state.progressByPlan["bulk-pro"];
+  const first = cycle(state);
+  const bindings = first.methodBindings;
+  const add = (number, values = {}, binding = pushUpBinding) => {
+    const entry = structuredClone(first);
+    entry.cycleNumber = number;
+    entry.startedAt = `push-up-cycle-${number}`;
+    if (binding) {
+      entry.methodBindings = structuredClone(bindings);
+      entry.methodBindings.exercises[pushUp.exerciseId] = { ...binding };
+    } else delete entry.methodBindings;
+    Object.assign(rowInCycle(entry, pushUp), values);
+    progress.cycles[number] = entry;
+    return entry;
+  };
+  const current = add(10);
+  current.dayLogs = {};
+  progress.currentCycleNumber = 10;
+  return { state, first, current, add, context: { ...pushUp, cycles: progress.cycles, currentCycleNumber: 10, setCount: 1 } };
+}
+
+test("actual Push-up reducer preserves raw weight and workout evidence across legitimate edits", () => {
+  const initial = pushUpWorkout();
+  assert.deepEqual(row(initial, pushUp), { setIndex: 1, weight: "", reps: "", rir: "", isDone: false });
+  row(initial, pushUp).weight = rawWeight;
+  const previous = freeze(initial);
+  for (const value of ["", "0", "35", rawWeight, null]) {
+    assert.equal(appReducer(previous, baseAction("weight", value)), previous);
+  }
+  assert.equal(appReducer(previous, baseAction("weight", "0", { ...pushUp, setIndex: 2, loadKind: "external" })), previous);
+  assert.equal(getBodyweightRow({ ...pushUp, cycle: cycle(previous) }).weight, rawWeight);
+
+  let state = appReducer(previous, baseAction("reps", "12"));
+  state = appReducer(state, baseAction("rir", "1"));
+  assert.deepEqual(row(state, pushUp), { setIndex: 1, weight: rawWeight, reps: "12", rir: "1", isDone: false });
+  const toggle = { type: actions.TOGGLE_EXERCISE_SET_DONE, payload: pushUp };
+  state = appReducer(state, toggle);
+  const summary = (s) => getSummary({ cycle: cycle(s), dayDetailsList: getDays(pushUp.planId) });
+  const progress = (s) => getProgress(cycle(s).dayLogs.d5, getDay(pushUp.planId, "d5").exerciseIds);
+  const confirmed = freeze(update(freeze(state), execution("performed", knee), pushUp));
+  const restored = structuredClone(confirmed);
+  delete row(restored, pushUp).methodLog;
+  assert.deepEqual(restored, state);
+  assert.deepEqual(row(confirmed, pushUp).methodLog, pushUpLog(""));
+  assert.deepEqual(progress(confirmed), progress(state));
+  assert.deepEqual(summary(confirmed), summary(state));
+  assert.equal(progress(confirmed).performedMainSetCount, 1);
+  assert.equal(summary(confirmed).loggedMainExercisesCount, 1);
+  assert.equal(update(confirmed, execution("performed", knee), pushUp), confirmed);
+  assert.equal(update(confirmed, metric("", knee), pushUp), confirmed);
+
+  const zero = update(confirmed, metric("0", knee), pushUp);
+  const skipped = update(zero, choice("skip"), pushUp);
+  assert.deepEqual(update(skipped, choice("record"), pushUp), zero);
+  assert.equal(row(appReducer(zero, toggle), pushUp).weight, rawWeight);
+  const finished = finishDay(zero, "d5");
+  const edited = update(finished, metric("5", knee), pushUp);
+  assert.equal(cycle(edited).dayLogs.d5.finishedAt, "closed-d5");
+  assert.equal(cycle(edited).currentDayId, "d6");
+  assert.equal(row(edited, pushUp).weight, rawWeight);
+  assert.equal(row(edited, pushUp).isDone, true);
+});
+
+test("guarded Push-up actions reject upcoming, stale, unbound, opaque and malformed contexts", () => {
+  const state = pushUpWorkout();
+  const positive = payload(state, execution("partial", knee), pushUp);
+  for (const override of [
+    { planId: "cut-pro" }, { cycleNumber: 2 }, { cycleStartedAt: "stale" }, { dayId: "d6" },
+    { exerciseId: "push-up" }, { setIndex: 2 }, { loadKind: "bodyweight" },
+    ...[
+      metric("31", knee), metric("5", "standard-push-up"), metric("5", knee, "loadKg"),
+      { type: "set-assistance", phaseId: knee, mode: "entered", kg: "1" },
+      { type: "finish-dropset", phaseId: knee }, { type: "extend-dropset", phaseId: knee },
+    ].map((change) => ({ change })),
+  ]) reject(state, { ...positive, ...override });
+  for (const alter of [
+    (s) => { cycle(s).currentDayId = "d4"; cycle(s).dayLogs.d5.finishedAt = "invalid-upcoming-date"; },
+    (s) => { delete cycle(s).dayLogs.d5; },
+    (s) => { cycle(s).dayLogs.d5.dayId = "d6"; },
+    (s) => { cycle(s).dayLogs.d5.mainExerciseLogs[pushUp.exerciseId].sets.push({ ...row(s, pushUp) }); },
+    (s) => { row(s, pushUp).weight = 75; },
+    (s) => { row(s, pushUp).methodLog = { ...pushUpLog("6"), endPhaseId: knee }; },
+    (s) => { delete cycle(s).methodBindings; },
+    (s) => { cycle(s).methodBindings.exercises[pushUp.exerciseId].revision = 2; },
+    (s) => { const progress = s.progressByPlan["bulk-pro"];
+      progress.cycles[2] = { ...cycle(s), cycleNumber: 2 }; progress.currentCycleNumber = 2; },
+  ]) {
+    const invalid = structuredClone(state);
+    alter(invalid);
+    reject(invalid, positive);
+  }
+  const legacy = structuredClone(state);
+  delete cycle(legacy).methodBindings;
+  assert.equal(row(appReducer(legacy, baseAction("weight", "75")), pushUp).weight, "75");
+  const opaque = structuredClone(state);
+  cycle(opaque).methodBindings.exercises[pushUp.exerciseId].revision = 99;
+  assert.equal(row(appReducer(opaque, baseAction("weight", "80")), pushUp).weight, "80");
+  const cut = workout({ planId: "cut-pro", dayId: "d5", exerciseId: "push-up", setIndex: 1 });
+  const cutPushUp = { ...pushUp, planId: "cut-pro", exerciseId: "push-up" };
+  assert.equal(row(appReducer(cut, baseAction("weight", "25", cutPushUp)), cutPushUp).weight, "25");
+});
+
+test("Push-up lazy rows and previous-values indicator use only compatible Done reps and RIR", () => {
+  const { state, context, first, add } = pushUpHistoryFixture();
+  Object.assign(rowInCycle(first, pushUp), { weight: "75", reps: "26", rir: "1", isDone: true });
+  delete first.methodBindings;
+  add(9, { reps: "25", rir: "4" }, { ...pushUpBinding, revision: 2 });
+  add(8, { reps: "24", rir: "3" }, { ...pushUpBinding, dayId: "d6" });
+  add(7, { weight: "80", reps: "28", rir: "5", isDone: false });
+  const weightOnly = add(6, { weight: rawWeight, reps: "", rir: "", isDone: true });
+  const malformed = add(5, { weight: rawWeight, reps: "29", rir: "5", isDone: true });
+  rowInCycle(malformed, pushUp).setIndex = 2;
+
+  const blank = { weight: "", reps: "", rir: "" };
+  assert.deepEqual(buildCarryOver(context), blank);
+  assert.equal(hasCarryOver(context), false);
+  assert.deepEqual(row(ensure(state, "d5"), pushUp), { setIndex: 1, ...blank, isDone: false });
+
+  add(4, { weight: rawWeight, reps: "12", rir: "", isDone: true, methodLog: { ...pushUpLog("4"), choice: "skip" } });
+  add(3, { weight: "55", reps: "", rir: "2", isDone: true, methodLog: pushUpLog("3", "unconfirmed") });
+  add(2, { weight: "45", reps: "10", rir: "3", isDone: true });
+  const expected = { weight: "", reps: "12", rir: "2" };
+  assert.deepEqual(buildCarryOver(context), expected);
+  assert.equal(getCarryOver({ ...context, field: "weight" }), "");
+  assert.equal(hasCarryOver(context), true);
+  assert.deepEqual(row(ensure(freeze(state), "d5"), pushUp), { setIndex: 1, ...expected, isDone: false });
+  assert.equal(rowInCycle(weightOnly, pushUp).weight, rawWeight);
+  assert.equal(rowInCycle(first, pushUp).reps, "26");
+});
+
+test("Push-up history keeps the latest compatible confirmed snapshot with raw weight, blank or zero", () => {
+  const { context, first, current, add } = pushUpHistoryFixture();
+  Object.assign(rowInCycle(first, pushUp), { weight: "20", reps: "11", rir: "2", isDone: true, methodLog: pushUpLog("7") });
+  const source = add(3, { weight: rawWeight, reps: "12", rir: "", isDone: false, methodLog: pushUpLog("", "partial") });
+  add(4, { methodLog: pushUpLog("8", "unconfirmed") });
+  add(5, { methodLog: { ...pushUpLog("8"), choice: "skip" } });
+  add(6, { methodLog: pushUpLog("31") });
+  add(7, { methodLog: pushUpLog("9") }, { ...pushUpBinding, revision: 2 });
+  add(8, { weight: "75", reps: "26", methodLog: pushUpLog("9") }, null);
+  const malformed = add(9, { methodLog: pushUpLog("9") });
+  rowInCycle(malformed, pushUp).setIndex = 2;
+
+  const found = findAttempt(context);
+  assert.equal(found.cycleNumber, 3);
+  assert.equal(found.cycleStartedAt, "push-up-cycle-3");
+  assert.deepEqual(found.baseSet, { setIndex: 1, weight: rawWeight, reps: "12", rir: "", isDone: false });
+  assert.deepEqual(found.methodLog, pushUpLog("", "partial"));
+  assert.equal(found.derived.numericComplete, false);
+  found.baseSet.weight = "999";
+  found.methodLog.phases[knee].reps = "30";
+  assert.deepEqual(rowInCycle(source, pushUp).methodLog, pushUpLog("", "partial"));
+  assert.equal(rowInCycle(source, pushUp).weight, rawWeight);
+  assert.deepEqual(current.dayLogs, {});
+
+  add(3, { methodLog: pushUpLog("0") });
+  assert.deepEqual(findAttempt(context).methodLog, pushUpLog("0"));
+  assert.equal(findAttempt(context).derived.numericComplete, true);
+  for (const override of [{ exerciseId: "push-up" }, { planId: "cut-pro" }, { dayId: "d6" }, { setIndex: 2 }]) {
+    assert.equal(findAttempt({ ...context, ...override }), null);
+  }
+  current.dayLogs = structuredClone(first.dayLogs);
+  rowInCycle(current, pushUp).methodLog = { ...pushUpLog("0"), endPhaseId: knee };
+  assert.equal(findAttempt(context), null);
+  delete current.methodBindings;
+  assert.equal(findAttempt(context), null);
+});
+
+test("Push-up history and prefill check exact semantics on both sides of the binding", () => {
+  const { context, first, add } = pushUpHistoryFixture();
+  Object.assign(rowInCycle(first, pushUp), { weight: rawWeight, reps: "11", rir: "1", isDone: true, methodLog: pushUpLog("5") });
+  add(8, { reps: "12", rir: "2", isDone: true, methodLog: pushUpLog("0") });
+  for (const alter of [
+    (d) => { d.type = "rest-pause"; }, (d) => { d.appliesTo = "all"; },
+    (d) => { d.base.variationId = "wide-push-up"; }, (d) => { d.base.loadKind = "external"; },
+    (d) => { d.base.loadUnit = "kg"; }, (d) => { d.base.loadUnit = undefined; },
+    (d) => { d.phases[0].loadRule = "same-as-base"; }, (d) => { d.phases[0].phaseId = "plyo"; },
+    (d) => { d.phases[0].metrics.push("loadKg"); }, (d) => { d.phases[0].requiredMetrics = []; },
+    (d) => { d.phases[0].targets.reps = { min: 1, max: 5 }; }, (d) => { d.phases[0].extra = "x"; },
+  ]) {
+    const catalog = (alterLookup) => {
+      let calls = 0;
+      return { getPlanById: getPlan, getExercisesByPlanId: getAllExercises, getDayDetailsByPlanId: getDays,
+        getMethodDefinition() {
+          const definition = structuredClone(pushUpDefinition);
+          if (++calls === alterLookup) alter(definition);
+          return definition;
+        } };
+    };
+    assert.equal(findAttempt(context, catalog(1)), null);
+    assert.equal(findAttempt(context, catalog(2))?.cycleNumber, 1);
+    assert.deepEqual(buildCarryOver(context, catalog(2)), { weight: "", reps: "11", rir: "1" });
+  }
+});
+
+test("Finish Day exempts only the real bound Push-up row and still warns about reps, RIR, other loads and Core", () => {
+  const state = pushUpWorkout();
+  const coreBlock = getCoreBlock(getDay(pushUp.planId, pushUp.dayId).coreBlockId);
+  const coreExercises = getCoreExercises(coreBlock.exerciseIds);
+  const coreState = appReducer(state, { type: actions.ENSURE_CORE_BLOCK_LOG, payload: { ...pushUp, coreBlock, coreExercises } });
+  const core = coreExercises.find((exercise) => exercise.tracksLoad);
+  const day = cycle(coreState).dayLogs.d5;
+  day.coreBlockLog.coreExerciseLogs[core.id].sets[0].isDone = true;
+  day.mainExerciseLogs["low-to-high-cable-fly"].sets[0].isDone = true;
+  row(coreState, pushUp).isDone = true;
+  const input = (s) => ({ ...pushUp, cycle: cycle(s), dayLog: cycle(s).dayLogs.d5, coreExercises });
+  const result = getWarnings(input(coreState));
+  assert.equal(result.completedSetCount, 3);
+  assert.equal(result.missingMainImportantCount, 4);
+  assert.equal(result.missingMainLoadCount, 1);
+  assert.equal(result.missingCoreImportantCount, 2);
+  assert.equal(result.missingCoreLoadCount, 1);
+  assert.equal(result.missingLoadCount, 2);
+  assert.equal(result.hasMissingValueWarning, true);
+
+  for (const alter of [
+    (s) => { delete cycle(s).methodBindings; },
+    (s) => { cycle(s).methodBindings.exercises[pushUp.exerciseId].revision = 9; },
+    (s) => { cycle(s).dayLogs.d5.mainExerciseLogs[pushUp.exerciseId].exerciseId = "push-up"; },
+    (s) => { cycle(s).dayLogs.d5.dayId = "d6"; },
+    (s) => { row(s, pushUp).setIndex = 2; },
+    (s) => { row(s, pushUp).rir = null; },
+  ]) {
+    const malformed = structuredClone(coreState);
+    alter(malformed);
+    assert.equal(getWarnings(input(malformed)).missingMainLoadCount, 2);
+  }
+  assert.equal(getWarnings({ ...input(coreState), planId: "cut-pro" }).missingMainLoadCount, 2);
+  assert.equal(getWarnings({ ...input(coreState), currentCycleNumber: 2 }).missingMainLoadCount, 2);
+  assert.equal(getWarnings({ ...input(coreState), dayLog: structuredClone(day) }).missingMainLoadCount, 2);
+  const closed = finishDay(coreState, "d5");
+  assert.equal(cycle(closed).dayLogs.d5.finishedAt, "closed-d5");
+  assert.equal(cycle(closed).currentDayId, "d6");
+});
+
 const chrome = ["/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser"].find(existsSync);
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -1349,7 +1609,7 @@ createRoot(document.getElementById('root')).render(React.createElement(React.Str
 </script></body></html>`;
       server = await createServer({ cacheDir: join(profile, "vite-cache"), server: { host: "127.0.0.1", port: 0 },
         optimizeDeps: { noDiscovery: true, include: ["react", "react-dom/client", "react/jsx-dev-runtime", "react/jsx-runtime"] },
-        plugins: [{ name: "method-runtime-test", configureServer(vite) {
+        plugins: [pushUpCatalogAlias(), { name: "method-runtime-test", configureServer(vite) {
           vite.middlewares.use(async (req, res, next) => {
             if (req.url !== "/__method-runtime") return next();
             res.setHeader("Content-Type", "text/html"); res.end(await vite.transformIndexHtml(req.url, html));
@@ -1562,6 +1822,49 @@ createRoot(document.getElementById('root')).render(React.createElement(React.Str
         await wait(`window.__methodRuntime?.state.${rowPath}.methodLog?.phases['narrow-grip'].reps === '0'`);
         assert.deepEqual(await evaluate(`window.__methodRuntime.state.${rowPath}`),
           { ...row(state, preacher), methodLog: preacherLog("0") });
+        assert.deepEqual(await evaluate("window.__methodWrites"), []);
+      });
+      await t.test("bound Push-up keeps opaque weight through real V2 saves and reload, with no writes for weight edits", async () => {
+        const state = pushUpWorkout();
+        row(state, pushUp).weight = rawWeight;
+        const raw = JSON.stringify({ version: 2, savedAt: "push-up-test-seed", state });
+        const stored = () => evaluate(`localStorage.getItem(${v2})`);
+        const sendAction = (action) => evaluate(`window.__methodRuntime.dispatch(${JSON.stringify(action)})`);
+        const method = (change) => ({ type: actions.UPDATE_EXERCISE_METHOD, payload: payload(state, change, pushUp) });
+        const rowPath = "progressByPlan['bulk-pro'].cycles[1].dayLogs.d5.mainExerciseLogs['push-up-mechanical-dropset'].sets[0]";
+        const readRow = () => evaluate(`window.__methodRuntime.state.${rowPath}`);
+        await evaluate(`localStorage.setItem(${v2}, ${JSON.stringify(raw)}); delete window.__methodRuntime`);
+        await call("Page.reload");
+        await wait("window.__methodRuntime?.persistence.mode === 'ready'");
+        for (const action of [baseAction("weight", ""), baseAction("weight", "0"), baseAction("weight", "45"),
+          method(metric("31", knee)), method(metric("", knee)), method(execution("unconfirmed", knee))]) await sendAction(action);
+        await settled();
+        assert.equal(await stored(), raw);
+        assert.deepEqual(await evaluate("window.__methodWrites"), []);
+
+        await sendAction(baseAction("reps", "12"));
+        await sendAction(baseAction("rir", "1"));
+        await sendAction({ type: actions.TOGGLE_EXERCISE_SET_DONE, payload: pushUp });
+        await sendAction(method(execution("performed", knee)));
+        await wait(`JSON.parse(localStorage.getItem(${v2})).state.${rowPath}.methodLog?.phases['knee-push-up'].execution === 'performed'`);
+        assert.deepEqual(row(JSON.parse(await stored()).state, pushUp).methodLog, pushUpLog(""));
+        await sendAction(method(metric("0", knee)));
+        await wait(`JSON.parse(localStorage.getItem(${v2})).state.${rowPath}.methodLog?.phases['knee-push-up'].reps === '0'`);
+        const saved = await stored();
+        const expected = { setIndex: 1, weight: rawWeight, reps: "12", rir: "1", isDone: true, methodLog: pushUpLog("0") };
+        assert.deepEqual(row(JSON.parse(saved).state, pushUp), expected);
+        const writeCount = await evaluate("window.__methodWrites.length");
+        await sendAction(method(metric("0", knee)));
+        await sendAction(method(execution("performed", knee)));
+        await sendAction(baseAction("weight", ""));
+        await settled();
+        assert.equal(await evaluate("window.__methodWrites.length"), writeCount);
+        assert.equal(await stored(), saved);
+
+        await evaluate("delete window.__methodRuntime");
+        await call("Page.reload");
+        await wait(`window.__methodRuntime?.state.${rowPath}.methodLog?.phases['knee-push-up'].reps === '0'`);
+        assert.deepEqual(await readRow(), expected);
         assert.deepEqual(await evaluate("window.__methodWrites"), []);
       });
       assert.deepEqual(exceptions, []);

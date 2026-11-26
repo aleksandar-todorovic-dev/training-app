@@ -103,6 +103,31 @@ test("new Bulk/Cut cycles install only the approved snapshot and keep lazy logs 
   assert.notEqual(build({ planId: "bulk-pro" }).bindings, build({ planId: "bulk-pro" }).bindings);
 });
 
+test("production keeps nine Bulk bindings and ten applicable rows with Push-up absent even from the registry", () => {
+  const state = start();
+  const current = cycle(state);
+  const { exercises } = current.methodBindings;
+  const pushUpId = "push-up-mechanical-dropset";
+  assert.equal(advancedMethodDefinitions.length, 9);
+  assert.equal(advancedMethodDefinitions.some(({ exerciseId }) => exerciseId === pushUpId), false);
+  assert.equal(Object.keys(exercises).length, 9);
+  assert.equal(Object.hasOwn(exercises, pushUpId), false);
+  assert.deepEqual(cycle(start(undefined, "cut-pro"), "cut-pro").methodBindings.exercises, {});
+  let positions = 0;
+  for (const dayId of getPlan("bulk-pro").dayOrder) {
+    const opened = cycle(ensure(state, dayId));
+    for (const [exerciseId, exerciseLog] of Object.entries(opened.dayLogs[dayId].mainExerciseLogs)) {
+      const resolved = resolve({ planId: "bulk-pro", cycle: opened, dayId, exerciseId });
+      if (resolved.status === "resolved") positions += getApplicableSetIndexes(resolved.definition, exerciseLog.sets).length;
+      if (exerciseId === pushUpId) {
+        assert.equal(resolved.status, "unbound");
+        assert.deepEqual(exerciseLog.sets, [{ setIndex: 1, weight: "", reps: "", rir: "", isDone: false }]);
+      }
+    }
+  }
+  assert.equal(positions, 10);
+});
+
 test("only a new cycle gains a fresh snapshot; legacy unvisited days never backfill", () => {
   const legacy = start();
   delete cycle(legacy).methodBindings;

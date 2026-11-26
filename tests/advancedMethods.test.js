@@ -6,6 +6,7 @@ import { isValidMethodMetricValue, normalizeAssistanceKg, validateMethodLog } fr
 import { bulkProDayDetails } from "../src/data/dayDetails/bulkProDayDetails.js";
 import { bulkProExercises } from "../src/data/exercises/bulkProExercises.js";
 import { cutProExercises } from "../src/data/exercises/cutProExercises.js";
+import { pushUpDefinition } from "./pushUpMechanicalFixture.js";
 
 const [incline, curl, stretch, cluster] = advancedMethodDefinitions;
 const previousDefinitions = [incline, curl, stretch, cluster];
@@ -40,6 +41,93 @@ const preacher = freezeTree({
 });
 const narrowReps = (value) => metric(value, "reps", "narrow-grip");
 const narrowExecution = (value) => execution(value, "narrow-grip");
+const kneeReps = (value) => metric(value, "reps", "knee-push-up");
+const kneeExecution = (value) => execution(value, "knee-push-up");
+
+test("synthetic Push-up distinguishes draft, partial and performed evidence from measurements", () => {
+  assert.equal(getMethodDefinition(pushUpDefinition), null);
+  assert.deepEqual(getApplicableSetIndexes(pushUpDefinition, [{ setIndex: 1 }]), [1]);
+  assert.deepEqual(getApplicableSetIndexes(pushUpDefinition, [{ setIndex: 2 }]), []);
+  assert.equal(deriveMethodState(pushUpDefinition, undefined).status, "unknown");
+  const draft = recordWith(pushUpDefinition, kneeReps("30"));
+  assert.deepEqual(draft, { choice: "record", phases: { "knee-push-up": { execution: "unconfirmed", reps: "30" } } });
+  assert.deepEqual(deriveMethodState(pushUpDefinition, draft), {
+    valid: true, errors: [], status: "draft", numericComplete: true, missingMetrics: [], targetComparisons: {},
+  });
+  const partial = recordWith(pushUpDefinition, kneeExecution("partial"));
+  assert.equal(deriveMethodState(pushUpDefinition, partial).status, "partial");
+  assert.equal(deriveMethodState(pushUpDefinition, partial).numericComplete, false);
+
+  for (const reps of ["", "0", "30"]) {
+    const record = freezeTree(recordWith(pushUpDefinition, kneeReps(reps), kneeExecution("performed")));
+    assert.deepEqual(record, { choice: "record", phases: { "knee-push-up": { execution: "performed", reps } } });
+    assert.deepEqual(deriveMethodState(pushUpDefinition, record), {
+      valid: true, errors: [], status: "performed", numericComplete: reps !== "",
+      missingMetrics: reps === "" ? ["knee-push-up.reps"] : [], targetComparisons: {},
+    });
+    const cleared = transitionMethodLog(pushUpDefinition, record, kneeReps(""));
+    assert.deepEqual(cleared.phases["knee-push-up"], { execution: "performed", reps: "" });
+    const skipped = freezeTree(transitionMethodLog(pushUpDefinition, record, choice("skip")));
+    assert.equal(deriveMethodState(pushUpDefinition, skipped).status, "skipped");
+    assert.equal(transitionMethodLog(pushUpDefinition, skipped, kneeReps("3")), skipped);
+    assert.equal(transitionMethodLog(pushUpDefinition, skipped, kneeExecution("partial")), skipped);
+    assert.equal(transitionMethodLog(pushUpDefinition, skipped, choice("skip")), skipped);
+    assert.deepEqual(transitionMethodLog(pushUpDefinition, skipped, choice("record")), record);
+    assert.equal(transitionMethodLog(pushUpDefinition, record, kneeReps(reps)), record);
+    assert.equal(transitionMethodLog(pushUpDefinition, record, kneeExecution("performed")), record);
+  }
+});
+
+test("Push-up rejects invalid values, foreign changes and extra record metadata by identity", () => {
+  const previous = freezeTree(recordWith(pushUpDefinition, kneeReps("0"), kneeExecution("performed")));
+  const unsupported = ["loadKg", "bodyMassKg", "resistance", "restSeconds", "durationSeconds", "rir", "assistance"];
+  const invalidReps = [null, 1, "31", "1.5", "1,5", "-1", "+1", "00", " 2 ", "1e1", "2\n"];
+  const invalidChanges = [
+    ...invalidReps.map(kneeReps), ...unsupported.map((field) => metric("1", field, "knee-push-up")),
+    choice("record"), metric("1", "reps", "standard-push-up"), kneeExecution("yes"),
+    setAssistance("entered", "1", "knee-push-up"), clearAssistance("knee-push-up"),
+    { type: "finish-dropset", phaseId: "knee-push-up" }, { type: "extend-dropset", phaseId: "knee-push-up" },
+    { ...choice("skip"), loadKind: "bodyweight" }, { ...kneeReps("10"), extra: "x" },
+  ];
+  for (const change of invalidChanges) assert.equal(transitionMethodLog(pushUpDefinition, previous, change), previous);
+  for (const change of [kneeReps(""), kneeExecution("unconfirmed")]) {
+    assert.equal(transitionMethodLog(pushUpDefinition, undefined, change), undefined);
+  }
+  for (const record of [
+    null, { ...previous, endPhaseId: "knee-push-up" }, { choice: "record", phases: [] },
+    { choice: "record", phases: { "standard-push-up": { execution: "performed", reps: "0" } } },
+    ...unsupported.map((field) => ({
+      choice: "record", phases: { "knee-push-up": { execution: "performed", reps: "0", [field]: "1" } },
+    })),
+    ...invalidReps.map((reps) => ({ choice: "record", phases: { "knee-push-up": { execution: "performed", reps } } })),
+  ]) {
+    assert.equal(validateMethodLog(pushUpDefinition, record).valid, false);
+    assert.equal(transitionMethodLog(pushUpDefinition, record, choice("skip")), record);
+  }
+});
+
+test("Push-up candidates with altered definition semantics fail closed", () => {
+  const changes = [
+    (d) => { d.planId = "cut-pro"; }, (d) => { d.exerciseId = "push-up"; },
+    (d) => { d.definitionId += "-other"; }, (d) => { d.type = "rest-pause"; },
+    (d) => { d.revision = 2; }, (d) => { d.revision = "1"; }, (d) => { d.appliesTo = "all"; },
+    (d) => { d.prescribedSetCount = 2; }, (d) => { d.base.loadKind = "external"; },
+    (d) => { d.base.variationId = "wide-push-up"; }, (d) => { d.base.semantics = "post-extension"; },
+    ...["kg", "", null, undefined].map((unit) => (d) => { d.base.loadUnit = unit; }),
+    (d) => { d.base.loadConvention = "user-weight"; }, (d) => { d.reductionPercent = 15; },
+    (d) => { d.phases[0].loadRule = "same-as-base"; }, (d) => { d.phases[0].phaseId = "plyo"; },
+    (d) => { d.phases[0].targets.reps = { min: 1, max: 5 }; }, (d) => { d.phases[0].metrics.push("loadKg"); },
+    (d) => { d.phases[0].requiredMetrics.length = 0; }, (d) => { d.phases[0].variation = "knees"; },
+    (d) => { d.phases.push(structuredClone(d.phases[0])); },
+    (d) => { Object.defineProperty(d.phases[0].metrics, "0", { get: () => assert.fail("executed a getter") }); },
+  ];
+  for (const change of changes) {
+    const definition = structuredClone(pushUpDefinition);
+    change(definition);
+    assert.equal(validateMethodLog(definition, undefined).valid, false);
+    assert.equal(transitionMethodLog(definition, undefined, kneeExecution("performed")), undefined);
+  }
+});
 
 test("synthetic Preacher records attempt and numeric completeness independently, without a target", () => {
   assert.deepEqual(getApplicableSetIndexes(preacher, [{ setIndex: 1 }]), [1]);

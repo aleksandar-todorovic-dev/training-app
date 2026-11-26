@@ -1,5 +1,5 @@
 import {
-  hasDropsetPhaseData, hasExactFields, isPlainRecord, isValidMethodAssistanceChange,
+  hasDropsetPhaseData, hasExactFields, isMechanicalMethodType, isPlainRecord, isValidMethodAssistanceChange,
   isValidMethodPhaseMetricValue, validateMethodLog,
 } from "./advancedMethodValidation.js";
 
@@ -62,7 +62,7 @@ export function getApplicableSetIndexes(definition, setRows) {
 export function transitionMethodLog(definition, record, change) {
   if (!validateMethodLog(definition, record).valid || !isPlainRecord(change)) return record;
   const dropset = definition.type === "dropset";
-  const strictChanges = dropset || definition.type === "mechanical-set";
+  const strictChanges = dropset || isMechanicalMethodType(definition.type);
   const changeFields = dropset ? dropsetChangeFields : phaseChangeFields;
   if (strictChanges && (typeof change.type !== "string" || !Object.hasOwn(changeFields, change.type) ||
       !hasExactFields(change, changeFields[change.type]))) return record;
@@ -158,7 +158,7 @@ export function deriveMethodState(definition, record) {
         result.missingMetrics.push(`${phase.phaseId}.${metric}`);
       }
     }
-    if (dropset || definition.type === "mechanical-set") continue;
+    if (dropset || isMechanicalMethodType(definition.type)) continue;
     result.targetComparisons[phase.phaseId] = {};
     for (const [metric, target] of Object.entries(phase.targets)) {
       const value = actual?.[metric];

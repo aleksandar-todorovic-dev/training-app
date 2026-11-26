@@ -5,8 +5,9 @@ import { buildInitialCoreBlockLog } from "../utils/runtime/coreLogHelpers";
 import { areAllTrainingDaysFinished } from "../utils/runtime/cycleStatusHelpers";
 import { buildCycleMethodBindings, resolveCycleMethodBinding } from "../utils/runtime/advancedMethodContextHelpers.js";
 import { getApplicableSetIndexes, transitionMethodLog } from "../utils/runtime/advancedMethodHelpers.js";
+import { getApplicableMethodRow, getBoundPushUpBodyweightRow } from "../utils/runtime/advancedMethodHistoryHelpers.js";
 import {
-  isValidPreacherMechanicalBaseRow, normalizeAssistanceKg, validateMethodLog,
+  isMechanicalMethodType, normalizeAssistanceKg, validateMethodLog,
 } from "../utils/runtime/advancedMethodValidation.js";
 import { getDayMode } from "../utils/runtime/dayModeHelpers.js";
 import { getPlanById } from "../data/plans/index.js";
@@ -244,7 +245,8 @@ export function appReducer(state, action) {
       if (resolved.status !== "resolved" ||
           !getApplicableSetIndexes(resolved.definition, exerciseLog.sets).includes(setIndex)) return state;
       const target = exerciseLog.sets.find((set) => set.setIndex === setIndex);
-      if (resolved.definition.type === "mechanical-set" && !isValidPreacherMechanicalBaseRow(target)) return state;
+      if (isMechanicalMethodType(resolved.definition.type) &&
+          getApplicableMethodRow(currentCycle, resolved.definition, dayId, exerciseId, setIndex) !== target) return state;
       const previous = target.methodLog;
       if ((Object.hasOwn(target, "methodLog") && previous === undefined) ||
           !validateMethodLog(resolved.definition, previous).valid) return state;
@@ -396,6 +398,9 @@ export function appReducer(state, action) {
 
       // Update only one editable field on the targeted prescribed set row.
       // Changing input values does not mark the set as performed.
+      if (field === "weight" && currentCycle.cycleNumber === currentCycleNumber &&
+          getBoundPushUpBodyweightRow({ planId, cycle: currentCycle, dayId, exerciseId })) return state;
+
       const nextSets = exerciseLog.sets.map((set) => {
         if (set.setIndex !== setIndex) {
           return set;

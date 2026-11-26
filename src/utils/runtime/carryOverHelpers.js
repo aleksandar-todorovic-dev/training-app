@@ -1,35 +1,41 @@
 import { resolveCycleMethodBinding } from "./advancedMethodContextHelpers.js";
 import { getApplicableMethodRow, getEarlierCycleNumbers } from "./advancedMethodHistoryHelpers.js";
-import { isPreacherMechanicalAddress, isPreacherMechanicalDefinition } from "./advancedMethodValidation.js";
+import {
+  isPreacherMechanicalAddress, isPreacherMechanicalDefinition, isPushUpMechanicalAddress, isPushUpMechanicalDefinition,
+} from "./advancedMethodValidation.js";
 
 const CARRY_OVER_FIELDS = ["weight", "reps", "rir"];
+const PUSH_UP_CARRY_OVER_FIELDS = ["reps", "rir"];
 
-function resolvePreacherDefinition(cycle, cycleNumber, { planId, dayId, exerciseId }, catalog) {
+function resolveMechanicalDefinition(cycle, cycleNumber, { planId, dayId, exerciseId }, matches, catalog) {
   if (cycle?.cycleNumber !== cycleNumber) return null;
   const resolved = resolveCycleMethodBinding({ planId, cycle, dayId, exerciseId }, catalog);
-  return resolved.status === "resolved" && isPreacherMechanicalDefinition(resolved.definition) ? resolved.definition : null;
+  return resolved.status === "resolved" && matches(resolved.definition) ? resolved.definition : null;
 }
 
-// null keeps the ordinary lookup. A bound Preacher row never falls back to it,
+// null keeps the ordinary lookup. A supported Mechanical row never falls back to it,
 // even when there are no compatible values or the requested index is invalid.
-function findPreacherCarryOverValues(context, catalog) {
-  if (!isPreacherMechanicalAddress(context)) return null;
+function findMechanicalCarryOverValues(context, catalog) {
+  const pushUp = isPushUpMechanicalAddress(context);
+  if (!pushUp && !isPreacherMechanicalAddress(context)) return null;
+  const matches = pushUp ? isPushUpMechanicalDefinition : isPreacherMechanicalDefinition;
+  const fields = pushUp ? PUSH_UP_CARRY_OVER_FIELDS : CARRY_OVER_FIELDS;
   const { cycles, currentCycleNumber, dayId, exerciseId, setIndex } = context;
-  if (!resolvePreacherDefinition(cycles?.[currentCycleNumber], currentCycleNumber, context, catalog)) return null;
+  if (!resolveMechanicalDefinition(cycles?.[currentCycleNumber], currentCycleNumber, context, matches, catalog)) return null;
   const values = { weight: "", reps: "", rir: "" };
   if (setIndex !== 1) return values;
 
   for (const number of getEarlierCycleNumbers(cycles, currentCycleNumber)) {
     const previous = cycles[number];
-    const definition = resolvePreacherDefinition(previous, number, context, catalog);
+    const definition = resolveMechanicalDefinition(previous, number, context, matches, catalog);
     if (!definition) continue;
     const row = getApplicableMethodRow(previous, definition, dayId, exerciseId, setIndex);
     if (!row?.isDone) continue;
     // The extension's presence and execution are independent of the base.
-    for (const field of CARRY_OVER_FIELDS) {
+    for (const field of fields) {
       if (values[field] === "" && row[field].trim() !== "") values[field] = row[field];
     }
-    if (CARRY_OVER_FIELDS.every((field) => values[field] !== "")) break;
+    if (fields.every((field) => values[field] !== "")) break;
   }
   return values;
 }
@@ -77,7 +83,7 @@ function getLatestOrdinaryCarryOverFieldValue({
 export function getLatestCarryOverFieldValue(context, catalog) {
   const { field } = context;
   if (!CARRY_OVER_FIELDS.includes(field)) return "";
-  const values = findPreacherCarryOverValues(context, catalog);
+  const values = findMechanicalCarryOverValues(context, catalog);
   return values ? values[field] : getLatestOrdinaryCarryOverFieldValue(context);
 }
 
@@ -89,7 +95,7 @@ export function getLatestCarryOverFieldValue(context, catalog) {
  * useful previous value.
  */
 export function buildCarryOverSetValues(context, catalog) {
-  return findPreacherCarryOverValues(context, catalog) ?? Object.fromEntries(CARRY_OVER_FIELDS.map((field) =>
+  return findMechanicalCarryOverValues(context, catalog) ?? Object.fromEntries(CARRY_OVER_FIELDS.map((field) =>
     [field, getLatestOrdinaryCarryOverFieldValue({ ...context, field })],
   ));
 }
@@ -114,7 +120,7 @@ export function hasCarryOverValuesForExercise(context, catalog) {
 
   for (let setIndex = 1; setIndex <= setCount; setIndex += 1) {
     const setContext = { ...context, setIndex };
-    const values = findPreacherCarryOverValues(setContext, catalog);
+    const values = findMechanicalCarryOverValues(setContext, catalog);
     const hasFieldValue = CARRY_OVER_FIELDS.some((field) =>
       (values ? values[field] : getLatestOrdinaryCarryOverFieldValue({ ...setContext, field })) !== "",
     );

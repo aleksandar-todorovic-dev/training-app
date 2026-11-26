@@ -64,9 +64,19 @@ export function hasExactFields(record, fields) {
 
 const preacherExerciseId = "preacher-curl-mechanical";
 const preacherDefinitionId = "bulk-pro/preacher-curl-mechanical/mechanical-set";
+const pushUpExerciseId = "push-up-mechanical-dropset";
+const pushUpDefinitionId = "bulk-pro/push-up-mechanical-dropset/mechanical-dropset";
 
 export function isPreacherMechanicalAddress({ planId, dayId, exerciseId }) {
   return planId === "bulk-pro" && dayId === "d6" && exerciseId === preacherExerciseId;
+}
+
+export function isPushUpMechanicalAddress({ planId, dayId, exerciseId }) {
+  return planId === "bulk-pro" && dayId === "d5" && exerciseId === pushUpExerciseId;
+}
+
+export function isMechanicalMethodType(type) {
+  return type === "mechanical-set" || type === "mechanical-dropset";
 }
 
 // A corrupted type must not route a known Preacher identity through generic validation.
@@ -74,6 +84,12 @@ export function isPreacherMechanicalCandidate(definition) {
   return Object.getOwnPropertyDescriptor(definition, "definitionId")?.value === preacherDefinitionId ||
     Object.getOwnPropertyDescriptor(definition, "exerciseId")?.value === preacherExerciseId ||
     definition.type === "mechanical-set";
+}
+
+export function isPushUpMechanicalCandidate(definition) {
+  return Object.getOwnPropertyDescriptor(definition, "definitionId")?.value === pushUpDefinitionId ||
+    Object.getOwnPropertyDescriptor(definition, "exerciseId")?.value === pushUpExerciseId ||
+    definition.type === "mechanical-dropset";
 }
 
 // A singleton array must contain one ordinary data entry and no extension metadata.
@@ -84,25 +100,43 @@ function onlyItem(items) {
   return entry?.enumerable ? entry.value : undefined;
 }
 
-export function isPreacherMechanicalDefinition(definition) {
+function isExactMechanicalDefinition(definition, { definitionId, exerciseId, type, base, phaseId, loadRule }) {
   if (!isPlainRecord(definition) || !hasExactFields(definition, [
     "definitionId", "planId", "exerciseId", "type", "revision", "prescribedSetCount", "appliesTo", "base", "phases",
-  ]) || definition.definitionId !== preacherDefinitionId || definition.planId !== "bulk-pro" ||
-    definition.exerciseId !== preacherExerciseId || definition.type !== "mechanical-set" ||
+  ]) || definition.definitionId !== definitionId || definition.planId !== "bulk-pro" ||
+    definition.exerciseId !== exerciseId || definition.type !== type ||
     definition.revision !== 1 || definition.prescribedSetCount !== 1 || definition.appliesTo !== "last") return false;
 
-  const { base } = definition;
+  const actualBase = definition.base;
   const phase = onlyItem(definition.phases);
-  return isPlainRecord(base) && hasExactFields(base, ["semantics", "variationId", "loadKind", "loadUnit"]) &&
-    base.semantics === "pre-extension" && base.variationId === "wide-grip" &&
-    base.loadKind === "external" && base.loadUnit === "kg" &&
+  return isPlainRecord(actualBase) && hasExactFields(actualBase, Object.keys(base)) &&
+    Object.entries(base).every(([field, value]) => actualBase[field] === value) &&
     isPlainRecord(phase) && hasExactFields(phase, ["phaseId", "loadRule", "metrics", "requiredMetrics", "targets"]) &&
-    phase.phaseId === "narrow-grip" && phase.loadRule === "same-as-base" &&
+    phase.phaseId === phaseId && phase.loadRule === loadRule &&
     onlyItem(phase.metrics) === "reps" && onlyItem(phase.requiredMetrics) === "reps" &&
     isPlainRecord(phase.targets) && hasExactFields(phase.targets, []);
 }
 
-export function isValidPreacherMechanicalBaseRow(row) {
+const preacherContract = {
+  definitionId: preacherDefinitionId, exerciseId: preacherExerciseId, type: "mechanical-set",
+  base: { semantics: "pre-extension", variationId: "wide-grip", loadKind: "external", loadUnit: "kg" },
+  phaseId: "narrow-grip", loadRule: "same-as-base",
+};
+const pushUpContract = {
+  definitionId: pushUpDefinitionId, exerciseId: pushUpExerciseId, type: "mechanical-dropset",
+  base: { semantics: "pre-extension", variationId: "standard-push-up", loadKind: "bodyweight" },
+  phaseId: "knee-push-up", loadRule: "bodyweight-variation",
+};
+
+export function isPreacherMechanicalDefinition(definition) {
+  return isExactMechanicalDefinition(definition, preacherContract);
+}
+
+export function isPushUpMechanicalDefinition(definition) {
+  return isExactMechanicalDefinition(definition, pushUpContract);
+}
+
+export function isValidMechanicalBaseRow(row) {
   return isPlainRecord(row) && Object.hasOwn(row, "setIndex") && row.setIndex === 1 &&
     Object.hasOwn(row, "isDone") && typeof row.isDone === "boolean" &&
     ["weight", "reps", "rir"].every((field) => Object.hasOwn(row, field) && typeof row[field] === "string");
@@ -172,6 +206,9 @@ export function validateMethodLog(definition, record) {
   if (!definition) return { valid: false, errors: ["definition: unresolved"] };
   if (isPreacherMechanicalCandidate(definition) && !isPreacherMechanicalDefinition(definition)) {
     return { valid: false, errors: ["definition: unsupported Preacher Mechanical protocol"] };
+  }
+  if (isPushUpMechanicalCandidate(definition) && !isPushUpMechanicalDefinition(definition)) {
+    return { valid: false, errors: ["definition: unsupported Push-up Mechanical protocol"] };
   }
   const dropset = definition.type === "dropset";
   if (dropset && !hasValidDropsetPhaseOrder(definition)) {
