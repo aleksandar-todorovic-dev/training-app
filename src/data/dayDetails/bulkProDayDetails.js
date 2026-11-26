@@ -140,7 +140,7 @@ export const bulkProDayDetails = [
     sessionInfo: {
       rirRule: "Compound 1-2, other lifts 1-2",
       advancedTechniques:
-        "Preacher Curl mechanical set. Leg-Press Calf Raise optional last-set dropset, up to three drops of about 25% each.",
+        "Preacher Curl: wide-grip base with an optional narrow-grip continuation at the same load. Leg-Press Calf Raise: optional last-set dropset, up to three drops of about 25% each.",
       warmupId: "warmup-d6",
     },
     exerciseIds: [

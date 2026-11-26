@@ -11,6 +11,7 @@ import { srLatn } from "../src/i18n/sr-Latn.js";
 import { createTranslator, englishPlurals, performedSetLabel } from "../src/i18n/translate.js";
 import { loadLocale, saveLocale, LOCALE_STORAGE_KEY } from "../src/i18n/localeStorage.js";
 import { updateDocumentMetadata } from "../src/i18n/documentMetadata.js";
+import { preacherDefinition } from "./preacherMechanicalFixture.js";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const en = createTranslator("en");
@@ -56,6 +57,7 @@ before(async () => {
     ...["HomePage", "PlanOverviewPage", "CyclePage", "DayPage", "ExercisePage", "CorePage", "GuidePage", "EndCyclePage", "PublicInfoPage", "NotFoundPage"].map((name) => [name, `pages/${name}.jsx`]),
     ["GuideGroupCard", "components/guide/GuideGroupCard.jsx"],
     ["ExerciseWorkflowCard", "components/exercise/ExerciseWorkflowCard.jsx"],
+    ["AdvancedMethodPanel", "components/exercise/AdvancedMethodPanel.jsx"],
     ["WarmupSheet", "components/warmup/WarmupSheet.jsx"],
     ["HelpSheet", "components/common/HelpSheet.jsx"],
     ["FirstStartSafetySheet", "components/system/FirstStartSafetySheet.jsx"],
@@ -521,7 +523,7 @@ test("all six educational summaries match source types and only bound exercises 
     'mechanical-set':'Mechanical set · exact sequence available', 'mechanical-dropset':'Mechanical dropset · exact sequence available',
   };
   const activeExercises = new Set(['incline-db-press','cable-stretch-fly','face-away-cable-curl','assisted-pull-up-cluster',
-    'leg-extension','overhead-rope-extension','machine-lateral-raise','leg-press-calf-raise']);
+    'leg-extension','overhead-rope-extension','machine-lateral-raise','leg-press-calf-raise','preacher-curl-mechanical']);
   const w = workout('bulk-pro'); const seen = new Set();
   let panelPositions = 0;
   for (const day of getDayDetailsByPlanId('bulk-pro')) {
@@ -543,12 +545,24 @@ test("all six educational summaries match source types and only bound exercises 
     }
   }
   assert.deepEqual([...seen].sort(),Object.keys(summaries).sort());
-  assert.equal(panelPositions, 9);
+  assert.equal(panelPositions, 10);
   const exercise = getExercisesForDay('bulk-pro',getDayDetails('bulk-pro','d1').exerciseIds)[1];
   for (const type of ['future-method','toString','__proto__']) for (const locale of ['en','sr-Latn']) {
     const html = render('ExerciseWorkflowCard',w.state(),locale,'/','/',{exercise:{...exercise,details:{...exercise.details,advancedTechniqueType:type}}});
     assert.ok(html.includes(escape(createTranslator(locale)('Advanced method · exact sequence available'))));
     assert.doesNotMatch(html,/data-method-set=/);
+  }
+});
+
+test("unsupported advanced method definitions render a neutral message in both languages", () => {
+  for (const locale of ["en", "sr-Latn"]) {
+    for (const definition of [
+      { type: "future-method" }, { type: "mechanical-dropset" }, { ...preacherDefinition, revision: 2 },
+    ]) {
+      const html = render("AdvancedMethodPanel", appInitialState, locale, "/", "/", { definition });
+      assert.ok(html.includes(escape(createTranslator(locale)("Method logging unavailable"))));
+      assert.doesNotMatch(html, /data-method-set=|<input|aria-expanded/);
+    }
   }
 });
 

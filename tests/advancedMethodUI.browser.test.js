@@ -6,8 +6,10 @@ import { existsSync } from "node:fs";
 import { mkdtemp, mkdir, writeFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { env } from "node:process";
 import { createServer } from "vite";
 import { createTranslator } from "../src/i18n/translate.js";
+import { preacherCatalogAlias } from "./preacherMechanicalFixture.js";
 
 const chrome = ["/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser"].find(existsSync);
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -31,6 +33,12 @@ const beforeD3 = { version: 1, exercises: { ...beforeCluster.exercises,
   "assisted-pull-up-cluster": { definitionId: "bulk-pro/assisted-pull-up-cluster/cluster", revision: 1, dayId: "d5", setCount: 2 },
 } };
 const beforeRollout = { version: 1, exercises: { ...beforeD3.exercises, [dropExercise]: dropBinding } };
+const preacherId = "preacher-curl-mechanical";
+const preacherRoute = route(preacherId, "d6");
+const preacherBinding = { definitionId: "bulk-pro/preacher-curl-mechanical/mechanical-set", revision: 1, dayId: "d6", setCount: 1 };
+const beforePreacher = { version: 1, exercises: { ...beforeRollout.exercises, ...rolloutBindings } };
+// This mode is for the pre-registration check. The normal suite uses the production registry.
+const syntheticPreacher = env.CYCLE_COACH_SYNTHETIC_PREACHER === "1";
 
 // Only the isolated server exposes this route. Real pages, context and persistence
 // run under StrictMode; the wrapper can enqueue a base edit to reproduce a stale confirmation.
@@ -78,7 +86,7 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
     server = await createServer({ cacheDir: join(profile, "vite-cache"),
       server: { host: "127.0.0.1", port: 0 },
       optimizeDeps: { noDiscovery: true, include: ["react", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime", "react-router-dom", "motion/react", "lucide-react"] },
-      plugins: [{ name: "method-ui-fixture", configureServer(vite) {
+      plugins: [...(syntheticPreacher ? [preacherCatalogAlias()] : []), { name: "method-ui-fixture", configureServer(vite) {
         vite.middlewares.use(async (req, res, next) => {
           if (req.url !== "/__method-ui") return next();
           res.setHeader("Content-Type", "text/html"); res.end(await vite.transformIndexHtml(req.url, harness));
@@ -214,6 +222,187 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
     await call("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
     await call("Page.navigate", { url: `http://127.0.0.1:${server.httpServer.address().port}/__method-ui` });
     await wait("Boolean(window.__qa && document.querySelector('[data-method-set]'))");
+    const mechanical = "[data-mechanical]";
+    const mechanicalInput = `${mechanical} input[name="reps"]`;
+    const key = async (name, code) => {
+      await call("Input.dispatchKeyEvent", {
+        type: "keyDown", key: name, code: name, windowsVirtualKeyCode: code,
+        ...(name === "Enter" ? { text: "\r", unmodifiedText: "\r" } : {}),
+      });
+      await call("Input.dispatchKeyEvent", { type: "keyUp", key: name, code: name, windowsVirtualKeyCode: code });
+      await settle();
+    };
+    const bulkProgress = (state) => state.progressByPlan["bulk-pro"];
+    const preacherRow = (state, number = bulkProgress(state).currentCycleNumber) =>
+      bulkProgress(state).cycles[number].dayLogs.d6.mainExerciseLogs[preacherId].sets[0];
+    const savedPreacher = async () => preacherRow(JSON.parse(await read()).state);
+    const continuation = (row) => row.methodLog?.phases["narrow-grip"];
+
+    await t.test("Preacher disclosure, real pointer actions, stable controls and V2 reload", async () => {
+      const state = fixture("bulk-pro", "d6");
+      const current = bulkProgress(state).cycles[1];
+      assert.deepEqual(current.methodBindings.exercises,
+        syntheticPreacher ? beforePreacher.exercises : { ...beforePreacher.exercises, [preacherId]: preacherBinding });
+      if (syntheticPreacher) current.methodBindings.exercises[preacherId] = preacherBinding;
+      await seed(state, preacherRoute);
+      const initialRaw = await read();
+      const toggle = `${mechanical} > button`;
+      const skip = `${mechanical} [data-mechanical-choice]`;
+      assert.equal(await evaluate(`document.querySelector('${toggle}').getAttribute('aria-expanded')`), "false");
+      assert.ok((await evaluate("document.body.innerText")).includes("Wide-grip base"));
+      await click(toggle);
+      assert.equal(await evaluate(`document.querySelectorAll('${mechanical} input:not([type=radio])').length`), 1);
+      await click(`${mechanical} input[value="unconfirmed"]`);
+      assert.equal(await read(), initialRaw);
+      await fill("reps", "30");
+      assert.deepEqual(continuation(await savedPreacher()), { reps: "30", execution: "unconfirmed" });
+      const draft = await read();
+      for (const invalid of ["31", "01", "-1", "1.5", "1,5"]) {
+        await fill("reps", invalid);
+        assert.equal(await read(), draft);
+        assert.equal(await evaluate("document.activeElement.value"), "30");
+        assert.equal(await evaluate("document.activeElement.getAttribute('aria-invalid')"), "true");
+      }
+      // click() presses and releases at one coordinate pair with the input focused.
+      await evaluate("void (window.__preacherInput=document.activeElement)");
+      await click(`${mechanical} input[value="partial"]`);
+      assert.equal(continuation(await savedPreacher()).execution, "partial");
+      assert.equal((await savedPreacher()).isDone, false);
+      await fill("reps", "31");
+      await call("Emulation.setTouchEmulationEnabled", { enabled: true });
+      try {
+        const point = await controlPoint(skip);
+        await call("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [point] });
+        await call("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+        await wait(`document.querySelector('${skip}').textContent === 'Resume recording'`);
+        await settle();
+      } finally {
+        await call("Emulation.setTouchEmulationEnabled", { enabled: false });
+      }
+      assert.equal((await savedPreacher()).methodLog.choice, "skip");
+      assert.equal(continuation(await savedPreacher()).reps, "30");
+      await click(skip);
+      assert.equal(continuation(await savedPreacher()).execution, "partial");
+      await click(toggle); await click(toggle);
+      assert.equal(await evaluate(`window.__preacherInput===document.querySelector('${mechanicalInput}')`), true);
+      await fill("reps", "0");
+      await click(`${mechanical} input[value="performed"]`);
+      assert.match(await summary(), /Attempt confirmed.*0/);
+      const zero = await read();
+      const writes = await evaluate("window.__writes.length");
+      await click(`${mechanical} input[value="performed"]`);
+      assert.equal(await read(), zero);
+      assert.equal(await evaluate("window.__writes.length"), writes);
+      await fill("reps", "");
+      assert.deepEqual(continuation(await savedPreacher()), { execution: "performed", reps: "" });
+      assert.ok((await evaluate("document.body.innerText")).includes("Measurement not recorded"));
+      await click('button[aria-label="Mark set 1 performed"]');
+      assert.equal((await savedPreacher()).isDone, true);
+      await fill("reps", "0");
+      const saved = await read();
+      await evaluate(`window.__preacherInput=document.activeElement;window.__preacherInput.setSelectionRange(1,1);const s=document.querySelector('select');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(s,'sr-Latn');s.dispatchEvent(new Event('change',{bubbles:true}));`);
+      await settle();
+      assert.equal(await evaluate("document.activeElement===window.__preacherInput && window.__preacherInput.selectionStart===1"), true);
+      assert.ok((await summary()).includes(createTranslator("sr-Latn")("Attempt confirmed")));
+      assert.equal(await read(), saved);
+      const generation = await evaluate("window.__generation");
+      await call("Page.reload");
+      await wait(`window.__generation>${generation} && Boolean(document.querySelector('${mechanical}'))`);
+      assert.deepEqual(continuation(await savedPreacher()), { execution: "performed", reps: "0" });
+      assert.equal((await savedPreacher()).isDone, true);
+      assert.deepEqual(await evaluate("window.__writes"), []);
+    });
+    if (syntheticPreacher) {
+      assert.deepEqual(exceptions, []);
+      await send("Browser.close");
+      return;
+    }
+    await t.test("Preacher real next-cycle prefill, history and EN/SR mobile layouts", async () => {
+      const legacy = fixture("bulk-pro", "d6");
+      bulkProgress(legacy).cycles[1].methodBindings = structuredClone(beforePreacher);
+      Object.assign(preacherRow(legacy), { weight: "45", reps: "12", rir: "0", isDone: true });
+      for (const locale of ["en", "sr-Latn"]) {
+        const t = createTranslator(locale);
+        await seed(legacy, preacherRoute, locale);
+        assert.equal(await evaluate(`document.querySelector('${mechanical}')`), null);
+        assert.equal(await evaluate('document.querySelector("[name=set-1-reps]").value'), "12");
+        assert.ok((await evaluate("document.body.innerText")).includes(t("Saved reps may include both grips.")));
+        await seed(legacy, "/plan/bulk-pro/day/d6", locale);
+        assert.ok((await evaluate(`document.querySelector('a[href="${preacherRoute}"]').innerText`)).includes(t("Saved reps may include both grips.")));
+        const upcoming = fixture();
+        await seed(upcoming, "/plan/bulk-pro/day/d6", locale);
+        assert.ok((await evaluate(`document.querySelector('a[href="${preacherRoute}"]').innerText`)).includes(t("Wide-grip prescription")));
+        await seed(upcoming, preacherRoute, locale);
+        assert.equal(await evaluate("document.querySelector('[data-method-set], input[name=set-1-reps]')"), null);
+      }
+      await seed(fixture("bulk-pro", "d6"), route("preacher-curl-ez", "d6"));
+      assert.equal(await evaluate("document.querySelector('[data-method-set]')"), null);
+
+      const first = fixture("bulk-pro", "d6", legacy);
+      assert.deepEqual(preacherRow(first), { setIndex: 1, weight: "", reps: "", rir: "", isDone: false });
+      await seed(first, "/plan/bulk-pro/day/d6");
+      assert.ok((await evaluate(`document.querySelector('a[href="${preacherRoute}"]').innerText`)).includes("Wide-grip base"));
+      await seed(first, preacherRoute);
+      assert.ok((await evaluate("document.body.innerText")).includes("No earlier compatible wide-grip values"));
+      for (const [field, value] of [["weight", "25"], ["reps", "7"], ["rir", "1"]]) {
+        await click(`input[name="set-1-${field}"]`);
+        await call("Input.insertText", { text: value });
+        await settle();
+      }
+      await click('button[aria-label="Mark set 1 performed"]');
+      await click(`${mechanical} > button`);
+      await fill("reps", "0");
+      await click(`${mechanical} input[value="performed"]`);
+      const next = fixture("bulk-pro", "d6", JSON.parse(await read()).state);
+      assert.deepEqual(preacherRow(next), { setIndex: 1, weight: "25", reps: "7", rir: "1", isDone: false });
+      const directory = await mkdtemp(join(tmpdir(), "cycle-coach-6a2-visual-"));
+      const capture = async (name, selector) => {
+        await evaluate(`document.querySelector(${JSON.stringify(selector)}).scrollIntoView({block:'center',behavior:'instant'})`);
+        await settle();
+        const shot = await call("Page.captureScreenshot", { format: "png" });
+        await writeFile(join(directory, `${name}.png`), Buffer.from(shot.data, "base64"));
+      };
+      for (const [width, height] of [[320, 568], [360, 800], [390, 844]]) for (const locale of ["en", "sr-Latn"]) {
+        const t = createTranslator(locale);
+        await call("Emulation.setDeviceMetricsOverride", { width, height, deviceScaleFactor: 1, mobile: true });
+        await seed(next, preacherRoute, locale);
+        const before = await read();
+        assert.ok((await evaluate("document.body.innerText")).includes(t("Previous compatible wide-grip values")));
+        if (width !== 360) await capture(`collapsed-${locale}-${width}`, mechanical);
+        await click(`${mechanical} > button`);
+        assert.equal(await evaluate(`document.querySelector('${mechanicalInput}').value`), "");
+        assert.equal(await evaluate(`document.querySelector('${mechanicalInput}').getBoundingClientRect().height>=44`), true);
+        if (width !== 360) await capture(`expanded-${locale}-${width}`, mechanical);
+        await click(mechanicalInput);
+        await key("Tab", 9);
+        assert.equal(await evaluate("document.activeElement.type"), "radio");
+        const history = `${mechanical} [data-method-history]`;
+        await evaluate(`document.querySelector('${history} button').focus()`);
+        await key("Enter", 13);
+        assert.equal(await evaluate(`document.querySelector('${history} button').getAttribute('aria-expanded')`), "true");
+        const text = await evaluate(`document.querySelector('${history}').innerText`);
+        for (const copy of [
+          t("Previous comparable attempt · Cycle {cycle}", { cycle: 2 }), t("Wide-grip base"),
+          t("Extra reps: {value}", { value: "0" }), t("Base set marked performed"),
+        ]) assert.ok(text.includes(copy), copy);
+        assert.equal(await evaluate("document.documentElement.scrollWidth<=innerWidth"), true);
+        assert.equal(await evaluate(`document.querySelector('${history} input')`), null);
+        if (width !== 360) await capture(`history-${locale}-${width}`, history);
+        assert.equal(await read(), before);
+        assert.deepEqual(await evaluate("window.__writes"), []);
+      }
+      const previous = preacherRow(next, 2);
+      previous.isDone = false;
+      continuation(previous).reps = "";
+      await seed(next, preacherRoute);
+      await click(`${mechanical} > button`);
+      await click(`${mechanical} [data-method-history] button`);
+      const history = await evaluate(`document.querySelector('${mechanical} [data-method-history]').innerText`);
+      assert.ok(history.includes("Measurement not recorded"));
+      assert.ok(history.includes("Base set not marked performed"));
+      t.diagnostic(`Preacher review screenshots: ${directory}`);
+    });
+    await seed(fixture());
     await t.test("disclosure and default confirmation never write workout data or open the keyboard", async () => {
       const before = await read(); await open();
       assert.equal(await evaluate("document.activeElement.tagName"), "BUTTON");
@@ -629,7 +818,7 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
       await click('[role="dialog"] button', "I understand — start cycle");
       const first = await evaluate("window.__qa.state.progressByPlan['bulk-pro'].cycles[1]");
       assert.deepEqual(first.methodBindings, { version: 1, exercises: {
-        ...beforeRollout.exercises, ...rolloutBindings,
+        ...beforePreacher.exercises, [preacherId]: preacherBinding,
       } });
       assert.deepEqual(first.dayLogs, {});
       await reachCluster(1);
@@ -1100,7 +1289,7 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
       await seed(structuredClone(appInitialState), "/plan/bulk-pro");
       await click("a", "Start Cycle 1");
       await click('[role="dialog"] button', "I understand — start cycle");
-      assert.deepEqual((await evaluate(`${bulk}.cycles[1]`)).methodBindings.exercises, { ...beforeRollout.exercises, ...rolloutBindings });
+      assert.deepEqual((await evaluate(`${bulk}.cycles[1]`)).methodBindings.exercises, { ...beforePreacher.exercises, [preacherId]: preacherBinding });
       await traverse(async (exerciseId, day) => {
         await openDrop();
         if (day === "d6") {

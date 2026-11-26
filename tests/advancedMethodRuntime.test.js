@@ -9,53 +9,19 @@ import { join } from "node:path";
 import { createServer } from "vite";
 import { advancedMethodDefinitions, getMethodDefinition } from "../src/data/advancedMethods/definitions.js";
 import { deriveMethodState, transitionMethodLog } from "../src/utils/runtime/advancedMethodHelpers.js";
+import { preacherDefinition } from "./preacherMechanicalFixture.js";
 import { createAppStatePersistence, WORKOUT_STORAGE_KEYS } from "../src/storage/appStateStorage.js";
 
 const preacher = {
   planId: "bulk-pro", exerciseId: "preacher-curl-mechanical", dayId: "d6", setIndex: 1,
 };
-const preacherDefinition = freeze({
-  planId: "bulk-pro", exerciseId: "preacher-curl-mechanical",
-  definitionId: "bulk-pro/preacher-curl-mechanical/mechanical-set",
-  revision: 1, type: "mechanical-set", prescribedSetCount: 1, appliesTo: "last",
-  base: { semantics: "pre-extension", variationId: "wide-grip", loadKind: "external", loadUnit: "kg" },
-  phases: [{
-    phaseId: "narrow-grip", loadRule: "same-as-base", metrics: ["reps"], requiredMetrics: ["reps"], targets: {},
-  }],
-});
-
-// Only the resolver's registry import sees the synthetic definition. Cycle
-// creation still uses the application's real allowlist and all normal guards.
-function preacherCatalogAlias() {
-  const id = "\0preacher-catalog-test";
-  return {
-    name: "preacher-catalog-test",
-    enforce: "pre",
-    resolveId(source, importer) {
-      if (source === "../../data/advancedMethods/definitions.js" &&
-          importer?.endsWith("/utils/runtime/advancedMethodContextHelpers.js")) return id;
-    },
-    load(moduleId) {
-      if (moduleId !== id) return;
-      return `
-        import { getMethodDefinition as lookup } from "/src/data/advancedMethods/definitions.js";
-        const preacher = ${JSON.stringify(preacherDefinition)};
-        export function getMethodDefinition(ref) {
-          return ["planId", "exerciseId", "definitionId", "revision"].every(key => ref[key] === preacher[key])
-            ? preacher : lookup(ref);
-        }
-      `;
-    },
-  };
-}
-
 let vite, appReducer, actions, initialState, findAttempt;
 let getPlan, getDay, getDays, getExercises, getCoreBlock, getCoreExercises, getProgress, getSummary, getCarryOver;
 let getAllExercises, buildCarryOver, hasCarryOver;
 before(async () => {
   vite = await createServer({ root: fileURLToPath(new URL("../", import.meta.url)),
     server: { middlewareMode: true, hmr: false, ws: false, watch: null },
-    optimizeDeps: { noDiscovery: true, include: [] }, appType: "custom", plugins: [preacherCatalogAlias()] });
+    optimizeDeps: { noDiscovery: true, include: [] }, appType: "custom" });
   const load = (path) => vite.ssrLoadModule(`/src/${path}`);
   [
     { appReducer }, { APP_ACTIONS: actions }, { appInitialState: initialState },
@@ -760,7 +726,7 @@ test("Cluster evidence survives V2 reload alongside pilot and Core data without 
   const oldAction = payload(loaded.state, assistance("entered", "40"), cluster);
   const next = ensureCore(clusterWorkout(finishDay(finishDay(loaded.state, "d5"), "d6")));
   assert.deepEqual(Object.keys(cycle(next).methodBindings.exercises).sort(),
-    [...pilots, cluster, ...dropsetAddresses].map((p) => p.exerciseId).sort());
+    [...pilots, cluster, ...dropsetAddresses, preacher].map((p) => p.exerciseId).sort());
   assert.deepEqual(cycle(start(next, "cut-start", "cut-pro"), "cut-pro").methodBindings.exercises, {});
   assert.deepEqual(row(next, cluster), { setIndex: 1, weight: "25", reps: "9", rir: "2", isDone: false });
   assert.deepEqual(row(next, secondCluster), { setIndex: 2, weight: "", reps: "", rir: "", isDone: false });
@@ -864,7 +830,7 @@ test("all four Dropsets use the right row, round-trip V2 and reference only thei
   }
 });
 
-test("D3 revision 1 history crosses the five-to-eight-binding boundary", () => {
+test("D3 revision 1 history crosses from five bindings to the current nine", () => {
   const prior = dropsetWorkout();
   cycle(prior).methodBindings = structuredClone({ version: 1, exercises: {
     ...beforeDropsetBindings.exercises, [dropset.exerciseId]: dropBinding,
@@ -873,7 +839,7 @@ test("D3 revision 1 history crosses the five-to-eight-binding boundary", () => {
   const next = start(freeze(recorded), "after-rollout");
   const { cycles, currentCycleNumber } = next.progressByPlan["bulk-pro"];
   assert.equal(Object.keys(cycles[1].methodBindings.exercises).length, 5);
-  assert.equal(Object.keys(cycles[2].methodBindings.exercises).length, 8);
+  assert.equal(Object.keys(cycles[2].methodBindings.exercises).length, 9);
   assert.equal(cycles[1], cycle(recorded));
   const evidence = findAttempt({ ...dropset, cycles, currentCycleNumber });
   assert.equal(evidence.cycleNumber, 1);
@@ -1147,7 +1113,7 @@ const preacherLog = (reps, execution = "performed") => ({
 function preacherWorkout() {
   const state = start();
   cycle(state).currentDayId = "d6";
-  cycle(state).methodBindings.exercises[preacher.exerciseId] = { ...preacherBinding };
+  assert.deepEqual(cycle(state).methodBindings.exercises[preacher.exerciseId], preacherBinding);
   return ensure(state, "d6");
 }
 
@@ -1176,14 +1142,15 @@ function preacherHistoryFixture() {
   return { state, add, first, context: { ...preacher, cycles: progress.cycles, currentCycleNumber: 10, setCount: 1 } };
 }
 
-test("real cycle start keeps eight Bulk bindings and Cut empty with the synthetic lookup available", () => {
-  assert.equal(advancedMethodDefinitions.length, 8);
-  assert.equal(getMethodDefinition(preacherDefinition), null);
+test("real cycle start adds only the exact Preacher reference and keeps Cut empty", () => {
+  assert.equal(advancedMethodDefinitions.length, 9);
+  assert.deepEqual(getMethodDefinition(preacherDefinition), preacherDefinition);
   const state = start();
-  assert.equal(Object.keys(cycle(state).methodBindings.exercises).length, 8);
-  assert.equal(Object.hasOwn(cycle(state).methodBindings.exercises, preacher.exerciseId), false);
+  assert.equal(Object.keys(cycle(state).methodBindings.exercises).length, 9);
+  assert.deepEqual(cycle(state).methodBindings.exercises[preacher.exerciseId], preacherBinding);
   assert.deepEqual(cycle(start(state, "test-cut", "cut-pro"), "cut-pro").methodBindings.exercises, {});
   cycle(state).currentDayId = "d6";
+  delete cycle(state).methodBindings.exercises[preacher.exerciseId];
   const unbound = freeze(ensure(state, "d6"));
   assert.equal(update(unbound, preacherExecution("performed"), preacher), unbound);
 });
@@ -1382,7 +1349,7 @@ createRoot(document.getElementById('root')).render(React.createElement(React.Str
 </script></body></html>`;
       server = await createServer({ cacheDir: join(profile, "vite-cache"), server: { host: "127.0.0.1", port: 0 },
         optimizeDeps: { noDiscovery: true, include: ["react", "react-dom/client", "react/jsx-dev-runtime", "react/jsx-runtime"] },
-        plugins: [preacherCatalogAlias(), { name: "method-runtime-test", configureServer(vite) {
+        plugins: [{ name: "method-runtime-test", configureServer(vite) {
           vite.middlewares.use(async (req, res, next) => {
             if (req.url !== "/__method-runtime") return next();
             res.setHeader("Content-Type", "text/html"); res.end(await vite.transformIndexHtml(req.url, html));
@@ -1558,7 +1525,7 @@ createRoot(document.getElementById('root')).render(React.createElement(React.Str
         assert.deepEqual(await evaluate(dropLog), expected);
         assert.deepEqual(await evaluate("window.__methodWrites"), []);
       });
-      await t.test("synthetic Preacher V2 round-trip preserves blank/zero; rejected and repeated edits do not write", async () => {
+      await t.test("Preacher V2 round-trip preserves blank/zero; rejected and repeated edits do not write", async () => {
         const state = preacherWorkout();
         row(state, preacher).isDone = true;
         const raw = JSON.stringify({ version: 2, savedAt: "preacher-test-seed", state });

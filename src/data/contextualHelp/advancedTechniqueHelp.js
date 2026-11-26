@@ -62,15 +62,15 @@ export const advancedTechniqueHelpByType = {
   "mechanical-set": {
     title: "Mechanical set",
     intro:
-      "A mechanical set extends the work by switching to a stronger grip, angle, or variation without changing the main setup.",
+      "A mechanical set can extend the work by changing the grip, angle, or variation while keeping the prescribed load.",
     sections: [
       {
         id: "how-to",
         title: "How to do it",
         paragraphs: [
-          "Perform the first variation as written, then switch immediately to the easier or stronger variation shown in the note.",
-          "Keep the same load unless the exercise note says otherwise.",
-          "For the second part, use the rep target written in the exercise note instead of guessing extra reps.",
+          "Complete the prescribed wide-grip work first. Continue with a narrow grip only if your form is still controlled.",
+          "Keep the same load. Stabilize or rack it as needed, then change grips without rushing or taking a planned rest.",
+          "Record the actual reps for the optional continuation. There is no fixed rep target.",
           "The goal is to extend clean tension, not to cheat the movement.",
         ],
       },

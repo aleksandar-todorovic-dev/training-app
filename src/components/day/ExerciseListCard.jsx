@@ -41,6 +41,7 @@ export default function ExerciseListCard({
   planId,
   dayId,
   exercise,
+  prescriptionNote,
   status,
   orderNumber,
   isNext = false,
@@ -123,6 +124,7 @@ export default function ExerciseListCard({
           {t(exercise.prescription)}
           {t(targetRir ? ` · RIR ${targetRir}` : "")}
         </p>
+        {prescriptionNote && <p className="text-xs leading-5 text-[#AAB2BA]">{t(prescriptionNote)}</p>}
       </div>
 
       <ChevronRight

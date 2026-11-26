@@ -4,10 +4,10 @@
  *   targets: Object<string, MethodTarget>,
  *   loadRule: 'same-as-base'|'adjustable-machine-assistance'|'reduced-from-previous'}} MethodPhase
  * @typedef {{definitionId: string, revision: number, planId: string,
- *   exerciseId: string, type: 'rest-pause'|'iso-stretch'|'cluster'|'dropset',
+ *   exerciseId: string, type: 'rest-pause'|'iso-stretch'|'cluster'|'dropset'|'mechanical-set',
  *   prescribedSetCount: number, appliesTo: 'last'|'all',
  *   base: {semantics: 'pre-extension', loadKind: 'external'|'machine-assistance', loadUnit: 'kg',
- *     loadConvention?: 'total-added-plates-or-marked-kg'},
+ *     variationId?: 'wide-grip', loadConvention?: 'total-added-plates-or-marked-kg'},
  *   phases: MethodPhase[], reductionPercent?: number}} MethodDefinition
  */
 
@@ -131,6 +131,23 @@ export const advancedMethodDefinitions = freezeDefinition([
     }],
   },
   ...knownDropsetProtocols.map(createDropsetDefinition),
+  {
+    definitionId: "bulk-pro/preacher-curl-mechanical/mechanical-set",
+    planId: "bulk-pro",
+    exerciseId: "preacher-curl-mechanical",
+    type: "mechanical-set",
+    revision: 1,
+    prescribedSetCount: 1,
+    appliesTo: "last",
+    base: { semantics: "pre-extension", variationId: "wide-grip", loadKind: "external", loadUnit: "kg" },
+    phases: [{
+      phaseId: "narrow-grip",
+      loadRule: "same-as-base",
+      metrics: ["reps"],
+      requiredMetrics: ["reps"],
+      targets: {},
+    }],
+  },
 ]);
 
 /**

@@ -52,7 +52,10 @@ const addedBindings = {
   "machine-lateral-raise": { definitionId: "bulk-pro/machine-lateral-raise/dropset", revision: 1, dayId: "d4", setCount: 3 },
   "leg-press-calf-raise": { definitionId: "bulk-pro/leg-press-calf-raise/dropset", revision: 1, dayId: "d6", setCount: 3 },
 };
-const expected = { version: 1, exercises: { ...beforeRolloutBindings.exercises, ...addedBindings } };
+const preacherId = "preacher-curl-mechanical";
+const preacherBinding = { definitionId: "bulk-pro/preacher-curl-mechanical/mechanical-set", revision: 1, dayId: "d6", setCount: 1 };
+const beforePreacherBindings = { version: 1, exercises: { ...beforeRolloutBindings.exercises, ...addedBindings } };
+const expected = { version: 1, exercises: { ...beforePreacherBindings.exercises, [preacherId]: preacherBinding } };
 function freeze(value) {
   if (value && typeof value === "object") { Object.values(value).forEach(freeze); Object.freeze(value); }
   return value;
@@ -188,8 +191,8 @@ test("pre-row resolver resolves all active methods, absent bindings and same-ID 
   assert.notEqual(resolve({ ...address(cut), planId: "cut-pro" }).status, "resolved");
 });
 
-test("first visits and reload preserve all three authentic pre-rollout snapshots", () => {
-  for (const historic of [preActivationBindings, beforeDropsetBindings, beforeRolloutBindings]) {
+test("first visits and reload preserve authentic three-, four-, five- and eight-binding snapshots", () => {
+  for (const historic of [preActivationBindings, beforeDropsetBindings, beforeRolloutBindings, beforePreacherBindings]) {
     let state = start();
     cycle(state).methodBindings = freeze(structuredClone(historic));
     const snapshot = cycle(state).methodBindings;
@@ -197,7 +200,9 @@ test("first visits and reload preserve all three authentic pre-rollout snapshots
       assert.equal(cycle(state).dayLogs[dayId], undefined);
       state = ensure(freeze(state), dayId);
       assert.equal(cycle(state).methodBindings, snapshot);
-      for (const [exerciseId, binding] of Object.entries(addedBindings).filter(([, entry]) => entry.dayId === dayId)) {
+      const laterBindings = { ...addedBindings, [preacherId]: preacherBinding };
+      for (const [exerciseId, binding] of Object.entries(laterBindings)) {
+        if (binding.dayId !== dayId || Object.hasOwn(historic.exercises, exerciseId)) continue;
         assert.equal(resolve({ planId: "bulk-pro", cycle: cycle(state), dayId, exerciseId }).status, "unbound");
         const rows = cycle(state).dayLogs[dayId].mainExerciseLogs[exerciseId].sets;
         assert.equal(rows.length, binding.setCount);

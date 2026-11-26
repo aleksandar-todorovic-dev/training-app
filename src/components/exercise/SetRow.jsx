@@ -60,6 +60,7 @@ export default function SetRow({
   weight,
   assistanceDescription,
   weightDescription,
+  setDescription,
   reps,
   rir,
   isDone = false,
@@ -93,7 +94,7 @@ export default function SetRow({
       <div className="grid min-w-0 grid-cols-3 divide-x divide-[#2A3138]">
         <MetricField
           label={assistanceDescription ? "Assistance (kg)" : "weight"}
-          description={assistanceDescription ?? weightDescription}
+          description={assistanceDescription ?? weightDescription ?? setDescription}
           name={`set-${setNumber}-weight`}
           setNumber={setNumber}
           value={weight}
@@ -103,6 +104,7 @@ export default function SetRow({
 
         <MetricField
           label="reps"
+          description={setDescription}
           name={`set-${setNumber}-reps`}
           setNumber={setNumber}
           value={reps}
@@ -112,6 +114,7 @@ export default function SetRow({
 
         <MetricField
           label="RIR"
+          description={setDescription}
           name={`set-${setNumber}-rir`}
           setNumber={setNumber}
           value={rir}
@@ -125,6 +128,7 @@ export default function SetRow({
           type="button"
           aria-label={t("Mark set {value0} {value1}", { value0: setNumber, value1: isDone ? "not performed" : "performed" })}
           aria-pressed={isDone}
+          aria-describedby={setDescription}
           disabled={isReadOnly}
           onClick={isReadOnly ? undefined : onToggleDone}
           className="inline-flex h-11 w-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#13181D] disabled:cursor-not-allowed disabled:opacity-45"

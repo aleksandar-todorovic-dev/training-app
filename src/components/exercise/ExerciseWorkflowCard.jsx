@@ -143,6 +143,9 @@ export default function ExerciseWorkflowCard({
     isClosedLog || isClosed ? "Return to day" : "Finish exercise";
   const completedSetCount = sets.filter((set) => set.isDone).length;
   const setProgressLabel = t("{value0} of {value1} performed", { value0: completedSetCount, value1: sets.length });
+  const previousValuesTitle = methodView?.preacherBase
+    ? hasPreviousValues ? "Previous compatible wide-grip values" : "No earlier compatible wide-grip values"
+    : hasPreviousValues ? "Previous main-set values" : "No earlier main-set values";
 
   return (
     <>
@@ -279,9 +282,7 @@ export default function ExerciseWorkflowCard({
                 <History className="mt-0.5 h-4 w-4 shrink-0 text-[#77818B]" aria-hidden="true" />
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-[#D7DDD7]">
-                    {t(hasPreviousValues
-                      ? "Previous main-set values"
-                      : "No earlier main-set values")}
+                    {t(previousValuesTitle)}
                   </p>
                   <p className="mt-0.5 text-xs leading-5 text-[#77818B]">
                     {t(hasPreviousValues
@@ -300,6 +301,16 @@ export default function ExerciseWorkflowCard({
             {legPressLoadGuidance && (
               <p id={`${methodPanelId}-load`} className="px-3 py-2 text-xs leading-5 text-[#AAB2BA]">
                 {legPressLoadGuidance}
+              </p>
+            )}
+            {methodView?.preacherBase === true && (
+              <p id={`${methodPanelId}-base`} className="px-3.5 pb-2 text-xs font-semibold text-[#D7DDD7]">
+                {t("Wide-grip base")}
+              </p>
+            )}
+            {methodView?.preacherBase === false && (
+              <p className="px-3.5 pb-2 text-xs leading-5 text-[#AAB2BA]">
+                {t("Saved reps may include both grips. Structured continuation logging is unavailable in this cycle.")}
               </p>
             )}
             <div
@@ -331,6 +342,7 @@ export default function ExerciseWorkflowCard({
                     setNumber={set.setNumber}
                     assistanceDescription={methodView?.machineAssistance ? `${methodPanelId}-assistance` : undefined}
                     weightDescription={legPressLoadGuidance ? `${methodPanelId}-load` : undefined}
+                    setDescription={methodView?.preacherBase ? `${methodPanelId}-base` : undefined}
                     weight={set.weight}
                     reps={set.reps}
                     rir={set.rir}
@@ -358,7 +370,8 @@ export default function ExerciseWorkflowCard({
             {!isReadOnly ? (
               <div className="border-t border-[#2A3138] px-3.5 pb-4 pt-3">
                 <div className="mb-3 flex items-center justify-between gap-3 text-xs">
-                  <span className="text-[#77818B]">{t("Done marks what was actually performed.")}</span>
+                  <span className="text-[#77818B]">{t(methodView?.preacherBase
+                    ? "Done marks the wide-grip base." : "Done marks what was actually performed.")}</span>
                   <span className="shrink-0 font-semibold tabular-nums text-[#AAB2BA]">
                     {t(setProgressLabel)}
                   </span>

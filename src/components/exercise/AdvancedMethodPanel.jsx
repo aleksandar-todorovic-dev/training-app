@@ -1,8 +1,9 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useTranslation } from "../../i18n/useTranslation";
-import { isValidMethodMetricValue, normalizeAssistanceKg } from "../../utils/runtime/advancedMethodValidation.js";
+import { isPreacherMechanicalDefinition, isValidMethodMetricValue, normalizeAssistanceKg } from "../../utils/runtime/advancedMethodValidation.js";
 import DropsetMethodPanel from "./DropsetMethodPanel";
+import MechanicalMethodPanel from "./MechanicalMethodPanel";
 
 const statusLabels = {
   unknown: "Not recorded", skipped: "Skipped", draft: "Not confirmed",
@@ -132,7 +133,19 @@ function ClusterAssistance({ baseWeight, saved, onChange, phaseId }) {
 }
 
 export default function AdvancedMethodPanel(props) {
-  return props.definition.type === "dropset" ? <DropsetMethodPanel {...props} /> : <SinglePhaseMethodPanel {...props} />;
+  const { t } = useTranslation();
+  switch (props.definition?.type) {
+    case "rest-pause":
+    case "iso-stretch":
+    case "cluster":
+      return <SinglePhaseMethodPanel {...props} />;
+    case "dropset":
+      return <DropsetMethodPanel {...props} />;
+    case "mechanical-set":
+      if (isPreacherMechanicalDefinition(props.definition)) return <MechanicalMethodPanel {...props} />;
+      break;
+  }
+  return <p role="note" className="border-t border-[#2A3138] px-3.5 py-3 text-sm text-[#AAB2BA]">{t("Method logging unavailable")}</p>;
 }
 
 function SinglePhaseMethodPanel({ definition, record, derived, setIndex, editable, onChange, previousAttempt, baseWeight, machineAssistance }) {

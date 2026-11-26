@@ -282,6 +282,7 @@ export const bulkProGuide = {
             "For D5 assisted pull-ups, each of the two sets starts with 8–10 reps. If form stays controlled, rest 15 seconds and add 4–5 reps. Rest 120 seconds between sets. Less machine assistance increases difficulty. Record each continuation separately in cycles with Cluster logging.",
             "Bulk Pro includes methods like rest-pause, dropsets, loaded stretches, clusters, or mechanical sets only where they are written. They are there to add a targeted stimulus, not to turn the whole workout into failure training.",
             "For an optional last-set dropset, plan up to three drops and stop early if form declines. Use the approximate percentage from the exercise note on the preceding actual load. Record only the load used and reps achieved.",
+            "For the D6 Preacher Curl mechanical set, perform the wide-grip base first. If your form is controlled, you may continue with a narrow grip at the same load. In cycles with a continuation panel, record those reps separately after the set.",
             "Use them as part of the plan, not as a way to make every exercise harder. They are not an automatic target for every cycle; if recovery, form, or performance is not there, clean straight work is the better choice. More intensity is not always a better signal if it damages the next sets, next day, or next cycle.",
           ],
           bullets: [

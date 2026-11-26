@@ -42,7 +42,6 @@ const narrowReps = (value) => metric(value, "reps", "narrow-grip");
 const narrowExecution = (value) => execution(value, "narrow-grip");
 
 test("synthetic Preacher records attempt and numeric completeness independently, without a target", () => {
-  assert.equal(getMethodDefinition(preacher), null);
   assert.deepEqual(getApplicableSetIndexes(preacher, [{ setIndex: 1 }]), [1]);
   assert.equal(deriveMethodState(preacher, undefined).status, "unknown");
   const draft = recordWith(preacher, narrowReps("30"));
@@ -68,6 +67,19 @@ test("synthetic Preacher records attempt and numeric completeness independently,
       choice: "record", phases: { "narrow-grip": { execution: "unconfirmed", reps: value } },
     }).valid, false, String(value));
   }
+});
+
+test("production Preacher matches the independent rev1 contract and every nested value is frozen", () => {
+  const definition = getMethodDefinition(preacher);
+  assert.deepEqual(definition, preacher);
+  const { base, phases } = definition;
+  const [phase] = phases;
+  assert.ok([definition, base, phases, phase, phase.metrics, phase.requiredMetrics, phase.targets].every(Object.isFrozen));
+  assert.equal(getMethodDefinition({ ...preacher, revision: 2 }), null);
+  assert.equal(getMethodDefinition({ ...preacher, planId: "cut-pro" }), null);
+  assert.equal(getMethodDefinition({
+    ...preacher, exerciseId: "push-up-mechanical-dropset", definitionId: "bulk-pro/push-up-mechanical-dropset/mechanical-dropset",
+  }), null);
 });
 
 test("Preacher Skip/Resume, clearing, rejected changes and repeated edits preserve evidence", () => {
@@ -600,17 +612,17 @@ assert.ok(dropset, "Missing registered D3 Leg Extension Dropset revision 1");
 const finishDrop = (phaseId) => ({ type: "finish-dropset", phaseId });
 const extendDropset = (phaseId) => ({ type: "extend-dropset", phaseId });
 
-test("the registry has eight exact identities and all four frozen Dropsets match their prescriptions", () => {
+test("the registry has nine exact identities and all four frozen Dropsets match their prescriptions", () => {
   const expected = [
     ["d3", "leg-extension", "bulk-pro/leg-extension/dropset", 3, 25],
     ["d1", "overhead-rope-extension", "bulk-pro/overhead-rope-extension/dropset", 4, 20],
     ["d4", "machine-lateral-raise", "bulk-pro/machine-lateral-raise/dropset", 3, 20],
     ["d6", "leg-press-calf-raise", "bulk-pro/leg-press-calf-raise/dropset", 3, 25, "total-added-plates-or-marked-kg"],
   ];
-  assert.equal(advancedMethodDefinitions.length, 8);
+  assert.equal(advancedMethodDefinitions.length, 9);
   assert.ok(Object.isFrozen(advancedMethodDefinitions));
   assert.equal(new Set(advancedMethodDefinitions.map(({ planId, exerciseId, definitionId, revision }) =>
-    JSON.stringify([planId, exerciseId, definitionId, revision]))).size, 8);
+    JSON.stringify([planId, exerciseId, definitionId, revision]))).size, 9);
   assert.deepEqual(dropset, expectedDropset);
   for (const [dayId, exerciseId, definitionId, prescribedSetCount, reductionPercent, loadConvention] of expected) {
     const contract = { ...expectedDropset, exerciseId, definitionId, prescribedSetCount, reductionPercent,

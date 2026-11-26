@@ -15,6 +15,8 @@ import { useAppState } from "../state/useAppState";
 import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
 import { getCoreBlockStatus } from "../utils/runtime/coreStatusHelpers";
 import { getDayMode } from "../utils/runtime/dayModeHelpers";
+import { resolveCycleMethodBinding } from "../utils/runtime/advancedMethodContextHelpers.js";
+import { isPreacherMechanicalAddress, isPreacherMechanicalDefinition } from "../utils/runtime/advancedMethodValidation.js";
 import {
   getWorkoutProgress,
 } from "../utils/runtime/workoutProgressHelpers";
@@ -206,6 +208,14 @@ export default function DayPage() {
         dayOrder,
       })
     : "inactive";
+  const preacher = exercises.find(({ id }) => isPreacherMechanicalAddress({ planId, dayId, exerciseId: id }));
+  let preacherNote;
+  if (preacher) {
+    const method = resolveCycleMethodBinding({ planId, cycle: currentCycle, dayId, exerciseId: preacher.id });
+    preacherNote = dayMode === "upcoming" ? "Wide-grip prescription"
+      : method.status === "resolved" && isPreacherMechanicalDefinition(method.definition) ? "Wide-grip base"
+        : "Saved reps may include both grips.";
+  }
 
   // Active days lazily create their runtime day log.
   // Finished/upcoming days must not create new logs from this page.
@@ -425,6 +435,7 @@ export default function DayPage() {
                     {t(nextExerciseTargetRir
                       ? ` · RIR ${nextExerciseTargetRir}`
                       : "")}
+                    {nextExercise === preacher && <span className="block text-xs">{t(preacherNote)}</span>}
                   </p>
                 </div>
 
@@ -494,6 +505,7 @@ export default function DayPage() {
                 planId={planId}
                 dayId={dayId}
                 exercise={exercise}
+                prescriptionNote={exercise === preacher ? preacherNote : undefined}
                 status={getExerciseStatus(
                   dayLog?.mainExerciseLogs?.[exercise.id],
                 )}

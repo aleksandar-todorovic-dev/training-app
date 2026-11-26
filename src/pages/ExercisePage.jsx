@@ -16,7 +16,9 @@ import { getDayMode } from "../utils/runtime/dayModeHelpers";
 import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
 import { resolveCycleMethodBinding } from "../utils/runtime/advancedMethodContextHelpers.js";
 import { deriveMethodState, getApplicableSetIndexes } from "../utils/runtime/advancedMethodHelpers.js";
-import { validateMethodLog, isValidMethodMetricValue } from "../utils/runtime/advancedMethodValidation.js";
+import {
+  isPreacherMechanicalAddress, isPreacherMechanicalDefinition, isValidMethodMetricValue, validateMethodLog,
+} from "../utils/runtime/advancedMethodValidation.js";
 import { findPreviousCompatibleMethodAttempt } from "../utils/runtime/advancedMethodHistoryHelpers.js";
 
 /**
@@ -154,6 +156,9 @@ export default function ExercisePage() {
 
   const resolvedMethod = resolveCycleMethodBinding({ planId, cycle: currentCycle, dayId, exerciseId });
   const methodView = { entries: {}, unavailable: false };
+  if (!isUpcomingPreview && isPreacherMechanicalAddress({ planId, dayId, exerciseId })) {
+    methodView.preacherBase = resolvedMethod.status === "resolved" && isPreacherMechanicalDefinition(resolvedMethod.definition);
+  }
   const canEditMethod = !isWorkoutBlocked && !isUpcomingPreview &&
     ["active", "finished"].includes(dayMode) && dayIndex >= 0 && currentDayIndex >= dayIndex &&
     currentCycle?.cycleNumber === currentCycleNumber && typeof currentCycle?.startedAt === "string" &&

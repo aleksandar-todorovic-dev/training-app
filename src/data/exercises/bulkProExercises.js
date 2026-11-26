@@ -1140,20 +1140,20 @@ export const bulkProExercises = [
     subtitle: "Wide-to-narrow biceps mechanical finisher",
     prescription: "1 x 6-8",
     setCount: 1,
-    cue: "Keep the same load, switch grips cleanly, and stop as soon as the shoulders want to take over",
+    cue: "Start with a wide grip and keep the movement controlled. Stop if the shoulders take over or you feel pain.",
     details: {
       tempo: "2-1-2",
       targetRir: "≈1-2",
       rest: "75-90 s",
       progression:
-        "Keep the full wide-to-narrow sequence clean before increasing load.",
+        "Progress the wide-grip base when you can reach the top of the rep range cleanly with the prescribed RIR.",
       advancedTechnique:
-        "Mechanical set: perform the reps with a wide grip, then switch immediately to a narrow grip with the same weight.",
+        "Perform 6–8 wide-grip reps. If your form is still controlled, you may continue with a narrow grip at the same load. Record the actual narrow-grip reps. There is no fixed target for the continuation.",
       advancedTechniqueType: "mechanical-set",
       extraCues: [
         "Stay locked to the pad for both grips",
-        "Do not rush the grip change",
-        "Keep the sequence clean, not ugly",
+        "Stabilize or rack the weight if needed before changing grips. Switch without rushing or taking a planned rest.",
+        "The listed rest time does not apply between grips. Stop the continuation before form deteriorates.",
       ],
     },
   },
