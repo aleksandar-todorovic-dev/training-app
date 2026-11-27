@@ -17,7 +17,19 @@ function Chevron({ open }) {
     className={`h-4 w-4 shrink-0 text-[#AAB2BA] transition-transform motion-reduce:transition-none ${open ? "rotate-180" : ""}`} />;
 }
 
-function PreviousAttempt({ attempt, phaseId, continuationLabel }) {
+export function RetainedPushUpValue({ weight }) {
+  const { t } = useTranslation();
+  if (weight === "") return null;
+  return (
+    <p data-push-up-retained-value>
+      {t("Saved value of unknown meaning:")}{" "}
+      <bdi className="whitespace-pre-wrap [overflow-wrap:anywhere]">{weight}</bdi>
+      {" "}{t("This value is not used to compare bodyweight resistance.")}
+    </p>
+  );
+}
+
+function PreviousAttempt({ attempt, phaseId, continuationLabel, isPushUp }) {
   const { t } = useTranslation();
   const id = useId();
   const [open, setOpen] = useState(false);
@@ -28,7 +40,7 @@ function PreviousAttempt({ attempt, phaseId, continuationLabel }) {
     <div className="border-t border-[#2A3138] pt-1" data-method-history>
       <button type="button" aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}
         className={`flex min-h-11 w-full items-center justify-between gap-3 py-2 text-left text-xs font-semibold text-[#D7DDD7] ${focus}`}>
-        {t("Previous comparable attempt · Cycle {cycle}", { cycle: attempt.cycleNumber })}
+        {t(isPushUp ? "Previous continuation · Cycle {cycle}" : "Previous comparable attempt · Cycle {cycle}", { cycle: attempt.cycleNumber })}
         <Chevron open={open} />
       </button>
       <div id={id} hidden={!open} className="space-y-2 border-l border-[#3A434C] py-2 pl-3 text-xs leading-5 text-[#AAB2BA]">
@@ -39,13 +51,14 @@ function PreviousAttempt({ attempt, phaseId, continuationLabel }) {
             <dd>{t(status)} · {phase.reps ? t("Extra reps: {value}", { value: phase.reps }) : t("Measurement not recorded")}</dd>
           </div>
           <div>
-            <dt className="font-semibold text-[#D7DDD7]">{t("Wide-grip base")}</dt>
-            <dd>{t("Kg")} {baseSet.weight || t("Not recorded")} · {t("Reps")} {baseSet.reps || t("Not recorded")} · {t("RIR")} {baseSet.rir || t("Not recorded")}</dd>
+            <dt className="font-semibold text-[#D7DDD7]">{t(isPushUp ? "Standard push-up base" : "Wide-grip base")}</dt>
+            <dd>{isPushUp ? t("Bodyweight") : <>{t("Kg")} {baseSet.weight || t("Not recorded")}</>} · {t("Reps")} {baseSet.reps || t("Not recorded")} · {t("RIR")} {baseSet.rir || t("Not recorded")}</dd>
             <dd>{t(baseSet.isDone ? "Base set marked performed" : "Base set not marked performed")}</dd>
           </div>
         </dl>
         <p>{t("Saved base values may include carry-over.")}</p>
-        <p>{t("Compare base kg only with the same equipment and logging convention.")}</p>
+        {isPushUp ? <RetainedPushUpValue weight={baseSet.weight} />
+          : <p>{t("Compare base kg only with the same equipment and logging convention.")}</p>}
       </div>
     </div>
   );
@@ -63,7 +76,9 @@ export default function MechanicalMethodPanel({ definition, record, derived, edi
   const skipped = derived.status === "skipped";
   const available = editable && derived.valid;
   const status = derived.status === "performed" && reps === "0" ? "Attempt confirmed" : statusLabels[derived.status];
-  const continuationLabel = "Narrow-grip continuation";
+  // The router admits only the two exact supported Mechanical definitions.
+  const isPushUp = phaseId === "knee-push-up";
+  const continuationLabel = isPushUp ? "Knee push-up continuation" : "Narrow-grip continuation";
 
   function updateReps(value) {
     const valid = isValidMethodMetricValue("reps", value);
@@ -86,10 +101,12 @@ export default function MechanicalMethodPanel({ definition, record, derived, edi
       </button>
       <div id={`${id}-body`} hidden={!open} className="space-y-3 pb-4">
         {available ? <>
-          <p className="text-xs leading-5 text-[#AAB2BA]">{t("Optional. Use the same load as the wide-grip base. Record the continuation after the set.")}</p>
+          <p className="text-xs leading-5 text-[#AAB2BA]">{t(isPushUp
+            ? "Optional. Use bodyweight and record your knee push-up reps after the set."
+            : "Optional. Use the same load as the wide-grip base. Record the continuation after the set.")}</p>
           <div hidden={skipped} className="space-y-2">
             <label className="flex min-h-11 items-center justify-between gap-3 text-sm text-[#D7DDD7]">
-              {t("Actual narrow-grip reps")}
+              {t(isPushUp ? "Actual knee push-up reps" : "Actual narrow-grip reps")}
               <input type="text" inputMode="numeric" autoComplete="off" name="reps" value={reps} disabled={skipped}
                 aria-invalid={invalid || undefined} aria-describedby={`${id}-feedback`}
                 onChange={(event) => updateReps(event.target.value)}
@@ -117,7 +134,7 @@ export default function MechanicalMethodPanel({ definition, record, derived, edi
             {invalid ? t("Use a whole number from 0 to {max}, or leave blank.", { max: 30 })
               : !skipped && execution !== "unconfirmed" && reps === "" ? t("Measurement not recorded") : ""}
           </div>
-          {previousAttempt && <PreviousAttempt attempt={previousAttempt} phaseId={phaseId} continuationLabel={continuationLabel} />}
+          {previousAttempt && <PreviousAttempt attempt={previousAttempt} phaseId={phaseId} continuationLabel={continuationLabel} isPushUp={isPushUp} />}
         </> : <p className="text-sm leading-6 text-[#AAB2BA]">{t("Method logging unavailable")}</p>}
       </div>
     </section>

@@ -10,7 +10,7 @@ import { createServer } from "vite";
 import { advancedMethodDefinitions, getMethodDefinition } from "../src/data/advancedMethods/definitions.js";
 import { deriveMethodState, transitionMethodLog } from "../src/utils/runtime/advancedMethodHelpers.js";
 import { preacherDefinition } from "./preacherMechanicalFixture.js";
-import { pushUpCatalogAlias, pushUpDefinition } from "./pushUpMechanicalFixture.js";
+import { pushUpDefinition } from "./pushUpMechanicalFixture.js";
 import { createAppStatePersistence, WORKOUT_STORAGE_KEYS } from "../src/storage/appStateStorage.js";
 
 const preacher = {
@@ -23,7 +23,7 @@ let getWarnings, getBodyweightRow;
 before(async () => {
   vite = await createServer({ root: fileURLToPath(new URL("../", import.meta.url)),
     server: { middlewareMode: true, hmr: false, ws: false, watch: null },
-    optimizeDeps: { noDiscovery: true, include: [] }, appType: "custom", plugins: [pushUpCatalogAlias()] });
+    optimizeDeps: { noDiscovery: true, include: [] }, appType: "custom" });
   const load = (path) => vite.ssrLoadModule(`/src/${path}`);
   [
     { appReducer }, { APP_ACTIONS: actions }, { appInitialState: initialState },
@@ -730,7 +730,7 @@ test("Cluster evidence survives V2 reload alongside pilot and Core data without 
   const oldAction = payload(loaded.state, assistance("entered", "40"), cluster);
   const next = ensureCore(clusterWorkout(finishDay(finishDay(loaded.state, "d5"), "d6")));
   assert.deepEqual(Object.keys(cycle(next).methodBindings.exercises).sort(),
-    [...pilots, cluster, ...dropsetAddresses, preacher].map((p) => p.exerciseId).sort());
+    [...pilots, cluster, ...dropsetAddresses, preacher, pushUp].map((p) => p.exerciseId).sort());
   assert.deepEqual(cycle(start(next, "cut-start", "cut-pro"), "cut-pro").methodBindings.exercises, {});
   assert.deepEqual(row(next, cluster), { setIndex: 1, weight: "25", reps: "9", rir: "2", isDone: false });
   assert.deepEqual(row(next, secondCluster), { setIndex: 2, weight: "", reps: "", rir: "", isDone: false });
@@ -834,7 +834,7 @@ test("all four Dropsets use the right row, round-trip V2 and reference only thei
   }
 });
 
-test("D3 revision 1 history crosses from five bindings to the current nine", () => {
+test("D3 revision 1 history crosses from five bindings to the current ten", () => {
   const prior = dropsetWorkout();
   cycle(prior).methodBindings = structuredClone({ version: 1, exercises: {
     ...beforeDropsetBindings.exercises, [dropset.exerciseId]: dropBinding,
@@ -843,7 +843,7 @@ test("D3 revision 1 history crosses from five bindings to the current nine", () 
   const next = start(freeze(recorded), "after-rollout");
   const { cycles, currentCycleNumber } = next.progressByPlan["bulk-pro"];
   assert.equal(Object.keys(cycles[1].methodBindings.exercises).length, 5);
-  assert.equal(Object.keys(cycles[2].methodBindings.exercises).length, 9);
+  assert.equal(Object.keys(cycles[2].methodBindings.exercises).length, 10);
   assert.equal(cycles[1], cycle(recorded));
   const evidence = findAttempt({ ...dropset, cycles, currentCycleNumber });
   assert.equal(evidence.cycleNumber, 1);
@@ -1146,12 +1146,13 @@ function preacherHistoryFixture() {
   return { state, add, first, context: { ...preacher, cycles: progress.cycles, currentCycleNumber: 10, setCount: 1 } };
 }
 
-test("real cycle start adds only the exact Preacher reference and keeps Cut empty", () => {
-  assert.equal(advancedMethodDefinitions.length, 9);
+test("real cycle start has the exact Preacher and Push-up references and keeps Cut empty", () => {
+  assert.equal(advancedMethodDefinitions.length, 10);
   assert.deepEqual(getMethodDefinition(preacherDefinition), preacherDefinition);
   const state = start();
-  assert.equal(Object.keys(cycle(state).methodBindings.exercises).length, 9);
+  assert.equal(Object.keys(cycle(state).methodBindings.exercises).length, 10);
   assert.deepEqual(cycle(state).methodBindings.exercises[preacher.exerciseId], preacherBinding);
+  assert.deepEqual(cycle(state).methodBindings.exercises[pushUp.exerciseId], pushUpBinding);
   assert.deepEqual(cycle(start(state, "test-cut", "cut-pro"), "cut-pro").methodBindings.exercises, {});
   cycle(state).currentDayId = "d6";
   delete cycle(state).methodBindings.exercises[preacher.exerciseId];
@@ -1340,8 +1341,7 @@ const baseAction = (field, value, address = pushUp) => ({
 function pushUpWorkout() {
   const state = start();
   const current = cycle(state);
-  assert.equal(Object.hasOwn(current.methodBindings.exercises, pushUp.exerciseId), false);
-  current.methodBindings.exercises[pushUp.exerciseId] = { ...pushUpBinding };
+  assert.deepEqual(current.methodBindings.exercises[pushUp.exerciseId], pushUpBinding);
   current.currentDayId = pushUp.dayId;
   return ensure(state, pushUp.dayId);
 }
@@ -1609,7 +1609,7 @@ createRoot(document.getElementById('root')).render(React.createElement(React.Str
 </script></body></html>`;
       server = await createServer({ cacheDir: join(profile, "vite-cache"), server: { host: "127.0.0.1", port: 0 },
         optimizeDeps: { noDiscovery: true, include: ["react", "react-dom/client", "react/jsx-dev-runtime", "react/jsx-runtime"] },
-        plugins: [pushUpCatalogAlias(), { name: "method-runtime-test", configureServer(vite) {
+        plugins: [{ name: "method-runtime-test", configureServer(vite) {
           vite.middlewares.use(async (req, res, next) => {
             if (req.url !== "/__method-runtime") return next();
             res.setHeader("Content-Type", "text/html"); res.end(await vite.transformIndexHtml(req.url, html));

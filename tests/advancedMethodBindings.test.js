@@ -55,7 +55,10 @@ const addedBindings = {
 const preacherId = "preacher-curl-mechanical";
 const preacherBinding = { definitionId: "bulk-pro/preacher-curl-mechanical/mechanical-set", revision: 1, dayId: "d6", setCount: 1 };
 const beforePreacherBindings = { version: 1, exercises: { ...beforeRolloutBindings.exercises, ...addedBindings } };
-const expected = { version: 1, exercises: { ...beforePreacherBindings.exercises, [preacherId]: preacherBinding } };
+const beforePushUpBindings = { version: 1, exercises: { ...beforePreacherBindings.exercises, [preacherId]: preacherBinding } };
+const pushUpId = "push-up-mechanical-dropset";
+const pushUpBinding = { definitionId: "bulk-pro/push-up-mechanical-dropset/mechanical-dropset", revision: 1, dayId: "d5", setCount: 1 };
+const expected = { version: 1, exercises: { ...beforePushUpBindings.exercises, [pushUpId]: pushUpBinding } };
 function freeze(value) {
   if (value && typeof value === "object") { Object.values(value).forEach(freeze); Object.freeze(value); }
   return value;
@@ -103,15 +106,13 @@ test("new Bulk/Cut cycles install only the approved snapshot and keep lazy logs 
   assert.notEqual(build({ planId: "bulk-pro" }).bindings, build({ planId: "bulk-pro" }).bindings);
 });
 
-test("production keeps nine Bulk bindings and ten applicable rows with Push-up absent even from the registry", () => {
+test("production activates ten Bulk bindings and eleven applicable rows, including one Push-up row", () => {
   const state = start();
   const current = cycle(state);
   const { exercises } = current.methodBindings;
-  const pushUpId = "push-up-mechanical-dropset";
-  assert.equal(advancedMethodDefinitions.length, 9);
-  assert.equal(advancedMethodDefinitions.some(({ exerciseId }) => exerciseId === pushUpId), false);
-  assert.equal(Object.keys(exercises).length, 9);
-  assert.equal(Object.hasOwn(exercises, pushUpId), false);
+  assert.equal(advancedMethodDefinitions.length, 10);
+  assert.equal(Object.keys(exercises).length, 10);
+  assert.deepEqual(exercises[pushUpId], pushUpBinding);
   assert.deepEqual(cycle(start(undefined, "cut-pro"), "cut-pro").methodBindings.exercises, {});
   let positions = 0;
   for (const dayId of getPlan("bulk-pro").dayOrder) {
@@ -120,12 +121,13 @@ test("production keeps nine Bulk bindings and ten applicable rows with Push-up a
       const resolved = resolve({ planId: "bulk-pro", cycle: opened, dayId, exerciseId });
       if (resolved.status === "resolved") positions += getApplicableSetIndexes(resolved.definition, exerciseLog.sets).length;
       if (exerciseId === pushUpId) {
-        assert.equal(resolved.status, "unbound");
+        assert.equal(resolved.status, "resolved");
+        assert.deepEqual(getApplicableSetIndexes(resolved.definition, exerciseLog.sets), [1]);
         assert.deepEqual(exerciseLog.sets, [{ setIndex: 1, weight: "", reps: "", rir: "", isDone: false }]);
       }
     }
   }
-  assert.equal(positions, 10);
+  assert.equal(positions, 11);
 });
 
 test("only a new cycle gains a fresh snapshot; legacy unvisited days never backfill", () => {
@@ -216,8 +218,8 @@ test("pre-row resolver resolves all active methods, absent bindings and same-ID 
   assert.notEqual(resolve({ ...address(cut), planId: "cut-pro" }).status, "resolved");
 });
 
-test("first visits and reload preserve authentic three-, four-, five- and eight-binding snapshots", () => {
-  for (const historic of [preActivationBindings, beforeDropsetBindings, beforeRolloutBindings, beforePreacherBindings]) {
+test("first visits, reload and archive preserve authentic three-, four-, five-, eight- and nine-binding snapshots", () => {
+  for (const historic of [preActivationBindings, beforeDropsetBindings, beforeRolloutBindings, beforePreacherBindings, beforePushUpBindings]) {
     let state = start();
     cycle(state).methodBindings = freeze(structuredClone(historic));
     const snapshot = cycle(state).methodBindings;
@@ -225,7 +227,7 @@ test("first visits and reload preserve authentic three-, four-, five- and eight-
       assert.equal(cycle(state).dayLogs[dayId], undefined);
       state = ensure(freeze(state), dayId);
       assert.equal(cycle(state).methodBindings, snapshot);
-      const laterBindings = { ...addedBindings, [preacherId]: preacherBinding };
+      const laterBindings = { ...addedBindings, [preacherId]: preacherBinding, [pushUpId]: pushUpBinding };
       for (const [exerciseId, binding] of Object.entries(laterBindings)) {
         if (binding.dayId !== dayId || Object.hasOwn(historic.exercises, exerciseId)) continue;
         assert.equal(resolve({ planId: "bulk-pro", cycle: cycle(state), dayId, exerciseId }).status, "unbound");
@@ -246,19 +248,19 @@ test("first visits and reload preserve authentic three-, four-, five- and eight-
 });
 
 test("an opaque exact reference can resolve once the registry knows it without changing the saved snapshot", () => {
-  const current = cycle(start());
-  const exerciseId = "leg-press-calf-raise";
-  current.methodBindings = { version: 1, exercises: { [exerciseId]: structuredClone(addedBindings[exerciseId]) } };
-  freeze(current);
-  const scope = { planId: "bulk-pro", cycle: current, dayId: "d6", exerciseId };
-  const before = catalog();
-  before.definitions.splice(before.definitions.findIndex((definition) => definition.exerciseId === exerciseId), 1);
-  // The injected catalog intentionally reproduces the pre-registration lookup.
-  assert.equal(resolve(scope, before).reason, "unknown-definition-revision");
-  const known = resolve(scope);
-  assert.equal(known.status, "resolved");
-  assert.equal(known.binding, current.methodBindings.exercises[exerciseId]);
-  assert.deepEqual(current.methodBindings.exercises, { [exerciseId]: addedBindings[exerciseId] });
+  for (const [exerciseId, binding] of [["leg-press-calf-raise", addedBindings["leg-press-calf-raise"]], [pushUpId, pushUpBinding]]) {
+    const current = cycle(start());
+    current.methodBindings = freeze({ version: 1, exercises: { [exerciseId]: structuredClone(binding) } });
+    freeze(current);
+    const scope = { planId: "bulk-pro", cycle: current, dayId: binding.dayId, exerciseId };
+    const before = catalog();
+    before.definitions = before.definitions.filter((definition) => definition.exerciseId !== exerciseId);
+    assert.equal(resolve(scope, before).reason, "unknown-definition-revision");
+    const known = resolve(scope);
+    assert.equal(known.status, "resolved");
+    assert.equal(known.binding, current.methodBindings.exercises[exerciseId]);
+    assert.deepEqual(current.methodBindings.exercises, { [exerciseId]: binding });
+  }
 });
 
 test("a retained historical revision resolves despite a newer active protocol and static count", () => {

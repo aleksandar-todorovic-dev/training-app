@@ -13,6 +13,7 @@ import {
 import HelpSheet from "../common/HelpSheet";
 import SetRow from "./SetRow";
 import AdvancedMethodPanel from "./AdvancedMethodPanel";
+import { RetainedPushUpValue } from "./MechanicalMethodPanel";
 import { LEG_PRESS_LOAD_CONVENTION } from "../../data/advancedMethods/definitions.js";
 import {
   exerciseHelp,
@@ -143,7 +144,9 @@ export default function ExerciseWorkflowCard({
     isClosedLog || isClosed ? "Return to day" : "Finish exercise";
   const completedSetCount = sets.filter((set) => set.isDone).length;
   const setProgressLabel = t("{value0} of {value1} performed", { value0: completedSetCount, value1: sets.length });
-  const previousValuesTitle = methodView?.preacherBase
+  const previousValuesTitle = methodView?.pushUpBase
+    ? hasPreviousValues ? "Previous compatible standard push-up values" : "No earlier compatible standard push-up values"
+    : methodView?.preacherBase
     ? hasPreviousValues ? "Previous compatible wide-grip values" : "No earlier compatible wide-grip values"
     : hasPreviousValues ? "Previous main-set values" : "No earlier main-set values";
 
@@ -313,17 +316,30 @@ export default function ExerciseWorkflowCard({
                 {t("Saved reps may include both grips. Structured continuation logging is unavailable in this cycle.")}
               </p>
             )}
+            {methodView?.pushUpBase === true && (
+              <p id={`${methodPanelId}-base`} className="px-3.5 pb-2 text-xs font-semibold text-[#D7DDD7]">
+                {t("Standard push-up base")}
+              </p>
+            )}
+            {methodView?.pushUpBase === false && (
+              <p className="px-3.5 pb-2 text-xs leading-5 text-[#AAB2BA]">
+                {t("Saved reps may come from different or combined variations. Structured continuation logging is unavailable for this record.")}
+              </p>
+            )}
             <div
-              className={`grid min-h-9 items-center gap-1 border-t border-[#2A3138] bg-[#171D22]/70 px-2 text-[0.6rem] font-semibold uppercase tracking-[0.08em] text-[#77818B] ${
+              className={`grid min-h-9 items-center gap-1 border-t border-[#2A3138] bg-[#171D22]/70 px-2 font-semibold uppercase text-[#77818B] ${
+                methodView?.pushUpBase ? "text-[0.55rem] tracking-normal" : "text-[0.6rem] tracking-[0.08em]"
+              } ${
                 isReadOnly
                   ? "grid-cols-[1.9rem_minmax(0,1fr)]"
-                  : "grid-cols-[1.9rem_minmax(0,1fr)_2.75rem]"
+                  : methodView?.pushUpBase ? "grid-cols-[1.9rem_minmax(0,1fr)_3.25rem]" : "grid-cols-[1.9rem_minmax(0,1fr)_2.75rem]"
               }`}
               aria-hidden="true"
             >
               <span className="text-center">{t("Set")}</span>
-              <span className="grid grid-cols-3 text-center">
-                <span>{t(methodView?.machineAssistance ? "Assistance (kg)" : "Kg")}</span>
+              <span className={`grid text-center ${methodView?.pushUpBase
+                ? "grid-cols-[minmax(4.75rem,1.15fr)_minmax(4rem,1fr)_minmax(0,0.8fr)]" : "grid-cols-3"}`}>
+                <span>{t(methodView?.pushUpBase ? "Load" : methodView?.machineAssistance ? "Assistance (kg)" : "Kg")}</span>
                 <span>{t("Reps")}</span>
                 <span>{t("RIR")}</span>
               </span>
@@ -342,7 +358,8 @@ export default function ExerciseWorkflowCard({
                     setNumber={set.setNumber}
                     assistanceDescription={methodView?.machineAssistance ? `${methodPanelId}-assistance` : undefined}
                     weightDescription={legPressLoadGuidance ? `${methodPanelId}-load` : undefined}
-                    setDescription={methodView?.preacherBase ? `${methodPanelId}-base` : undefined}
+                    setDescription={methodView?.preacherBase || methodView?.pushUpBase ? `${methodPanelId}-base` : undefined}
+                    bodyweight={methodView?.pushUpBase}
                     weight={set.weight}
                     reps={set.reps}
                     rir={set.rir}
@@ -352,6 +369,11 @@ export default function ExerciseWorkflowCard({
                       onUpdateSetField?.(set.setNumber, field, value)
                     }
                   />
+                  {methodView?.pushUpBase && set.weight !== "" && (
+                    <div className="px-3.5 py-2 text-xs leading-5 text-[#AAB2BA]">
+                      <RetainedPushUpValue weight={set.weight} />
+                    </div>
+                  )}
                   {methodView?.entries[set.setNumber] ? (
                     <AdvancedMethodPanel
                       key={`${methodView.key}-${set.setNumber}`}
@@ -370,8 +392,8 @@ export default function ExerciseWorkflowCard({
             {!isReadOnly ? (
               <div className="border-t border-[#2A3138] px-3.5 pb-4 pt-3">
                 <div className="mb-3 flex items-center justify-between gap-3 text-xs">
-                  <span className="text-[#77818B]">{t(methodView?.preacherBase
-                    ? "Done marks the wide-grip base." : "Done marks what was actually performed.")}</span>
+                  <span className="text-[#77818B]">{t(methodView?.pushUpBase ? "Done marks the standard push-ups."
+                    : methodView?.preacherBase ? "Done marks the wide-grip base." : "Done marks what was actually performed.")}</span>
                   <span className="shrink-0 font-semibold tabular-nums text-[#AAB2BA]">
                     {t(setProgressLabel)}
                   </span>

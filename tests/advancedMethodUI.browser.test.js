@@ -10,6 +10,7 @@ import { env } from "node:process";
 import { createServer } from "vite";
 import { createTranslator } from "../src/i18n/translate.js";
 import { preacherCatalogAlias } from "./preacherMechanicalFixture.js";
+import { pushUpCatalogAlias } from "./pushUpMechanicalFixture.js";
 
 const chrome = ["/usr/bin/google-chrome", "/usr/bin/chromium", "/usr/bin/chromium-browser"].find(existsSync);
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -39,6 +40,12 @@ const preacherBinding = { definitionId: "bulk-pro/preacher-curl-mechanical/mecha
 const beforePreacher = { version: 1, exercises: { ...beforeRollout.exercises, ...rolloutBindings } };
 // This mode is for the pre-registration check. The normal suite uses the production registry.
 const syntheticPreacher = env.CYCLE_COACH_SYNTHETIC_PREACHER === "1";
+const syntheticPushUp = env.CYCLE_COACH_SYNTHETIC_PUSH_UP === "1";
+const pushUpId = "push-up-mechanical-dropset";
+const pushUpRoute = route(pushUpId, "d5");
+const pushUpBinding = { definitionId: "bulk-pro/push-up-mechanical-dropset/mechanical-dropset", revision: 1, dayId: "d5", setCount: 1 };
+const beforePushUp = { version: 1, exercises: { ...beforePreacher.exercises, [preacherId]: preacherBinding } };
+const currentBulkBindings = { ...beforePushUp.exercises, [pushUpId]: pushUpBinding };
 
 // Only the isolated server exposes this route. Real pages, context and persistence
 // run under StrictMode; the wrapper can enqueue a base edit to reproduce a stale confirmation.
@@ -77,16 +84,17 @@ createRoot(document.getElementById('root')).render(React.createElement(React.Str
     React.createElement(MemoryRouter, {initialEntries:[sessionStorage.getItem('qa-route')]}, React.createElement(Probe))))));
 </script></body></html>`;
 
-test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", { skip: !chrome, timeout: 180000 }, async (t) => {
+test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", { skip: !chrome, timeout: 240000 }, async (t) => {
   const profile = await mkdtemp(join(tmpdir(), "cycle-coach-method-ui-"));
   const screenshots = "/tmp/cycle-coach-3a-visual";
   let server, child, socket;
   const pending = new Map();
   try {
     server = await createServer({ cacheDir: join(profile, "vite-cache"),
-      server: { host: "127.0.0.1", port: 0 },
+      server: { host: "127.0.0.1", port: 0, hmr: false, watch: null },
       optimizeDeps: { noDiscovery: true, include: ["react", "react-dom/client", "react/jsx-runtime", "react/jsx-dev-runtime", "react-router-dom", "motion/react", "lucide-react"] },
-      plugins: [...(syntheticPreacher ? [preacherCatalogAlias()] : []), { name: "method-ui-fixture", configureServer(vite) {
+      plugins: [...(syntheticPreacher ? [preacherCatalogAlias()] : []),
+        ...(syntheticPushUp ? [pushUpCatalogAlias()] : []), { name: "method-ui-fixture", configureServer(vite) {
         vite.middlewares.use(async (req, res, next) => {
           if (req.url !== "/__method-ui") return next();
           res.setHeader("Content-Type", "text/html"); res.end(await vite.transformIndexHtml(req.url, harness));
@@ -102,6 +110,7 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
       const send = (type, payload) => { state = appReducer(state, { type, payload: { planId, ...payload } }); };
       const number = (previous.progressByPlan[planId]?.currentCycleNumber ?? 0) + 1;
       send(actions.START_PLAN_CYCLE, { startedAt: new Date(Date.UTC(2026, 10, 17, 10, 0, number - 1)).toISOString().replace(".000Z", "Z") });
+      if (syntheticPushUp && planId === "bulk-pro") state.progressByPlan[planId].cycles[number].methodBindings.exercises[pushUpId] = pushUpBinding;
       for (const day of ["d1", "d2", "d3", "d4", "d5", "d6"]) {
         const dayDetails = getDayDetails(planId, day);
         send(actions.ENSURE_DAY_LOG, { dayDetails, exercises: getExercisesForDay(planId, dayDetails.exerciseIds) });
@@ -238,11 +247,229 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
     const savedPreacher = async () => preacherRow(JSON.parse(await read()).state);
     const continuation = (row) => row.methodLog?.phases["narrow-grip"];
 
+    const day5 = "/plan/bulk-pro/day/d5";
+    const pushUpRow = (state, number = bulkProgress(state).currentCycleNumber) =>
+      bulkProgress(state).cycles[number].dayLogs.d5.mainExerciseLogs[pushUpId].sets[0];
+    const savedState = async () => JSON.parse(await read()).state;
+    const savedPushUp = async () => pushUpRow(await savedState());
+    const currentPushUpPhase = async () => (await savedPushUp()).methodLog?.phases["knee-push-up"];
+    const rawWeight = " 075.0 ";
+    const anomaly = "[data-push-up-retained-value] bdi";
+    const toggleMechanical = () => click(`${mechanical} > button`);
+    const pushUpHistory = `${mechanical} [data-method-history]`;
+    const mainMetric = (field) => `[name="set-1-${field}"]`;
+    const typeMain = async (field, value) => {
+      await click(mainMetric(field));
+      await call("Input.insertText", { text: value });
+      await settle();
+    };
+    await t.test("Push-up Workbench and continuation preserve opaque evidence through V2 reload", async () => {
+      const state = fixture("bulk-pro", "d5");
+      assert.deepEqual(bulkProgress(state).cycles[1].methodBindings.exercises, currentBulkBindings);
+      assert.deepEqual(pushUpRow(state), { setIndex: 1, weight: "", reps: "", rir: "", isDone: false });
+      pushUpRow(state).weight = rawWeight;
+      await seed(state, pushUpRoute);
+      const before = await read();
+      assert.equal(await evaluate(`document.querySelector('${anomaly}').textContent`), rawWeight);
+      assert.equal(await evaluate('document.querySelector("[name=set-1-weight], [data-dropset]")'), null);
+      assert.equal(await evaluate("document.querySelectorAll('[name$=-reps]').length"), 1);
+      assert.ok((await evaluate("document.body.innerText")).includes("Standard push-up base"));
+      assert.equal(await evaluate(`document.querySelector('${mechanical} > button').getAttribute('aria-expanded')`), "false");
+      await toggleMechanical();
+      assert.equal(await evaluate(`document.querySelectorAll('${mechanical} input:not([type=radio])').length`), 1);
+      assert.equal(await read(), before);
+      assert.deepEqual(await evaluate("window.__writes"), []);
+      await typeMain("reps", "12");
+      await typeMain("rir", "2");
+      await fill("reps", "30");
+      assert.deepEqual(await currentPushUpPhase(), { execution: "unconfirmed", reps: "30" });
+      await fill("reps", "3");
+      const draft = await read();
+      await call("Input.insertText", { text: "1" });
+      await settle();
+      assert.equal(await evaluate("document.activeElement.value"), "3");
+      assert.equal(await evaluate("document.activeElement.getAttribute('aria-invalid')"), "true");
+      assert.equal(await read(), draft);
+      // The CDP click retains its original coordinates for both halves of the gesture.
+      await click(`${mechanical} input[value="partial"]`);
+      assert.deepEqual(await currentPushUpPhase(), { execution: "partial", reps: "3" });
+      assert.equal((await savedPushUp()).isDone, false);
+      await click('button[aria-label="Mark set 1 performed"]');
+      await fill("reps", "31");
+      const skip = `${mechanical} [data-mechanical-choice]`;
+      await call("Emulation.setTouchEmulationEnabled", { enabled: true });
+      try {
+        const point = await controlPoint(skip);
+        await call("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [point] });
+        await call("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+        await wait(`document.querySelector('${skip}').textContent === 'Resume recording'`);
+        await settle();
+      } finally {
+        await call("Emulation.setTouchEmulationEnabled", { enabled: false });
+      }
+      assert.equal((await savedPushUp()).methodLog.choice, "skip");
+      assert.equal((await savedPushUp()).isDone, true);
+      await click(skip);
+      assert.deepEqual(await currentPushUpPhase(), { execution: "partial", reps: "3" });
+      await fill("reps", "");
+      await click(`${mechanical} input[value="performed"]`);
+      assert.deepEqual(await currentPushUpPhase(), { execution: "performed", reps: "" });
+      assert.match(await evaluate(`document.querySelector('${mechanical}').innerText`), /Measurement not recorded/);
+      await fill("reps", "0");
+      const recorded = await read();
+      const writes = await evaluate("window.__writes.length");
+      await click(`${mechanical} input[value="performed"]`);
+      await toggleMechanical();
+      await toggleMechanical();
+      await click(mechanicalInput);
+      await evaluate(`window.__pushUpInput=document.activeElement;window.__pushUpInput.setSelectionRange(1,1);const s=document.querySelector('select');Object.getOwnPropertyDescriptor(HTMLSelectElement.prototype,'value').set.call(s,'sr-Latn');s.dispatchEvent(new Event('change',{bubbles:true}));`);
+      await settle();
+      assert.equal(await evaluate("document.activeElement===window.__pushUpInput && window.__pushUpInput.selectionStart===1"), true);
+      assert.equal(await evaluate("window.__writes.length"), writes);
+      assert.equal(await read(), recorded);
+      await evaluate(`window.__navigate('${day5}');void 0`);
+      await wait(`Boolean(document.querySelector('a[href="${pushUpRoute}"]'))`);
+      assert.match(await evaluate(`document.querySelector('a[href="${pushUpRoute}"]').innerText`), /Osnova: standardni sklekovi/);
+      await click(`a[href="${pushUpRoute}"]`);
+      const generation = await evaluate("window.__generation");
+      await call("Page.reload");
+      await wait(`window.__generation>${generation} && Boolean(document.querySelector('${mechanical}'))`);
+      assert.equal(await read(), recorded);
+      assert.deepEqual(await savedPushUp(), { setIndex: 1, weight: rawWeight, reps: "12", rir: "2", isDone: true,
+        methodLog: { choice: "record", phases: { "knee-push-up": { execution: "performed", reps: "0" } } } });
+      assert.equal(await evaluate(`document.querySelector('${anomaly}').textContent`), rawWeight);
+      assert.deepEqual(await evaluate("window.__writes"), []);
+    });
+
+    await t.test("Push-up EN/SR layouts, legacy, previews and one previous attempt remain read-only where required", async () => {
+      const legacy = fixture("bulk-pro", "d5");
+      bulkProgress(legacy).cycles[1].methodBindings = structuredClone(beforePushUp);
+      Object.assign(pushUpRow(legacy), { weight: "75", reps: "26", rir: "1", isDone: true });
+      const prior = fixture("bulk-pro", "d5", legacy);
+      assert.deepEqual(pushUpRow(prior), { setIndex: 1, weight: "", reps: "", rir: "", isDone: false });
+      Object.assign(pushUpRow(prior), { weight: rawWeight, reps: "12", rir: "2", isDone: true,
+        methodLog: { choice: "record", phases: { "knee-push-up": { execution: "performed", reps: "0" } } } });
+      const next = fixture("bulk-pro", "d5", prior);
+      assert.deepEqual(pushUpRow(next), { setIndex: 1, weight: "", reps: "12", rir: "2", isDone: false });
+      const directory = await mkdtemp(join(tmpdir(), "cycle-coach-6b2-visual-"));
+      const capture = async (name, selector) => {
+        await evaluate(`document.querySelector(${JSON.stringify(selector)}).scrollIntoView({block:'center',behavior:'instant'})`);
+        await settle();
+        const shot = await call("Page.captureScreenshot", { format: "png" });
+        await writeFile(join(directory, `${name}.png`), Buffer.from(shot.data, "base64"));
+      };
+      const hostileText = '<img src=x onerror=alert(1)>' + 'W'.repeat(130);
+      pushUpRow(next).weight = rawWeight;
+      for (const locale of ["en", "sr-Latn"]) {
+        const translate = createTranslator(locale);
+        await seed(legacy, pushUpRoute, locale);
+        assert.equal(await evaluate(`document.querySelector('${mainMetric("weight")}').value`), "75");
+        assert.equal(await evaluate(`document.querySelector('${mainMetric("reps")}').value`), "26");
+        assert.equal(await evaluate("document.querySelector('[data-mechanical]')"), null);
+        const legacyNote = "Saved reps may come from different or combined variations.";
+        assert.ok((await evaluate("document.body.innerText")).includes(translate(legacyNote)));
+        await capture(`legacy-${locale}`, mainMetric("weight"));
+        await seed(legacy, day5, locale);
+        assert.ok((await evaluate(`document.querySelector('a[href="${pushUpRoute}"]').innerText`)).includes(translate(legacyNote)));
+        const upcoming = fixture();
+        await seed(upcoming, day5, locale);
+        assert.ok((await evaluate(`document.querySelector('a[href="${pushUpRoute}"]').innerText`))
+          .includes(translate("Standard push-ups · optional knee push-ups")));
+        await click(`a[href="${pushUpRoute}"]`);
+        assert.equal(await evaluate("document.querySelector('[data-mechanical], [name=set-1-reps]')"), null);
+        assert.equal(await evaluate("window.__qa.state.progressByPlan['bulk-pro'].cycles[1].dayLogs.d5"), undefined);
+        assert.deepEqual(await evaluate("window.__writes"), []);
+        for (const width of [320, 360, 390]) {
+          await call("Emulation.setDeviceMetricsOverride", { width, height: 800, deviceScaleFactor: 1, mobile: true });
+          await seed(next, pushUpRoute, locale);
+          const initial = await read();
+          assert.ok((await evaluate("document.body.innerText")).includes(translate("Previous compatible standard push-up values")));
+          assert.equal(await evaluate(`document.querySelector('${anomaly}').textContent`), rawWeight);
+          assert.deepEqual(await evaluate(`(() => {
+            const cells = document.querySelector('[name=set-1-reps]').closest('.divide-x');
+            const header = cells.parentElement.parentElement.previousElementSibling;
+            const metrics = header.children[1];
+            const mid = (el) => { const r=el.getBoundingClientRect(); return r.x+r.width/2; };
+            const headings = [header.firstElementChild, ...metrics.children, header.lastElementChild];
+            const misaligned = Array.from(cells.children).filter((cell,i)=>Math.abs(mid(cell)-mid(metrics.children[i])) >= 1);
+            const clipped = headings.filter((heading) => {
+              const words = document.createRange();
+              words.selectNodeContents(heading);
+              const text = words.getBoundingClientRect();
+              const box = heading.getBoundingClientRect();
+              return text.left < box.left - 0.5 || text.right > box.right + 0.5;
+            });
+            return [...misaligned, ...clipped].map((element) => element.textContent);
+          })()`), [], `${locale} ${width}px headings`);
+          if (width === 390) await capture(`bodyweight-${locale}-${width}`, mainMetric("reps"));
+          if (width !== 360) await capture(`collapsed-${locale}-${width}`, mechanical);
+          await toggleMechanical();
+          assert.equal(await evaluate(`document.querySelector('${mechanicalInput}').value`), "");
+          assert.equal(await evaluate(`document.querySelector('${mechanicalInput}').getBoundingClientRect().height>=44`), true);
+          if (width !== 360) await capture(`expanded-${locale}-${width}`, mechanical);
+          await evaluate(`document.querySelector('${mechanicalInput}').focus()`);
+          assert.equal(await evaluate(`document.activeElement === document.querySelector('${mechanicalInput}')`), true);
+          await key("Tab", 9);
+          assert.equal(await evaluate(`document.activeElement.matches('${mechanical} input[type=radio]')`), true, `${locale} ${width}px`);
+          await evaluate(`document.querySelector('${pushUpHistory} button').focus()`);
+          await key("Enter", 13);
+          assert.equal(await evaluate(`document.querySelector('${pushUpHistory} button').getAttribute('aria-expanded')`), "true");
+          const history = await evaluate(`document.querySelector('${pushUpHistory}').innerText`);
+          for (const key of ["Standard push-up base", "Bodyweight", "Base set marked performed",
+            "Saved base values may include carry-over.", "This value is not used to compare bodyweight resistance."]) {
+            assert.ok(history.includes(translate(key)), key);
+          }
+          assert.ok(history.includes(translate("Previous continuation · Cycle {cycle}", { cycle: 2 })));
+          assert.ok(history.includes(translate("Extra reps: {value}", { value: "0" })));
+          assert.equal(await evaluate(`document.querySelector('${pushUpHistory} ${anomaly}').textContent`), rawWeight);
+          assert.equal(await evaluate(`document.querySelector('${pushUpHistory} input')`), null);
+          assert.equal(await evaluate("document.documentElement.scrollWidth<=innerWidth"), true, `${locale} ${width}px`);
+          if (width !== 360) await capture(`history-${locale}-${width}`, pushUpHistory);
+          assert.equal(await read(), initial);
+          assert.deepEqual(await evaluate("window.__writes"), []);
+        }
+      }
+      pushUpRow(next).weight = hostileText;
+      await call("Emulation.setDeviceMetricsOverride", { width: 320, height: 800, deviceScaleFactor: 1, mobile: true });
+      await seed(next, pushUpRoute, "sr-Latn");
+      assert.equal(await evaluate(`document.querySelector('${anomaly}').textContent`), hostileText);
+      assert.equal(await evaluate(`document.querySelector('${anomaly} img')`), null);
+      assert.equal(await evaluate("document.documentElement.scrollWidth<=innerWidth"), true);
+      assert.equal((await savedPushUp()).weight, hostileText);
+      await call("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 1, mobile: true });
+      const previous = pushUpRow(prior);
+      Object.assign(previous, { reps: "", rir: "", isDone: false });
+      previous.methodLog.phases["knee-push-up"] = { reps: "", execution: "partial" };
+      const blank = fixture("bulk-pro", "d5", prior);
+      await seed(blank, pushUpRoute);
+      assert.equal((await savedPushUp()).weight, "");
+      assert.match(await evaluate("document.body.innerText"), /No earlier compatible standard push-up values/);
+      await toggleMechanical();
+      await click(`${pushUpHistory} button`);
+      assert.match(await evaluate(`document.querySelector('${pushUpHistory}').innerText`), /Measurement not recorded[\s\S]*Base set not marked performed/);
+      for (const edit of [
+        (state) => { bulkProgress(state).cycles[1].methodBindings.exercises[pushUpId].revision = 99; },
+        (state) => { pushUpRow(state).setIndex = 2; },
+      ]) {
+        const unresolved = fixture("bulk-pro", "d5");
+        edit(unresolved);
+        await seed(unresolved, pushUpRoute);
+        assert.equal(await evaluate("document.querySelector('[data-mechanical]')"), null);
+        assert.equal(await evaluate("document.querySelectorAll('[name$=-weight]').length"), 1);
+        assert.match(await evaluate("document.body.innerText"), /Structured continuation logging is unavailable/);
+      }
+      t.diagnostic(`Push-up review screenshots: ${directory}`);
+    });
+    if (syntheticPushUp) {
+      assert.deepEqual(exceptions, []);
+      await send("Browser.close");
+      return;
+    }
     await t.test("Preacher disclosure, real pointer actions, stable controls and V2 reload", async () => {
       const state = fixture("bulk-pro", "d6");
       const current = bulkProgress(state).cycles[1];
       assert.deepEqual(current.methodBindings.exercises,
-        syntheticPreacher ? beforePreacher.exercises : { ...beforePreacher.exercises, [preacherId]: preacherBinding });
+        syntheticPreacher ? beforePreacher.exercises : currentBulkBindings);
       if (syntheticPreacher) current.methodBindings.exercises[preacherId] = preacherBinding;
       await seed(state, preacherRoute);
       const initialRaw = await read();
@@ -812,14 +1039,72 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
       await openCluster(number);
       await wait("document.querySelectorAll('[data-method-set]').length===2");
     }
+
+    await t.test("real Push-up cycle start, D5 Finish Day, V2 reload and next-cycle history", async () => {
+      await evaluate("localStorage.removeItem('training-app:v1:safety-acknowledged')");
+      await seed(structuredClone(appInitialState), "/plan/bulk-pro");
+      await click("a", "Start Cycle 1");
+      await click('[role="dialog"] button', "I understand — start cycle");
+      const first = bulkProgress(await savedState()).cycles[1];
+      assert.deepEqual(first.methodBindings, { version: 1, exercises: currentBulkBindings });
+      assert.deepEqual(first.dayLogs, {});
+      async function reachPushUp() {
+        for (const day of ["d1", "d2", "d3", "d4"]) {
+          await enterDay(day);
+          await finishDay();
+        }
+        await enterDay("d5");
+        await click(`a[href="${pushUpRoute}"]`);
+      }
+      await reachPushUp();
+      await typeMain("reps", "11");
+      await click('button[aria-label="Mark set 1 performed"]');
+      await toggleMechanical();
+      await fill("reps", "6");
+      await click(`${mechanical} input[value="performed"]`);
+      const current = await savedPushUp();
+      assert.equal(current.weight, "");
+      assert.deepEqual(await currentPushUpPhase(), { reps: "6", execution: "performed" });
+      const generation = await evaluate("window.__generation");
+      await evaluate(`sessionStorage.setItem('qa-route', '${pushUpRoute}')`);
+      await call("Page.reload");
+      await wait(`window.__generation>${generation} && Boolean(document.querySelector('${mechanical}'))`);
+      assert.deepEqual(await savedPushUp(), current);
+      assert.deepEqual(await evaluate("window.__writes"), []);
+      await click('a', "Back to day");
+      await click("button", "Finish day");
+      const warnings = await evaluate("document.querySelector('[role=dialog]').innerText");
+      assert.match(warnings, /1 main set performed/);
+      assert.match(warnings, /Main reps or RIR fields: 1/);
+      assert.doesNotMatch(warnings, /Main weight fields:/);
+      await key("Escape", 27);
+      await click(`a[href="${pushUpRoute}"]`);
+      await typeMain("rir", "2");
+      await click("a", "Back to day");
+      await finishDay();
+      await enterDay("d6");
+      await finishDay();
+      await click('a[href="/plan/bulk-pro/end-cycle"]');
+      const archived = bulkProgress(await savedState()).cycles[1];
+      await click("button", "Start Cycle 2");
+      await reachPushUp();
+      assert.deepEqual(await savedPushUp(), { setIndex: 1, weight: "", reps: "11", rir: "2", isDone: false });
+      const beforeHistory = await read();
+      await toggleMechanical();
+      await click(`${pushUpHistory} button`);
+      assert.match(await evaluate(`document.querySelector('${pushUpHistory}').innerText`), /Cycle 1[\s\S]*Extra reps: 6[\s\S]*Reps 11 · RIR 2/);
+      assert.equal(await evaluate(`document.querySelector('${mechanicalInput}').value`), "");
+      assert.equal(await read(), beforeHistory);
+      assert.deepEqual(bulkProgress(await savedState()).cycles[1], archived);
+      await evaluate("localStorage.removeItem('training-app:v1:safety-acknowledged')");
+    });
+
     await t.test("new Bulk cycle: start, reach D5, preserve both Cluster logs in V2, and reference them in Cycle 2", async () => {
       await seed(structuredClone(appInitialState), "/plan/bulk-pro");
       await click("a", "Start Cycle 1");
       await click('[role="dialog"] button', "I understand — start cycle");
       const first = await evaluate("window.__qa.state.progressByPlan['bulk-pro'].cycles[1]");
-      assert.deepEqual(first.methodBindings, { version: 1, exercises: {
-        ...beforePreacher.exercises, [preacherId]: preacherBinding,
-      } });
+      assert.deepEqual(first.methodBindings, { version: 1, exercises: currentBulkBindings });
       assert.deepEqual(first.dayLogs, {});
       await reachCluster(1);
       assert.equal((await clusterRows()).length, 2);
@@ -1289,7 +1574,7 @@ test("isolated Chrome: advanced method UI, cycle lifecycle and mobile layout", {
       await seed(structuredClone(appInitialState), "/plan/bulk-pro");
       await click("a", "Start Cycle 1");
       await click('[role="dialog"] button', "I understand — start cycle");
-      assert.deepEqual((await evaluate(`${bulk}.cycles[1]`)).methodBindings.exercises, { ...beforePreacher.exercises, [preacherId]: preacherBinding });
+      assert.deepEqual((await evaluate(`${bulk}.cycles[1]`)).methodBindings.exercises, currentBulkBindings);
       await traverse(async (exerciseId, day) => {
         await openDrop();
         if (day === "d6") {

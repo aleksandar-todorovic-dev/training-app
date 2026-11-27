@@ -16,7 +16,8 @@ import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
 import { getCoreBlockStatus } from "../utils/runtime/coreStatusHelpers";
 import { getDayMode } from "../utils/runtime/dayModeHelpers";
 import { resolveCycleMethodBinding } from "../utils/runtime/advancedMethodContextHelpers.js";
-import { isPreacherMechanicalAddress, isPreacherMechanicalDefinition } from "../utils/runtime/advancedMethodValidation.js";
+import { isPreacherMechanicalAddress, isPreacherMechanicalDefinition, isPushUpMechanicalAddress } from "../utils/runtime/advancedMethodValidation.js";
+import { getBoundPushUpBodyweightRow } from "../utils/runtime/advancedMethodHistoryHelpers.js";
 import {
   getWorkoutProgress,
 } from "../utils/runtime/workoutProgressHelpers";
@@ -216,6 +217,12 @@ export default function DayPage() {
       : method.status === "resolved" && isPreacherMechanicalDefinition(method.definition) ? "Wide-grip base"
         : "Saved reps may include both grips.";
   }
+  const pushUp = exercises.find(({ id }) => isPushUpMechanicalAddress({ planId, dayId, exerciseId: id }));
+  const pushUpNote = pushUp && (dayMode === "upcoming" || !dayLog ? "Standard push-ups · optional knee push-ups"
+    : getBoundPushUpBodyweightRow({ planId, cycle: currentCycle, dayId, exerciseId: pushUp.id }) ? "Standard push-up base"
+      : "Saved reps may come from different or combined variations.");
+  const prescriptionNote = (exercise) =>
+    exercise === preacher ? preacherNote : exercise === pushUp ? pushUpNote : undefined;
 
   // Active days lazily create their runtime day log.
   // Finished/upcoming days must not create new logs from this page.
@@ -438,7 +445,7 @@ export default function DayPage() {
                     {t(nextExerciseTargetRir
                       ? ` · RIR ${nextExerciseTargetRir}`
                       : "")}
-                    {nextExercise === preacher && <span className="block text-xs">{t(preacherNote)}</span>}
+                    {prescriptionNote(nextExercise) && <span className="block text-xs">{t(prescriptionNote(nextExercise))}</span>}
                   </p>
                 </div>
 
@@ -508,7 +515,7 @@ export default function DayPage() {
                 planId={planId}
                 dayId={dayId}
                 exercise={exercise}
-                prescriptionNote={exercise === preacher ? preacherNote : undefined}
+                prescriptionNote={prescriptionNote(exercise)}
                 status={getExerciseStatus(
                   dayLog?.mainExerciseLogs?.[exercise.id],
                 )}

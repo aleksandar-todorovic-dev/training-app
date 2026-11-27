@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { ChevronDown } from "lucide-react";
 import { useTranslation } from "../../i18n/useTranslation";
-import { isPreacherMechanicalDefinition, isValidMethodMetricValue, normalizeAssistanceKg } from "../../utils/runtime/advancedMethodValidation.js";
+import { isPreacherMechanicalDefinition, isPushUpMechanicalDefinition, isValidMethodMetricValue, normalizeAssistanceKg } from "../../utils/runtime/advancedMethodValidation.js";
 import DropsetMethodPanel from "./DropsetMethodPanel";
 import MechanicalMethodPanel from "./MechanicalMethodPanel";
 
@@ -143,6 +143,9 @@ export default function AdvancedMethodPanel(props) {
       return <DropsetMethodPanel {...props} />;
     case "mechanical-set":
       if (isPreacherMechanicalDefinition(props.definition)) return <MechanicalMethodPanel {...props} />;
+      break;
+    case "mechanical-dropset":
+      if (isPushUpMechanicalDefinition(props.definition)) return <MechanicalMethodPanel {...props} />;
       break;
   }
   return <p role="note" className="border-t border-[#2A3138] px-3.5 py-3 text-sm text-[#AAB2BA]">{t("Method logging unavailable")}</p>;

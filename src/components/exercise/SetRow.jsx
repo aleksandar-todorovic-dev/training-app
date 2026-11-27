@@ -58,6 +58,7 @@ function MetricField({
 export default function SetRow({
   setNumber,
   weight,
+  bodyweight = false,
   assistanceDescription,
   weightDescription,
   setDescription,
@@ -71,7 +72,7 @@ export default function SetRow({
 }) {
   const { t } = useTranslation();
   const rowGridClass = showDoneControl
-    ? "grid-cols-[1.9rem_minmax(0,1fr)_2.75rem]"
+    ? bodyweight ? "grid-cols-[1.9rem_minmax(0,1fr)_3.25rem]" : "grid-cols-[1.9rem_minmax(0,1fr)_2.75rem]"
     : "grid-cols-[1.9rem_minmax(0,1fr)]";
 
   return (
@@ -91,16 +92,23 @@ export default function SetRow({
         {setNumber}
       </p>
 
-      <div className="grid min-w-0 grid-cols-3 divide-x divide-[#2A3138]">
-        <MetricField
-          label={assistanceDescription ? "Assistance (kg)" : "weight"}
-          description={assistanceDescription ?? weightDescription ?? setDescription}
-          name={`set-${setNumber}-weight`}
-          setNumber={setNumber}
-          value={weight}
-          isReadOnly={isReadOnly}
-          onChange={(value) => onSetFieldChange?.("weight", value)}
-        />
+      <div className={`grid min-w-0 divide-x divide-[#2A3138] ${bodyweight
+        ? "grid-cols-[minmax(4.75rem,1.15fr)_minmax(4rem,1fr)_minmax(0,0.8fr)]" : "grid-cols-3"}`}>
+        {bodyweight ? (
+          <div className="flex min-h-11 min-w-0 items-center justify-center px-1 text-center text-xs font-semibold leading-tight text-[#D7DDD7]">
+            {t("Bodyweight")}
+          </div>
+        ) : (
+          <MetricField
+            label={assistanceDescription ? "Assistance (kg)" : "weight"}
+            description={assistanceDescription ?? weightDescription ?? setDescription}
+            name={`set-${setNumber}-weight`}
+            setNumber={setNumber}
+            value={weight}
+            isReadOnly={isReadOnly}
+            onChange={(value) => onSetFieldChange?.("weight", value)}
+          />
+        )}
 
         <MetricField
           label="reps"
@@ -131,7 +139,7 @@ export default function SetRow({
           aria-describedby={setDescription}
           disabled={isReadOnly}
           onClick={isReadOnly ? undefined : onToggleDone}
-          className="inline-flex h-11 w-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#13181D] disabled:cursor-not-allowed disabled:opacity-45"
+          className={`inline-flex h-11 w-11 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8F36B] focus-visible:ring-offset-2 focus-visible:ring-offset-[#13181D] disabled:cursor-not-allowed disabled:opacity-45 ${bodyweight ? "justify-self-center" : ""}`}
           whileTap={isReadOnly ? undefined : softPressTap}
         >
           <span

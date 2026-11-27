@@ -2,12 +2,12 @@
  * @typedef {{min: number, max: number}} MethodTarget
  * @typedef {{phaseId: string, metrics: string[], requiredMetrics: string[],
  *   targets: Object<string, MethodTarget>,
- *   loadRule: 'same-as-base'|'adjustable-machine-assistance'|'reduced-from-previous'}} MethodPhase
+ *   loadRule: 'same-as-base'|'adjustable-machine-assistance'|'reduced-from-previous'|'bodyweight-variation'}} MethodPhase
  * @typedef {{definitionId: string, revision: number, planId: string,
- *   exerciseId: string, type: 'rest-pause'|'iso-stretch'|'cluster'|'dropset'|'mechanical-set',
+ *   exerciseId: string, type: 'rest-pause'|'iso-stretch'|'cluster'|'dropset'|'mechanical-set'|'mechanical-dropset',
  *   prescribedSetCount: number, appliesTo: 'last'|'all',
- *   base: {semantics: 'pre-extension', loadKind: 'external'|'machine-assistance', loadUnit: 'kg',
- *     variationId?: 'wide-grip', loadConvention?: 'total-added-plates-or-marked-kg'},
+ *   base: {semantics: 'pre-extension', loadKind: 'external'|'machine-assistance'|'bodyweight', loadUnit?: 'kg',
+ *     variationId?: 'wide-grip'|'standard-push-up', loadConvention?: 'total-added-plates-or-marked-kg'},
  *   phases: MethodPhase[], reductionPercent?: number}} MethodDefinition
  */
 
@@ -143,6 +143,23 @@ export const advancedMethodDefinitions = freezeDefinition([
     phases: [{
       phaseId: "narrow-grip",
       loadRule: "same-as-base",
+      metrics: ["reps"],
+      requiredMetrics: ["reps"],
+      targets: {},
+    }],
+  },
+  {
+    definitionId: "bulk-pro/push-up-mechanical-dropset/mechanical-dropset",
+    revision: 1,
+    planId: "bulk-pro",
+    exerciseId: "push-up-mechanical-dropset",
+    type: "mechanical-dropset",
+    prescribedSetCount: 1,
+    appliesTo: "last",
+    base: { semantics: "pre-extension", variationId: "standard-push-up", loadKind: "bodyweight" },
+    phases: [{
+      phaseId: "knee-push-up",
+      loadRule: "bodyweight-variation",
       metrics: ["reps"],
       requiredMetrics: ["reps"],
       targets: {},

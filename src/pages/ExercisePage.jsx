@@ -17,9 +17,9 @@ import { getExerciseStatus } from "../utils/runtime/exerciseStatusHelpers";
 import { resolveCycleMethodBinding } from "../utils/runtime/advancedMethodContextHelpers.js";
 import { deriveMethodState, getApplicableSetIndexes } from "../utils/runtime/advancedMethodHelpers.js";
 import {
-  isPreacherMechanicalAddress, isPreacherMechanicalDefinition, isValidMethodMetricValue, validateMethodLog,
+  isPreacherMechanicalAddress, isPreacherMechanicalDefinition, isPushUpMechanicalAddress, isValidMethodMetricValue, validateMethodLog,
 } from "../utils/runtime/advancedMethodValidation.js";
-import { findPreviousCompatibleMethodAttempt } from "../utils/runtime/advancedMethodHistoryHelpers.js";
+import { findPreviousCompatibleMethodAttempt, getBoundPushUpBodyweightRow } from "../utils/runtime/advancedMethodHistoryHelpers.js";
 
 /**
  * Builds display-only rows for upcoming exercise previews.
@@ -163,8 +163,12 @@ export default function ExercisePage() {
     ["active", "finished"].includes(dayMode) && dayIndex >= 0 && currentDayIndex >= dayIndex &&
     currentCycle?.cycleNumber === currentCycleNumber && typeof currentCycle?.startedAt === "string" &&
     currentCycle.startedAt.trim() !== "" && dayLog?.dayId === dayId && exerciseLog?.exerciseId === exerciseId;
+  const isPushUp = isPushUpMechanicalAddress({ planId, dayId, exerciseId });
+  const pushUpRow = canEditMethod && isPushUp
+    ? getBoundPushUpBodyweightRow({ planId, cycle: currentCycle, dayId, exerciseId }) : null;
+  if (isPushUp && !isUpcomingPreview) methodView.pushUpBase = Boolean(pushUpRow);
   if (!isUpcomingPreview && resolvedMethod.status === "resolved") {
-    const indexes = getApplicableSetIndexes(resolvedMethod.definition, exerciseLog?.sets);
+    const indexes = isPushUp && !pushUpRow ? [] : getApplicableSetIndexes(resolvedMethod.definition, exerciseLog?.sets);
     methodView.unavailable = indexes.length === 0;
     methodView.machineAssistance = canEditMethod && indexes.length === 2 &&
       resolvedMethod.definition.definitionId === "bulk-pro/assisted-pull-up-cluster/cluster" &&

@@ -44,8 +44,17 @@ const narrowExecution = (value) => execution(value, "narrow-grip");
 const kneeReps = (value) => metric(value, "reps", "knee-push-up");
 const kneeExecution = (value) => execution(value, "knee-push-up");
 
-test("synthetic Push-up distinguishes draft, partial and performed evidence from measurements", () => {
-  assert.equal(getMethodDefinition(pushUpDefinition), null);
+test("production Push-up matches the exact frozen fixture contract", () => {
+  const definition = getMethodDefinition(pushUpDefinition);
+  assert.deepEqual(definition, pushUpDefinition);
+  const deeplyFrozen = (value) => value === null || typeof value !== "object" ||
+    (Object.isFrozen(value) && Object.values(value).every(deeplyFrozen));
+  assert.ok(deeplyFrozen(definition));
+  assert.equal(getMethodDefinition({ ...pushUpDefinition, revision: 2 }), null);
+  assert.equal(getMethodDefinition({ ...pushUpDefinition, planId: "cut-pro" }), null);
+});
+
+test("Push-up distinguishes draft, partial and performed evidence from measurements", () => {
   assert.deepEqual(getApplicableSetIndexes(pushUpDefinition, [{ setIndex: 1 }]), [1]);
   assert.deepEqual(getApplicableSetIndexes(pushUpDefinition, [{ setIndex: 2 }]), []);
   assert.equal(deriveMethodState(pushUpDefinition, undefined).status, "unknown");
@@ -165,9 +174,8 @@ test("production Preacher matches the independent rev1 contract and every nested
   assert.ok([definition, base, phases, phase, phase.metrics, phase.requiredMetrics, phase.targets].every(Object.isFrozen));
   assert.equal(getMethodDefinition({ ...preacher, revision: 2 }), null);
   assert.equal(getMethodDefinition({ ...preacher, planId: "cut-pro" }), null);
-  assert.equal(getMethodDefinition({
-    ...preacher, exerciseId: "push-up-mechanical-dropset", definitionId: "bulk-pro/push-up-mechanical-dropset/mechanical-dropset",
-  }), null);
+  assert.equal(getMethodDefinition({ ...preacher, exerciseId: pushUpDefinition.exerciseId }), null);
+  assert.equal(getMethodDefinition({ ...preacher, definitionId: pushUpDefinition.definitionId }), null);
 });
 
 test("Preacher Skip/Resume, clearing, rejected changes and repeated edits preserve evidence", () => {
@@ -700,17 +708,17 @@ assert.ok(dropset, "Missing registered D3 Leg Extension Dropset revision 1");
 const finishDrop = (phaseId) => ({ type: "finish-dropset", phaseId });
 const extendDropset = (phaseId) => ({ type: "extend-dropset", phaseId });
 
-test("the registry has nine exact identities and all four frozen Dropsets match their prescriptions", () => {
+test("the registry has ten exact identities and all four frozen Dropsets match their prescriptions", () => {
   const expected = [
     ["d3", "leg-extension", "bulk-pro/leg-extension/dropset", 3, 25],
     ["d1", "overhead-rope-extension", "bulk-pro/overhead-rope-extension/dropset", 4, 20],
     ["d4", "machine-lateral-raise", "bulk-pro/machine-lateral-raise/dropset", 3, 20],
     ["d6", "leg-press-calf-raise", "bulk-pro/leg-press-calf-raise/dropset", 3, 25, "total-added-plates-or-marked-kg"],
   ];
-  assert.equal(advancedMethodDefinitions.length, 9);
+  assert.equal(advancedMethodDefinitions.length, 10);
   assert.ok(Object.isFrozen(advancedMethodDefinitions));
   assert.equal(new Set(advancedMethodDefinitions.map(({ planId, exerciseId, definitionId, revision }) =>
-    JSON.stringify([planId, exerciseId, definitionId, revision]))).size, 9);
+    JSON.stringify([planId, exerciseId, definitionId, revision]))).size, 10);
   assert.deepEqual(dropset, expectedDropset);
   for (const [dayId, exerciseId, definitionId, prescribedSetCount, reductionPercent, loadConvention] of expected) {
     const contract = { ...expectedDropset, exerciseId, definitionId, prescribedSetCount, reductionPercent,

@@ -793,20 +793,20 @@ export const bulkProExercises = [
     subtitle: "Chest flush finisher",
     prescription: "1 x 12",
     setCount: 1,
-    cue: "Change positions without rest, keep the trunk tight, and do not let the reps get sloppy at the end",
+    cue: "Start with standard floor push-ups. Keep your trunk steady and lower with control.",
     details: {
       tempo: "1-0-1",
       targetRir: "1-2",
       rest: "—",
       progression:
-        "Keep the full cluster clean first. Add reps only if you can maintain position quality through each variation.",
+        "Aim for 12 controlled standard push-ups with 1–2 reps in reserve. Use the standard set to track progress. Knee push-ups are optional.",
       advancedTechnique:
-        "Mechanical dropset: perform 12 wide reps, 8 close reps, then 6 plyo reps without rest.",
+        "Do one set of standard push-ups using bodyweight. If your form is steady, you can continue with knee push-ups. Change position with control, without a planned rest. Record the reps you actually do.",
       advancedTechniqueType: "mechanical-dropset",
       extraCues: [
-        "Move quickly but stay organized between positions",
+        "Lower to your knees with control before continuing",
         "Keep the body in one line",
-        "Stop the cluster before the last reps turn messy",
+        "Stop if technique deteriorates or you feel pain",
       ],
     },
   },

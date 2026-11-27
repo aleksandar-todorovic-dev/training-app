@@ -95,9 +95,9 @@ export const advancedTechniqueHelpByType = {
         id: "how-to",
         title: "How to do it",
         paragraphs: [
-          "Start with the hardest variation listed in the exercise note.",
-          "When that part is complete, move to the next easier variation with little or no rest.",
-          "Keep the body position controlled through every part of the sequence.",
+          "For Bulk D5, start with standard floor push-ups using bodyweight. Aim for 12 reps with 1–2 reps in reserve.",
+          "If form stays steady, you can continue with knee push-ups. Change position with control, without a planned rest.",
+          "Stop if form deteriorates or you feel pain. In cycles with a continuation panel, record only the knee push-up reps you do.",
         ],
       },
       {
